@@ -87,3 +87,8 @@ The app repo has its own skills (`palm-knowledge-engine`, `palm-vision-benchmark
 - Act as the tester: find and fix real user-flow bugs yourself; for multi-step work, finish everything and hand over **one** combined phone test sheet at the end.
 - Don't break what works: change only what the task asked for.
 - Never run anything that could harm the laptop, Windows, files or security; stay inside the project.
+
+## Git (two separate repos)
+- This website: `https://github.com/deepakmonuwork444-sudo/website-palm-ai-.git`, branch `main`. Author `deepakmonuwork444-sudo <deepakmonuwork444-sudo@users.noreply.github.com>` (local config).
+- The Android app has its OWN repo in `D:\palm ai\palm-ai-new--feat-m1-foundation`. Never mix files, commits or remotes between the two; server work (Supabase functions/migrations) is committed in the app repo.
+- Not in git on purpose: `research/screens/` (160 MB, reproducible with `research-tools/shot.mjs`), `.claude/settings.local.json`, `.env*`, `node_modules/`, `dist/`, `qa/shots/`.
