@@ -1,0 +1,143 @@
+---
+/**
+ * The stylised palm with the four main lines (DESIGN_SYSTEM.md §2.3, §5, §7.5).
+ * Used until consented real hand photos exist (D7): it is always labelled as a
+ * drawing. Trace colours + the #1A1440 halo on the palm in both themes; a line
+ * in `missing` is never drawn and its chip is dashed ("not clearly seen").
+ * `animate` runs the page's one orchestrated moment once, CSS only: a gold scan
+ * beam, then life → head → heart → fate draw in, then the chips fade in.
+ * Reduced motion shows the final state at once.
+ */
+import { t } from '../i18n';
+import type { Locale } from '../config/site';
+import Chip from './Chip.astro';
+
+export type LineName = 'life' | 'head' | 'heart' | 'fate';
+
+interface Props {
+  locale: Locale;
+  /** Unique per page (SVG ids). */
+  id: string;
+  missing?: LineName[];
+  animate?: boolean;
+  caption?: string;
+  alt?: string;
+  size?: 'hero' | 'compact';
+  class?: string;
+  /** Guides: this line stays bright and the others are dimmed; only its chip is shown. */
+  highlight?: LineName;
+}
+
+const { locale, id, missing = [], animate = false, caption, alt, size = 'hero', class: className, highlight } = Astro.props;
+const dict = t(locale);
+const order: LineName[] = ['life', 'head', 'heart', 'fate'];
+const paths: Record<LineName, string> = {
+  life: 'M160 164 C 134 178, 122 206, 130 244',
+  head: 'M160 158 C 132 162, 100 172, 68 190',
+  heart: 'M56 152 C 82 142, 110 148, 140 132',
+  fate: 'M111 247 C 112 222, 114 196, 118 152',
+};
+const drawn = order.filter((line) => !missing.includes(line));
+const shown = drawn.map((line) => dict.lines[line].name);
+const notShown = order.filter((line) => missing.includes(line)).map((line) => dict.lines[line].name);
+const describedBy = `${id}-caption`;
+const label = alt ?? dict.palm.diagramAlt;
+---
+
+<figure class:list={['palm-figure', `palm-${size}`, { animate }, className]} aria-describedby={describedBy}>
+  <div class="palm-frame hero-fill">
+    <svg class="palm-svg" viewBox="36 30 178 230" role="img" aria-label={label}>
+      <defs>
+        <linearGradient id={`${id}-skin`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" class="stop-top"></stop>
+          <stop offset="1" class="stop-bottom"></stop>
+        </linearGradient>
+      </defs>
+      <path
+        class="palm-shape"
+        fill={`url(#${id}-skin)`}
+        d="M70 252 C 58 222, 50 192, 50 160 L 50 100 A 12 12 0 0 1 74 100 L 75 126 L 78 64 A 12.5 12.5 0 0 1 103 64 L 104 120 L 107 50 A 13 13 0 0 1 133 50 L 133 122 L 136 72 A 12.5 12.5 0 0 1 161 72 L 161 146 C 166 134, 176 118, 186 112 A 11 11 0 0 1 200 128 C 194 148, 182 170, 170 186 C 160 200, 152 220, 150 252 Z"
+      ></path>
+      {
+        drawn.map((line) => (
+          <g class:list={['trace-group', `t-${line}`, { dim: highlight && highlight !== line, lit: highlight === line }]}>
+            <path class="trace halo" d={paths[line]} pathLength="1" />
+            <path class:list={['trace', 'line', `line-${line}`]} d={paths[line]} pathLength="1" />
+          </g>
+        ))
+      }
+    </svg>
+    {animate && <div class="beam-track" aria-hidden="true"><div class="beam"></div></div>}
+  </div>
+  <figcaption id={describedBy} class="palm-caption">
+    {caption && <p class="text-small text-fg-muted">{caption}</p>}
+    <p class="sr-only">
+      {dict.palm.foundLines} {shown.join(', ')}.
+      {notShown.length > 0 && ` ${dict.palm.missingLines} ${notShown.join(', ')}.`}
+    </p>
+    <ul class="palm-chips" aria-hidden="true">
+      {order.filter((line) => !highlight || line === highlight).map((line) => (
+        <li>
+          <Chip variant="line" line={line} locale={locale} missing={missing.includes(line)} />
+        </li>
+      ))}
+    </ul>
+  </figcaption>
+</figure>
+
+<style>
+  .palm-figure { margin: 0; display: flex; flex-direction: column; gap: 1rem; }
+  .palm-frame {
+    position: relative; overflow: hidden; border-radius: 1.75rem; border: 1px solid var(--edge);
+    padding: 1.25rem 1.5rem 0.5rem; display: flex; justify-content: center;
+  }
+  .palm-svg { display: block; width: 100%; height: auto; }
+  .palm-hero .palm-svg { max-width: 22rem; }
+  .palm-compact .palm-svg { max-width: 15rem; }
+  .stop-top { stop-color: var(--color-palm-top); }
+  .stop-bottom { stop-color: var(--color-palm-bottom); }
+  .palm-shape { stroke: color-mix(in srgb, var(--color-gold) 38%, transparent); stroke-width: 1.2; stroke-linejoin: round; }
+
+  .trace { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .halo { stroke: var(--color-halo); stroke-width: 3.4; }
+  .line { stroke-width: 2.2; }
+  .line-life { stroke: var(--color-trace-life); }
+  .line-head { stroke: var(--color-trace-head); }
+  .line-heart { stroke: var(--color-trace-heart); }
+  .line-fate { stroke: var(--color-trace-fate); }
+  .dim { opacity: 0.3; }
+  .lit .line { stroke-width: 3; }
+  .lit .halo { stroke-width: 4.4; }
+
+  .palm-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; margin: 0; padding: 0; }
+  .palm-caption { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  /* The one orchestrated moment: beam once, then the lines, then the chips. */
+  .beam-track { position: absolute; inset: 0; pointer-events: none; transform: translateY(-100%); opacity: 0;
+    animation: palm-beam var(--dur-beam) var(--ease) 150ms 1 both; }
+  .beam { position: absolute; left: 0; right: 0; bottom: 0; height: 34px;
+    background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--color-gold-bright) 0%, transparent),
+      color-mix(in srgb, var(--color-gold-bright) 28%, transparent),
+      color-mix(in srgb, var(--color-gold-bright) 95%, transparent)); }
+  .animate .trace { animation: palm-draw var(--dur-draw) var(--ease) both; }
+  .animate .t-life .trace { animation-delay: 900ms; }
+  .animate .t-head .trace { animation-delay: 1050ms; }
+  .animate .t-heart .trace { animation-delay: 1200ms; }
+  .animate .t-fate .trace { animation-delay: 1350ms; }
+  .animate .palm-chips { animation: palm-fade 300ms var(--ease) 2000ms both; }
+
+  @keyframes palm-beam {
+    0% { transform: translateY(-100%); opacity: 0; }
+    8% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateY(0); opacity: 0; }
+  }
+  @keyframes palm-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes palm-fade { from { opacity: 0; } to { opacity: 1; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate .trace, .animate .palm-chips { animation: none; }
+    .beam-track { display: none; }
+  }
+</style>

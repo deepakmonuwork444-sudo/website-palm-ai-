@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy policy · {{BRAND}}</title>
+<meta name="description" content="What data {{BRAND}} uses, why, and how to delete it. Palm photos are not stored on any server; name, age, city and birth time stay on your phone." />
+<link rel="canonical" href="{{BASE_URL}}/privacy" />
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0B0A1F; color: #F6F0E1;
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+  }
+  main { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 600; margin: 24px 0 4px; }
+  h2 { font-size: 19px; font-weight: 600; margin: 32px 0 8px; color: #F5D98B; }
+  p, li { color: #F6F0E1; }
+  .muted { color: #C3B9D8; font-size: 14px; }
+  a { color: #F5D98B; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 8px; border-bottom: 1px solid rgba(230,184,92,0.2); }
+  th { color: #C3B9D8; font-weight: 600; }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy policy</h1>
+  <!-- A fixed date, changed by hand only when this text changes (not the build date). -->
+  <p class="muted">{{BRAND}} · operated by {{OPERATOR_NAME}} · effective 25 September 2026</p>
+
+  <p>
+    {{BRAND}} gives traditional Indian palmistry interpretations of a photograph of your palm,
+    for reflection and entertainment. This page explains, item by item, what personal data the app
+    uses, why, where it goes, and how you remove it. It is written to meet India's Digital Personal
+    Data Protection Act, 2023 and Google Play's User Data policy. The rules for using the app and
+    buying readings are in the <a href="terms.html">terms of use</a>.
+  </p>
+
+  <h2>The short version</h2>
+  <ul>
+    <li><strong>No server keeps your palm photo.</strong> It is analysed once, by Cloudflare Workers AI and by our line scanner on Modal (USA), through our own server. A small copy stays only on your phone, inside the app, so your report can show the lines on your own palm — until you delete that reading.</li>
+    <li>We keep only the written observations and the reading they produced, so your history works.</li>
+    <li>Your name, age, city and birth time stay only on your phone.</li>
+    <li>No advertising, no selling of data, no tracking across other apps.</li>
+    <li>You can delete your readings, or your whole account, at any time — in the app or on the web.</li>
+  </ul>
+
+  <h2>What we collect and why</h2>
+  <div class="scroll">
+  <table>
+    <tr><th>Data</th><th>Why</th><th>Where it is kept</th><th>How long</th></tr>
+    <tr>
+      <td>Email address, checked with a one-time 6-digit code we email you, and a password if you set one (stored only as a secure hash)</td>
+      <td>Your account, so your readings and free-reading count survive a new phone</td>
+      <td>Supabase (our database provider)</td>
+      <td>Until you delete your account</td>
+    </tr>
+    <tr>
+      <td>A random guest account id (no name or email), made when you start without signing up</td>
+      <td>So your first free readings and their history work before you add an email</td>
+      <td>Supabase</td>
+      <td>Until you delete your account</td>
+    </tr>
+    <tr>
+      <td>Palm photograph</td>
+      <td>To see the lines of your palm for one reading</td>
+      <td>Sent over an encrypted connection to our server functions, which pass it to Cloudflare Workers AI (describes the palm) and to our palm-line scanner on Modal in the USA (traces the lines). Neither keeps it, and it is not written to any server storage. A smaller copy is kept on your phone, inside the app, to draw the lines on your report.</td>
+      <td>Never stored by any server. The copy on your phone is deleted when you delete that reading, all readings, your account, or uninstall the app</td>
+    </tr>
+    <tr>
+      <td>Written observations (for example "heart line: long, curved") and the reading text</td>
+      <td>To show your reading and your history</td>
+      <td>Supabase, linked to your account</td>
+      <td>Until you delete them or your account</td>
+    </tr>
+    <tr>
+      <td>Which hand, and whether it is the hand you write with</td>
+      <td>Palmistry reads the two hands differently</td>
+      <td>Supabase and your phone</td>
+      <td>Until you delete them or your account</td>
+    </tr>
+    <tr>
+      <td>Your name, age, city and birth time (asked before your free readings), language, streaks, lessons and readings saved for family members</td>
+      <td>Personalisation and learning features</td>
+      <td>Only on your phone</td>
+      <td>Until you delete them in the app, delete your account, or uninstall</td>
+    </tr>
+    <tr>
+      <td>A count of the free readings used on this phone</td>
+      <td>So each phone gets its free readings once</td>
+      <td>Only on your phone</td>
+      <td>Until you uninstall the app. It stays when you sign out or delete your account</td>
+    </tr>
+    <tr>
+      <td>A one-way code (hash) of your email address, made after removing dots and "+" tags, and how many free readings it has used. The code cannot be turned back into your email</td>
+      <td>Only to stop the same email getting the free readings again after an account is deleted</td>
+      <td>Supabase</td>
+      <td>Kept after you delete your account, for this purpose only</td>
+    </tr>
+    <tr>
+      <td>A salted one-way code (hash) of your internet (IP) address. It cannot be turned back into the address</td>
+      <td>Only to limit how many free guest readings, and crash reports without an account, one network can send</td>
+      <td>Supabase</td>
+      <td>At most 2 days</td>
+    </tr>
+    <tr>
+      <td>Purchase records (product, order id, purchase token)</td>
+      <td>To add paid readings you bought and to prevent duplicate charges</td>
+      <td>Supabase; payment itself is handled entirely by Google Play</td>
+      <td>Until you delete your account, unless the law requires longer</td>
+    </tr>
+    <tr>
+      <td>Usage counts: daily totals of a few app steps (the app opened, a scan started, a report or the plans page opened, a plan tapped, a purchase started or finished), with the app version. Only totals per day: no account, name, email, photo, device or install ID is attached, so a count cannot be linked to you</td>
+      <td>To see where people get stuck and improve the app. You can turn it off in the app: Profile → Anonymous usage counts</td>
+      <td>Supabase</td>
+      <td>Up to 400 days, as daily totals only</td>
+    </tr>
+    <tr>
+      <td>Crash reports: the error message, the screen it happened on, app version, Android version. Email addresses and tokens are removed; no photo, reading or name is included</td>
+      <td>To find and fix crashes</td>
+      <td>Supabase, linked to your account if you are signed in</td>
+      <td>14 days, or until you delete your account</td>
+    </tr>
+  </table>
+  </div>
+  <p class="muted">
+    We never receive your card or UPI details. We do not infer health, ethnicity or any other
+    sensitive trait from your hand, and readings never give medical, financial or legal advice.
+  </p>
+
+  <h2>Who processes data for us</h2>
+  <ul>
+    <li><strong>Supabase</strong> — database, sign-in, the one-time email code, and server functions.</li>
+    <li><strong>Cloudflare Workers AI</strong> — analyses the palm photo and returns written observations, then writes the report text from those observations (no photo is sent for that); nothing is kept.</li>
+    <li><strong>Modal</strong> (USA) — runs our palm-line scanner. It receives the palm photo from our server, returns the traced lines, and keeps nothing.</li>
+    <li><strong>Google Play</strong> — app distribution and payments.</li>
+  </ul>
+  <p>They act on our instructions, only for the purposes above. Some of this processing happens outside India, for example the line scanner in the USA.</p>
+
+  <h2>Your consent and your rights</h2>
+  <p>
+    Before your first reading the app asks for your explicit consent to analyse the photo. You may
+    withdraw consent at any time by deleting your data or account. You have the right to access,
+    correct and erase your personal data, and to nominate another person to exercise these rights.
+  </p>
+  <ul>
+    <li><strong>Delete readings:</strong> in the app, Profile → Delete account readings.</li>
+    <li><strong>Delete your account:</strong> in the app, Profile → Delete my account, or on the web at <a href="delete-account.html">delete-account.html</a>, without reinstalling the app.</li>
+  </ul>
+  <p>
+    Deleting your account removes it and everything linked to it on our side. Done in the app, it
+    also removes from that phone your readings, profile, the saved descriptions of recent palm
+    photos and any report files you shared. We keep only the one-way email code and, for up to
+    2 days, the one-way internet-address code described above. If our server cannot be reached,
+    the app finishes the deletion the next time you open it with internet.
+  </p>
+
+  <h2>Age</h2>
+  <p>
+    {{BRAND}} is intended for people aged 18 and over. We do not knowingly process the personal
+    data of children. If you believe a child has used the app, contact us and we will delete the data.
+  </p>
+
+  <h2>Security</h2>
+  <p>
+    Data travels over encrypted connections. Each account can only ever read its own readings,
+    enforced by the database itself. Secret keys never ship inside the app.
+  </p>
+
+  <h2>Grievances and contact</h2>
+  <p>
+    For any question, correction, deletion request or complaint, write to
+    <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a>. We respond within 30 days. If you are
+    not satisfied, you may complain to the Data Protection Board of India.
+  </p>
+
+  <h2>Changes</h2>
+  <p>If this policy changes in a way that matters, the app will tell you before the change applies.</p>
+</main>
+</body>
+</html>

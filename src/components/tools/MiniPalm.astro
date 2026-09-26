@@ -1,0 +1,30 @@
+---
+/**
+ * A small drawing of one option on the stylised palm (picker thumbnails).
+ * Trace colours with the halo (DESIGN_SYSTEM.md §2.3), on the palm fill.
+ * Decorative: the option's visible text label says the same thing.
+ */
+import type { ThumbPath } from '../../lib/tools/finder';
+import { PALM_OUTLINE, PALM_VIEWBOX } from '../../lib/tools/palm-geometry';
+
+interface Props {
+  paths: readonly ThumbPath[];
+  /** A zoomed viewBox (THUMB_VIEW); the whole palm by default. */
+  view?: string;
+  class?: string;
+}
+
+const { paths, view = PALM_VIEWBOX, class: className } = Astro.props;
+---
+
+<svg class:list={['t-thumb', className]} viewBox={view} aria-hidden="true" focusable="false">
+  <path class="t-palm t-palm-grad" d={PALM_OUTLINE}></path>
+  {
+    paths.map((path) => (
+      <g class:list={[path.style ? `t-${path.style}` : null]}>
+        <path class="t-halo" d={path.d} />
+        <path class:list={['t-line', `t-l-${path.line}`]} d={path.d} />
+      </g>
+    ))
+  }
+</svg>

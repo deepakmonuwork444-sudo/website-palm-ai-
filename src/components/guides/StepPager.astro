@@ -1,0 +1,61 @@
+---
+/**
+ * "Step n of 7" pager (CONTENT_GUIDE.md §5 block 17). Links only to live
+ * steps (steps 2 and 7 are later pages), plus the full 7-step guide.
+ */
+import { isLive } from '../../config/pages';
+import { localeFromPath, localizePath } from '../../i18n';
+import { stepNeighbours, STEPS } from '../../lib/guides/guides';
+import { guideStrings } from '../../lib/guides/strings';
+
+interface Props {
+  step: number;
+}
+
+const { step } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const s = guideStrings(locale);
+const { prev, next } = stepNeighbours(step, (path) => isLive(localizePath(path, locale)));
+const current = STEPS.find((item) => item.n === step);
+const hub = localizePath('/palm-reading/', locale);
+const showHub = isLive(hub) && Astro.url.pathname !== hub;
+---
+
+<nav class="pager" aria-label={s.stepOf(step)}>
+  <p class="pager-now font-bold">{s.stepOf(step)}{current && <span class="text-fg-muted pager-name">{current.label[locale]}</span>}</p>
+  <div class="pager-links">
+    {
+      prev && (
+        <a class="pager-link" href={localizePath(prev.path, locale)} rel="prev">
+          <span class="text-caption text-fg-muted">{s.previousStep}: {s.stepOf(prev.n)}</span>
+          <span class="font-bold">{prev.label[locale]}</span>
+        </a>
+      )
+    }
+    {
+      next && (
+        <a class="pager-link pager-next" href={localizePath(next.path, locale)} rel="next">
+          <span class="text-caption text-fg-muted">{s.nextStep}: {s.stepOf(next.n)}</span>
+          <span class="font-bold">{next.label[locale]}</span>
+        </a>
+      )
+    }
+  </div>
+  {showHub && <a class="text-link text-small" href={hub}>{s.allSteps}</a>}
+</nav>
+
+<style>
+  .pager { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 1rem; }
+  .pager-now { margin: 0; display: flex; flex-wrap: wrap; column-gap: 0.625rem; }
+  .pager-name { font-weight: 400; }
+  .pager-links { display: grid; gap: 0.75rem; }
+  .pager-link {
+    display: flex; flex-direction: column; gap: 0.125rem; min-height: 3rem; padding: 0.875rem 1rem; border-radius: 0.75rem;
+    background-color: var(--surface-1); border: 1px solid var(--edge); color: var(--fg); text-decoration: none;
+  }
+  .pager-link:hover { border-color: var(--accent); }
+  @media (min-width: 48rem) {
+    .pager-links { grid-template-columns: 1fr 1fr; }
+    .pager-next { grid-column: 2; text-align: end; }
+  }
+</style>

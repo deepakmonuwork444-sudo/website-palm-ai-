@@ -1,0 +1,57 @@
+---
+/**
+ * One question as a real radio group (or checkbox group) with visible labels,
+ * 48px targets and a visible focus ring (DESIGN_SYSTEM.md §7.2, §12).
+ * Text-only pills, or cards with a small glyph when `glyphs` are given.
+ */
+import Icon from '../Icon.astro';
+
+export interface Choice {
+  value: string;
+  label: string;
+  hint?: string;
+  /** A 24×24 outline path shown above the label. */
+  glyph?: string;
+}
+
+interface Props {
+  name: string;
+  legend: string;
+  help?: string;
+  choices: Choice[];
+  type?: 'radio' | 'checkbox';
+  /** Tag for scripts that show/hide questions. */
+  q?: string;
+}
+
+const { name, legend, help, choices, type = 'radio', q } = Astro.props;
+const cards = choices.some((choice) => choice.glyph || choice.hint);
+---
+
+<fieldset class="t-q" data-q={q ?? name}>
+  <legend class="t-q-legend">{legend}</legend>
+  {help && <p class="t-q-help">{help}</p>}
+  <div class={cards ? 't-opts' : 't-opts-text'}>
+    {
+      choices.map((choice) => (
+        <label class="t-opt">
+          <input class="t-opt-input" type={type} name={name} value={choice.value} />
+          <span class="t-opt-box">
+            {choice.glyph && (
+              <svg class="t-choice-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d={choice.glyph} />
+              </svg>
+            )}
+            <span class="t-opt-text">
+              <Icon name="check" class="t-opt-check" />
+              <span>
+                <span class="t-choice-label">{choice.label}</span>
+                {choice.hint && <span class="t-choice-hint">{choice.hint}</span>}
+              </span>
+            </span>
+          </span>
+        </label>
+      ))
+    }
+  </div>
+</fieldset>

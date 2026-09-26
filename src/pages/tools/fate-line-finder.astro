@@ -1,0 +1,85 @@
+---
+/** Tool 7 — Fate line finder (KEYWORD_MAP.md §3: "do I have a fate line"). "No fate line is common and not a bad sign." */
+import LineFinder from '../../components/tools/LineFinder.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { summaries } from '../../lib/tools/finder';
+import { FATE_FINDER } from '../../lib/tools/lines/fate';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+
+const tool = toolById('fate-finder');
+const says = summaries(FATE_FINDER).map(({ option, rule }) => ({
+  term: option.evidence,
+  text: rule.meaning,
+  source: citeText(rule.cites[0]!),
+}));
+---
+
+<ToolLayout
+  tool={tool}
+  title="Fate Line Finder: Do You Have a Fate Line, and Which Type?"
+  description="No fate line, a faint one, a break or a double line? Pick what you see and get the traditional reading with its source. A missing fate line is common."
+  h1="Fate line finder: do you have a fate line?"
+  promise="No fate line, a faint one, a break or a double line? Pick what you see and get the traditional reading, with the book it comes from."
+  spot={{
+    title: 'How to find your fate line',
+    paras: [
+      'Look for a line running up the middle of your palm, from near the wrist towards the middle finger. It can start at the wrist, halfway up, from the outer edge, or from inside the life line.',
+      'Many hands have no clear fate line at all. That is common, and it is not a bad sign. If you can’t see one, pick “No, I can’t see one” — that has its own reading.',
+    ],
+  }}
+  how={[
+    { title: 'Look up the middle of the palm', body: 'Use the hand you write with. Tilt it slowly under a light: faint lines appear when the light falls from the side.' },
+    { title: 'Say what you see', body: 'Whether there is a line at all, where it starts and ends, and any break or second line.' },
+    {
+      title: 'Read the traditional meaning',
+      body: 'Your answers are matched to the fate line rules our app uses, each with its book. Nothing is sent or saved.',
+    },
+  ]}
+  saysIntro="Each fate line form in a sentence, from the first book that reads it. They describe how work and direction tend to go, never what they will bring."
+  says={says}
+  limitsTopic="No line predicts income, a job or success."
+  limits={[
+    'The old books promise success for some fate lines. Those promises are left out: a line can’t tell what effort will bring.',
+    'A faint fate line is often simply hard to see in poor light. It doesn’t mean anything is missing from your life.',
+    'This tool reads what you pick, not a photo of your hand.',
+  ]}
+  faq={[
+    {
+      q: 'I don’t have a fate line. Is that bad?',
+      a: 'No. Many palms show the fate line faintly or not at all. That is common and is not read as a bad sign.',
+    },
+    {
+      q: 'Is the fate line the same as the career line?',
+      a: 'Yes. Career line, destiny line and luck line are other names people use for the fate line.',
+    },
+    {
+      q: 'What does a broken fate line mean?',
+      a: 'The books read it as a change of direction in working life. They disagree on whether such a change turns out well, and we don’t assume either.',
+    },
+    {
+      q: 'Which hand should I check?',
+      a: 'Most palmists read the hand you write with. The which-hand quiz explains the traditions.',
+    },
+    {
+      q: 'Does this tool use AI or my photo?',
+      a: 'No. There is no photo and no AI here. The page looks up the rules in your browser.',
+    },
+  ]}
+  links={[
+    { href: '/fate-line/', label: 'Read the full fate line guide' },
+    { href: '/career-palmistry/', label: 'Career palmistry: what the hand is read for' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+    { href: '/tools/life-line-finder/', label: 'Life line finder' },
+    { href: '/tools/palm-signs-checker/', label: 'Palm signs checker' },
+  ]}
+>
+  <LineFinder finder={FATE_FINDER} lineName="fate line" />
+</ToolLayout>
+
+<script>
+  import { mountFinder } from '../../lib/tools/client/finder-ui';
+  import { FATE_FINDER } from '../../lib/tools/lines/fate';
+
+  mountFinder(FATE_FINDER, 'fate-finder');
+</script>

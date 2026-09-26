@@ -1,0 +1,38 @@
+---
+/**
+ * /reading/ — the web palm reading (WEB-FEAT-026/027/028). noindex, never in a
+ * sitemap, not disallowed in robots.txt (ARCHITECTURE.md §11 F8).
+ * One route for both languages: the island follows the page the visitor came
+ * from (or ?lang=hi) and sets lang on its own root.
+ *
+ * While site.webReadingEnabled is false the island says the reading opens soon
+ * and never fakes a reading. Preview builds only: ?reading=mock (stored real
+ * scan, nothing sent) or ?reading=live (the real backend through the proxy).
+ */
+import ReadingApp from '../../components/reading/ReadingApp';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Your palm reading — PalmSays"
+  description="Take one photo of your palm: we trace your lines on your photo and show what palmistry says about them."
+  path="/reading/"
+  locale="en"
+  headerCta={false}
+>
+  <div class="wrap reading-page" id="reading-root">
+    <h1 id="reading-title" class="sr-only">Your palm reading</h1>
+    <ReadingApp client:only="react" />
+    <noscript>
+      <p class="card noscript">This reading needs JavaScript. Please turn it on, or open this page in Chrome.</p>
+    </noscript>
+  </div>
+</BaseLayout>
+
+<style>
+  .reading-page { padding-block: 1.5rem 4rem; max-width: 40rem; }
+  .noscript { padding: 1.25rem; }
+  @media (min-width: 64rem) {
+    .reading-page { max-width: 44rem; padding-block: 2.5rem 6rem; }
+  }
+</style>

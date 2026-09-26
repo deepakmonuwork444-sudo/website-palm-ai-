@@ -1,0 +1,164 @@
+<!doctype html>
+<!-- DRAFT — needs a lawyer's review before public launch. Written 2026-09-25 to match the app
+     as built (DEC-032 age 18+, DEC-036 free readings, DEC-038 partial free reading, DEC-043/044
+     plans and packs, DEC-026 no dated prediction) and web/privacy.html. Placeholders are filled
+     by src/lib/legal.ts from src/config/site.ts (brand, company) at build time. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Terms of use · {{BRAND}}</title>
+<meta name="description" content="Terms for using {{BRAND}}, an 18+ palmistry app for reflection: free readings, optional Google Play subscriptions and one-time reading packs." />
+<link rel="canonical" href="{{BASE_URL}}/terms" />
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0B0A1F; color: #F6F0E1;
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+  }
+  main { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 600; margin: 24px 0 4px; }
+  h2 { font-size: 19px; font-weight: 600; margin: 32px 0 8px; color: #F5D98B; }
+  p, li { color: #F6F0E1; }
+  li { margin: 4px 0; }
+  .muted { color: #C3B9D8; font-size: 14px; }
+  a { color: #F5D98B; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Terms of use</h1>
+  <!-- A fixed date, changed by hand only when this text changes (not the build date). -->
+  <p class="muted">{{BRAND}} · operated by {{OPERATOR_NAME}} · effective 25 September 2026</p>
+
+  <p>
+    These terms are an agreement between you and {{OPERATOR_NAME}} ("we", "us"), who operates the
+    {{BRAND}} app. By using the app you accept them. Please also read our
+    <a href="privacy.html">privacy policy</a>, which explains what data the app uses and how you
+    delete it.
+  </p>
+
+  <h2>1. What the app does</h2>
+  <p>
+    {{BRAND}} looks at a photograph of your palm, traces the major lines it can see, and gives a
+    traditional Indian palmistry interpretation of them. It also has short lessons about palmistry.
+    Where a line cannot be seen clearly, the app says so instead of guessing.
+  </p>
+
+  <h2>2. Reflection and entertainment only</h2>
+  <p>
+    Traditional palmistry interpretation, for reflection and entertainment. Not scientifically
+    established, not prediction, and never medical, financial or legal advice.
+  </p>
+  <ul>
+    <li>A reading never gives a date or a guaranteed outcome, and you should not treat it as one.</li>
+    <li>Do not make health, money, legal, relationship or other important decisions based on a reading. For those, speak to a qualified professional.</li>
+    <li>The app can misread a photo: lines can be missed, confused or measured imperfectly.</li>
+  </ul>
+
+  <h2>3. Who may use it</h2>
+  <p>
+    You must be 18 or older to use {{BRAND}}. By using it you confirm that you are. If we learn that
+    an account belongs to someone under 18, we will delete it.
+  </p>
+
+  <h2>4. Your account</h2>
+  <p>
+    You can start without signing up; the app then uses a random guest account on your phone. You can
+    add an email address or sign in with Google so your readings and purchases survive a new phone.
+    Keep your sign-in details to yourself; you are responsible for what happens in your account.
+  </p>
+
+  <h2>5. Free readings</h2>
+  <p>
+    The app offers a small number of free readings, and shows before you start what a free reading
+    includes (at present some parts of a free reading are open in full and the others are shown as a
+    preview). We may change the free offer for future readings; a change never takes back a reading
+    you already received. Trying to get extra free readings, for example with made-up accounts, is
+    not allowed.
+  </p>
+
+  <h2>6. Subscriptions (Palm Read Pro)</h2>
+  <ul>
+    <li>Subscriptions are optional. They are sold and billed by Google Play, under Google Play's terms, in your Google Play account. We never see your card or UPI details.</li>
+    <li>Each plan gives a set number of readings in each billing month, shown before you buy. Unused readings in a month do not carry over.</li>
+    <li>A subscription renews automatically at the end of each period, at the price Google Play showed you, until you cancel.</li>
+    <li>If a plan starts with a free trial and you do not cancel before the trial ends, Google Play charges the plan price and the subscription continues. The trial's terms, including how many readings it gives, are shown before you start it.</li>
+    <li>You can cancel at any time in the Google Play Store app: Profile → Payments &amp; subscriptions → Subscriptions. After cancelling you keep the subscription until the end of the period you paid for.</li>
+    <li>Deleting the app or your {{BRAND}} account does <strong>not</strong> cancel a subscription. Cancel it in Google Play.</li>
+    <li>A report you opened in full while subscribed stays open after the subscription ends.</li>
+  </ul>
+
+  <h2>7. One-time reading packs</h2>
+  <ul>
+    <li>A reading pack is a one-time purchase of a set number of readings, sold and billed by Google Play.</li>
+    <li>Readings from a pack do not expire. They belong to the {{BRAND}} account that bought them, cannot be transferred, and have no cash value.</li>
+    <li>When you have both, a new reading uses a pack reading before a free one, so a paid reading is always complete. An active subscription's monthly readings are used before pack readings.</li>
+  </ul>
+
+  <h2>8. Refunds</h2>
+  <p>
+    Payments go through Google Play, so refunds follow Google Play's refund policy; you can request
+    one from Google Play. If something went wrong — for example you were charged but did not receive
+    your readings — write to us and we will help put it right. Nothing in these terms takes away any
+    right you have under the Consumer Protection Act, 2019 or other law that applies to you.
+  </p>
+
+  <h2>9. Using the app fairly</h2>
+  <ul>
+    <li>Photograph only your own palm, or the palm of another adult who has agreed to it.</li>
+    <li>Do not use a reading to judge, pressure or make decisions about another person, for example in hiring, marriage or lending.</li>
+    <li>Do not upload photos that are not of a hand, or that are unlawful or someone else's private images.</li>
+    <li>Do not copy, resell or scrape the app or its content, try to get around its limits or security, or interfere with its servers.</li>
+  </ul>
+  <p>We may suspend an account that breaks these rules, and will tell you why where we can.</p>
+
+  <h2>10. Content and ownership</h2>
+  <p>
+    Your palm photo is yours. You let us use it only to produce your reading, as the privacy policy
+    describes; no server keeps it. The app, its design, its interpretation texts and the wording of
+    readings belong to us or our licensors (see Licences &amp; credits in the app). You may save and
+    share your own reports for personal, non-commercial use.
+  </p>
+
+  <h2>11. Deleting your account</h2>
+  <p>
+    You can delete your account at any time: in the app (Profile → Delete my account) or on the web at
+    <a href="delete-account.html">delete-account.html</a>. Deleting it removes your readings, and any
+    unused pack readings are lost; this cannot be undone. Remember to cancel any subscription in
+    Google Play separately.
+  </p>
+
+  <h2>12. Changes and availability</h2>
+  <p>
+    We keep improving the app, so features, plans and the free offer can change. If we change these
+    terms in a way that matters, the app will tell you before the change applies. We try to keep the
+    app available but cannot promise it will always work without interruption.
+  </p>
+
+  <h2>13. Limits on our liability</h2>
+  <p>
+    The app is provided as it is. To the extent the law allows, we are not responsible for decisions
+    you make based on a reading, or for indirect or consequential loss. Where we are responsible, our
+    total liability to you is limited to the amount you paid us in the 12 months before the claim.
+    Nothing in these terms limits liability that cannot be limited by law.
+  </p>
+
+  <h2>14. Law and disputes</h2>
+  <p>
+    These terms are governed by the laws of India. If you have a complaint, please write to us first so
+    we can try to resolve it. Disputes are subject to the jurisdiction of the courts of India, without
+    affecting your right to approach a consumer commission.
+  </p>
+
+  <h2>15. Contact</h2>
+  <p>
+    Questions, complaints or refund problems: <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a>.
+    We respond within 30 days.
+  </p>
+</main>
+</body>
+</html>

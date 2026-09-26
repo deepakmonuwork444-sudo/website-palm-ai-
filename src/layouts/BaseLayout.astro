@@ -1,0 +1,134 @@
+---
+/**
+ * Every HTML page. Server-renders the whole SEO head (SEO_PLAYBOOK.md §1):
+ * title, description, robots, self canonical, hreflang (from the page
+ * registry, same source as the sitemaps), OG/Twitter, JSON-LD.
+ * Fonts: Fontsource files split by unicode-range (English pages never fetch
+ * Devanagari); at most 2 preloads per page (DESIGN_SYSTEM.md §3.2).
+ */
+import '../styles/global.css';
+import '@fontsource/mukta/400.css';
+import '@fontsource/mukta/700.css';
+import '@fontsource/cormorant-garamond/latin-700.css';
+import '@fontsource/tiro-devanagari-hindi/devanagari-400.css';
+import muktaDeva400 from '@fontsource/mukta/files/mukta-devanagari-400-normal.woff2?url';
+import muktaLatin400 from '@fontsource/mukta/files/mukta-latin-400-normal.woff2?url';
+import cormorantLatin700 from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-700-normal.woff2?url';
+import tiroDeva400 from '@fontsource/tiro-devanagari-hindi/files/tiro-devanagari-hindi-devanagari-400-normal.woff2?url';
+
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { isPreview } from '../config/env';
+import { findPage } from '../config/pages';
+import { absoluteUrl, site, type Locale } from '../config/site';
+import { t } from '../i18n';
+import { canonicalUrl, hreflangLinks, robotsContent } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Canonical path of this page; it must be in src/config/pages.ts. */
+  path: string;
+  locale: Locale;
+  jsonLd?: Record<string, unknown>[];
+  ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: 'website' | 'article';
+  /** Show the header's outline action (off on the home page: the hero owns the gold action). */
+  headerCta?: boolean;
+}
+
+const {
+  title,
+  description,
+  path,
+  locale,
+  jsonLd = [],
+  ogImage = locale === 'hi' ? '/og-default-hi.png' : '/og-default.png',
+  ogImageAlt,
+  ogType = 'website',
+  headerCta = true,
+} = Astro.props;
+
+const page = findPage(path);
+if (!page) throw new Error(`BaseLayout: ${path} is not in src/config/pages.ts`);
+if (page.locale !== locale) throw new Error(`BaseLayout: ${path} is registered as ${page.locale}, rendered as ${locale}`);
+
+const dict = t(locale);
+const canonical = page.indexable ? canonicalUrl(path) : null;
+const alternates = hreflangLinks(path);
+const robots = robotsContent(page.indexable, isPreview);
+const preloads = locale === 'hi' ? [muktaDeva400, tiroDeva400] : [muktaLatin400, cormorantLatin700];
+const ogLocale = locale === 'hi' ? 'hi_IN' : 'en_IN';
+const ogAlt = ogImageAlt ?? `${site.brand}: ${dict.palm.diagramAlt}`;
+---
+
+<!doctype html>
+<html lang={locale} data-theme="night" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline>
+      // Before first paint: the stored Day/Night choice (or ?theme= for previews, not stored) and the OS for store buttons.
+      (() => {
+        const d = document.documentElement;
+        try {
+          const q = new URLSearchParams(location.search).get('theme');
+          const s = q === 'day' || q === 'night' ? q : localStorage.getItem('palmsays-theme');
+          if (s === 'day' || s === 'night') d.setAttribute('data-theme', s);
+        } catch {
+          // Storage blocked: stay on Night.
+        }
+        const u = navigator.userAgent;
+        if (/iPhone|iPad|iPod/.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints > 1)) d.setAttribute('data-os', 'ios');
+        else if (/Android/.test(u)) d.setAttribute('data-os', 'android');
+      })();
+    </script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {alternates.map((link) => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}
+    {preloads.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+    <meta name="theme-color" content="#0B0A1F" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.brand} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={absoluteUrl(ogImage)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogAlt} />
+    <meta property="og:locale" content={ogLocale} />
+    {alternates.length > 0 && <meta property="og:locale:alternate" content={locale === 'hi' ? 'en_IN' : 'hi_IN'} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absoluteUrl(ogImage)} />
+    {jsonLd.map((data) => <JsonLd data={data} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{dict.a11y.skipToContent}</a>
+    <Header locale={locale} twinPath={page.twin ?? null} showCta={headerCta} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+    <script>
+      import '../scripts/site.ts';
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute; left: 1rem; top: -4rem; z-index: 50; padding: 0.75rem 1rem; border-radius: 0.75rem;
+    background-color: var(--surface-2); color: var(--fg); text-decoration: none;
+  }
+  .skip-link:focus { top: 0.5rem; }
+</style>

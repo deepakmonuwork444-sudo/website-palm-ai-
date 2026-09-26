@@ -1,0 +1,133 @@
+---
+/** Tool 8 — Which-hand quiz (KEYWORD_MAP.md §3: "which hand should I read quiz"; the guide owns "which hand to read", C5). */
+import ChoiceGroup from '../../components/tools/ChoiceGroup.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+import { CHEIRO_HANDS, DALE_HAND } from '../../lib/tools/which-hand';
+
+const tool = toolById('which-hand');
+---
+
+<ToolLayout
+  tool={tool}
+  title="Which Hand Should I Read? Palmistry Hand Quiz"
+  description="Answer 3 quick questions to find which hand to use for a palm reading – the hand you write with or the other one – and why the tradition says so."
+  h1="Which hand should you read? Take the quiz"
+  promise="Three quick taps tell you which hand to photograph for a palm reading, and why the tradition says so."
+  how={[
+    { title: 'Pick a tradition', body: 'Palmists don’t all agree on which hand to read, so you choose which way to follow.' },
+    { title: 'Answer one or two questions', body: 'Which hand you write with, or which hand the custom reads for you.' },
+    { title: 'See your hand, and why', body: 'The answer names its source. Nothing you tap is sent or saved.' },
+  ]}
+  says={[
+    {
+      term: 'The writing hand',
+      text: 'Cheiro reads the right hand as what a person has developed and the left as what they were born with. In palmistry tradition this is taken to mean the hand you write with and the other hand.',
+      source: citeText(CHEIRO_HANDS),
+    },
+    {
+      term: 'Both hands together',
+      text: 'Cheiro’s advice is to examine both hands: where they agree, a sign is read more firmly.',
+      source: citeText(CHEIRO_HANDS),
+    },
+    {
+      term: 'The Indian custom',
+      text: 'Mrs Dale records the general rule in the East: read a man’s right palm and a woman’s left palm — and in either case, take the hand where the lines are clearest.',
+      source: citeText(DALE_HAND),
+    },
+    {
+      term: 'Left-handed?',
+      text: 'In the writing-hand way you simply swap: your left hand is read as the life you are making, your right as what you started with. This swap is the later convention, not Cheiro’s own words.',
+    },
+    {
+      term: 'Women and men',
+      text: 'The lines themselves are read the same way on every hand. The traditions differ only in which hand they look at.',
+    },
+  ]}
+  limitsTopic="No line reads a man’s or a woman’s destiny differently."
+  limits={[
+    'This quiz tells you which hand to look at, not what your lines mean.',
+    'The two traditions disagree and neither is proven. We show both, so you can choose.',
+  ]}
+  faq={[
+    {
+      q: 'Is the left hand read for women?',
+      a: 'In the old Indian custom Mrs Dale recorded in 1895, yes: a woman’s left palm and a man’s right palm. Many palmists today read the writing hand for everyone.',
+    },
+    {
+      q: 'I am left-handed. Which hand do I read?',
+      a: 'In the writing-hand way, your left hand. It is read as the life you are making, and your right as what you started with.',
+    },
+    {
+      q: 'Why do my two hands look different?',
+      a: 'Almost everyone’s hands differ a little. The writing-hand tradition uses that: one hand for what you started with, one for what you have made of it.',
+    },
+    {
+      q: 'Which hand does the PalmSays app read?',
+      a: 'The app asks which hand you write with and frames the reading that way. If you use both hands, or don’t say, it reads the hand on its own.',
+    },
+    {
+      q: 'Does this quiz use AI?',
+      a: 'No. It follows the traditions written on this page. Nothing you tap is sent anywhere.',
+    },
+  ]}
+  links={[
+    { href: '/which-hand-to-read/', label: 'Read the full guide: which hand to read, for women and men' },
+    { href: '/tools/palm-photo-checker/', label: 'Check your palm photo before a reading' },
+    { href: '/tools/palm-map/', label: 'Interactive palm map' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+  ]}
+>
+  <div class="t-card" data-which-hand>
+    <form class="t-form" novalidate aria-label="Which hand should you read?">
+      <ChoiceGroup
+        name="tradition"
+        legend="Which way of reading do you want to follow?"
+        choices={[
+          { value: 'writing', label: 'The writing-hand way', hint: 'Used by most palmists today, and by our app' },
+          { value: 'indian', label: 'The old Indian custom', hint: 'A different hand for men and women' },
+        ]}
+      />
+      <ChoiceGroup
+        name="writing"
+        legend="Which hand do you write with?"
+        choices={[
+          { value: 'right', label: 'Right' },
+          { value: 'left', label: 'Left' },
+          { value: 'both', label: 'I use both' },
+        ]}
+      />
+      <ChoiceGroup
+        name="goal"
+        legend="What do you want the reading to show?"
+        choices={[
+          { value: 'now', label: 'The life I am making now' },
+          { value: 'born', label: 'What I started with' },
+          { value: 'both', label: 'Both — I want to compare' },
+        ]}
+      />
+      <ChoiceGroup
+        name="person"
+        legend="The custom reads a different hand for men and women. Which applies to you?"
+        choices={[
+          { value: 'man', label: 'Man' },
+          { value: 'woman', label: 'Woman' },
+          { value: 'skip', label: 'I’d rather not say' },
+        ]}
+      />
+      <div class="t-actions">
+        <button type="reset" class="btn btn-secondary">Start again</button>
+      </div>
+    </form>
+    <noscript><p class="t-noscript">This quiz needs JavaScript. The traditions are explained below under “What palmistry says”.</p></noscript>
+    <p class="t-sr" role="status" data-status></p>
+    <div class="t-result" id="result" data-result></div>
+  </div>
+</ToolLayout>
+
+<script>
+  import { mountWhichHand } from '../../lib/tools/client/which-hand-ui';
+
+  mountWhichHand();
+</script>

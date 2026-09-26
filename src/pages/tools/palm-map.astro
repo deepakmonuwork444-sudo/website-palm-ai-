@@ -1,0 +1,80 @@
+---
+/** Tool 11 — Interactive palm map (KEYWORD_MAP.md §3: "interactive palm reading chart"; `/hand-lines/` keeps "palm reading chart", C14). */
+import PalmMap from '../../components/tools/PalmMap.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { isLive } from '../../config/pages';
+import { site } from '../../config/site';
+import { MAP_SPOTS } from '../../lib/tools/palm-map';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+
+const tool = toolById('palm-map');
+const liveGuides = MAP_SPOTS.map((spot) => spot.guide)
+  .filter((path): path is string => Boolean(path && isLive(path)))
+  .join(',');
+const says = MAP_SPOTS.map((spot) => ({
+  term: spot.name,
+  text: `${spot.where} ${spot.readFor}`,
+  source: citeText(spot.cite),
+}));
+---
+
+<ToolLayout
+  tool={tool}
+  title="Interactive Palm Map: Tap a Line to See Its Meaning"
+  description="Tap any line or mount on this palm map to see its name, where it runs and what palmistry traditionally reads in it. No photo needed."
+  h1="Interactive palm map"
+  promise="Tap any line or mount on the palm to see its name, where it sits and what palmistry traditionally reads in it."
+  how={[
+    { title: 'Tap a spot', body: 'Each dot on the drawing is a line or a mount. You can also use the list, or move through them with the Tab key.' },
+    { title: 'Read what it is', body: 'Its name in English and Hindi, where it sits, what it is traditionally read for, and a line from the books with its source.' },
+    { title: 'Go deeper', body: 'Each line links to its finder. Nothing you tap is sent or saved.' },
+  ]}
+  saysTitle="Every line and mount on the map"
+  saysIntro="The same content as the map, as a list: where each one sits and what it is traditionally read for."
+  says={says}
+  limits={[
+    'This is a drawing of a typical right palm. Real hands vary a lot, and some have no fate line at all.',
+    'Mounts are read by how full they look. The book lines on the map describe a full mount; a flat one is read differently.',
+    'The two Mars mounts are named by where they sit, because books label them in opposite ways.',
+  ]}
+  faq={[
+    {
+      q: 'What are mounts (parvat)?',
+      a: 'The raised pads of the palm: under each finger, at the base of the thumb and on the outer edge. Indian palmistry calls them parvat and names each after a planet.',
+    },
+    {
+      q: 'Is this my palm?',
+      a: site.webReadingEnabled
+        ? 'No. It is a drawing of a typical right palm, the same for everyone. For your own lines, use the free reading on our home page.'
+        : 'No. It is a drawing of a typical right palm, the same for everyone. To see your own lines traced, use our app; the free web reading on this site opens soon.',
+    },
+    {
+      q: 'Why are there two Mars mounts?',
+      a: 'The books describe two: one near the thumb, inside the life line, and one on the outer edge. They name them in opposite ways, so we name them by position.',
+    },
+    {
+      q: 'Where is the marriage line?',
+      a: 'It is not on this map. It is the short line, or lines, on the outer edge of the palm below the little finger. No line can tell whether or when you will marry.',
+    },
+    {
+      q: 'Does this map use AI?',
+      a: 'No. It is a map of traditional meanings. Nothing you tap is sent anywhere.',
+    },
+  ]}
+  links={[
+    { href: '/hand-lines/', label: 'Lines on your palm: the full chart and guide' },
+    { href: '/palm-mounts/', label: 'The palm mounts guide' },
+    { href: '/tools/heart-line-finder/', label: 'Heart line finder' },
+    { href: '/tools/palm-reading-quiz/', label: 'Test yourself: the palm reading quiz' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+  ]}
+>
+  <PalmMap liveGuides={liveGuides} />
+</ToolLayout>
+
+<script>
+  import { mountPalmMap } from '../../lib/tools/client/palm-map-ui';
+
+  mountPalmMap();
+</script>

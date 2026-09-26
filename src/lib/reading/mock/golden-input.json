@@ -1,0 +1,30 @@
+{
+ "note": "The runReading input shared by scripts/sync-palm-lib.mjs (app code) and tests/unit/reading-palm.test.ts (web copy).",
+ "reading": {
+  "imageUri": "mock://palm",
+  "handSide": "left",
+  "dominantHand": "left",
+  "gate": {
+   "passed": true,
+   "issues": [],
+   "primaryIssue": null,
+   "primaryMessage": null,
+   "metrics": {
+    "meanLuminance": 150,
+    "contrast": 48,
+    "blurScore": 90,
+    "skinFraction": 0.45,
+    "centreOccupancy": 0.6,
+    "clippedFraction": 0,
+    "skinContrast": 0.12
+   },
+   "sourceWidth": 1080,
+   "sourceHeight": 1440
+  }
+ },
+ "provider": {
+  "id": "cloudflare-workers-ai",
+  "model": "mock",
+  "version": "1.0.0"
+ }
+}

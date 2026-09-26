@@ -1,0 +1,27 @@
+# Cloudflare Workers static-assets response headers (SECURITY_PRIVACY.md §5).
+# The page CSP (script/style hashes) is a <meta> tag written by Astro; only the
+# directives a <meta> cannot carry live here (frame-ancestors).
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'none'
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
+# Hashed build assets never change.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Account pages: no referrer at all.
+/delete-account*
+  ! Referrer-Policy
+  Referrer-Policy: no-referrer
+/reset-password*
+  ! Referrer-Policy
+  Referrer-Policy: no-referrer
+
+# Android App Links: JSON, no redirect (the file is built only with real SHA-256s).
+/.well-known/assetlinks.json
+  Content-Type: application/json
+  Access-Control-Allow-Origin: *

@@ -1,0 +1,195 @@
+---
+/**
+ * Site header (DESIGN_SYSTEM.md §7.10).
+ * Mobile (56px): logo, the अA language link, Menu (a bottom sheet <dialog>).
+ * Desktop (64px): logo, nav, हिंदी/English pill, Day toggle, outline action.
+ * The outline action is hidden on the home page, where the hero owns the one
+ * gold action. It turns to glass after 24px of scroll (no blur on mobile).
+ * The language control is a plain link to the twin URL: no JS swap, no cookie.
+ */
+import { isLive } from '../config/pages';
+import { site, type Locale } from '../config/site';
+import { localizePath, otherLocale, t } from '../i18n';
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import PrimaryButton from './PrimaryButton.astro';
+
+interface Props {
+  locale: Locale;
+  /** The twin page's path, or null when this page has no translation. */
+  twinPath: string | null;
+  showCta?: boolean;
+}
+
+const { locale, twinPath, showCta = true } = Astro.props;
+const dict = t(locale);
+const other = otherLocale(locale);
+const home = localizePath('/', locale);
+const langHref = twinPath ?? localizePath('/', other);
+
+const navItems = [
+  { label: dict.nav.howItWorks, href: `${home}#how-it-works`, page: home },
+  { label: dict.nav.sample, href: `${home}#sample`, page: home },
+  // Guides: the beginner's 7-step guide is the hub that links every other guide.
+  { label: dict.nav.guides, href: localizePath('/palm-reading/', locale), page: localizePath('/palm-reading/', locale) },
+  // Tools hub (English only until /hi/tools/ is reviewed; isLive hides it on Hindi pages).
+  { label: dict.nav.tools, href: localizePath('/tools/', locale), page: localizePath('/tools/', locale) },
+  { label: dict.nav.app, href: localizePath('/app/', locale), page: localizePath('/app/', locale) },
+].filter((item) => isLive(item.page));
+
+const cta = site.webReadingEnabled
+  ? { label: dict.nav.readMyPalm, href: `${home}#read` }
+  : { label: dict.nav.trySample, href: `${home}#sample` };
+const current = Astro.url.pathname;
+---
+
+<div class="scroll-sentinel" data-scroll-sentinel aria-hidden="true"></div>
+<header class="site-header" data-header>
+  <div class="wrap header-row">
+    <a href={home} class="logo-link" aria-label={`${site.brand} — ${dict.nav.home}`}>
+      <Logo />
+    </a>
+
+    <nav aria-label={dict.a11y.mainNav} class="desktop-nav">
+      <ul>
+        {
+          navItems.map((item) => (
+            <li>
+              <a class="nav-link header-nav-link" href={item.href} aria-current={current === item.href ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <a class="lang-link" href={langHref} hreflang={other} aria-label={dict.lang.switchAria}>
+        <span lang={other} class:list={['lang-full', { 'script-system': other === 'hi' }]}>{dict.lang.switchTo}</span>
+        <span class="lang-short" aria-hidden="true"
+          ><span lang="hi" class="script-system">अ</span><span lang="en">A</span></span
+        >
+      </a>
+      <button type="button" class="theme-toggle desktop-only" data-theme-toggle aria-pressed="false">
+        <Icon name="sun" />
+        <span>{dict.theme.day}</span>
+      </button>
+      {
+        showCta && (
+          <PrimaryButton href={cta.href} variant="outline" class="desktop-only header-cta">
+            {cta.label}
+          </PrimaryButton>
+        )
+      }
+      <button type="button" class="menu-button mobile-only" aria-haspopup="dialog" aria-controls="menu-sheet" data-menu-open>
+        <Icon name="menu" />
+        <span>{dict.nav.menu}</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog id="menu-sheet" class="menu-sheet" aria-label={dict.nav.menu} data-menu>
+  <div class="sheet-head">
+    <Logo />
+    <button type="button" class="sheet-close" data-menu-close>
+      <span>{dict.nav.close}</span>
+      <Icon name="close" />
+    </button>
+  </div>
+  <PrimaryButton href={cta.href} block data-menu-link>{cta.label}</PrimaryButton>
+  <nav aria-label={dict.a11y.mainNav}>
+    <ul class="sheet-list">
+      {
+        navItems.map((item) => (
+          <li>
+            <a class="sheet-row" href={item.href} data-menu-link>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a class="sheet-row" href={langHref} hreflang={other}>
+          <span lang={other} class:list={{ 'script-system': other === 'hi' }}>{dict.lang.switchTo}</span>
+        </a>
+      </li>
+      <li>
+        <button type="button" class="sheet-row theme-row" data-theme-toggle aria-pressed="false">
+          <Icon name="sun" />
+          <span>{dict.theme.day}</span>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</dialog>
+
+<style>
+  .scroll-sentinel { position: absolute; top: 0; left: 0; width: 1px; height: 24px; pointer-events: none; }
+  .site-header {
+    position: sticky; top: 0; z-index: 40; background-color: var(--page); border-bottom: 1px solid transparent;
+    transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  }
+  /* No blur on mobile, so the scrolled header is solid there; glass + blur only on large screens with hover. */
+  :global([data-scrolled]) .site-header { background-color: var(--surface-1); border-bottom-color: var(--glass-edge); }
+  @media (min-width: 64rem) and (hover: hover) {
+    :global([data-scrolled]) .site-header { background-color: var(--glass); }
+    @supports (backdrop-filter: blur(12px)) {
+      :global([data-scrolled]) .site-header { backdrop-filter: blur(12px); }
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    :global([data-scrolled]) .site-header { backdrop-filter: none; background-color: var(--surface-1); }
+  }
+  .header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; }
+  .logo-link { display: inline-flex; align-items: center; min-height: 3rem; color: var(--fg); text-decoration: none; }
+
+  .desktop-nav { display: none; }
+  .desktop-nav ul { display: flex; gap: 0.25rem; list-style: none; margin: 0; padding: 0; }
+  .header-nav-link { display: inline-flex; align-items: center; min-height: 3rem; padding-inline: 0.75rem; }
+
+  .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+  .lang-link, .theme-toggle, .menu-button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3rem; min-width: 3rem;
+    padding: 0 0.875rem; border-radius: 9999px; border: 1px solid var(--control-border); background: transparent;
+    color: var(--fg); font: inherit; font-size: var(--fs-small); cursor: pointer; text-decoration: none;
+  }
+  .lang-link:hover, .theme-toggle:hover, .menu-button:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-toggle[aria-pressed="true"] { background-color: var(--accent-soft); border-color: var(--hairline); }
+  .lang-full { display: none; }
+  .lang-short { font-weight: 700; }
+  .desktop-only { display: none; }
+
+  @media (min-width: 64rem) {
+    .header-row { min-height: 4rem; }
+    .desktop-nav { display: block; margin-inline-start: auto; }
+    .desktop-only { display: inline-flex; }
+    .mobile-only { display: none; }
+    .lang-full { display: inline; }
+    .lang-short { display: none; }
+  }
+
+  .menu-sheet {
+    margin: auto 0 0; width: 100%; max-width: none; max-height: 85dvh; padding: 1.25rem var(--gutter) calc(1.5rem + env(safe-area-inset-bottom));
+    border: none; border-top: 1px solid var(--glass-edge); border-radius: 1.75rem 1.75rem 0 0; color: var(--fg);
+    /* Solid: without blur (never on mobile) a translucent sheet lets the page text show through. */
+    background-color: var(--surface-1);
+  }
+  .menu-sheet[open] { display: flex; flex-direction: column; gap: 1rem; animation: sheet-in var(--dur-sheet) var(--ease); }
+  .menu-sheet::backdrop { background: var(--scrim); }
+  @keyframes sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; }
+  .sheet-close {
+    display: inline-flex; align-items: center; gap: 0.375rem; min-height: 3rem; padding: 0 0.75rem; border-radius: 9999px;
+    border: 1px solid var(--control-border); background: transparent; color: var(--fg); font: inherit; cursor: pointer;
+  }
+  .sheet-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .sheet-row {
+    display: flex; align-items: center; gap: 0.625rem; width: 100%; min-height: 3rem; padding: 0.25rem 0;
+    border: none; border-bottom: 1px solid var(--border); background: transparent; color: var(--fg); font: inherit;
+    text-align: start; text-decoration: none; cursor: pointer;
+  }
+  .theme-row[aria-pressed="true"] { color: var(--accent); }
+  :global(html:has(dialog[open])) { overflow: hidden; }
+</style>

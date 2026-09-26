@@ -1,0 +1,89 @@
+---
+/**
+ * Interactive palm map (tool 11, DESIGN_SYSTEM.md §7.13): the stylised palm
+ * with 4 lines and 8 mount spots. Every spot is a real <button> (keyboard,
+ * 48px hit area, visible focus) laid over the drawing; the same buttons also
+ * appear as a labelled list. The meaning panel is aria-live. Pins are placed
+ * by the script (CSSOM, no inline style attributes under the hashed CSP) and
+ * stay hidden until placed, so nothing shifts. Without JS the full list of
+ * meanings is on the page under "What palmistry says".
+ */
+import { LINE_ORDER, LINE_PATHS, MOUNT_AREAS, MOUNT_ORDER, PALM_OUTLINE, PALM_VIEWBOX } from '../../lib/tools/palm-geometry';
+import { MAP_SPOTS } from '../../lib/tools/palm-map';
+
+interface Props {
+  liveGuides: string;
+}
+
+const { liveGuides } = Astro.props;
+const lines = MAP_SPOTS.filter((spot) => spot.kind === 'line');
+const mounts = MAP_SPOTS.filter((spot) => spot.kind === 'mount');
+---
+
+<div class="t-card" data-palm-map data-live-guides={liveGuides}>
+  <div class="t-map">
+    <div class="t-map-figure">
+      <svg class="t-map-svg" viewBox={PALM_VIEWBOX} role="img" aria-label="A drawn right palm with the heart, head, life and fate lines and the mounts marked." data-map-svg>
+        <path class="t-palm t-palm-grad" d={PALM_OUTLINE}></path>
+        {
+          MOUNT_ORDER.map((id) => {
+            const area = MOUNT_AREAS[id];
+            return <ellipse class="t-mount" data-area={id} cx={area.cx} cy={area.cy} rx={area.rx} ry={area.ry} />;
+          })
+        }
+        {
+          LINE_ORDER.map((line) => (
+            <g class="t-map-line" data-area={line}>
+              <path class="t-halo" d={LINE_PATHS[line]} />
+              <path class:list={['t-line', `t-l-${line}`]} d={LINE_PATHS[line]} />
+            </g>
+          ))
+        }
+      </svg>
+      {
+        MAP_SPOTS.map((spot) => (
+          <button type="button" class:list={['t-pin', `t-pin-${spot.kind}`, spot.kind === 'line' ? `t-pin-${spot.id}` : null]} data-spot={spot.id} data-x={spot.pin.x} data-y={spot.pin.y} aria-pressed="false" hidden>
+            <span class="t-pin-dot" aria-hidden="true"></span>
+            <span class="t-sr">{spot.name}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="t-map-side">
+      <div class="t-map-panel" data-panel aria-live="polite">
+        <h2 class="t-map-panel-title">Tap a line or a mount</h2>
+        <p class="t-caveat">Each dot on the palm is a line or a mount. Tap one — or pick from the list — to see what it is and what palmistry reads in it.</p>
+      </div>
+      <div class="t-map-lists" data-map-lists hidden>
+        <p class="t-map-list-title">Lines</p>
+        <ul class="t-map-chips">
+          {
+            lines.map((spot) => (
+              <li>
+                <button type="button" class="t-map-chip" data-spot={spot.id} aria-pressed="false">
+                  <span class:list={['t-chip-dot', `t-chip-${spot.id}`]} aria-hidden="true"></span>
+                  {spot.name}
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="t-map-list-title">Mounts (parvat)</p>
+        <ul class="t-map-chips">
+          {
+            mounts.map((spot) => (
+              <li>
+                <button type="button" class="t-map-chip" data-spot={spot.id} aria-pressed="false">
+                  <span class="t-chip-dot t-chip-mount" aria-hidden="true"></span>
+                  {spot.name}
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+  <noscript><p class="t-noscript">The map needs JavaScript to respond to taps. Every line and mount is described below under “What palmistry says”.</p></noscript>
+</div>

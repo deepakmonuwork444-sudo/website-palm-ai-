@@ -1,0 +1,102 @@
+---
+/**
+ * Tool 10 — Palm signs checker (KEYWORD_MAP.md §3: "palm signs checker").
+ * No app rule exists for any sign (CONTENT_GUIDE.md §9.4): meanings are cited
+ * from corpus book passages in our words; promises and threats are left out.
+ */
+import ChoiceGroup from '../../components/tools/ChoiceGroup.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { isLive } from '../../config/pages';
+import { toolById } from '../../lib/tools/registry';
+import { CHANCE_CROSSING_QUOTE, SIGNS } from '../../lib/tools/signs';
+import { citeText } from '../../lib/tools/sources';
+
+const tool = toolById('signs-checker');
+const liveGuides = [...new Set(SIGNS.map((sign) => sign.guide))].filter((path) => isLive(path)).join(',');
+const says = SIGNS.map((sign) => ({
+  term: sign.name,
+  text: sign.booksSay ?? sign.leftOut,
+  source: sign.cites[0] ? citeText(sign.cites[0]) : 'No classical source',
+}));
+---
+
+<ToolLayout
+  tool={tool}
+  title="Palm Signs Checker: M, Cross, Star, Fish & Triangle"
+  description="Tick the signs you can see on your palm – M, cross, star, triangle, fish, island – and read what palmistry books say about each one, with sources."
+  h1="Palm signs checker"
+  promise="Tick the marks you can see on your palm and read what the old palmistry books say about each one, with the source — and what we leave out."
+  spot={{
+    title: 'How to look for signs',
+    paras: [
+      'Signs are small marks — a cross, a star, a triangle — usually on the raised pads (mounts) under the fingers or at the base of the palm. Look in bright light from the side, and zoom in with your phone camera if it helps.',
+      `Be strict with yourself: many “signs” are ordinary lines crossing by chance. Cheiro asks for a triangle ${CHANCE_CROSSING_QUOTE} (Cheiro’s Language of the Hand, 1900, ch. XXII).`,
+    ],
+  }}
+  how={[
+    { title: 'Look closely', body: 'Signs are small. Use bright side light and zoom in if you can.' },
+    { title: 'Tick what you see', body: 'Only the signs you are sure of. You can tick more than one.' },
+    { title: 'Read the books’ view', body: 'Each sign shows what a named book says, and what we leave out. Nothing is sent or saved.' },
+  ]}
+  saysIntro="Each sign in a sentence or two. None of them is in our app’s rule set, so the source here is the book passage itself."
+  says={says}
+  limits={[
+    'Phone photos can’t show these small signs reliably. That is why you tick them yourself, and why our app’s scan leaves them out.',
+    'The old books promise wealth, fame and children from some signs, and threaten illness or disaster from others. None of that is repeated here: no mark can tell it.',
+    'The “M” has no classical source at all. It is read through the lines that form it.',
+  ]}
+  faq={[
+    {
+      q: 'What does the M on my palm mean?',
+      a: 'None of the classical books we use describes an M sign. It is formed by your heart, head, life and fate lines, so read those lines instead — the line finders do exactly that.',
+    },
+    {
+      q: 'Is a mystic cross rare?',
+      a: 'We have no reliable figure for how common it is, so we won’t call it rare. Cheiro places it in the space between the heart and head lines.',
+    },
+    {
+      q: 'Can the fish sign bring wealth?',
+      a: 'No mark can tell that. The Indian books call the fish auspicious, and one reads a fish tail as the mark of a learned person; their promises of wealth and children are left out.',
+    },
+    {
+      q: 'Why can’t I upload a photo for this?',
+      a: 'Because phone photos can’t show small signs reliably — even our app’s scan leaves them out. Ticking what you see with your own eyes is the honest way.',
+    },
+    {
+      q: 'Does this tool use AI?',
+      a: 'No. You tick what you see, and the meanings come from named books. Nothing is sent anywhere.',
+    },
+  ]}
+  links={[
+    { href: '/lucky-signs/', label: 'Rare lucky signs on the palm: the full guide' },
+    { href: '/palmistry-m/', label: 'The M on your palm' },
+    { href: '/palm-crosses/', label: 'Crosses and the mystic cross' },
+    { href: '/tools/palm-map/', label: 'Interactive palm map: find the mounts' },
+    { href: '/tools/heart-line-finder/', label: 'Heart line finder' },
+  ]}
+>
+  <div class="t-card" data-signs data-live-guides={liveGuides}>
+    <form class="t-form" novalidate aria-label="Tick the signs you can see">
+      <ChoiceGroup
+        name="sign"
+        type="checkbox"
+        legend="Which signs can you clearly see?"
+        help="Tick all that apply. Seeing none is common."
+        choices={SIGNS.map((sign) => ({ value: sign.id, label: sign.name, glyph: sign.glyph }))}
+      />
+      <div class="t-actions">
+        <button type="submit" class="btn btn-gold">Show what the books say</button>
+        <button type="reset" class="btn btn-secondary">Clear</button>
+      </div>
+    </form>
+    <noscript><p class="t-noscript">This checker needs JavaScript. Every sign is explained below under “What palmistry says”.</p></noscript>
+    <p class="t-sr" role="status" data-status></p>
+    <div class="t-result" id="result" data-result></div>
+  </div>
+</ToolLayout>
+
+<script>
+  import { mountSigns } from '../../lib/tools/client/signs-ui';
+
+  mountSigns();
+</script>

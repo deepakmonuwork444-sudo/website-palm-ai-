@@ -1,0 +1,51 @@
+---
+/**
+ * "What palmistry can't tell you" (CONTENT_GUIDE.md §4.11, DESIGN_SYSTEM.md
+ * §7.8 LimitsBox): the default text, the page's topic line, and a link to
+ * /is-palmistry-real/. A calm surface-2 card with an outline info icon; no
+ * red, no warning icon. `care` adds the care line (lifespan pages only).
+ */
+import { isLive } from '../../config/pages';
+import { localeFromPath, localizePath } from '../../i18n';
+import { inlineMarkdown } from '../../lib/guides/guides';
+import { guideStrings } from '../../lib/guides/strings';
+import Icon from '../Icon.astro';
+
+interface Props {
+  /** The topic line for this page (inline markdown allowed). */
+  topic?: string;
+  care?: boolean;
+}
+
+const { topic, care = false } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const s = guideStrings(locale);
+const realPath = localizePath('/is-palmistry-real/', locale);
+const showLink = isLive(realPath) && Astro.url.pathname !== realPath;
+---
+
+<aside class="limits" aria-labelledby="limits-title" data-limits-box>
+  <div class="limits-head">
+    <Icon name="info" class="limits-icon" />
+    <h2 id="limits-title" class="text-h3 font-bold limits-title">{s.limitsTitle}</h2>
+  </div>
+  <div class="limits-body">
+    <p>{s.limitsBody}</p>
+    {topic && <p set:html={inlineMarkdown(topic, locale)} />}
+    {showLink && <p><a class="text-link" href={realPath}>{s.limitsLink}</a></p>}
+    {care && <p class="text-small limits-care">{s.careLine}</p>}
+  </div>
+</aside>
+
+<style>
+  .limits {
+    margin: 2rem 0; padding: 1.25rem;
+    border-radius: 1.25rem; background-color: var(--surface-2); border: 1px solid var(--edge);
+  }
+  .limits-head { display: flex; gap: 0.625rem; align-items: center; margin: 0 0 0.75rem; }
+  .limits :global(.limits-icon) { color: var(--accent); width: 1.5rem; height: 1.5rem; }
+  .limits-title { margin: 0; }
+  .limits-body p { margin: 0 0 0.625rem; }
+  .limits-body p:last-child { margin-bottom: 0; }
+  .limits-care { padding-top: 0.625rem; border-top: 1px solid var(--border-strong); color: var(--fg-muted); }
+</style>

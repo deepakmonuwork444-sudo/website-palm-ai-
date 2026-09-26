@@ -1,0 +1,43 @@
+---
+/**
+ * The small glyph for each tool (DESIGN_SYSTEM.md §7.7, §8): outline strokes on
+ * a 24px grid. Line finders use their line's colour; the rest use the accent.
+ * Always shown next to the tool's name (decorative).
+ */
+import type { ToolGlyph } from '../../lib/tools/registry';
+
+interface Props {
+  glyph: ToolGlyph;
+  class?: string;
+}
+
+const { glyph, class: className } = Astro.props;
+const shapes: Record<ToolGlyph, string> = {
+  photo: '<rect x="3.5" y="6" width="17" height="13.5" rx="3"/><circle cx="12" cy="12.75" r="3.5"/><path d="M8.5 6 10 4h4l1.5 2"/>',
+  trace: '<path d="M4.5 15.5c4-2.5 9.5-2.5 15-7"/><path d="M4.5 10.5c5 0 9.5 2 13.5 6"/><path d="M14.5 3.5c-2 5.5-1.5 11 1.5 17"/>',
+  heart: '<path d="M3 16C8 8 15 7.5 21 10"/>',
+  head: '<path d="M21 9C15 10 9 12 3 17"/>',
+  life: '<path d="M16 3C9 7 7 13 10 21"/>',
+  fate: '<path d="M11 21c.5-6 1-11 2-18"/>',
+  hands:
+    '<path d="M7.5 20.5c-1.9-1.9-3-4.2-3-6.9V9.8a1.4 1.4 0 0 1 2.8 0V12"/><path d="M7.3 11.5V5.2a1.4 1.4 0 0 1 2.8 0v6"/><path d="M10.1 10.7V3.9a1.4 1.4 0 0 1 2.8 0v6.8"/><path d="M12.9 10.7V5.6a1.4 1.4 0 0 1 2.8 0v8.2c0 4-2.3 6.7-6.2 6.7H7.5"/><path d="M15.7 13.5l1.6-2.2a1.4 1.4 0 0 1 2.3 1.6l-3.1 4.6"/>',
+  shape: '<rect x="3.5" y="7.5" width="8" height="8" rx="1.5"/><rect x="14" y="4" width="6.5" height="15.5" rx="1.5"/>',
+  signs: '<path d="M4.5 19.5h9l-4.5-7.5z"/><path d="M14.5 4.5l5 5M19.5 4.5l-5 5"/>',
+  map: '<path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14M15 6v14"/>',
+  quiz: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.6a2.4 2.4 0 1 1 3.4 2.2c-.6.3-1 .9-1 1.6v.5"/><path d="M12 16.9v.2"/>',
+};
+const lineGlyph = glyph === 'heart' || glyph === 'head' || glyph === 'life' || glyph === 'fate';
+---
+
+<svg
+  class:list={[className, lineGlyph ? `t-glyph-${glyph}` : 't-glyph-accent']}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={lineGlyph ? '2.6' : '1.75'}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  set:html={shapes[glyph]}
+/>

@@ -1,0 +1,15 @@
+// Cloudflare Workers with static assets only (ARCHITECTURE.md §10): no `main`,
+// no server code. Not deployed by Claude: the owner runs the deploy after the
+// release gate passes (QA_RELEASE.md §6).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "palmsays-web",
+  "compatibility_date": "2026-09-26",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": true
+}

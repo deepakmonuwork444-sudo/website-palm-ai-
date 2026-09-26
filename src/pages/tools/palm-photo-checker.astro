@@ -1,0 +1,90 @@
+---
+/**
+ * Tool 3 — Palm photo checker (KEYWORD_MAP.md §3: "how to take a palm photo for
+ * reading"; blog post 4 must not target it, C18). Runs on the device only.
+ */
+import PhotoChecker from '../../components/tools/PhotoChecker.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { toolById } from '../../lib/tools/registry';
+
+const tool = toolById('photo-checker');
+---
+
+<ToolLayout
+  tool={tool}
+  title="Palm Photo Checker: Is Your Photo Good Enough to Read?"
+  description="Check your palm photo before a reading: light, sharpness and whole-palm framing, checked on your phone. Your photo never leaves your device."
+  h1="Palm photo checker"
+  promise="Take or choose a photo of your palm and see in seconds whether it is bright, sharp and close enough to read — checked on your phone."
+  ownPalm={false}
+  spot={{
+    title: 'How to take a palm photo for a reading',
+    paras: [
+      'Use the hand you write with. Open it flat with the fingers together, and hold the phone straight above the palm, close enough that the whole palm and the base of the fingers fill the frame.',
+      'Light matters most. Face a window in daylight, or stand under an even room light. Avoid direct sun and the flash: both wash the lines out. If the lines look faint, tilt your hand a little so the light falls from the side — palm lines are creases, and side light turns them into shadows.',
+      'Hold still for a moment before you tap. Resting your elbow on a table stops blur, the most common reason a photo can’t be read.',
+    ],
+  }}
+  howTitle="How the checker works"
+  how={[
+    { title: 'You take or pick a photo', body: 'It opens only in this browser tab. Nothing is uploaded.' },
+    {
+      title: 'Your phone checks a tiny copy',
+      body: 'A 96-pixel copy is checked for brightness, blur, how much of the frame is palm, and how strongly the creases stand out — the same checks, with the same starting thresholds, as our Android app.',
+    },
+    { title: 'You see what to fix', body: 'Each check says OK or what to change. Close the page and the photo is gone.' },
+  ]}
+  saysTitle="What makes a palm photo readable"
+  says={[
+    { term: 'Light', text: 'Too dark and the creases vanish; too bright and they wash out. Even light from a window works best.' },
+    { term: 'Sharpness', text: 'Blur smears fine lines together. Hold still, or rest your hand on something.' },
+    { term: 'Framing', text: 'The whole palm should fill most of the frame, with the base of the fingers in view.' },
+    { term: 'Contrast', text: 'Palm lines are shadows. Light from the side makes them stand out on every skin tone.' },
+    {
+      term: 'What even a good photo can’t show',
+      text: 'Breaks, branches and forks show up in a good photo. Islands, chains, crosses, stars and triangles are too small for most phone cameras.',
+    },
+  ]}
+  limits={[
+    'These are quick pixel checks. A photo can pass and still have a line that is hard to trace, or fail on a palm that is fine.',
+    'The checker can’t tell your palm from the back of your hand, since both are skin. Make sure the palm faces the camera.',
+    'The thresholds are starting values. They have not yet been tested on a large set of labelled real photos.',
+    'It reads no meanings at all: it only checks the photo.',
+  ]}
+  faq={[
+    {
+      q: 'Is my photo uploaded anywhere?',
+      a: 'No. The check runs inside your browser on this device. The photo is not sent to our servers or anyone else, and it is not saved.',
+    },
+    {
+      q: 'Why does it say my photo is too dark when it looks fine?',
+      a: 'Phone screens brighten photos for display. The checker looks at the real pixels; a little more light, facing a window, usually fixes it.',
+    },
+    {
+      q: 'Does it work on darker skin?',
+      a: 'It is built to: the palm test is deliberately wide, and line contrast is measured against your own skin tone. The sharpness check still uses brightness alone, so on a dim photo, add light.',
+    },
+    {
+      q: 'My phone saved the photo as HEIC. What now?',
+      a: 'Some browsers can’t open HEIC. Choose a JPG instead — on an iPhone, set Camera, Formats to Most Compatible.',
+    },
+    {
+      q: 'Does this use AI?',
+      a: 'No. It is simple pixel maths that runs on your phone: no AI and no network.',
+    },
+  ]}
+  links={[
+    { href: '/palm-reading/', label: 'How to read palm lines: the beginner’s guide' },
+    { href: '/tools/which-hand-quiz/', label: 'Which hand should you photograph? Take the quiz' },
+    { href: '/tools/palm-line-finder/', label: 'Palm line finder' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+  ]}
+>
+  <PhotoChecker />
+</ToolLayout>
+
+<script>
+  import { mountPhotoChecker } from '../../lib/tools/client/photo-check-ui';
+
+  mountPhotoChecker();
+</script>

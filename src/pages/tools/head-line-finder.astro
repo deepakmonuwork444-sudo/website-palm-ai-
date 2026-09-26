@@ -1,0 +1,85 @@
+---
+/** Tool 5 — Head line finder (KEYWORD_MAP.md §3: "which head line do I have"; never targets two/double head lines, C22). */
+import LineFinder from '../../components/tools/LineFinder.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { summaries } from '../../lib/tools/finder';
+import { HEAD_FINDER } from '../../lib/tools/lines/head';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+
+const tool = toolById('head-finder');
+const says = summaries(HEAD_FINDER).map(({ option, rule }) => ({
+  term: option.evidence,
+  text: rule.meaning,
+  source: citeText(rule.cites[0]!),
+}));
+---
+
+<ToolLayout
+  tool={tool}
+  title="Head Line Finder: Which Head Line Type Do You Have?"
+  description="Pick the head line shape that matches your palm – straight, sloping, forked or joined to the life line – and see its traditional meaning and source."
+  h1="Head line finder: which head line do you have?"
+  promise="Straight, sloping, forked or joined to the life line? Pick what your head line looks like and see what the classical books read in it, with sources."
+  spot={{
+    title: 'How to find your head line',
+    paras: [
+      'The head line runs across the middle of your palm, below the heart line. It starts on the thumb side, often touching the life line, and runs towards the outer edge of the palm.',
+      'Check three things first: how much it slopes, whether it starts joined to the life line, and whether it splits in two at the end — the shape often called the writer’s fork.',
+    ],
+  }}
+  how={[
+    { title: 'Find the line', body: 'Hold the hand you write with flat, fingers together, in light from a window.' },
+    { title: 'Answer what you can see', body: 'Shape, start, length, end and marks. Skip anything unclear with “Not sure”.' },
+    {
+      title: 'See the books’ readings',
+      body: 'The page matches your answers to the head line rules our app uses and shows each meaning with its book. Nothing is sent or saved.',
+    },
+  ]}
+  saysIntro="Each head line form in a sentence, from the first book that reads it. Use the finder above to see every reading for your shape."
+  says={says}
+  limitsTopic="They also can’t measure intelligence, exam results or success."
+  limits={[
+    'A faint or short head line is not a measure of intelligence. The books describe a way of thinking, not how clever someone is.',
+    'Some old books attach claims about the mind’s health to certain head lines. Those are refused here: palm lines are not a medical test.',
+    'This tool reads the shape you pick, not a photo of your hand.',
+  ]}
+  faq={[
+    {
+      q: 'What is the writer’s fork?',
+      a: 'A head line that splits into two at its end. The books read it as two ways of thinking at once, practical and imaginative. Pick “Yes, a fork” to see the readings.',
+    },
+    {
+      q: 'My head line and life line start together. Is that normal?',
+      a: 'Yes. The books call it the more common form of the head line. Pick “Joined to the life line at the start” to see how they read it.',
+    },
+    {
+      q: 'Which hand should I check?',
+      a: 'Most palmists read the hand you write with. If you are unsure, the which-hand quiz explains the traditions in three taps.',
+    },
+    {
+      q: 'Why is there a “Not sure” answer?',
+      a: 'Because a guess makes the meaning wrong. “Not sure” leaves that feature out, and you still get the meanings for the rest.',
+    },
+    {
+      q: 'Does this tool use AI or my photo?',
+      a: 'No. There is no photo and no AI here. The page looks up the matching rules in your browser.',
+    },
+  ]}
+  links={[
+    { href: '/head-line/', label: 'Read the full head line guide' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+    { href: '/tools/heart-line-finder/', label: 'Heart line finder' },
+    { href: '/tools/life-line-finder/', label: 'Life line finder' },
+    { href: '/tools/palm-map/', label: 'Interactive palm map' },
+  ]}
+>
+  <LineFinder finder={HEAD_FINDER} lineName="head line" />
+</ToolLayout>
+
+<script>
+  import { mountFinder } from '../../lib/tools/client/finder-ui';
+  import { HEAD_FINDER } from '../../lib/tools/lines/head';
+
+  mountFinder(HEAD_FINDER, 'head-finder');
+</script>

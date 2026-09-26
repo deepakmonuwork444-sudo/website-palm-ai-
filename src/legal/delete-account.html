@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<!-- CSP: every inline script is allowed by its sha256. After editing one, update its hash here;
+     the build (src/lib/legal.ts) refuses to render while a hash is missing. Placeholders are filled at build. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-IaeEKag0VvTOHavOhSlwdpAoYJrjctn4zrKOUq9Z7YA=' 'sha256-y6Io+dLr+SrK/7lnRh3uiw1StYtcRoXxW3PDdA/xhW0=' {{CONFIG_SCRIPT_HASH}} https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js; style-src 'unsafe-inline'; connect-src {{SUPABASE_ORIGIN}}; img-src 'self' data:; base-uri 'none'; form-action 'none'" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Delete your {{BRAND}} account</title>
+<script>
+  // Refuse to be framed (clickjacking): hide the page and break out.
+  if (window.top !== window.self) {
+    document.documentElement.style.display = 'none';
+    try { window.top.location = window.self.location.href; } catch (e) {}
+  }
+</script>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0B0A1F; color: #F6F0E1;
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 560px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 600; margin: 24px 0 8px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; color: #F5D98B; }
+  p, li { color: #F6F0E1; }
+  .muted { color: #C3B9D8; font-size: 14px; }
+  .card {
+    background: #15132F; border: 1px solid rgba(230, 184, 92, 0.28); border-radius: 16px;
+    padding: 20px; margin: 20px 0;
+  }
+  label { display: block; margin: 14px 0 6px; font-size: 14px; color: #C3B9D8; }
+  input {
+    width: 100%; box-sizing: border-box; padding: 14px;
+    background: #1C1942; color: #F6F0E1;
+    border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 10px; font-size: 16px;
+  }
+  input:focus { outline: 2px solid #E6B85C; outline-offset: 1px; }
+  button {
+    width: 100%; margin-top: 20px; padding: 16px;
+    background: #E6B85C; color: #1F1300; border: 0; border-radius: 16px;
+    font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.secondary { background: #1E1B42; color: #F6F0E1; border: 1px solid #3A3570; margin-top: 12px; }
+  button.link {
+    width: auto; background: none; color: #F5D98B; padding: 12px 0; margin-top: 8px;
+    font-weight: 500; text-decoration: underline; border-radius: 0;
+  }
+  [hidden] { display: none !important; }
+  .check { display: flex; gap: 12px; align-items: flex-start; margin: 20px 0 0; font-size: 15px; color: #F6F0E1; }
+  .check input { width: 22px; height: 22px; margin: 1px 0 0; padding: 0; flex: none; accent-color: #E6B85C; }
+  .status { margin-top: 16px; padding: 14px; border-radius: 10px; display: none; }
+  .status.show { display: block; }
+  .ok { background: rgba(43, 179, 163, 0.15); border: 1px solid #2BB3A3; }
+  .err { background: rgba(255, 92, 92, 0.14); border: 1px solid #FF5C5C; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Delete your account and data</h1>
+  <p class="muted">
+    {{BRAND}} &middot; This page works without installing or reinstalling the app.
+  </p>
+
+  <div class="card">
+    <h2>What gets deleted</h2>
+    <ul>
+      <li>Every reading you have completed</li>
+      <li>Every palm observation stored against your account</li>
+      <li>Your profile and your account itself</li>
+    </ul>
+    <p class="muted">
+      Palm photographs are never stored. Each photo is analysed and deleted at the time of the
+      reading, so there are no images to remove.
+    </p>
+    <p class="muted">
+      Deletion is permanent and cannot be undone. Readings cannot be recovered afterwards.
+    </p>
+    <p class="muted">
+      What we keep: a one-way code (hash) of your email address, only so the free readings cannot
+      be claimed again. It cannot be turned back into your email.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Confirm it is you</h2>
+    <p class="muted" id="how">Sign in with the email and password you use in the app.</p>
+    <form id="form">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required />
+      <div id="passwordBlock">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+      </div>
+      <div id="codeBlock" hidden>
+        <button id="sendCode" type="button" class="secondary">Email me a 6-digit code</button>
+        <label for="code">6-digit code from the email</label>
+        <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" />
+      </div>
+      <button id="switchMode" type="button" class="link">Signed in with Google or an email code? Use an email code instead</button>
+      <label class="check" for="confirm">
+        <input id="confirm" type="checkbox" required />
+        <span>I understand that my account and every reading will be deleted forever. This cannot be undone.</span>
+      </label>
+      <button id="submit" type="submit" disabled>Delete my account and data</button>
+    </form>
+    <div id="status" class="status"></div>
+  </div>
+
+  <p class="muted">
+    Trouble with this page? Email the address listed on our Google Play listing and we will
+    process the request manually within 30 days.
+  </p>
+</main>
+
+<!-- Pinned and integrity-checked: a page that handles passwords must not run
+     whatever a CDN serves tomorrow. Hash verified against the npm package. -->
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"
+  integrity="sha384-iLddHTLokph6Omwoyid4XKxHaWa6w41BnoEj0q5oOrzmYPpHIKt1wyjReA7s//pP"
+  crossorigin="anonymous"></script>
+<script>
+  // Filled in at deploy time. Only the publishable anon key belongs here.
+  var SUPABASE_URL = window.SUPABASE_URL || '';
+  var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
+
+  var form = document.getElementById('form');
+  var button = document.getElementById('submit');
+  var status = document.getElementById('status');
+  var confirmBox = document.getElementById('confirm');
+  var emailInput = document.getElementById('email');
+  var passwordInput = document.getElementById('password');
+  var codeInput = document.getElementById('code');
+  var sendCodeButton = document.getElementById('sendCode');
+  var switchButton = document.getElementById('switchMode');
+  var how = document.getElementById('how');
+  // 'password', or 'code' for accounts made with Google or an email code.
+  var mode = 'password';
+  var client = null;
+
+  function show(message, ok) {
+    status.textContent = message;
+    status.className = 'status show ' + (ok ? 'ok' : 'err');
+  }
+
+  function getClient() {
+    if (!client) {
+      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        // Nothing stays in this browser once the tab closes.
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+      });
+    }
+    return client;
+  }
+
+  switchButton.addEventListener('click', function () {
+    mode = mode === 'password' ? 'code' : 'password';
+    var useCode = mode === 'code';
+    document.getElementById('passwordBlock').hidden = useCode;
+    document.getElementById('codeBlock').hidden = !useCode;
+    passwordInput.required = !useCode;
+    codeInput.required = useCode;
+    how.textContent = useCode
+      ? 'Type the email of your account, tap "Email me a 6-digit code", then type the code.'
+      : 'Sign in with the email and password you use in the app.';
+    switchButton.textContent = useCode
+      ? 'Use my password instead'
+      : 'Signed in with Google or an email code? Use an email code instead';
+    status.className = 'status';
+  });
+
+  sendCodeButton.addEventListener('click', async function () {
+    var email = emailInput.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      show('Type the email of your account first.', false);
+      return;
+    }
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      show('This page is not configured yet. Please email us instead.', false);
+      return;
+    }
+    sendCodeButton.disabled = true;
+    try {
+      // Never creates an account: this page only deletes existing ones.
+      var sent = await getClient().auth.signInWithOtp({ email: email, options: { shouldCreateUser: false } });
+      var error = sent.error;
+      if (error && (error.status === 429 || /rate limit|security purposes/i.test(error.message || ''))) {
+        show('Please wait a minute before asking for another code.', false);
+      } else {
+        // Worded the same whether or not the email has an account.
+        show('If an account exists for this email, we sent a 6-digit code to it. Check Spam too.', true);
+      }
+    } catch (e) {
+      show('We could not send a code. Check your internet and try again.', false);
+    }
+    // Supabase allows one code a minute per email.
+    setTimeout(function () { sendCodeButton.disabled = false; }, 60000);
+  });
+
+  // Second step: nothing is deleted until the box is ticked.
+  confirmBox.addEventListener('change', function () {
+    button.disabled = !confirmBox.checked;
+  });
+
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    if (!confirmBox.checked) {
+      show('Please tick the box to confirm you want everything deleted.', false);
+      return;
+    }
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      show('This page is not configured yet. Please email us instead.', false);
+      return;
+    }
+
+    button.disabled = true;
+    show('Working...', true);
+
+    try {
+      var client = getClient();
+      var auth;
+      if (mode === 'code') {
+        var token = codeInput.value.replace(/\D/g, '');
+        if (token.length !== 6) {
+          show('Type the 6 digits from the email.', false);
+          button.disabled = false;
+          return;
+        }
+        auth = await client.auth.verifyOtp({ email: emailInput.value.trim(), token: token, type: 'email' });
+        if (auth.error) {
+          show('That code did not work. It may be mistyped or too old. Check it, or send a new one.', false);
+          button.disabled = false;
+          return;
+        }
+      } else {
+        auth = await client.auth.signInWithPassword({
+          email: emailInput.value.trim(),
+          password: passwordInput.value,
+        });
+        if (auth.error) {
+          show('That email and password did not match an account. Signed in with Google? Use an email code instead.', false);
+          button.disabled = false;
+          return;
+        }
+      }
+
+      // Deletes the account itself, immediately (supabase/functions/delete-account).
+      var result = await client.functions.invoke('delete-account', { method: 'POST' });
+      if (result.error) {
+        // One more try first: a cold start or a short network drop is the usual cause.
+        await new Promise(function (resolve) { setTimeout(resolve, 1500); });
+        result = await client.functions.invoke('delete-account', { method: 'POST' });
+      }
+      if (result.error) {
+        // Fallback: erase the data now and queue the account for manual removal.
+        var queued = await client.rpc('request_account_deletion');
+        if (queued.error) {
+          show('We could not complete that. Please email us and we will do it manually.', false);
+          button.disabled = false;
+          return;
+        }
+        await client.auth.signOut();
+        show(
+          'Your readings have been deleted. Your account is queued and will be removed within 30 days.',
+          true
+        );
+        form.style.display = 'none';
+        return;
+      }
+
+      await client.auth.signOut({ scope: 'local' });
+      show('Done. Your account, readings and profile have been permanently deleted.', true);
+      form.style.display = 'none';
+    } catch (e) {
+      show('Something went wrong. Please email us and we will do it manually.', false);
+      button.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

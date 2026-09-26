@@ -1,0 +1,74 @@
+---
+/** Tool 12 — Palm reading quiz (KEYWORD_MAP.md §3: "palm reading quiz"; `/palm-reading/` keeps "how to read palms", C15). */
+import PalmQuiz from '../../components/tools/PalmQuiz.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { spotById } from '../../lib/tools/palm-map';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+
+const tool = toolById('line-quiz');
+const lineItems = (['heart', 'head', 'life', 'fate'] as const).map((id) => {
+  const spot = spotById(id)!;
+  return { term: spot.name, text: `${spot.where} ${spot.readFor}`, source: citeText(spot.cite) };
+});
+---
+
+<ToolLayout
+  tool={tool}
+  title="Palm Reading Quiz: Can You Spot the Lines?"
+  description="10 quick questions on palm diagrams: can you tell the heart line from the head line? Get a score card to share. No photo and no sign-up needed."
+  h1="Palm reading quiz: can you spot the lines?"
+  promise="10 quick questions on palm diagrams. Spot the lines and mounts, then check what you know about what they are read for."
+  how={[
+    { title: 'See a diagram', body: 'A drawn palm with one line or mount lit up, or a quick question about the tradition.' },
+    { title: 'Pick your answer', body: 'You see straight away whether it is right, with a one-line explanation.' },
+    { title: 'Get your score', body: 'Share it if you like. Your answers stay on this page; nothing is sent.' },
+  ]}
+  saysTitle="What the quiz covers"
+  saysIntro="The questions come from the lessons in our app, which follow the classical palmistry books."
+  says={[
+    ...lineItems,
+    {
+      term: 'The mounts (parvat)',
+      text: 'The raised pads of the palm, each named after a planet: Jupiter (Guru) under the index finger, Venus (Shukra) at the base of the thumb.',
+      source: citeText({ book: 'cheiro-language-of-the-hand-1900', locator: 'Part I, ch. XV — The Mounts, pp. 63–65' }),
+    },
+    {
+      term: 'Two common myths',
+      text: 'A short life line is not read as a short life, and a missing fate line is common, not a bad sign.',
+      source: citeText({ book: 'markun-what-you-should-know-about-palmistry-1927', locator: 'the section on the Line of Life' }),
+    },
+  ]}
+  limits={['A quiz score tests what you know about palmistry, not anything about you.', 'The diagram is a drawing of a typical right palm. Real hands vary.']}
+  faq={[
+    {
+      q: 'Is my score saved or sent anywhere?',
+      a: 'No. The score lives on this page only. Sharing sends only the words you choose to share.',
+    },
+    {
+      q: 'Where do the answers come from?',
+      a: 'From the lessons in our app, which follow the classical palmistry books. Each answer comes with a short explanation.',
+    },
+    { q: 'Can I take it again?', a: 'Yes, as often as you like. Tap “Try again” at the end.' },
+    {
+      q: 'Is there a Hindi version?',
+      a: 'Not on the website yet. The app has its lessons and quiz in Hindi and English.',
+    },
+    { q: 'Does it use AI or my photo?', a: 'No. It is a quiz on drawings: no photo and no sign-up.' },
+  ]}
+  links={[
+    { href: '/palm-reading/', label: 'How to read palm lines: the beginner’s guide' },
+    { href: '/hand-lines/', label: 'Lines on your palm and what they mean' },
+    { href: '/tools/palm-map/', label: 'Interactive palm map' },
+    { href: '/tools/which-hand-quiz/', label: 'Which-hand quiz' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+  ]}
+>
+  <PalmQuiz />
+</ToolLayout>
+
+<script>
+  import { mountQuiz } from '../../lib/tools/client/quiz-ui';
+
+  mountQuiz();
+</script>

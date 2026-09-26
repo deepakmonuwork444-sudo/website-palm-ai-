@@ -1,0 +1,9 @@
+---
+/**
+ * Devanagari inside an English guide: `lang="hi"` plus the system Devanagari
+ * font stack (.script-system), so English pages never download a Devanagari
+ * web font (DESIGN_SYSTEM.md §3.2).
+ */
+---
+
+<span lang="hi" class="script-system"><slot /></span>

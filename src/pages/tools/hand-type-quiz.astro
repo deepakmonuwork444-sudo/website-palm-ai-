@@ -1,0 +1,139 @@
+---
+/**
+ * Tool 9 — Hand type quiz (KEYWORD_MAP.md §3: "what hand type do I have").
+ * The earth/air/fire/water system is modern and not in the corpus books
+ * (CONTENT_GUIDE.md §9.4): it is labelled as the popular modern system and the
+ * classical seven types are named with their source (owner decision).
+ */
+import ChoiceGroup from '../../components/tools/ChoiceGroup.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { CHEIRO_TYPES, CUTOFFS, ELEMENTS, MODERN_SYSTEM_NOTE } from '../../lib/tools/hand-type';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+
+const tool = toolById('hand-type');
+const modern = 'The modern four-element system (20th century), not the classical books';
+const says = (['earth', 'air', 'fire', 'water'] as const).map((element) => {
+  const info = ELEMENTS[element];
+  return {
+    term: `${info.name}: ${info.palm} palm, ${info.fingers} fingers`,
+    text: info.summary,
+    source: modern,
+  };
+});
+says.push({
+  term: 'The older system: seven types',
+  text: 'Cheiro sorts hands into seven types instead: elementary, square, spatulate, philosophic, conic, psychic and mixed.',
+  source: citeText(CHEIRO_TYPES),
+});
+const pct = (n: number) => `${Math.round(n * 100)}%`;
+---
+
+<ToolLayout
+  tool={tool}
+  title="What Hand Type Do I Have? Palmistry Hand Shape Quiz"
+  description="Find your hand type – earth, air, fire or water – from your palm shape and finger length, in the popular modern system, and what each type is linked with."
+  h1="What hand type do you have?"
+  promise="Two quick answers — your palm’s shape and your fingers’ length — give your hand type in the popular four-element system."
+  spot={{
+    title: 'How to measure your hand',
+    paras: [
+      'Palm length: from the crease where your wrist meets the palm to the base of your middle finger. Palm width: straight across the palm, just below the fingers. Finger length: your middle finger, from its base crease on the palm side to the tip.',
+      `Our rule of thumb: a palm counts as square when its length is at most ${CUTOFFS.palm.square} times its width, and long from ${CUTOFFS.palm.long} times. Fingers count as short up to ${pct(CUTOFFS.fingers.short)} of the palm’s length, and long from ${pct(CUTOFFS.fingers.long)}. In between, you see both types. These cut-offs are ours; books don’t agree on exact numbers.`,
+    ],
+  }}
+  how={[
+    { title: 'Look at your palm and fingers', body: 'Or measure them with a ruler: palm length, palm width and your middle finger.' },
+    { title: 'Pick or measure', body: 'If you measure, the page does the sums with the rule of thumb written below.' },
+    { title: 'See your hand type', body: 'Earth, air, fire or water — or two types if you sit between them. Nothing is sent or saved.' },
+  ]}
+  saysTitle="What the hand types mean"
+  saysIntro={MODERN_SYSTEM_NOTE}
+  says={says}
+  limits={[
+    'A hand type describes a shape, not your future. The element system links shapes with temperaments; it predicts nothing.',
+    'The element system is modern and is not in the classical books we use for line meanings, so no book citation is given for it.',
+    'Measurements at home are rough. A result near a cut-off is shown as two types, and that is common.',
+  ]}
+  faq={[
+    {
+      q: 'Is the element hand type from ancient palmistry?',
+      a: 'No. The earth, air, fire and water system is modern. Older books, such as Cheiro’s Palmistry for All (1916), use seven hand types instead.',
+    },
+    {
+      q: 'What if my palm is between square and long?',
+      a: 'Then you get both possible types. Many hands sit between two, and neither answer is wrong.',
+    },
+    {
+      q: 'Which hand should I measure?',
+      a: 'Either is fine for shape, as both hands are usually a similar shape. Palmists usually look at the hand you write with.',
+    },
+    {
+      q: 'Does this quiz use AI or my photo?',
+      a: 'No. Your answers are matched to the four types by a simple rule, in your browser. Nothing is sent.',
+    },
+  ]}
+  links={[
+    { href: '/hand-types/', label: 'Read the full guide to hand types' },
+    { href: '/palmistry-fingers/', label: 'What palmistry reads in your fingers' },
+    { href: '/tools/which-hand-quiz/', label: 'Which-hand quiz' },
+    { href: '/tools/palm-map/', label: 'Interactive palm map' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+  ]}
+>
+  <div class="t-card" data-hand-type>
+    <form class="t-form" novalidate aria-label="Find your hand type">
+      <ChoiceGroup
+        name="palm"
+        legend="What shape is your palm?"
+        help="Look at the palm only, from the wrist crease to the base of the fingers."
+        choices={[
+          { value: 'square', label: 'Square', hint: 'About as wide as it is long', glyph: 'M5 6.5h14v12H5z' },
+          { value: 'long', label: 'Long', hint: 'Clearly longer than it is wide', glyph: 'M7.5 3.5h9v17h-9z' },
+          { value: 'not-sure', label: 'Not sure', hint: 'Show both possibilities' },
+        ]}
+      />
+      <ChoiceGroup
+        name="fingers"
+        legend="How long are your fingers?"
+        help="Compare your middle finger with the length of your palm."
+        choices={[
+          { value: 'short', label: 'Short', hint: 'Clearly shorter than the palm' },
+          { value: 'long', label: 'Long', hint: 'Close to the palm’s length' },
+          { value: 'not-sure', label: 'Not sure', hint: 'Show both possibilities' },
+        ]}
+      />
+      <details class="t-measure">
+        <summary>Measure instead (in cm)</summary>
+        <div class="t-measure-body">
+          <label class="t-field">
+            <span>Palm length, wrist crease to middle-finger base</span>
+            <input type="text" inputmode="decimal" name="palm-length" autocomplete="off" placeholder="e.g. 10.5" />
+          </label>
+          <label class="t-field">
+            <span>Palm width, just below the fingers</span>
+            <input type="text" inputmode="decimal" name="palm-width" autocomplete="off" placeholder="e.g. 8.5" />
+          </label>
+          <label class="t-field">
+            <span>Middle finger length</span>
+            <input type="text" inputmode="decimal" name="finger-length" autocomplete="off" placeholder="e.g. 8" />
+          </label>
+          <button type="button" class="btn btn-gold" data-measure>Use my measurements</button>
+          <p class="t-caveat" role="status" data-measure-note></p>
+        </div>
+      </details>
+      <div class="t-actions">
+        <button type="reset" class="btn btn-secondary">Start again</button>
+      </div>
+    </form>
+    <noscript><p class="t-noscript">This quiz needs JavaScript. The four types are explained below.</p></noscript>
+    <p class="t-sr" role="status" data-status></p>
+    <div class="t-result" id="result" data-result></div>
+  </div>
+</ToolLayout>
+
+<script>
+  import { mountHandType } from '../../lib/tools/client/hand-type-ui';
+
+  mountHandType();
+</script>

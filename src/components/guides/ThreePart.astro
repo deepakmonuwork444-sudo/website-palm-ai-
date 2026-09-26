@@ -1,0 +1,44 @@
+---
+/**
+ * The three-part block for a sensitive meaning (CONTENT_GUIDE.md §4.4):
+ * what you see, what the tradition says (attributed), what it can't tell you
+ * and what you can do. Inline markdown is allowed in each part.
+ */
+import { localeFromPath } from '../../i18n';
+import { inlineMarkdown } from '../../lib/guides/guides';
+import { guideStrings } from '../../lib/guides/strings';
+
+interface Props {
+  see: string;
+  says: string;
+  cant: string;
+}
+
+const { see, says, cant } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const s = guideStrings(locale);
+const rows = [
+  { label: s.whatWeSee, text: see },
+  { label: s.whatTraditionSays, text: says },
+  { label: s.whatItCantTell, text: cant },
+];
+---
+
+<dl class="three">
+  {
+    rows.map((row) => (
+      <div class="three-row">
+        <dt class="text-small font-bold">{row.label}</dt>
+        <dd set:html={inlineMarkdown(row.text, locale)} />
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .three { margin: 1.5rem 0; padding: 0; border-radius: 1.25rem; background-color: var(--surface-1); border: 1px solid var(--edge); overflow: hidden; }
+  .three-row { padding: 1rem 1.25rem; border-top: 1px solid var(--border); }
+  .three-row:first-child { border-top: none; }
+  .three dt { color: var(--accent); margin: 0 0 0.25rem; }
+  .three dd { margin: 0; }
+</style>

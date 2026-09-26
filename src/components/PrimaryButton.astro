@@ -1,0 +1,34 @@
+---
+/**
+ * Buttons (DESIGN_SYSTEM.md §7.1): a real <a> with `href`, otherwise a <button>.
+ * gold = the one primary action per viewport state; secondary = surface-2 fill,
+ * always readable; outline = the header action (40px visual, 48px hit area).
+ * Sentence case, no arrow, no emoji.
+ */
+interface Props {
+  href?: string;
+  variant?: 'gold' | 'secondary' | 'outline';
+  type?: 'button' | 'submit';
+  block?: boolean;
+  class?: string;
+  [key: `data-${string}`]: string | undefined;
+  'aria-controls'?: string;
+  'aria-expanded'?: 'true' | 'false';
+  'aria-label'?: string;
+}
+
+const { href, variant = 'gold', type = 'button', block = false, class: className, ...rest } = Astro.props;
+const classes = ['btn', `btn-${variant}`, { 'btn-block': block }, className];
+---
+
+{
+  href ? (
+    <a href={href} class:list={classes} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class:list={classes} {...rest}>
+      <slot />
+    </button>
+  )
+}

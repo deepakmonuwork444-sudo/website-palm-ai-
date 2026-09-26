@@ -1,0 +1,296 @@
+---
+/**
+ * Guide template (WEB-FEAT-006; CONTENT_GUIDE.md §5, DESIGN_SYSTEM.md §7.8).
+ * Blocks in order: breadcrumbs, H1 + subtitle, byline, answer first, the
+ * drawing (the guide's line highlighted), quick facts, inline CTA, TOC, the
+ * MDX body (sections, variation cards, tool card, myth vs reality, limits
+ * box), photo tips, FAQ, sources, step n of 7, end block, related guides.
+ * Zero JS. Article + BreadcrumbList + FAQPage JSON-LD, all from front matter.
+ *
+ * Publishing guard (CONTENT_GUIDE.md §10): a production build refuses a
+ * `draft` guide, and a YMYL guide without the owner's OK.
+ */
+import type { MarkdownHeading } from 'astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import EndCta from '../components/guides/EndCta.astro';
+import Faq from '../components/guides/Faq.astro';
+import PalmDiagram from '../components/guides/PalmDiagram.astro';
+import PhotoTips from '../components/guides/PhotoTips.astro';
+import RelatedGuides from '../components/guides/RelatedGuides.astro';
+import Sources from '../components/guides/Sources.astro';
+import StepPager from '../components/guides/StepPager.astro';
+import PalmTrace from '../components/PalmTrace.astro';
+import { isPreview } from '../config/env';
+import { isLive } from '../config/pages';
+import { site } from '../config/site';
+import { localizePath, t } from '../i18n';
+import { formatDate, inlineMarkdown, isoWithOffset, plainText } from '../lib/guides/guides';
+import { isVariant, VARIANTS, type Variant } from '../lib/guides/palm-geometry';
+import { guideStrings } from '../lib/guides/strings';
+import { articleSchema, type Crumb } from '../lib/schema';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  entry: CollectionEntry<'guides'>;
+  headings: MarkdownHeading[];
+}
+
+const { entry, headings } = Astro.props;
+const g = entry.data;
+const locale = g.locale;
+const dict = t(locale);
+const s = guideStrings(locale);
+
+const ownerOk = g.status === 'owner-ok' || g.status === 'published';
+if (!isPreview && (g.status === 'draft' || (g.ymyl !== 'none' && !ownerOk))) {
+  throw new Error(`${g.path}: status "${g.status}" can't be published (CONTENT_GUIDE.md §10: YMYL guides need the owner's OK)`);
+}
+if (g.figureVariant && !isVariant(g.figureVariant)) throw new Error(`${g.path}: unknown figureVariant "${g.figureVariant}"`);
+
+// Other guides, for breadcrumbs and related links (only live, registered pages).
+const all = await getCollection('guides');
+const byPath = new Map(all.map((item) => [item.data.path, item.data]));
+const crumbs: Crumb[] = [];
+for (let parent = g.parent; parent; parent = byPath.get(parent)?.parent) {
+  const data = byPath.get(parent);
+  if (!data) throw new Error(`${g.path}: parent ${parent} is not a guide`);
+  crumbs.unshift({ name: data.crumb, path: data.path });
+}
+crumbs.unshift({ name: dict.nav.home, path: localizePath('/', locale) });
+crumbs.push({ name: g.crumb, path: g.path });
+
+const related = g.related
+  .map((path) => byPath.get(path))
+  .filter((data): data is NonNullable<typeof data> => Boolean(data) && isLive(data!.path))
+  .map((data) => ({ path: data.path, name: data.crumb, line: data.line }));
+
+// TOC: the body's H2s, then the template's own sections.
+const toc = [
+  ...headings.filter((heading) => heading.depth === 2).map((heading) => ({ id: heading.slug, text: heading.text })),
+  { id: 'faq-title', text: s.faqTitle },
+  { id: 'sources-title', text: s.sourcesTitle },
+];
+
+const authorPath = '/about/deepak-chauhan/';
+const authorLive = isLive(authorPath);
+const home = localizePath('/', locale);
+const lineName = g.line ? dict.lines[g.line].name.toLowerCase() : null;
+const edgeFigure = g.figureVariant && isVariant(g.figureVariant) ? (VARIANTS[g.figureVariant] as Variant).view === 'edge' : false;
+const campaign = g.path.replace(/^\/|\/$/g, '').replace(/\//g, '-').slice(0, 40);
+
+const webSources = g.sources.filter((source): source is Extract<typeof source, { title: string }> => 'title' in source);
+const jsonLd = [
+  {
+    ...articleSchema({
+      headline: g.h1,
+      description: g.description,
+      path: g.path,
+      locale,
+      image: locale === 'hi' ? '/og-default-hi.png' : '/og-default.png',
+      datePublished: isoWithOffset(g.published),
+      dateModified: isoWithOffset(g.updated),
+      authorName: site.author.name,
+      ...(authorLive ? { authorUrl: authorPath } : {}),
+    }),
+    ...(webSources.length
+      ? {
+          citation: webSources.map((source) => ({
+            '@type': 'CreativeWork',
+            name: source.title,
+            author: source.author,
+            ...(source.url ? { url: source.url } : {}),
+          })),
+        }
+      : {}),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: g.faq.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: plainText(item.a) },
+    })),
+  },
+];
+---
+
+<BaseLayout title={g.title} description={g.description} path={g.path} locale={locale} jsonLd={jsonLd} ogType="article">
+  <article class="guide">
+    <header class="guide-head wrap">
+      <div class="guide-intro">
+        <Breadcrumbs items={crumbs} label={dict.a11y.breadcrumb} />
+        <h1 class="font-display text-h1 tracking-display-en guide-title">{g.h1}</h1>
+        {g.subtitle && <p class="text-lead text-fg-muted guide-subtitle">{g.subtitle}</p>}
+        <ul class="byline text-small text-fg-muted">
+          <li>
+            {s.writtenBy}{' '}
+            {authorLive ? <a class="text-link" href={authorPath} rel="author">{site.author.name}</a> : <span class="text-fg">{site.author.name}</span>}
+          </li>
+          {g.reviewedBy && <li>{s.reviewedBy} {g.reviewedBy.name}, {g.reviewedBy.role}</li>}
+          <li>{s.lastReviewed} <time datetime={g.updated}>{formatDate(g.updated, locale)}</time></li>
+        </ul>
+        <p class="text-lead guide-answer measure" set:html={inlineMarkdown(g.answer, locale)} />
+      </div>
+
+      <div class="guide-art">
+        {
+          g.figureVariant && isVariant(g.figureVariant) ? (
+            <figure class="head-fig">
+              <div class:list={['head-fig-art hero-fill', { edge: edgeFigure }]}>
+                <PalmDiagram variant={g.figureVariant} id="guide-head-art" label={g.figureAlt} size="figure" />
+              </div>
+              <figcaption class="text-small text-fg-muted">
+                <span class="fig-label text-caption">{s.figureLabel}</span> {g.figureCaption}
+              </figcaption>
+            </figure>
+          ) : (
+            <PalmTrace
+              locale={locale}
+              id="guide-palm"
+              size="compact"
+              alt={g.figureAlt}
+              caption={g.figureCaption}
+              {...(g.line ? { highlight: g.line } : {})}
+            />
+          )
+        }
+      </div>
+
+      <div class="guide-facts">
+        <section class="facts" aria-labelledby="facts-title">
+          <h2 id="facts-title" class="text-h3 font-bold facts-title">{s.quickFacts}</h2>
+          <dl>
+            {
+              g.quickFacts.map((fact) => (
+                <div class="fact">
+                  <dt class="text-small text-fg-muted">{fact.label}</dt>
+                  <dd set:html={inlineMarkdown(fact.value, locale)} />
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+
+        {g.inlineCta && (
+        <p class="inline-cta text-small">
+          {
+            site.webReadingEnabled ? (
+              <a class="text-link" href={`${home}#read`}>{lineName ? s.inlineCtaLive(lineName) : s.inlineCtaLiveAll}</a>
+            ) : (
+              <>
+                {s.inlineCtaSoon} <a class="text-link" href={`${home}#sample`}>{s.inlineCtaSoonLink}</a>
+              </>
+            )
+          }
+        </p>
+        )}
+      </div>
+    </header>
+
+    <div class="guide-grid wrap">
+      <div class="guide-main">
+        <details class="toc-mobile">
+          <summary class="toc-summary font-bold">{s.onThisPage}</summary>
+          <ol class="toc-list">
+            {toc.map((item) => <li><a class="nav-link" href={`#${item.id}`}>{item.text}</a></li>)}
+          </ol>
+        </details>
+
+        <div class="guide-prose">
+          <slot />
+        </div>
+
+        <PhotoTips />
+        <Faq title={s.faqTitle} items={g.faq} />
+        <Sources sources={g.sources} />
+        {g.step && <StepPager step={g.step} />}
+        <EndCta campaign={campaign} />
+        <RelatedGuides items={related} />
+      </div>
+
+      <nav class="toc-side" aria-label={s.onThisPage}>
+        <p class="font-bold toc-side-title">{s.onThisPage}</p>
+        <ol class="toc-list">
+          {toc.map((item) => <li><a class="nav-link" href={`#${item.id}`}>{item.text}</a></li>)}
+        </ol>
+      </nav>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .guide { padding-bottom: var(--section); }
+  .guide-head { display: grid; gap: 1.5rem; padding-top: 0.5rem; }
+  .guide-title { margin: 0.25rem 0 0.75rem; }
+  .guide-subtitle { margin: 0 0 1rem; }
+  .byline { list-style: none; margin: 0 0 1.25rem; padding: 0; display: flex; flex-direction: column; gap: 0.125rem; }
+  .guide-answer { margin: 0; color: var(--fg); }
+  .guide-art, .guide-facts { min-width: 0; }
+  .head-fig { margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  .head-fig-art { display: flex; justify-content: center; padding: 1.25rem; border-radius: 1.75rem; border: 1px solid var(--edge); }
+  .head-fig-art.edge { padding: 0; overflow: hidden; max-width: 22rem; }
+  .fig-label { display: inline-block; padding: 0 0.5rem; margin-inline-end: 0.25rem; border-radius: 0.5rem; background-color: var(--surface-2); color: var(--fg); font-weight: 700; }
+
+  .guide-grid { display: grid; gap: 2rem; margin-top: 2rem; }
+  .guide-main { min-width: 0; max-width: 42.5rem; }
+
+  .facts { padding: 1.25rem; border-radius: 1.25rem; background-color: var(--surface-1); border: 1px solid var(--edge); }
+  .facts-title { margin: 0 0 0.75rem; }
+  .facts dl { margin: 0; display: grid; }
+  .fact { padding: 0.625rem 0; border-top: 1px solid var(--border); }
+  .fact:first-child { border-top: none; padding-top: 0; }
+  .fact dt { margin: 0; }
+  .fact dd { margin: 0; }
+
+  .inline-cta { margin: 1.25rem 0 0; }
+
+  .toc-mobile { margin-top: 1.5rem; border-radius: 0.75rem; border: 1px solid var(--edge); background-color: var(--surface-1); }
+  .toc-summary { display: flex; align-items: center; min-height: 3rem; padding: 0 1rem; cursor: pointer; }
+  .toc-mobile .toc-list { padding: 0 1rem 1rem 2.25rem; }
+  .toc-list { margin: 0; list-style: decimal; display: flex; flex-direction: column; gap: 0.125rem; }
+  .toc-list li::marker { color: var(--fg-faint); }
+  .toc-list a { display: inline-flex; min-height: 2.5rem; align-items: center; }
+  .toc-side { display: none; }
+
+  @media (min-width: 64rem) {
+    .guide-head {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); grid-template-areas: "intro art" "facts art";
+      column-gap: 3rem; row-gap: 1.5rem; align-items: start; padding-top: 1rem;
+    }
+    .guide-intro { grid-area: intro; }
+    .guide-facts { grid-area: facts; max-width: 42.5rem; }
+    .guide-art { grid-area: art; padding-top: 3.5rem; }
+    .guide-grid { grid-template-columns: minmax(0, 42.5rem) minmax(0, 15rem); justify-content: space-between; gap: 4rem; margin-top: 3rem; }
+    .toc-mobile { display: none; }
+    .toc-side { display: block; position: sticky; top: 5.5rem; align-self: start; max-height: calc(100dvh - 7rem); overflow-y: auto; }
+    .toc-side-title { margin: 0 0 0.5rem; }
+    .toc-side .toc-list { padding-inline-start: 1.25rem; }
+    .toc-side a { font-size: var(--fs-small); min-height: 2.25rem; }
+  }
+
+  /* The MDX body. */
+  .guide-prose { margin-top: 1rem; }
+  .guide-prose > :global(h2) {
+    font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: 700; margin: 3rem 0 1rem;
+  }
+  .guide-prose > :global(h3) { font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 700; margin: 2rem 0 0.5rem; }
+  .guide-prose > :global(p) { margin: 0 0 1rem; }
+  .guide-prose > :global(ul:not([class])), .guide-prose > :global(ol:not([class])) { margin: 0 0 1.25rem; padding-inline-start: 1.25rem; list-style: disc; display: flex; flex-direction: column; gap: 0.5rem; }
+  .guide-prose > :global(ul:not([class]) > li::marker) { color: var(--accent); }
+  .guide-prose > :global(ol:not([class])) { list-style: decimal; }
+  .guide-prose :global(a:not([class])) { color: var(--accent); text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+  .guide-prose :global(strong) { font-weight: 700; }
+  .guide-prose > :global(table) { width: 100%; border-collapse: collapse; margin: 0 0 1.5rem; font-size: var(--fs-small); }
+  .guide-prose :global(th), .guide-prose :global(td) { text-align: start; vertical-align: top; padding: 0.625rem 0.75rem 0.625rem 0; border-bottom: 1px solid var(--border); }
+  .guide-prose :global(th) { font-weight: 700; }
+  /* Tables become stacked rows on phones (DESIGN_SYSTEM.md §4.1). */
+  @media (max-width: 39.99rem) {
+    .guide-prose :global(thead) { display: none; }
+    .guide-prose :global(tr) { display: block; padding: 0.625rem 0; border-bottom: 1px solid var(--border); }
+    .guide-prose :global(td) { display: block; padding: 0.125rem 0; border: none; }
+    .guide-prose :global(td:first-child) { font-weight: 700; }
+  }
+</style>

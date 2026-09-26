@@ -1,0 +1,86 @@
+---
+/** Tool 6 — Life line finder (KEYWORD_MAP.md §3: "which life line do I have"). Length is never lifespan; care line in the limits box. */
+import LineFinder from '../../components/tools/LineFinder.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { summaries } from '../../lib/tools/finder';
+import { LIFE_FINDER } from '../../lib/tools/lines/life';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+
+const tool = toolById('life-finder');
+const says = summaries(LIFE_FINDER).map(({ option, rule }) => ({
+  term: option.evidence,
+  text: rule.meaning,
+  source: citeText(rule.cites[0]!),
+}));
+---
+
+<ToolLayout
+  tool={tool}
+  title="Life Line Finder: Which Life Line Type Do You Have?"
+  description="Pick the life line shape that matches your palm and see what palmistry traditionally reads in it, with the source. Length is never read as lifespan."
+  h1="Life line finder: which life line do you have?"
+  promise="Pick the curve, length and marks of the line around your thumb and see what the books read in them. Length is never read as lifespan."
+  spot={{
+    title: 'How to find your life line',
+    paras: [
+      'The life line curves around the base of your thumb. It starts between your thumb and index finger and sweeps down towards the wrist.',
+      'Notice how wide the curve is, where it starts and ends, and whether it is one clean line. A short life line does not mean a short life: the books read this line for energy and how you meet change, never for years.',
+    ],
+  }}
+  how={[
+    { title: 'Look at the curve', body: 'Use the hand you write with, in good light. Follow the line from between your thumb and index finger down.' },
+    { title: 'Pick its shape and marks', body: 'Curve, length, start, end, depth and any break or fork. “Not sure” is always fine.' },
+    {
+      title: 'Read what the books say',
+      body: 'The page matches your answers to the life line rules our app uses. Those rules carry no reading about health or lifespan. Nothing leaves your browser.',
+    },
+  ]}
+  saysIntro="Each life line form in a sentence, from the first book that reads it. None of them is about how long you will live."
+  says={says}
+  limitsTopic="The life line’s length is not read as lifespan; for health, talk to a doctor."
+  careLine
+  limits={[
+    'This tool gives no reading about health or how long you will live, whatever some old books claim. The app’s life line rules carry none either.',
+    'A break or a short line often comes from the light, a crease or how the hand is held. Look again in good light before you pick.',
+    'This tool reads the shape you pick, not a photo of your hand.',
+  ]}
+  faq={[
+    {
+      q: 'Does a short life line mean a short life?',
+      a: 'No. A short life line is not read as a short life. Even the old books warn against reading its length as a count of years.',
+    },
+    {
+      q: 'What does a break in my life line mean?',
+      a: 'One book reads it as a period of major change in the way life is lived. Darker readings from other books are refused here.',
+    },
+    {
+      q: 'Can this work out my age at an event?',
+      a: 'No. We never work out ages or dates from the life line. No line can show them.',
+    },
+    {
+      q: 'Which hand should I check?',
+      a: 'Most palmists read the hand you write with. The which-hand quiz explains why in three taps.',
+    },
+    {
+      q: 'Does this tool use AI or my photo?',
+      a: 'No. There is no photo here and no AI. You pick what you see, and the page looks up the rules in your browser.',
+    },
+  ]}
+  links={[
+    { href: '/life-line/', label: 'Read the full life line guide' },
+    { href: '/life-line/broken/', label: 'What a broken life line means' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+    { href: '/tools/fate-line-finder/', label: 'Fate line finder' },
+    { href: '/tools/palm-map/', label: 'Interactive palm map' },
+  ]}
+>
+  <LineFinder finder={LIFE_FINDER} lineName="life line" />
+</ToolLayout>
+
+<script>
+  import { mountFinder } from '../../lib/tools/client/finder-ui';
+  import { LIFE_FINDER } from '../../lib/tools/lines/life';
+
+  mountFinder(LIFE_FINDER, 'life-finder');
+</script>

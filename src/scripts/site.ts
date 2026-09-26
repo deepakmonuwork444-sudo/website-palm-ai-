@@ -1,0 +1,79 @@
+/**
+ * The site's only shared script (bundled, external, well under 2 KB):
+ * Day/Night toggle, the menu sheet and the glass header after 24px of scroll.
+ * Everything works without it except these three enhancements.
+ * The theme itself is applied before first paint by the inline head script.
+ */
+
+const THEME_KEY = 'palmsays-theme';
+type Theme = 'night' | 'day';
+
+function currentTheme(): Theme {
+  return document.documentElement.getAttribute('data-theme') === 'day' ? 'day' : 'night';
+}
+
+function syncToggles(theme: Theme): void {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')) {
+    button.setAttribute('aria-pressed', theme === 'day' ? 'true' : 'false');
+  }
+}
+
+function setTheme(theme: Theme): void {
+  document.documentElement.setAttribute('data-theme', theme);
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch {
+    // Storage blocked (private mode): the choice lasts for this page only.
+  }
+  syncToggles(theme);
+}
+
+function initTheme(): void {
+  syncToggles(currentTheme());
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')) {
+    button.addEventListener('click', () => setTheme(currentTheme() === 'day' ? 'night' : 'day'));
+  }
+}
+
+function initMenu(): void {
+  const dialog = document.querySelector<HTMLDialogElement>('[data-menu]');
+  const openers = document.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+  for (const opener of openers) {
+    opener.addEventListener('click', () => {
+      dialog.showModal();
+      opener.setAttribute('aria-expanded', 'true');
+    });
+  }
+  dialog.addEventListener('close', () => {
+    for (const opener of openers) opener.setAttribute('aria-expanded', 'false');
+  });
+  dialog.querySelector('[data-menu-close]')?.addEventListener('click', () => dialog.close());
+  // A tap on the backdrop (outside the sheet) closes it.
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) {
+      const box = dialog.getBoundingClientRect();
+      const inside =
+        event.clientX >= box.left && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
+      if (!inside) dialog.close();
+    }
+  });
+  // In-page links (e.g. /#sample) close the sheet so the target is visible.
+  for (const link of dialog.querySelectorAll<HTMLAnchorElement>('[data-menu-link]')) {
+    link.addEventListener('click', () => dialog.close());
+  }
+}
+
+function initHeader(): void {
+  const sentinel = document.querySelector('[data-scroll-sentinel]');
+  if (!sentinel || !('IntersectionObserver' in window)) return;
+  const root = document.documentElement;
+  new IntersectionObserver(([entry]) => {
+    if (!entry) return;
+    root.toggleAttribute('data-scrolled', !entry.isIntersecting);
+  }).observe(sentinel);
+}
+
+initTheme();
+initMenu();
+initHeader();

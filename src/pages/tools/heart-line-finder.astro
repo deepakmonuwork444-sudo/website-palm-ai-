@@ -1,0 +1,85 @@
+---
+/** Tool 4 — Heart line finder (KEYWORD_MAP.md §3: "which heart line do I have"). */
+import LineFinder from '../../components/tools/LineFinder.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { summaries } from '../../lib/tools/finder';
+import { HEART_FINDER } from '../../lib/tools/lines/heart';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+
+const tool = toolById('heart-finder');
+const says = summaries(HEART_FINDER).map(({ option, rule }) => ({
+  term: option.evidence,
+  text: rule.meaning,
+  source: citeText(rule.cites[0]!),
+}));
+---
+
+<ToolLayout
+  tool={tool}
+  title="Heart Line Finder: Which Heart Line Type Do You Have?"
+  description="Pick the heart line shape that matches your palm and see what classical palmistry books say about it, with the source. Traditional meanings, not AI."
+  h1="Heart line finder: which heart line do you have?"
+  promise="Answer a few questions about the top line on your palm. See what the classical books read in that shape, with the book and chapter for each meaning."
+  spot={{
+    title: 'How to find your heart line',
+    paras: [
+      'Hold your palm up in good light. The heart line is the highest of the long lines, running across the palm just below the fingers. It starts at the little-finger edge and runs towards your index or middle finger.',
+      'Check where it ends, how far across it runs, and whether it is one clean line. A fork or a break shows up best if you bend your fingers slightly towards the palm and let the light fall from the side.',
+    ],
+  }}
+  how={[
+    { title: 'Look at your palm', body: 'Use the hand you write with. Side light makes the heart line easier to see.' },
+    { title: 'Pick what you see', body: 'Answer only what you can see clearly. “Not sure” is always a fine answer.' },
+    {
+      title: 'Read the meanings',
+      body: 'Each meaning comes from the same fixed rule set our app uses, built from classical palmistry books, with the book named under it. It all runs in your browser; your answers are not sent anywhere.',
+    },
+  ]}
+  saysIntro="Each heart line form in a sentence, from the first book that reads it. The finder above shows every book’s reading for the shape you pick."
+  says={says}
+  limitsTopic="They also can’t tell who your partner will be or how a relationship will turn out."
+  limits={[
+    'This tool reads the shape you pick, not a photo. If you pick something you aren’t sure of, the meaning won’t fit you.',
+    'The old books also read islands, dots and crosses on the heart line, mostly as signs about health. Palm lines are not a health test, so those readings are left out.',
+    'Where books from different traditions disagree, you see both. We don’t pick a winner.',
+  ]}
+  faq={[
+    {
+      q: 'Which hand should I look at?',
+      a: 'Most palmists read the hand you write with. Not sure? Take the which-hand quiz. The heart line is read the same way on either hand.',
+    },
+    {
+      q: 'What if my heart line ends between two fingers?',
+      a: 'Pick “Between the index and middle fingers”. If you really can’t tell, pick “Not sure” — the tool then leaves that feature out instead of guessing.',
+    },
+    {
+      q: 'Why do I see more than one meaning for one answer?',
+      a: 'Different books describe the same shape in different words, and sometimes traditions disagree. We show each reading with its source instead of blending them into one.',
+    },
+    {
+      q: 'Can the heart line tell me who I will marry?',
+      a: 'No. No line can tell who your partner will be, when you will marry or how a relationship will go. The books read the heart line for how you feel and show affection.',
+    },
+    {
+      q: 'Does this tool use AI or my photo?',
+      a: 'No. There is no photo here and no AI. You pick what you see, and the page looks up the matching rules in your browser.',
+    },
+  ]}
+  links={[
+    { href: '/heart-line/', label: 'Read the full heart line guide' },
+    { href: '/#sample', label: 'See how a full palm reading looks' },
+    { href: '/tools/head-line-finder/', label: 'Head line finder' },
+    { href: '/tools/palm-map/', label: 'Tap the lines on the interactive palm map' },
+    { href: '/tools/which-hand-quiz/', label: 'Which hand should you read? Take the quiz' },
+  ]}
+>
+  <LineFinder finder={HEART_FINDER} lineName="heart line" />
+</ToolLayout>
+
+<script>
+  import { mountFinder } from '../../lib/tools/client/finder-ui';
+  import { HEART_FINDER } from '../../lib/tools/lines/heart';
+
+  mountFinder(HEART_FINDER, 'heart-finder');
+</script>

@@ -1,0 +1,141 @@
+/**
+ * THE ONE PLACE for brand, URLs, package, prices, flags and free numbers
+ * (ARCHITECTURE.md §5). Pages and components never type these values.
+ *
+ * Pure constants and pure helpers only: no `import.meta.env` here, so the
+ * Astro config and the unit tests can import this file too. Build-time
+ * environment values live in `src/config/env.ts`.
+ */
+
+export const LOCALES = ['en', 'hi'] as const;
+export type Locale = (typeof LOCALES)[number];
+
+/** A SHA-256 certificate fingerprint as Play Console prints it: 32 hex pairs joined by colons. */
+export const SHA256_FINGERPRINT = /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/;
+
+export const site = {
+  brand: 'PalmSays',
+  /** Hindi form of the brand: not decided by the owner yet (ARCHITECTURE.md §5). */
+  brandHi: null as string | null,
+  domain: 'palmsays.com',
+  baseUrl: 'https://palmsays.com',
+  /** The app's proxy Worker in front of Supabase. Not live until WEB-SRV-002. */
+  apiUrl: 'https://api.palmsays.com',
+
+  /** Android package, read from the app repo's app.json `android.package` on 2026-09-26. */
+  playPackage: 'com.palmreadai.app',
+  /** The app's current name on Google Play (it is renamed to PalmSays only after WEB-SRV-014). */
+  appNameOnPlay: 'Palm Read AI',
+  appScheme: 'palmreadai',
+  /**
+   * Play App Signing (+ upload key) SHA-256 fingerprints for /.well-known/assetlinks.json.
+   * Empty = the file is NOT built (a made-up fingerprint is never published). Owner item 6.
+   */
+  assetlinksSha256: [] as string[],
+  iosAppAvailable: false,
+
+  /**
+   * Feature flag: the live web reading (WEB-FEAT-026) needs server work that is not
+   * deployed yet (WEB-SRV-002…007). While false, the home page never offers an upload
+   * and never shows a fake reading.
+   */
+  webReadingEnabled: false,
+
+  /** Static copy only; the reading screen always asks the server (F4). Not verified (WEB-SRV-001). */
+  freeReadings: { guest: 1, afterEmail: 1 },
+
+  /**
+   * App prices shown next to every store button.
+   * [verify] against Google Play per country before launch (DESIGN_SYSTEM.md §15.3).
+   */
+  appPrices: {
+    currency: 'INR',
+    planFromPerMonth: 149,
+    packFrom: 199,
+    verified: false,
+  },
+  /** Download size in MB; null hides the size line until it is measured. */
+  appSizeMb: null as number | null,
+
+  ageRule: 18,
+  /** Company details for the footer and legal pages: owner item 9, not provided yet. */
+  company: {
+    name: null as string | null,
+    email: null as string | null,
+    grievanceContact: null as string | null,
+  },
+  author: { name: 'Deepak Chauhan' },
+  /** Cloudflare Web Analytics is not set up yet; the footer cookie line depends on this list staying cookie-free. */
+  cookieFree: true,
+} as const;
+
+export type Site = typeof site;
+
+/** Utm tokens must stay short, lowercase and URL-safe so Play Console groups them cleanly. */
+const UTM_TOKEN = /^[a-z0-9][a-z0-9_-]{0,39}$/;
+
+export interface PlayLinkOptions {
+  /** The page type or page, e.g. `home`, `app_page`, `footer`. */
+  medium: string;
+  /** The placement on that page, e.g. `hero`, `qr`, `app_section`. */
+  campaign: string;
+  /** Optional Play UI language. */
+  locale?: Locale;
+}
+
+/**
+ * The Google Play listing URL with an install referrer, so Play Console
+ * (Acquisition → third-party referrers) can separate website traffic by page
+ * and placement: `referrer=utm_source%3Dweb%26utm_medium%3D…%26utm_campaign%3D…`.
+ */
+export function playStoreUrl({ medium, campaign, locale }: PlayLinkOptions, pkg: string = site.playPackage): string {
+  if (!UTM_TOKEN.test(medium)) throw new Error(`playStoreUrl: bad utm_medium "${medium}"`);
+  if (!UTM_TOKEN.test(campaign)) throw new Error(`playStoreUrl: bad utm_campaign "${campaign}"`);
+  const referrer = `utm_source=web&utm_medium=${medium}&utm_campaign=${campaign}`;
+  const params = [`id=${encodeURIComponent(pkg)}`, `referrer=${encodeURIComponent(referrer)}`];
+  if (locale === 'hi') params.push('hl=hi');
+  return `https://play.google.com/store/apps/details?${params.join('&')}`;
+}
+
+/** The plain Play listing (no referrer), for `sameAs` in structured data. */
+export function playListingUrl(pkg: string = site.playPackage): string {
+  return `https://play.google.com/store/apps/details?id=${encodeURIComponent(pkg)}`;
+}
+
+/** An absolute URL on the site for a root-relative path (`/app/` → `https://palmsays.com/app/`). */
+export function absoluteUrl(path: string, baseUrl: string = site.baseUrl): string {
+  if (!path.startsWith('/')) throw new Error(`absoluteUrl: path must start with "/": ${path}`);
+  return `${baseUrl.replace(/\/+$/, '')}${path}`;
+}
+
+/** Problems with the fingerprint list; empty when every entry is a valid, unique SHA-256. */
+export function fingerprintProblems(list: readonly string[]): string[] {
+  const problems: string[] = [];
+  const normalised = list.map((value) => value.trim().toUpperCase());
+  for (const value of normalised) {
+    if (!SHA256_FINGERPRINT.test(value)) problems.push(`not a SHA-256 fingerprint: "${value}"`);
+  }
+  if (new Set(normalised).size !== normalised.length) problems.push('a fingerprint is listed twice');
+  return problems;
+}
+
+/**
+ * The Digital Asset Links statement for Android App Links, or null while the
+ * fingerprint list is empty (the file is then not built). Throws on a bad list.
+ */
+export function assetLinksJson(pkg: string, fingerprints: readonly string[]): string | null {
+  if (fingerprints.length === 0) return null;
+  const problems = fingerprintProblems(fingerprints);
+  if (problems.length) throw new Error(`assetlinks: ${problems.join('; ')}`);
+  const statement = [
+    {
+      relation: ['delegate_permission/common.handle_all_urls'],
+      target: {
+        namespace: 'android_app',
+        package_name: pkg,
+        sha256_cert_fingerprints: fingerprints.map((value) => value.trim().toUpperCase()),
+      },
+    },
+  ];
+  return `${JSON.stringify(statement, null, 2)}\n`;
+}

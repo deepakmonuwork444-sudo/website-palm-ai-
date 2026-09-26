@@ -1,0 +1,631 @@
+{
+ "version": "1.0.0",
+ "ontologyVersion": "2026-09-19.2",
+ "model": {
+  "name": "palm4_v2/palm4_v2@8a252bb"
+ },
+ "image": {
+  "width": 360,
+  "height": 480
+ },
+ "hand": {
+  "handedness": "Left",
+  "handednessScore": 0.966,
+  "landmarks": [
+   [
+    0.516,
+    0.825
+   ],
+   [
+    0.362,
+    0.743
+   ],
+   [
+    0.252,
+    0.621
+   ],
+   [
+    0.194,
+    0.513
+   ],
+   [
+    0.113,
+    0.439
+   ],
+   [
+    0.42,
+    0.45
+   ],
+   [
+    0.401,
+    0.308
+   ],
+   [
+    0.397,
+    0.224
+   ],
+   [
+    0.398,
+    0.147
+   ],
+   [
+    0.526,
+    0.444
+   ],
+   [
+    0.529,
+    0.286
+   ],
+   [
+    0.533,
+    0.189
+   ],
+   [
+    0.535,
+    0.106
+   ],
+   [
+    0.62,
+    0.471
+   ],
+   [
+    0.639,
+    0.332
+   ],
+   [
+    0.647,
+    0.245
+   ],
+   [
+    0.647,
+    0.168
+   ],
+   [
+    0.71,
+    0.525
+   ],
+   [
+    0.748,
+    0.419
+   ],
+   [
+    0.761,
+    0.349
+   ],
+   [
+    0.767,
+    0.285
+   ]
+  ],
+  "palmWidth": 110.5,
+  "palmWidthNormalized": 0.307
+ },
+ "quality": {
+  "ok": true,
+  "reasons": [],
+  "metrics": {
+   "palmWidthPx": 110.5,
+   "palmWidthFraction": 0.3068,
+   "handednessScore": 0.966,
+   "chiralityMatchesDeclaredSide": true,
+   "laplacianVariance": 63.42,
+   "meanLuminance": 153.6,
+   "clippedFraction": 0,
+   "creaseStrength": 3.647
+  }
+ },
+ "lines": {
+  "heart": {
+   "present": true,
+   "label": "heart",
+   "model_class": "heart",
+   "flagged": false,
+   "pixel_confidence": 0.998,
+   "semantic_confidence": 1,
+   "polyline": [
+    [
+     0.736,
+     0.581
+    ],
+    [
+     0.721,
+     0.576
+    ],
+    [
+     0.706,
+     0.571
+    ],
+    [
+     0.691,
+     0.567
+    ],
+    [
+     0.676,
+     0.562
+    ],
+    [
+     0.661,
+     0.557
+    ],
+    [
+     0.646,
+     0.553
+    ],
+    [
+     0.632,
+     0.547
+    ],
+    [
+     0.617,
+     0.541
+    ],
+    [
+     0.603,
+     0.536
+    ],
+    [
+     0.589,
+     0.529
+    ],
+    [
+     0.575,
+     0.523
+    ],
+    [
+     0.561,
+     0.516
+    ],
+    [
+     0.548,
+     0.507
+    ],
+    [
+     0.535,
+     0.499
+    ],
+    [
+     0.525,
+     0.489
+    ],
+    [
+     0.516,
+     0.479
+    ],
+    [
+     0.509,
+     0.468
+    ],
+    [
+     0.501,
+     0.457
+    ],
+    [
+     0.493,
+     0.446
+    ],
+    [
+     0.488,
+     0.435
+    ]
+   ],
+   "start": [
+    0.736,
+    0.581
+   ],
+   "end": [
+    0.488,
+    0.435
+   ],
+   "normalized_length": 1.145,
+   "length_class": "medium",
+   "length_band": "borderline",
+   "length_alt": "long",
+   "curvature": {
+    "chord_arc_ratio": 0.898,
+    "net_turning_deg": 41.7,
+    "class": "curved"
+   },
+   "continuity": "continuous",
+   "breaks": [],
+   "forks": [],
+   "depth_proxy": {
+    "value": 0.208,
+    "class": "deep"
+   },
+   "start_zone": "mercury",
+   "end_zone": "jupiter",
+   "semantic": {
+    "checks": []
+   }
+  },
+  "head": {
+   "present": true,
+   "label": "head",
+   "model_class": "head",
+   "flagged": false,
+   "pixel_confidence": 0.983,
+   "semantic_confidence": 1,
+   "polyline": [
+    [
+     0.365,
+     0.478
+    ],
+    [
+     0.38,
+     0.483
+    ],
+    [
+     0.396,
+     0.488
+    ],
+    [
+     0.41,
+     0.494
+    ],
+    [
+     0.425,
+     0.5
+    ],
+    [
+     0.44,
+     0.506
+    ],
+    [
+     0.453,
+     0.514
+    ],
+    [
+     0.468,
+     0.521
+    ],
+    [
+     0.482,
+     0.528
+    ],
+    [
+     0.496,
+     0.535
+    ],
+    [
+     0.51,
+     0.542
+    ],
+    [
+     0.523,
+     0.551
+    ],
+    [
+     0.535,
+     0.56
+    ],
+    [
+     0.55,
+     0.565
+    ],
+    [
+     0.561,
+     0.575
+    ],
+    [
+     0.574,
+     0.584
+    ],
+    [
+     0.587,
+     0.594
+    ],
+    [
+     0.599,
+     0.603
+    ],
+    [
+     0.613,
+     0.612
+    ],
+    [
+     0.625,
+     0.621
+    ]
+   ],
+   "start": [
+    0.365,
+    0.478
+   ],
+   "end": [
+    0.625,
+    0.621
+   ],
+   "normalized_length": 1.123,
+   "length_class": "medium",
+   "length_band": "firm",
+   "length_alt": null,
+   "curvature": {
+    "chord_arc_ratio": 0.938,
+    "net_turning_deg": 18.6,
+    "class": "gentle"
+   },
+   "continuity": "continuous",
+   "breaks": [],
+   "forks": [],
+   "depth_proxy": {
+    "value": 0.163,
+    "class": "moderate"
+   },
+   "start_zone": "jupiter",
+   "end_zone": "mars_positive",
+   "semantic": {
+    "checks": []
+   }
+  },
+  "life": {
+   "present": true,
+   "label": "life",
+   "model_class": "life",
+   "flagged": false,
+   "pixel_confidence": 0.998,
+   "semantic_confidence": 1,
+   "polyline": [
+    [
+     0.356,
+     0.486
+    ],
+    [
+     0.371,
+     0.491
+    ],
+    [
+     0.385,
+     0.498
+    ],
+    [
+     0.399,
+     0.504
+    ],
+    [
+     0.413,
+     0.51
+    ],
+    [
+     0.426,
+     0.518
+    ],
+    [
+     0.438,
+     0.528
+    ],
+    [
+     0.448,
+     0.538
+    ],
+    [
+     0.456,
+     0.549
+    ],
+    [
+     0.464,
+     0.56
+    ],
+    [
+     0.47,
+     0.571
+    ],
+    [
+     0.478,
+     0.582
+    ],
+    [
+     0.482,
+     0.594
+    ],
+    [
+     0.486,
+     0.606
+    ],
+    [
+     0.49,
+     0.618
+    ],
+    [
+     0.493,
+     0.63
+    ],
+    [
+     0.497,
+     0.642
+    ],
+    [
+     0.5,
+     0.654
+    ],
+    [
+     0.5,
+     0.667
+    ],
+    [
+     0.502,
+     0.679
+    ],
+    [
+     0.502,
+     0.693
+    ],
+    [
+     0.499,
+     0.705
+    ],
+    [
+     0.498,
+     0.718
+    ],
+    [
+     0.495,
+     0.73
+    ],
+    [
+     0.489,
+     0.742
+    ]
+   ],
+   "start": [
+    0.356,
+    0.486
+   ],
+   "end": [
+    0.489,
+    0.742
+   ],
+   "normalized_length": 1.377,
+   "length_class": "long",
+   "length_band": "borderline",
+   "length_alt": "medium",
+   "curvature": {
+    "chord_arc_ratio": 0.864,
+    "net_turning_deg": 67.9,
+    "class": "curved"
+   },
+   "continuity": "continuous",
+   "breaks": [],
+   "forks": [],
+   "depth_proxy": {
+    "value": 0.103,
+    "class": "moderate"
+   },
+   "start_zone": "jupiter",
+   "end_zone": "luna",
+   "semantic": {
+    "checks": []
+   }
+  },
+  "fate": {
+   "present": true,
+   "label": "fate",
+   "model_class": "fate",
+   "flagged": false,
+   "pixel_confidence": 0.966,
+   "semantic_confidence": 1,
+   "polyline": [
+    [
+     0.533,
+     0.742
+    ],
+    [
+     0.534,
+     0.731
+    ],
+    [
+     0.537,
+     0.72
+    ],
+    [
+     0.537,
+     0.707
+    ],
+    [
+     0.54,
+     0.695
+    ],
+    [
+     0.541,
+     0.683
+    ],
+    [
+     0.538,
+     0.671
+    ],
+    [
+     0.538,
+     0.658
+    ],
+    [
+     0.539,
+     0.646
+    ],
+    [
+     0.536,
+     0.634
+    ],
+    [
+     0.536,
+     0.621
+    ],
+    [
+     0.537,
+     0.608
+    ],
+    [
+     0.537,
+     0.596
+    ],
+    [
+     0.537,
+     0.583
+    ],
+    [
+     0.537,
+     0.572
+    ],
+    [
+     0.541,
+     0.561
+    ],
+    [
+     0.544,
+     0.549
+    ],
+    [
+     0.54,
+     0.537
+    ],
+    [
+     0.539,
+     0.525
+    ],
+    [
+     0.536,
+     0.513
+    ]
+   ],
+   "start": [
+    0.533,
+    0.742
+   ],
+   "end": [
+    0.536,
+    0.513
+   ],
+   "normalized_length": 1.046,
+   "length_class": "long",
+   "length_band": "firm",
+   "length_alt": null,
+   "curvature": {
+    "chord_arc_ratio": 0.95,
+    "net_turning_deg": 10.8,
+    "class": "gentle"
+   },
+   "continuity": "continuous",
+   "breaks": [],
+   "forks": [],
+   "depth_proxy": {
+    "value": 0.061,
+    "class": "faint"
+   },
+   "start_zone": "luna",
+   "end_zone": "saturn",
+   "semantic": {
+    "checks": []
+   }
+  }
+ },
+ "notAnalysed": [
+  "sun",
+  "mercury",
+  "relationship",
+  "travel",
+  "intuition",
+  "girdle_of_venus"
+ ],
+ "sideCorrected": null,
+ "timingsMs": {
+  "total": 1002
+ }
+}

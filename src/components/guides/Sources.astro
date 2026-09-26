@@ -1,0 +1,78 @@
+---
+/**
+ * Sources box (CONTENT_GUIDE.md §9.3, DESIGN_SYSTEM.md §7.8 SourcesList): a
+ * numbered list of every book and study used on the page. Books come from
+ * the app's catalogue (src/lib/guides/books.ts); books with unknown rights
+ * are marked "facts only".
+ */
+import { localeFromPath } from '../../i18n';
+import { BOOKS, isBookId, type Book } from '../../lib/guides/books';
+import { guideStrings } from '../../lib/guides/strings';
+
+export type GuideSource =
+  | { book: string; locator: string; note?: string | undefined }
+  | { title: string; author: string; year?: number | undefined; publisher?: string | undefined; url?: string | undefined; note?: string | undefined };
+
+interface Props {
+  sources: GuideSource[];
+}
+
+const { sources } = Astro.props;
+const s = guideStrings(localeFromPath(Astro.url.pathname));
+
+const items = sources.map((source) => {
+  if ('book' in source) {
+    if (!isBookId(source.book)) throw new Error(`Sources: unknown book id "${source.book}"`);
+    const book: Book = BOOKS[source.book];
+    const tags = [
+      ...(book.rights === 'unknown' ? [s.factsOnly] : []),
+      ...(book.language === 'fr' ? [s.inFrench] : book.language === 'hi' ? [s.inHindi] : []),
+    ];
+    return {
+      lead: `${book.author}, ${book.title} (${book.year}).`,
+      where: source.locator,
+      tags,
+      note: source.note,
+      url: undefined as string | undefined,
+    };
+  }
+  return {
+    lead: `${source.author}${source.year ? ` (${source.year})` : ''}. ${source.title}.`,
+    where: source.publisher,
+    tags: [] as string[],
+    note: source.note,
+    url: source.url,
+  };
+});
+---
+
+<section class="sources" aria-labelledby="sources-title">
+  <h2 id="sources-title" class="text-h2 font-bold">{s.sourcesTitle}</h2>
+  <ol class="sources-list">
+    {
+      items.map((item) => (
+        <li>
+          {item.url ? (
+            <a class="text-link" href={item.url} rel="noopener">
+              {item.lead}
+            </a>
+          ) : (
+            <span class="font-bold">{item.lead}</span>
+          )}
+          {item.where && <span> {item.where}.</span>}
+          {item.tags.length > 0 && <span class="text-fg-muted"> ({item.tags.join(', ')})</span>}
+          {item.note && <span class="text-fg-muted"> {item.note}</span>}
+        </li>
+      ))
+    }
+  </ol>
+  <p class="text-small text-fg-muted">{s.sourcesNote}</p>
+</section>
+
+<style>
+  .sources { margin-top: 3rem; }
+  .sources h2 { margin: 0 0 1rem; }
+  .sources-list { margin: 0 0 1rem; padding-inline-start: 1.5rem; list-style: decimal; display: flex; flex-direction: column; gap: 0.625rem; }
+  .sources-list li::marker { color: var(--accent); font-weight: 700; }
+  .sources p { margin: 0; }
+</style>

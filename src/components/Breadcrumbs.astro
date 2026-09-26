@@ -1,0 +1,40 @@
+---
+/**
+ * Visible breadcrumbs + BreadcrumbList JSON-LD (DESIGN_SYSTEM.md §7.8).
+ * Logical, not taken from the URL. 48px-tall tappable rows.
+ */
+import { breadcrumbSchema, type Crumb } from '../lib/schema';
+import JsonLd from './JsonLd.astro';
+
+interface Props {
+  items: Crumb[];
+  label: string;
+}
+const { items, label } = Astro.props;
+---
+
+<nav aria-label={label} class="crumbs text-small">
+  <ol>
+    {
+      items.map((item, index) =>
+        index === items.length - 1 ? (
+          <li><span aria-current="page" class="crumb-current">{item.name}</span></li>
+        ) : (
+          <li>
+            <a class="nav-link crumb-link" href={item.path}>{item.name}</a>
+            <span class="crumb-sep" aria-hidden="true">/</span>
+          </li>
+        ),
+      )
+    }
+  </ol>
+</nav>
+<JsonLd data={breadcrumbSchema(items)} />
+
+<style>
+  .crumbs ol { display: flex; flex-wrap: wrap; align-items: center; list-style: none; margin: 0; padding: 0; color: var(--fg-muted); }
+  .crumbs li { display: inline-flex; align-items: center; }
+  .crumb-link, .crumb-current { display: inline-flex; align-items: center; min-height: 3rem; }
+  .crumb-link { color: var(--fg-muted); }
+  .crumb-sep { padding-inline: 0.5rem; color: var(--fg-faint); }
+</style>

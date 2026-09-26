@@ -1,0 +1,53 @@
+---
+/**
+ * Palm reading quiz (tool 12): one question at a time on the stylised palm.
+ * The first question is server-rendered; the script runs the rest. Options
+ * are real buttons; right/wrong is said in words and with an icon, never by
+ * colour alone (DESIGN_SYSTEM.md §12).
+ */
+import { LINE_ORDER, LINE_PATHS, MOUNT_AREAS, MOUNT_ORDER, PALM_OUTLINE, PALM_VIEWBOX } from '../../lib/tools/palm-geometry';
+import { QUIZ } from '../../lib/tools/quiz';
+
+const first = QUIZ[0]!;
+---
+
+<div class="t-card" data-quiz>
+  <p class="t-quiz-progress" data-progress>Question 1 of {QUIZ.length}</p>
+  <div class="t-quiz-body" data-body>
+    <div class="t-quiz-figure" data-figure>
+      <svg class="t-map-svg t-quiz-svg" viewBox={PALM_VIEWBOX} role="img" aria-label="A drawn right palm with one part highlighted." data-quiz-svg>
+        <path class="t-palm t-palm-grad" d={PALM_OUTLINE}></path>
+        {
+          MOUNT_ORDER.map((id) => {
+            const area = MOUNT_AREAS[id];
+            return <ellipse class="t-quiz-mount" data-mount={id} cx={area.cx} cy={area.cy} rx={area.rx} ry={area.ry} />;
+          })
+        }
+        {
+          LINE_ORDER.map((line) => (
+            <g class:list={['t-quiz-line', { 'is-on': 'line' in (first.show ?? {}) && (first.show as { line: string }).line === line }]} data-line={line}>
+              <path class="t-halo" d={LINE_PATHS[line]} />
+              <path class="t-line t-l-quiz" d={LINE_PATHS[line]} />
+            </g>
+          ))
+        }
+      </svg>
+    </div>
+    <div class="t-quiz-q">
+      <h2 class="t-result-title" id="quiz-prompt" data-prompt>{first.prompt}</h2>
+      <div class="t-quiz-options" role="group" aria-labelledby="quiz-prompt" data-options>
+        {
+          first.options.map((option) => (
+            <button type="button" class="t-quiz-option" data-option={option.id}>
+              {option.label}
+            </button>
+          ))
+        }
+      </div>
+      <p class="t-quiz-feedback" aria-live="polite" data-feedback></p>
+      <button type="button" class="btn btn-gold" data-next hidden>Next question</button>
+    </div>
+  </div>
+  <div class="t-quiz-score" data-score hidden></div>
+  <noscript><p class="t-noscript">The quiz needs JavaScript. What it covers is listed below.</p></noscript>
+</div>

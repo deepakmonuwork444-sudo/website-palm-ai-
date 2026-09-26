@@ -1,0 +1,85 @@
+---
+/**
+ * A drawn palm showing one line shape the books describe (guide variation
+ * cards and figures, DESIGN_SYSTEM.md §7.8 VariationCard, §9). Static SVG,
+ * no JS. The same drawn hand as PalmTrace; the focus line uses its trace
+ * colour with the halo, the other main lines are dimmed for orientation.
+ * Always a labelled drawing, never a real palm.
+ */
+import {
+  BASE_PATHS,
+  EDGE_VIEWBOX,
+  PALM_OUTLINE,
+  PALM_VIEWBOX,
+  VARIANTS,
+  type MainLine,
+  type Variant,
+  type VariantName,
+} from '../../lib/guides/palm-geometry';
+
+interface Props {
+  variant: VariantName;
+  /** Unique on the page (gradient id). */
+  id: string;
+  /** What the drawing shows, in the page's language. */
+  label: string;
+  size?: 'thumb' | 'figure';
+}
+
+const { variant, id, label, size = 'thumb' } = Astro.props;
+const spec: Variant = VARIANTS[variant];
+const mains: MainLine[] = ['life', 'head', 'heart', 'fate'];
+const context = mains
+  .filter((line) => line !== spec.kind)
+  .map((line) => ({ line, d: spec.context?.[line] === undefined ? BASE_PATHS[line] : spec.context[line] }))
+  .filter((item): item is { line: MainLine; d: string } => typeof item.d === 'string');
+const viewBox = spec.view === 'edge' ? EDGE_VIEWBOX : PALM_VIEWBOX;
+const style = spec.style ?? 'normal';
+---
+
+<svg
+  class:list={['diagram', `diagram-${size}`, { 'diagram-edge': spec.view === 'edge' }]}
+  viewBox={viewBox}
+  role="img"
+  aria-label={label}
+>
+  <defs>
+    <linearGradient id={`${id}-skin`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" class="stop-top"></stop>
+      <stop offset="1" class="stop-bottom"></stop>
+    </linearGradient>
+  </defs>
+  <path class="palm" fill={`url(#${id}-skin)`} d={PALM_OUTLINE}></path>
+  {context.map((item) => <path class:list={['ctx', `c-${item.line}`]} d={item.d}></path>)}
+  {spec.paths.map((d) => <path class:list={['halo', `h-${style}`]} d={d}></path>)}
+  {spec.paths.map((d) => <path class:list={['focus', `f-${spec.kind}`, `s-${style}`]} d={d}></path>)}
+</svg>
+
+<style>
+  .diagram { display: block; width: 100%; height: auto; }
+  .diagram-thumb { max-width: 9.5rem; }
+  .diagram-figure { max-width: 17rem; }
+  /* A close-up fills its frame edge to edge, so the crop reads as a zoomed view, not a cut-out. */
+  .diagram-edge.diagram-figure { max-width: none; }
+  .stop-top { stop-color: var(--color-palm-top); }
+  .stop-bottom { stop-color: var(--color-palm-bottom); }
+  .palm { stroke: color-mix(in srgb, var(--color-gold) 38%, transparent); stroke-width: 1.2; stroke-linejoin: round; }
+  .ctx, .halo, .focus { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ctx { stroke-width: 1.6; opacity: 0.32; }
+  .c-life { stroke: var(--color-trace-life); }
+  .c-head { stroke: var(--color-trace-head); }
+  .c-heart { stroke: var(--color-trace-heart); }
+  .c-fate { stroke: var(--color-trace-fate); }
+  .halo { stroke: var(--color-halo); stroke-width: 5.2; }
+  .focus { stroke-width: 3.2; }
+  .diagram-edge .halo { stroke-width: 2.6; }
+  .diagram-edge .focus { stroke-width: 1.5; }
+  .f-life { stroke: var(--color-trace-life); }
+  .f-head { stroke: var(--color-trace-head); }
+  .f-heart { stroke: var(--color-trace-heart); }
+  .f-fate { stroke: var(--color-trace-fate); }
+  .f-minor { stroke: var(--color-gold-bright); }
+  .s-faint { opacity: 0.55; stroke-width: 1.8; }
+  .h-faint { stroke-width: 3.2; opacity: 0.6; }
+  .s-chained { stroke-dasharray: 2.4 1.6; }
+</style>

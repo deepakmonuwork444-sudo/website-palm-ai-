@@ -1,0 +1,84 @@
+---
+/**
+ * Author page STUB (SEO_PLAYBOOK.md §14, CONTENT_GUIDE.md §5 block 3).
+ * PENDING DETAILS: the owner has not sent the full bio and photo yet, so the
+ * page says only what is known and true, and stays noindex (registered with
+ * indexable: false) until WEB-FEAT-035 replaces it with the full page.
+ * Never add credentials he doesn't have.
+ */
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { isLive } from '../../../config/pages';
+import { site } from '../../../config/site';
+import { t } from '../../../i18n';
+import { ORGANIZATION_ID } from '../../../lib/schema';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+const dict = t('en');
+const path = '/about/deepak-chauhan/';
+const guides = [
+  { path: '/palm-reading/', name: 'How to read palm lines' },
+  { path: '/hand-lines/', name: 'Lines on your palm and what they mean' },
+  { path: '/is-palmistry-real/', name: 'Is palmistry true?' },
+].filter((guide) => isLive(guide.path));
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${site.baseUrl}${path}#person`,
+  name: site.author.name,
+  jobTitle: 'Founder',
+  worksFor: { '@id': ORGANIZATION_ID },
+};
+---
+
+<BaseLayout
+  title={`${site.author.name}, founder of ${site.brand}`}
+  description={`${site.author.name} is the founder of ${site.brand}. He builds the website and app and writes its palmistry guides from the classical books named on each page.`}
+  path={path}
+  locale="en"
+  jsonLd={[person]}
+>
+  <div class="wrap author">
+    <Breadcrumbs items={[{ name: dict.nav.home, path: '/' }, { name: site.author.name, path }]} label={dict.a11y.breadcrumb} />
+    <h1 class="font-display text-h1 tracking-display-en">{site.author.name}</h1>
+    <p class="text-lead text-fg-muted">Founder of {site.brand}</p>
+    <div class="measure author-body">
+      <p>
+        {site.author.name} is the founder of {site.brand}. He has built six or more websites and apps, and he builds this
+        website and its Android app.
+      </p>
+      <p>
+        He writes the {site.brand} guides from the classical palmistry books named in each guide’s sources, in plain words
+        and with their limits stated. He is not a professional palm reader: the meanings on this site come from those
+        books, not from personal readings.
+      </p>
+      <p class="pending text-small">A fuller profile, with a photo and a way to get in touch, will be added here soon.</p>
+      {
+        guides.length > 0 && (
+          <>
+            <h2 class="text-h3 font-bold">Guides he has written</h2>
+            <ul>
+              {guides.map((guide) => (
+                <li>
+                  <a class="text-link" href={guide.path}>
+                    {guide.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .author { padding-block: 0.5rem var(--section); }
+  .author h1 { margin: 0.25rem 0 0.5rem; }
+  .author-body { margin-top: 1.5rem; }
+  .author-body p { margin: 0 0 1rem; }
+  .author-body h2 { margin: 2rem 0 0.75rem; }
+  .author-body ul { margin: 0; padding-inline-start: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .pending { padding: 0.875rem 1rem; border-radius: 0.75rem; background-color: var(--surface-2); color: var(--fg-muted); }
+</style>

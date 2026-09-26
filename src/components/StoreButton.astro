@@ -1,0 +1,83 @@
+---
+/**
+ * Store button + price line (DESIGN_SYSTEM.md §7.9, UX_PSYCHOLOGY.md §8).
+ * - Android / default: the official Google Play badge (unmodified), a direct
+ *   Play link with utm referrer, and the price line directly under it.
+ * - iPhone (<html data-os="ios">, set before paint): no badge, the honest note.
+ * - Desktop (`showQr`): also the QR tile and the remote-install line.
+ * Never an APK link, never an App Store badge. Prices come from site.ts.
+ */
+import { playStoreUrl, site, type Locale } from '../config/site';
+import { t } from '../i18n';
+import Icon from './Icon.astro';
+import QrCode from './QrCode.astro';
+
+interface Props {
+  locale: Locale;
+  /** utm_medium: the page, e.g. `home`, `app_page`, `footer`. */
+  medium: string;
+  /** utm_campaign: the placement, e.g. `app_section`. */
+  campaign: string;
+  showQr?: boolean;
+  class?: string;
+}
+
+const { locale, medium, campaign, showQr = false, class: className } = Astro.props;
+const dict = t(locale);
+const href = playStoreUrl({ medium, campaign, locale });
+const qrHref = playStoreUrl({ medium, campaign: `${campaign}_qr` });
+const badge = locale === 'hi' ? '/badges/google-play-hi.png' : '/badges/google-play-en.png';
+const prices = [
+  dict.store.freeToInstall,
+  dict.store.plansFrom(site.appPrices.planFromPerMonth),
+  dict.store.packsFrom(site.appPrices.packFrom),
+  ...(site.appSizeMb ? [dict.store.size(site.appSizeMb)] : []),
+  dict.store.noAds,
+];
+---
+
+<div class:list={['store', { 'store-with-qr': showQr }, className]}>
+  <div class="store-main">
+    <div class="not-ios">
+      <a class="store-badge" href={href} data-store-link>
+        <img src={badge} alt={dict.store.badgeAlt} width="646" height="250" loading="lazy" decoding="async" />
+      </a>
+      <ul class="price-line text-small" aria-label={dict.store.priceLabel}>
+        {prices.map((item) => <li>{item}</li>)}
+      </ul>
+      <p class="text-small text-fg-muted store-only">{dict.store.onlyPlay}</p>
+    </div>
+    <p class="only-ios store-ios text-small">
+      <Icon name="phone" class="store-ios-icon" />
+      <span>{dict.store.iphoneNote}</span>
+    </p>
+  </div>
+  {
+    showQr && (
+      <div class="only-desktop store-qr">
+        <QrCode text={qrHref} caption={dict.store.qrCaption} label={dict.store.badgeAlt} />
+        <p class="text-small text-fg-muted store-remote">{dict.store.remoteInstall}</p>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .store { display: flex; flex-direction: column; gap: 1.5rem; }
+  /* The official badge PNG has transparent padding; the negative margins line its visible edge up with the text. */
+  .store-badge { display: inline-block; border-radius: 0.75rem; line-height: 0; margin: -0.875rem 0 -0.875rem -0.875rem; }
+  .store-badge img { height: 5rem; width: auto; }
+  .price-line { list-style: none; margin: 0.75rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; color: var(--fg-muted); }
+  .price-line li { position: relative; }
+  .store-only { margin-top: 0.5rem; }
+  .store-ios { display: none; gap: 0.625rem; align-items: flex-start; padding: 0.875rem 1rem; border-radius: 0.75rem;
+    background-color: var(--surface-2); border: 1px solid var(--edge); color: var(--fg); max-width: 36rem; }
+  :global([data-os="ios"]) .store-ios { display: flex; }
+  .store-ios :global(.store-ios-icon) { color: var(--accent); margin-top: 0.15rem; }
+  .store-qr { max-width: 13rem; }
+  .store-remote { margin-top: 0.75rem; }
+  @media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+    .store-with-qr { flex-direction: row; align-items: flex-start; gap: 3rem; }
+    .store-qr { display: flex; flex-direction: column; align-items: flex-start; }
+  }
+</style>

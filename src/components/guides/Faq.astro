@@ -1,0 +1,48 @@
+---
+/**
+ * FAQ (DESIGN_SYSTEM.md §7.8): native <details>, 48px summary rows, visible
+ * in the HTML. The FAQPage JSON-LD is built by the layout from the same
+ * text; no rich result is expected (SEO_PLAYBOOK.md §6).
+ */
+import { localeFromPath } from '../../i18n';
+import { inlineMarkdown } from '../../lib/guides/guides';
+
+interface Props {
+  title: string;
+  items: { q: string; a: string }[];
+  id?: string;
+}
+
+const { title, items, id = 'faq' } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+---
+
+<section class="faq" aria-labelledby={`${id}-title`}>
+  <h2 id={`${id}-title`} class="text-h2 font-bold">{title}</h2>
+  <div class="faq-list">
+    {
+      items.map((item) => (
+        <details class="faq-item">
+          <summary class="faq-q font-bold">{item.q}</summary>
+          <div class="faq-a" set:html={`<p>${inlineMarkdown(item.a, locale)}</p>`} />
+        </details>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .faq { margin-top: 3rem; }
+  .faq h2 { margin: 0 0 1rem; }
+  .faq-list { border-top: 1px solid var(--border); }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3rem;
+    padding: 0.75rem 0; cursor: pointer; list-style: none;
+  }
+  .faq-q::-webkit-details-marker { display: none; }
+  .faq-q::after { content: "+"; flex: none; font-size: 1.5rem; line-height: 1; color: var(--accent); }
+  .faq-item[open] .faq-q::after { content: "−"; }
+  .faq-a { padding: 0 0 1rem; }
+  .faq-a :global(p) { margin: 0; }
+</style>

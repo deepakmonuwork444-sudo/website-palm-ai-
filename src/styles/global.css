@@ -1,0 +1,240 @@
+/*
+ * PalmSays design tokens — DESIGN_SYSTEM.md §6 is the source of truth.
+ * Change a token there and here in the same commit.
+ * Web fonts are imported by BaseLayout (Fontsource, split by unicode-range).
+ */
+@import "tailwindcss";
+
+@custom-variant day (&:where([data-theme="day"], [data-theme="day"] *));
+
+@theme inline {
+  --color-*: initial; --shadow-*: initial; --inset-shadow-*: initial; --drop-shadow-*: initial;
+  --blur-*: initial; --radius-*: initial; --text-*: initial; --tracking-*: initial; --font-*: initial;
+
+  --color-page: var(--page);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-control: var(--control-border);
+  --color-edge: var(--edge);
+  --color-hairline: var(--hairline);
+  --color-glass: var(--glass);
+  --color-glass-edge: var(--glass-edge);
+  --color-scrim: var(--scrim);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-focus: var(--focus);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-line-life: var(--line-life);
+  --color-line-head: var(--line-head);
+  --color-line-heart: var(--line-heart);
+  --color-line-fate: var(--line-fate);
+
+  --font-sans: var(--ff-sans);
+  --font-display: var(--ff-display);
+
+  --text-display: var(--fs-display);  --text-display--line-height: var(--lh-display);
+  --text-h1: var(--fs-h1);            --text-h1--line-height: var(--lh-h1);
+  --text-h2: var(--fs-h2);            --text-h2--line-height: var(--lh-h2);
+  --text-h3: var(--fs-h3);            --text-h3--line-height: var(--lh-h3);
+  --text-lead: var(--fs-lead);        --text-lead--line-height: var(--lh-lead);
+  --text-body: var(--fs-body);        --text-body--line-height: var(--lh-body);
+  --text-small: var(--fs-small);      --text-small--line-height: var(--lh-small);
+  --text-caption: var(--fs-caption);  --text-caption--line-height: var(--lh-caption);
+
+  --tracking-display-en: -0.01em;
+
+  --radius-tag: 0.5rem; --radius-input: 0.75rem; --radius-card: 1.25rem; --radius-hero: 1.75rem; --radius-pill: 9999px;
+
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section);
+  --container-text: 42.5rem; --container-content: 70rem; --container-wide: 80rem;
+
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/*
+ * Fixed colours (fills, traces, QR). `static` so the CSS variables always exist
+ * at runtime: component <style> blocks and SVG classes read them directly.
+ */
+@theme static {
+  --color-gold-bright: #F5D98B;
+  --color-gold: #E6B85C;
+  --color-gold-pressed: #CFA049;
+  --color-on-gold: #1F1300;
+  --color-trace-life: #F07A5A;
+  --color-trace-head: #6EA8FF;
+  --color-trace-heart: #F27BB0;
+  --color-trace-fate: #A993FF;
+  --color-halo: #1A1440;
+  --color-palm-top: #3A3078;
+  --color-palm-bottom: #1D1850;
+  --color-qr-dark: #0B0A1F;
+  --color-qr-light: #F6F0E1;
+  /* The logo keeps its own colours, inside the logo only (DESIGN_SYSTEM.md §2.3). */
+  --color-logo-heart: #FF7FA6;
+  --color-logo-head: #5FD4FF;
+  --color-logo-life: #6FE89A;
+}
+
+:root, [data-theme="night"] {
+  color-scheme: dark;
+  --page: #0B0A1F; --surface-1: #15132F; --surface-2: #1E1B42; --surface-3: #2A2654;
+  --border: #2A2654; --border-strong: #3A3570; --control-border: #6F68A6;
+  --edge: rgba(246,240,225,0.08); --hairline: rgba(230,184,92,0.32);
+  --glass: rgba(21,19,47,0.88); --glass-edge: rgba(246,240,225,0.14); --scrim: rgba(6,5,18,0.72);
+  --fg: #F6F0E1; --fg-muted: #C3B9D8; --fg-faint: #8F88B5;
+  --accent: #E6B85C; --accent-soft: rgba(230,184,92,0.14); --focus: #F5D98B;
+  --success: #2BB3A3; --warning: #FFC857; --danger: #FF6B6B;
+  --line-life: #F07A5A; --line-head: #6EA8FF; --line-heart: #F27BB0; --line-fate: #A993FF;
+  --hero-gradient: linear-gradient(180deg, #221A4E, #15132F);
+}
+[data-theme="day"] {
+  color-scheme: light;
+  --page: #F7F5FC; --surface-1: #FFFFFF; --surface-2: #ECE8F7; --surface-3: #DDD7EE;
+  --border: #E4DFF3; --border-strong: #C9C1E0; --control-border: #7A72A8;
+  --edge: rgba(23,19,61,0.08); --hairline: rgba(122,82,0,0.32);
+  --glass: rgba(247,245,252,0.92); --glass-edge: rgba(23,19,61,0.12); --scrim: rgba(23,19,61,0.45);
+  --fg: #17133D; --fg-muted: #4B4574; --fg-faint: #6A6492;
+  --accent: #7A5200; --accent-soft: rgba(122,82,0,0.10); --focus: #7A5200;
+  --success: #0F7A6E; --warning: #8A5A00; --danger: #B3261E;
+  --line-life: #B5391A; --line-head: #1F5BC4; --line-heart: #B02A6E; --line-fate: #6440D0;
+  --hero-gradient: linear-gradient(180deg, #FFFFFF, #F7F5FC);
+}
+/* Printing always uses the Day values (DESIGN_SYSTEM.md §2.2). */
+@media print {
+  :root, [data-theme] {
+    color-scheme: light;
+    --page: #FFFFFF; --surface-1: #FFFFFF; --surface-2: #ECE8F7; --surface-3: #DDD7EE;
+    --border: #E4DFF3; --border-strong: #C9C1E0; --control-border: #7A72A8;
+    --edge: rgba(23,19,61,0.08); --hairline: rgba(122,82,0,0.32);
+    --fg: #17133D; --fg-muted: #4B4574; --fg-faint: #6A6492;
+    --accent: #7A5200; --accent-soft: rgba(122,82,0,0.10); --focus: #7A5200;
+    --line-life: #B5391A; --line-head: #1F5BC4; --line-heart: #B02A6E; --line-fate: #6440D0;
+    --hero-gradient: none;
+  }
+}
+
+/* Metric-matched fallbacks (capsize metrics of the Fontsource files vs Arial / Georgia) so the swap causes no layout shift. */
+@font-face {
+  font-family: "Mukta Fallback";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 95.15%; ascent-override: 118.76%; descent-override: 55.91%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Cormorant Fallback";
+  src: local("Georgia");
+  size-adjust: 89.28%; ascent-override: 103.5%; descent-override: 32.15%; line-gap-override: 0%;
+}
+
+:root {
+  --gold-gradient: linear-gradient(135deg, #F5D98B, #E6B85C 50%, #CFA049);
+  --ff-sans: "Mukta", "Mukta Fallback", "Noto Sans Devanagari", system-ui, sans-serif;
+  --ff-display: "Cormorant Garamond", "Cormorant Fallback", Georgia, serif;
+  --fs-display: clamp(2.5rem, 1.7174rem + 3.478vw, 4.5rem);   --lh-display: 1.08;
+  --fs-h1: clamp(2rem, 1.5109rem + 2.174vw, 3.25rem);          --lh-h1: 1.15;
+  --fs-h2: clamp(1.625rem, 1.3804rem + 1.087vw, 2.25rem);      --lh-h2: 1.2;
+  --fs-h3: clamp(1.25rem, 1.1522rem + 0.435vw, 1.5rem);        --lh-h3: 1.3;
+  --fs-lead: clamp(1.1875rem, 1.1386rem + 0.217vw, 1.3125rem); --lh-lead: 1.55;
+  --fs-body: 1.0625rem; --lh-body: 1.6;
+  --fs-small: 0.9375rem; --lh-small: 1.5;
+  --fs-caption: 0.8125rem; --lh-caption: 1.45;
+  --gutter: 1.25rem; --section: 4rem;
+  --ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --dur-fast: 150ms; --dur-normal: 200ms; --dur-sheet: 240ms; --dur-beam: 1200ms; --dur-draw: 900ms; --stagger-line: 150ms;
+}
+@media (min-width: 48rem) { :root { --gutter: 2rem; } }
+@media (min-width: 64rem) { :root { --gutter: 3rem; --section: 7rem; } }
+
+:lang(hi) {
+  --ff-display: "Tiro Devanagari Hindi", "Cormorant Garamond", serif;
+  --fs-display: clamp(2.125rem, 1.4891rem + 2.826vw, 3.75rem); --lh-display: 1.45;
+  --fs-h1: clamp(1.75rem, 1.3587rem + 1.739vw, 2.75rem);        --lh-h1: 1.45;
+  --fs-h2: clamp(1.5rem, 1.3043rem + 0.870vw, 2rem);            --lh-h2: 1.5;
+  --lh-h3: 1.55;
+  --fs-lead: clamp(1.25rem, 1.2011rem + 0.217vw, 1.375rem);     --lh-lead: 1.7;
+  --fs-body: 1.125rem; --lh-body: 1.75;
+  --fs-small: 1rem; --lh-small: 1.6;
+  --fs-caption: 0.875rem; --lh-caption: 1.55;
+  letter-spacing: 0;
+}
+
+@layer base {
+  html { background: var(--page); color: var(--fg); font-family: var(--ff-sans); font-synthesis: none;
+         -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+  body { font-size: var(--fs-body); line-height: var(--lh-body); background: var(--page); color: var(--fg); }
+  :lang(hi) .tracking-display-en { letter-spacing: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .script-system { font-family: "Noto Sans Devanagari", "Kohinoor Devanagari", "Nirmala UI", sans-serif; }
+  h1, h2, h3 { text-wrap: balance; }
+  p, li { text-wrap: pretty; }
+  a { color: var(--accent); }
+  [id] { scroll-margin-top: 5rem; }
+}
+
+@utility gold-fill { background-image: var(--gold-gradient); color: #1F1300; }
+@utility hero-fill { background-image: var(--hero-gradient); }
+@utility glass { background-color: var(--glass); border: 1px solid var(--glass-edge); }
+@media (min-width: 64rem) and (hover: hover) {
+  @supports (backdrop-filter: blur(12px)) { .glass { backdrop-filter: blur(12px); } }
+}
+@media (prefers-reduced-transparency: reduce) { .glass { backdrop-filter: none; } }
+
+@layer components {
+  /* Readable text column (≤ 68ch English, ≈ 60ch Hindi). */
+  .measure { max-width: 68ch; }
+  :lang(hi) .measure { max-width: 60ch; }
+
+  .wrap { width: 100%; max-width: 70rem; margin-inline: auto; padding-inline: var(--gutter); }
+
+  /* Buttons (DESIGN_SYSTEM.md §7.1). One gold per viewport state. */
+  .btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 3rem; padding: 0.5rem 1.5rem; border-radius: 9999px; border: 1px solid transparent;
+    font-family: var(--ff-sans); font-weight: 700; font-size: var(--fs-body); line-height: 1.25;
+    text-align: center; text-decoration: none; cursor: pointer; user-select: none;
+    transition: transform var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease),
+      opacity var(--dur-fast) var(--ease);
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn[disabled], .btn[aria-disabled="true"] { opacity: 0.6; cursor: not-allowed; }
+  .btn-gold { min-height: 3.25rem; background-image: var(--gold-gradient); color: var(--color-on-gold); }
+  .btn-gold:active { background-image: none; background-color: var(--color-gold-pressed); }
+  [data-theme="day"] .btn-gold { border-color: var(--hairline); }
+  .btn-secondary { background-color: var(--surface-2); color: var(--fg); border-color: var(--edge); }
+  .btn-secondary:hover { background-color: var(--surface-3); }
+  /* Outline: 40px visual, 48px hit area. */
+  .btn-outline { min-height: 2.5rem; padding-block: 0.25rem; background: transparent; color: var(--accent); border-color: var(--accent); }
+  .btn-outline::after { content: ""; position: absolute; inset: -0.25rem 0; }
+  .btn-block { width: 100%; }
+
+  .text-link { color: var(--accent); text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+  .text-link:hover { text-decoration-thickness: 2px; }
+  .nav-link { color: var(--fg); text-decoration: none; }
+  .nav-link:hover, .nav-link:focus-visible { color: var(--accent); text-decoration: underline; text-underline-offset: 0.3em; }
+
+  .section { padding-block: var(--section); }
+  .card { background-color: var(--surface-1); border: 1px solid var(--edge); border-radius: 1.25rem; }
+
+  /* Device-aware blocks. <html data-os> is set by the inline head script. */
+  .only-ios { display: none; }
+  [data-os="ios"] .only-ios { display: block; }
+  [data-os="ios"] .not-ios { display: none; }
+  .only-desktop { display: none; }
+  @media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+    .only-desktop { display: block; }
+    .only-touch { display: none; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+                         transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

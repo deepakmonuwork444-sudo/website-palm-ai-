@@ -1,0 +1,192 @@
+---
+/**
+ * `/tools/` hub (WEB-FEAT-012; SEO_PLAYBOOK.md §2–3, DESIGN_SYSTEM.md §7.7):
+ * all 12 tools grouped by what they really are, each with its honesty label.
+ * Not a uniform grid: the photo checker gets the wide featured card. The two
+ * AI photo tools say "opens soon" while site.webReadingEnabled is false.
+ * Title deviates from SEO_PLAYBOOK §3 on purpose: "Scanner" is dropped while
+ * the web scanner is not open (no promise the page can't keep).
+ */
+import '../../components/tools/tools.css';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icon from '../../components/Icon.astro';
+import StoreButton from '../../components/StoreButton.astro';
+import ToolGlyph from '../../components/tools/ToolGlyph.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isLive } from '../../config/pages';
+import { t } from '../../i18n';
+import { KIND_TITLES, TOOLS, toolById, type ToolInfo } from '../../lib/tools/registry';
+import { toolsHubSchema } from '../../lib/tools/schema';
+
+const title = 'Free Palm Reading Tools: Quizzes, Line Finders & Palm Map';
+const description =
+  'Free palmistry tools: check your palm photo, find which hand to read, match your lines to the classical books and learn them on a palm map. No sign-up.';
+const dict = t('en');
+const featured = toolById('photo-checker');
+const traditional = TOOLS.filter((tool) => tool.kind === 'traditional');
+const ai = TOOLS.filter((tool) => tool.kind === 'ai');
+const jsonLd = [toolsHubSchema({ name: 'Free palm reading tools', description, tools: TOOLS })];
+
+const groupIntro: Record<'traditional' | 'ai', string> = {
+  traditional:
+    'No photo and no AI. You answer a few questions or tap a drawing, and see what the classical palmistry books say, with the source.',
+  ai: 'These two need our scanning server. Our Android app traces your lines today; on this website they open soon.',
+};
+const cards: { key: 'traditional' | 'ai'; tools: ToolInfo[] }[] = [
+  { key: 'traditional', tools: traditional },
+  { key: 'ai', tools: ai },
+];
+---
+
+<BaseLayout title={title} description={description} path="/tools/" locale="en" jsonLd={jsonLd}>
+  <div class="wrap t-page hub">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Tools', path: '/tools/' },
+      ]}
+      label={dict.a11y.breadcrumb}
+    />
+
+    <header class="t-head hub-head">
+      <h1 class="t-h1">Free palm reading tools</h1>
+      <p class="t-promise">
+        Small, honest tools for learning your palm. Each one says plainly whether it uses AI, and every meaning names the book it comes
+        from.
+      </p>
+      <p class="t-label"><Icon name="shield" /><span>Every tool here is free, with no sign-up and no payment. Only the full reading in our Android app is paid.</span></p>
+    </header>
+
+    <section class="hub-group" aria-labelledby="group-device">
+      <h2 id="group-device" class="hub-group-title">{KIND_TITLES.device}</h2>
+      <a class="hub-featured" href={featured.path}>
+        <span class="hub-featured-copy">
+          <span class="t-tile"><ToolGlyph glyph={featured.glyph} /></span>
+          <span class="hub-card-name">{featured.name}</span>
+          <span class="hub-card-blurb">{featured.blurb}</span>
+          <span class="hub-card-label">{featured.label}</span>
+          <span class="hub-tag">No sign-up</span>
+        </span>
+        <span class="hub-demo" aria-hidden="true">
+          <span class="hub-demo-title">What you’ll see</span>
+          <span class="hub-demo-row"><Icon name="check" />Bright enough, not washed out</span>
+          <span class="hub-demo-row"><Icon name="check" />Sharp, not blurry</span>
+          <span class="hub-demo-row"><Icon name="check" />Whole palm in the frame</span>
+          <span class="hub-demo-row"><Icon name="check" />Lines stand out</span>
+        </span>
+      </a>
+    </section>
+
+    {
+      cards.map((group) => (
+        <section class="hub-group" aria-labelledby={`group-${group.key}`}>
+          <h2 id={`group-${group.key}`} class="hub-group-title">
+            {KIND_TITLES[group.key]}
+          </h2>
+          <p class="hub-group-intro">{groupIntro[group.key]}</p>
+          <ul class="hub-cards">
+            {group.tools.map((tool) => (
+              <li>
+                <a class="hub-card" href={tool.path}>
+                  <span class="hub-card-top">
+                    <ToolGlyph glyph={tool.glyph} class="hub-card-glyph" />
+                    <span class="hub-card-name">{tool.name}</span>
+                  </span>
+                  <span class="hub-card-blurb">{tool.blurb}</span>
+                  <span class="hub-card-label">{tool.label}</span>
+                  {tool.live ? tool.noSignUp && <span class="hub-tag">No sign-up</span> : <span class="hub-tag hub-tag-soon">Opens soon on this website</span>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+
+    <section class="t-section hub-text" aria-labelledby="ai-title">
+      <h2 id="ai-title">Which tools use AI?</h2>
+      <p>
+        Only the two photo tools: the free palm reading and the palm line finder. They use AI to trace the lines on your photo, and
+        nothing more. The meanings always come from classical palmistry books, never from AI.
+      </p>
+      <p>
+        The photo checker runs on your phone with simple pixel maths and uploads nothing. Every other tool is a quiz, a map or a
+        lookup of the books’ readings, done in your browser.
+      </p>
+    </section>
+
+    <section class="t-section hub-text" aria-labelledby="limits-title">
+      <h2 id="limits-title">What these tools can’t tell you</h2>
+      <div class="t-limits">
+        <p>
+          <strong>What palmistry can’t tell you.</strong> Palm lines can’t tell dates, how long you’ll live, your health, whether or when
+          you’ll marry, how many children you’ll have, or how much money you’ll make. Palmistry is a tradition for reflection, not a
+          science.
+          {isLive('/is-palmistry-real/') && <a class="text-link" href="/is-palmistry-real/">Is palmistry real?</a>}
+        </p>
+        <p>That is why we don’t make marriage-age, children-count, lifespan or compatibility tools.</p>
+      </div>
+    </section>
+
+    <section class="t-end hub-end" aria-labelledby="end-title" data-placement="end_block">
+      <div class="t-prose">
+        <h2 id="end-title" class="text-h2 font-bold">Your whole palm, in our app</h2>
+        <p class="text-fg-muted">
+          In the app: all 4 parts of your reading, your lines traced on your photo, both hands compared, short lessons and a quiz, in Hindi
+          and English, with no ads.
+        </p>
+        <p class="text-small">{dict.appPage.continuity}</p>
+      </div>
+      <StoreButton locale="en" medium="tools_hub" campaign="end_block" showQr />
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { watchStoreClicks } from '../../lib/tools/dom';
+
+  watchStoreClicks('tools_hub');
+</script>
+
+<style>
+  .hub { display: flex; flex-direction: column; gap: 3rem; }
+  .hub-head { max-width: 48rem; }
+  .hub-group { display: flex; flex-direction: column; gap: 1rem; }
+  .hub-group-title { margin: 0; font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: 700; }
+  .hub-group-intro { margin: 0; color: var(--fg-muted); max-width: 42.5rem; }
+  .hub-featured {
+    display: grid; gap: 1.25rem; padding: 1.5rem; border-radius: 1.75rem; background-color: var(--surface-1);
+    border: 1px solid var(--hairline); color: var(--fg); text-decoration: none;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .hub-featured:active { transform: scale(0.99); }
+  @media (min-width: 48rem) { .hub-featured { grid-template-columns: 1.3fr 1fr; align-items: center; padding: 2rem; } }
+  .hub-featured-copy { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .hub-demo {
+    display: flex; flex-direction: column; gap: 0.5rem; padding: 1.25rem; border-radius: 1.25rem; background-color: var(--page);
+    border: 1px solid var(--edge); font-size: var(--fs-small);
+  }
+  .hub-demo-title { font-weight: 700; color: var(--fg-muted); }
+  .hub-demo-row { display: flex; gap: 0.5rem; align-items: center; }
+  .hub-demo-row :global(svg) { color: var(--success); }
+  .hub-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+  @media (min-width: 64rem) { .hub-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .hub-card {
+    height: 100%; display: flex; flex-direction: column; gap: 0.5rem; padding: 1.125rem 1.25rem; border-radius: 1.25rem;
+    background-color: var(--surface-1); border: 1px solid var(--edge); color: var(--fg); text-decoration: none;
+    transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .hub-card:hover, .hub-featured:hover { border-color: var(--control-border); }
+  .hub-card:active { transform: scale(0.99); }
+  .hub-card-top { display: flex; align-items: center; gap: 0.75rem; }
+  .hub-card :global(.hub-card-glyph) { width: 1.75rem; height: 1.75rem; flex: none; }
+  .hub-card-name { font-weight: 700; font-size: var(--fs-h3); line-height: var(--lh-h3); }
+  .hub-card-blurb { color: var(--fg-muted); }
+  .hub-card-label { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--fg); }
+  .hub-tag {
+    align-self: flex-start; margin-top: auto; padding: 0.125rem 0.625rem; border-radius: 9999px; font-size: var(--fs-caption);
+    background-color: var(--surface-2); border: 1px solid var(--edge); color: var(--fg);
+  }
+  .hub-tag-soon { border-style: dashed; border-color: var(--fg-muted); background: transparent; }
+  .hub-text { max-width: 48rem; }
+</style>

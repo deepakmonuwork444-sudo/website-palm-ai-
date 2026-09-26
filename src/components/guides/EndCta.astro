@@ -1,0 +1,48 @@
+---
+/**
+ * End block (CONTENT_GUIDE.md §5 block 18, UX_PSYCHOLOGY.md): the one gold
+ * action, then the Play badge with its price line (QR on desktop).
+ * While the web reading is off (site.webReadingEnabled), the gold action is
+ * the sample reading and the copy says the free reading opens soon; it never
+ * offers an upload that doesn't exist.
+ */
+import { site } from '../../config/site';
+import { localeFromPath, localizePath, t } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import PrimaryButton from '../PrimaryButton.astro';
+import StoreButton from '../StoreButton.astro';
+
+interface Props {
+  /** utm_campaign token for the store link, e.g. `heart-line`. */
+  campaign: string;
+}
+
+const { campaign } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const s = guideStrings(locale);
+const dict = t(locale);
+const home = localizePath('/', locale);
+const live = site.webReadingEnabled;
+const playName: string = site.appNameOnPlay;
+const showPlayName = playName !== site.brand;
+---
+
+<section class="end" aria-labelledby="end-title">
+  <h2 id="end-title" class="text-h2 font-bold">{live ? s.endTitleLive : s.endTitleSoon}</h2>
+  <p class="measure">{live ? s.endBodyLive : s.endBodySoon}</p>
+  <PrimaryButton href={live ? `${home}#read` : `${home}#sample`}>{live ? s.endButtonLive : s.endButtonSoon}</PrimaryButton>
+  <div class="end-store">
+    <StoreButton locale={locale} medium="guide" campaign={campaign} showQr />
+    {showPlayName && <p class="text-small text-fg-muted">{dict.store.playName(site.appNameOnPlay)}</p>}
+  </div>
+</section>
+
+<style>
+  .end {
+    margin-top: 3rem; padding: 1.5rem; border-radius: 1.75rem; border: 1px solid var(--edge); background-color: var(--surface-1);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 1rem;
+  }
+  .end h2, .end p { margin: 0; }
+  .end-store { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border); width: 100%; }
+  @media (min-width: 64rem) { .end { padding: 2.5rem; } }
+</style>

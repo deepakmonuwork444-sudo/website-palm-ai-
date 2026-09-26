@@ -1,0 +1,58 @@
+---
+/** Related guides (CONTENT_GUIDE.md §5 block 19): 3–4 text links with line glyphs; live pages only. */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+
+type Line = 'heart' | 'head' | 'life' | 'fate';
+
+interface Props {
+  items: { path: string; name: string; line?: Line | undefined }[];
+}
+
+const { items } = Astro.props;
+const s = guideStrings(localeFromPath(Astro.url.pathname));
+---
+
+{
+  items.length > 0 && (
+    <nav class="related" aria-labelledby="related-title">
+      <h2 id="related-title" class="text-h3 font-bold">
+        {s.relatedTitle}
+      </h2>
+      <ul>
+        {items.map((item) => (
+          <li>
+            <a class="related-link" href={item.path}>
+              <svg class:list={['related-glyph', item.line ? `glyph-${item.line}` : 'glyph-minor']} viewBox="0 0 48 24" aria-hidden="true">
+                <path class="glyph-halo" d="M4 18 C 16 6, 30 6, 44 12" />
+                <path class="glyph-line" d="M4 18 C 16 6, 30 6, 44 12" />
+              </svg>
+              <span>{item.name}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  .related { margin-top: 2.5rem; }
+  .related h2 { margin: 0 0 0.75rem; }
+  .related ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+  .related-link {
+    display: flex; align-items: center; gap: 0.875rem; min-height: 3rem; padding: 0.5rem 1rem; border-radius: 0.75rem;
+    background-color: var(--surface-1); border: 1px solid var(--edge); color: var(--fg); text-decoration: none; font-weight: 700;
+  }
+  .related-link:hover { border-color: var(--accent); color: var(--accent); }
+  .related-glyph { width: 2.5rem; height: 1.25rem; flex: none; }
+  .glyph-halo { fill: none; stroke: var(--color-halo); stroke-width: 6; stroke-linecap: round; }
+  .glyph-line { fill: none; stroke-width: 3.5; stroke-linecap: round; }
+  .glyph-heart .glyph-line { stroke: var(--line-heart); }
+  .glyph-head .glyph-line { stroke: var(--line-head); }
+  .glyph-life .glyph-line { stroke: var(--line-life); }
+  .glyph-fate .glyph-line { stroke: var(--line-fate); }
+  .glyph-minor .glyph-line { stroke: var(--accent); }
+  :global([data-theme="day"]) .glyph-halo { display: none; }
+  @media (min-width: 48rem) { .related ul { grid-template-columns: 1fr 1fr; } }
+</style>
