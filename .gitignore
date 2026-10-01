@@ -1,5 +1,6 @@
 # build output
 dist/
+dist-*/
 .astro/
 .wrangler/
 
@@ -29,3 +30,8 @@ Thumbs.db
 .claude/settings.local.json
 # research screenshots (160 MB, reproducible with research-tools/shot.mjs; kept on the laptop)
 research/screens/
+# raw AI asset samples (large PNGs; optimised copies go to public/ when approved)
+design-v4/samples/
+# promo video outputs + render temp (reproducible with marketing/promo-video/build.mjs; kept on the laptop)
+marketing/promo-video/*.mp4
+marketing/promo-video/.work/

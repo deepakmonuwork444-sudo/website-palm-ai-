@@ -12,6 +12,10 @@ export default defineConfig(
   {
     ignores: [
       'dist/',
+      // Side builds (npm run build -- --outDir dist-<name>) by parallel sessions: built output, never linted.
+      'dist-*/',
+      // Design references and before/after copies of components (not built, not imported).
+      'design-v4/',
       '.astro/',
       'node_modules/',
       'research/',
