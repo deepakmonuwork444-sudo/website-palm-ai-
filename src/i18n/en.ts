@@ -16,7 +16,7 @@ export const en = {
       'Free AI palm reading: see how PalmSays traces the heart, head, life and fate lines on a real palm. The web reading opens soon; the Android app works today.',
     appTitle: 'PalmSays: Palm Reading App for Android (Free to Start)',
     appDescription:
-      'PalmSays is a palm reading app for Android: scan your palm, see your lines traced and read what they mean. Free to start. What’s free, what’s paid, privacy.',
+      'PalmSays is a palm reading app for Android: scan your palm, see your lines traced, read what they mean. Free to start. What’s free, what’s paid, privacy.',
     notFoundTitle: 'Page not found | PalmSays',
     notFoundDescription: 'This page does not exist. Go to the PalmSays home page or read about the lines on your palm.',
   },
