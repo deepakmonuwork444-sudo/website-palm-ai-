@@ -89,3 +89,117 @@ left-palm-480.avif, left-palm-480.webp, left-palm-960.avif, left-palm-960.webp
              reading and never a scanner result.
   Changes:   sharp resize (photos 300/600 w, renders 256/512, icons 128/256 from a centred 80% crop),
              AVIF q58 and WebP q80.
+
+=== /images/v5/ palm photos (premium pass wave 1, part A, 2026-10-03) ===
+All from Pexels under the Pexels License (https://www.pexels.com/license/): free to use, commercial use allowed,
+attribution not required (we credit the photographer anyway), modification allowed. Not allowed: selling unaltered
+copies, implying endorsement by the person shown, offensive or misleading use. Real photos (not AI-made, not drawn).
+Changes for every file: cropped (box in design-v4/photos-v5/manifest.json), sharp Lanczos3 downscale (never upscaled),
+AVIF q62 + WebP q80, all metadata stripped. No retouch, no filter, no mirroring. None is a PalmSays customer or the owner.
+
+hero-palm-a-* (800/1200/1800/2400 w): home hero candidate: open right palm, wrist to fingertips, plain pale-blue wall
+  "Person's Hand Doing Stop Hand Sign" by Kevin Malik (https://www.pexels.com/@kevin-malik/), https://www.pexels.com/photo/9017588/
+  Original 4000 x 6000; crop x 633, y 1329, 3341 x 4455. Scan: real scan of this crop (palm4_v2, local, handSide right), design-v4/photos-v5/hero-palm-a.scan.json.
+
+hero-palm-b-* (800/1200 w): home hero candidate: large right palm, soft blurred background (photo is soft at full size: widths capped at 1200)
+  "Faceless black man showing stop gesture with hand" by Monstera Production (https://www.pexels.com/@gabby-k/), https://www.pexels.com/photo/faceless-black-man-showing-stop-gesture-with-hand-7114349/
+  Original 3328 x 4992; crop x 77, y 507, 2903 x 3870. Scan: real scan of this crop (palm4_v2, local, handSide right), design-v4/photos-v5/hero-palm-b.scan.json.
+
+hero-palm-c-* (800/1200/1800/2400 w): home hero candidate: raised right palm on a plain grey wall (hand small in frame)
+  "Photograph of a Person's Arm" by Amusan John (https://www.pexels.com/@picturesbyamusan/), https://www.pexels.com/photo/photograph-of-a-person-s-arm-8062714/
+  Original 2643 x 3500; crop x 131, y 150, 2512 x 3350. Scan: real scan of this crop (palm4_v2, local, handSide right), design-v4/photos-v5/hero-palm-c.scan.json.
+
+line-heart-* (800/1200 w): guide hero: heart line
+  "Person's Hand Doing Stop Hand Sign" by Kevin Malik (https://www.pexels.com/@kevin-malik/), https://www.pexels.com/photo/9017588/
+  Original 4000 x 6000; crop x 1204, y 2961, 1205 x 904. Scan: derived: full-photo real scan re-expressed in crop coordinates, design-v4/photos-v5/line-heart.scan.json.
+
+line-head-* (800/1200 w): guide hero: head line
+  "Close-up of Adult Male Hand in Stop Gesture" by NEOSiAM 18+ (https://www.pexels.com/@neosiam/), https://www.pexels.com/photo/close-up-of-adult-male-hand-in-stop-gesture-38834389/
+  Original 5472 x 3648; crop x 1357, y 1348, 1424 x 1068. Scan: derived: full-photo real scan re-expressed in crop coordinates, design-v4/photos-v5/line-head.scan.json.
+
+line-fate-* (800 w): guide hero: fate line
+  "A Persons Palm on White Background" by Hanna Pad (Anna Nekrashevich) (https://www.pexels.com/@anna-nekrashevich/), https://www.pexels.com/photo/a-persons-palm-on-white-background-8058729/
+  Original 2160 x 3840; crop x 408, y 2046, 910 x 1213. Scan: derived: full-photo real scan re-expressed in crop coordinates, design-v4/photos-v5/line-fate.scan.json.
+
+line-sun-* (800/1200 w): guide hero: sun line area below the ring finger (the scanner does not trace the sun line: show no line)
+  "A Person's Hand Against Beige Background" by cottonbro studio (https://www.pexels.com/@cottonbro/), https://www.pexels.com/photo/a-person-s-hand-against-beige-background-10204118/
+  Original 4918 x 6885; crop x 1677, y 2504, 1230 x 1640. Scan: none (no line may be drawn on it).
+
+line-mercury-* (800/1200 w): guide hero: mercury line area, little-finger side down to the wrist (not traced by the scanner: show no line)
+  "Person's Right Hand" by Juan Pablo Serrano (https://www.pexels.com/@juanpphotoandvideo/), https://www.pexels.com/photo/close-up-of-hand-over-white-background-1257770/
+  Original 6399 x 4266; crop x 2562, y 1962, 1485 x 1114. Scan: none (no line may be drawn on it).
+
+palm-edge-marriage-* (800 w): guide hero: little-finger edge of the hand where marriage lines sit (not traced: show no line)
+  "A Persons Palm on White Background" by Hanna Pad (Anna Nekrashevich) (https://www.pexels.com/@anna-nekrashevich/), https://www.pexels.com/photo/a-persons-palm-on-white-background-8058729/
+  Original 2160 x 3840; crop x 35, y 1770, 950 x 950. Scan: none (no line may be drawn on it).
+
+palm-mounts-* (800/1200/1800/2400 w): guide hero: mounts (full palm)
+  "A Person's Hand Against Beige Background" by cottonbro studio (https://www.pexels.com/@cottonbro/), https://www.pexels.com/photo/a-person-s-hand-against-beige-background-10204118/
+  Original 4918 x 6885; crop x 1248, y 1327, 2855 x 3568. Scan: derived: full-photo real scan re-expressed in crop coordinates, design-v4/photos-v5/palm-mounts.scan.json.
+
+palm-fingers-* (800/1200/1800/2400 w): guide hero: fingers (spread fingers)
+  "Close-up of Adult Male Hand in Stop Gesture" by NEOSiAM 18+ (https://www.pexels.com/@neosiam/), https://www.pexels.com/photo/close-up-of-adult-male-hand-in-stop-gesture-38834389/
+  Original 5472 x 3648; crop x 908, y 6, 2630 x 3288. Scan: derived: full-photo real scan re-expressed in crop coordinates, design-v4/photos-v5/palm-fingers.scan.json.
+
+palm-m-* (800/1200 w): guide hero: the palmistry M (heart, head, life and fate lines area)
+  "Close-Up Shot of a Palm" by Hanna Pad (Anna Nekrashevich) (https://www.pexels.com/@anna-nekrashevich/), https://www.pexels.com/photo/close-up-shot-of-a-palm-8058739/
+  Original 2160 x 3840; crop x 321, y 1457, 1405 x 1405. Scan: derived: full-photo real scan re-expressed in crop coordinates, design-v4/photos-v5/palm-m.scan.json.
+
+hand-type-a-* (800/1200/1800/2400 w): hand types: real hand A (wide, squarer palm)
+  "Close-up of Adult Male Hand in Stop Gesture" by NEOSiAM 18+ (https://www.pexels.com/@neosiam/), https://www.pexels.com/photo/close-up-of-adult-male-hand-in-stop-gesture-38834389/
+  Original 5472 x 3648; crop x 856, y 0, 2736 x 3648. Scan: real scan of this crop (palm4_v2, local, handSide left), design-v4/photos-v5/hand-type-a.scan.json.
+
+hand-type-b-* (800/1200/1800 w): hand types: real hand B (long palm, slim fingers)
+  "Photograph of a Person's Arm" by Amusan John (https://www.pexels.com/@picturesbyamusan/), https://www.pexels.com/photo/photograph-of-a-person-s-arm-8062714/
+  Original 2643 x 3500; crop x 559, y 353, 1959 x 2613. Scan: real scan of this crop (palm4_v2, local, handSide right), design-v4/photos-v5/hand-type-b.scan.json.
+
+hand-type-c-* (800/1200/1800/2400 w): hand types: real hand C (shorter fingers)
+  "Person's Right Hand" by Juan Pablo Serrano (https://www.pexels.com/@juanpphotoandvideo/), https://www.pexels.com/photo/close-up-of-hand-over-white-background-1257770/
+  Original 6399 x 4266; crop x 1424, y 915, 2952 x 2214. Scan: real scan of this crop (palm4_v2, local, handSide right), design-v4/photos-v5/hand-type-c.scan.json.
+
+hand-type-d-* (800/1200/1800/2400 w): hand types: real hand D (long fingers held together)
+  "Person Showing His Left Human Palm" by Pixabay (https://www.pexels.com/@pixabay/), https://www.pexels.com/photo/person-showing-his-left-human-palm-236372/
+  Original 3264 x 2448; crop x 0, y 0, 3264 x 2448. Scan: real scan of this crop (palm4_v2, local, handSide left), design-v4/photos-v5/hand-type-d.scan.json.
+
+palm-career-* (800/1200/1800/2400 w): guide hero: career (palm close-up)
+  "Close-Up Shot of a Person's Palm" by Karola G (https://www.pexels.com/@karola-g/), https://www.pexels.com/photo/close-up-shot-of-a-person-s-palm-6642895/
+  Original 3693 x 5539; crop x 0, y 0, 3693 x 5539. Scan: none (no line may be drawn on it).
+
+palm-money-* (800/1200/1800/2400 w): guide hero: money (palm skin close-up)
+  "Close Up Photo of Human Palm Skin" by Angela Roma (https://www.pexels.com/@angela-roma/), https://www.pexels.com/photo/close-up-photo-of-human-palm-skin-7479542/
+  Original 3552 x 2368; crop x 0, y 0, 3552 x 2368. Scan: none (no line may be drawn on it).
+
+palm-lucky-signs-* (800/1200/1800/2400 w): guide hero: lucky signs (palm creases close-up)
+  "Palms of faceless person under sunlight" by Angela Roma (https://www.pexels.com/@angela-roma/), https://www.pexels.com/photo/palms-of-faceless-person-under-sunlight-7479987/
+  Original 4000 x 6000; crop x 0, y 900, 4000 x 5000. Scan: none (no line may be drawn on it).
+
+palm-crosses-* (800/1200/1800/2400 w): guide hero: crosses (crossing creases macro)
+  "Hand Palm Close Up Photo" by Karola G (https://www.pexels.com/@karola-g/), https://www.pexels.com/photo/hand-palm-close-up-photo-4046682/
+  Original 6040 x 4027; crop x 0, y 0, 6040 x 4027. Scan: none (no line may be drawn on it).
+
+tool-sample-right-palm-* (src/lib/tools/hand/examples/right-palm-v5.jpg, 1800 x 2400): hero-palm-a resized to 1800 w, JPEG q88.
+  Same source photo and licence as hero-palm-a. right-palm-v5.json = real on-device hand-model output for this exact file.
+  When it replaces right-palm.jpg, the credit in HandExample.astro must change from Eyefive45 / CC BY-SA 4.0 to Kevin Malik / Pexels.
+
+line-life-* (800/1200 w): guide hero: life line
+  "Close-Up Shot of a Palm" by Hanna Pad (Anna Nekrashevich) (https://www.pexels.com/@anna-nekrashevich/), https://www.pexels.com/photo/close-up-shot-of-a-palm-8058739/
+  Original 2160 x 3840; crop x 753, y 1458, 1207 x 1610. Scan: derived: full-photo real scan re-expressed in crop coordinates, design-v4/photos-v5/line-life.scan.json.
+
+photo-do-good-* (800/1200 w): do/don't example made from hero-palm-a with sharp: unchanged crop of hero-palm-a (good light, whole hand, sharp).
+  Same source photo and licence as hero-palm-a. A labelled example of a bad photo, not AI-made; no line may be drawn on it.
+
+photo-dont-dark-* (800/1200 w): do/don't example made from hero-palm-a with sharp: brightness cut to about a quarter (sharp linear 0.3, -8), like a dim room.
+  Same source photo and licence as hero-palm-a. A labelled example of a bad photo, not AI-made; no line may be drawn on it.
+
+photo-dont-blurry-* (800/1200 w): do/don't example made from hero-palm-a with sharp: Gaussian blur (sigma 36 at full size), like a shaky or out-of-focus shot.
+  Same source photo and licence as hero-palm-a. A labelled example of a bad photo, not AI-made; no line may be drawn on it.
+
+photo-dont-glare-* (800/1200 w): do/don't example made from hero-palm-a with sharp: a white light patch composited over the palm centre, like flash or lamp glare.
+  Same source photo and licence as hero-palm-a. A labelled example of a bad photo, not AI-made; no line may be drawn on it.
+
+photo-dont-too-close-* (800/1200 w): do/don't example made from hero-palm-a with sharp: cropped to the palm centre only (edges, thumb and fingers out of frame), like a phone held too close.
+  Same source photo and licence as hero-palm-a. A labelled example of a bad photo, not AI-made; no line may be drawn on it.
+
+photo-dont-fingers-cut-* (800/1200 w): do/don't example made from hero-palm-a with sharp: top of the frame cut through the fingers (fingertips missing).
+  Same source photo and licence as hero-palm-a. A labelled example of a bad photo, not AI-made; no line may be drawn on it.
+=== end of /images/v5/ part A ===

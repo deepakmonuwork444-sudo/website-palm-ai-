@@ -1,0 +1,718 @@
+{
+ "note": "Photo library v5, part A (palm photos), premium pass wave 1, 2026-10-03. Raw originals in raw/ (gitignored); optimised files in public/images/v5/; scans next to this file.",
+ "photos": [
+  {
+   "slug": "hero-palm-a",
+   "use": "home hero candidate: open right palm, wrist to fingertips, plain pale-blue wall",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 4000,
+    "height": 6000
+   },
+   "crop": {
+    "left": 633,
+    "top": 1329,
+    "width": 3341,
+    "height": 4455
+   },
+   "width": 3341,
+   "height": 4455,
+   "files": [
+    "/images/v5/hero-palm-a-800.{avif,webp}",
+    "/images/v5/hero-palm-a-1200.{avif,webp}",
+    "/images/v5/hero-palm-a-1800.{avif,webp}",
+    "/images/v5/hero-palm-a-2400.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "real scan of this crop (palm4_v2, local, handSide right)"
+  },
+  {
+   "slug": "hero-palm-b",
+   "use": "home hero candidate: large right palm, soft blurred background (photo is soft at full size: widths capped at 1200)",
+   "sourceUrl": "https://www.pexels.com/photo/faceless-black-man-showing-stop-gesture-with-hand-7114349/",
+   "title": "Faceless black man showing stop gesture with hand",
+   "author": "Monstera Production",
+   "authorUrl": "https://www.pexels.com/@gabby-k/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 3328,
+    "height": 4992
+   },
+   "crop": {
+    "left": 77,
+    "top": 507,
+    "width": 2903,
+    "height": 3870
+   },
+   "width": 2903,
+   "height": 3870,
+   "files": [
+    "/images/v5/hero-palm-b-800.{avif,webp}",
+    "/images/v5/hero-palm-b-1200.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "real scan of this crop (palm4_v2, local, handSide right)"
+  },
+  {
+   "slug": "hero-palm-c",
+   "use": "home hero candidate: raised right palm on a plain grey wall (hand small in frame)",
+   "sourceUrl": "https://www.pexels.com/photo/photograph-of-a-person-s-arm-8062714/",
+   "title": "Photograph of a Person's Arm",
+   "author": "Amusan John",
+   "authorUrl": "https://www.pexels.com/@picturesbyamusan/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 2643,
+    "height": 3500
+   },
+   "crop": {
+    "left": 131,
+    "top": 150,
+    "width": 2512,
+    "height": 3350
+   },
+   "width": 2512,
+   "height": 3350,
+   "files": [
+    "/images/v5/hero-palm-c-800.{avif,webp}",
+    "/images/v5/hero-palm-c-1200.{avif,webp}",
+    "/images/v5/hero-palm-c-1800.{avif,webp}",
+    "/images/v5/hero-palm-c-2400.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "real scan of this crop (palm4_v2, local, handSide right)"
+  },
+  {
+   "slug": "line-heart",
+   "use": "guide hero: heart line",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 4000,
+    "height": 6000
+   },
+   "crop": {
+    "left": 1204,
+    "top": 2961,
+    "width": 1205,
+    "height": 904
+   },
+   "width": 1205,
+   "height": 904,
+   "files": [
+    "/images/v5/line-heart-800.{avif,webp}",
+    "/images/v5/line-heart-1200.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "derived: full-photo real scan re-expressed in crop coordinates"
+  },
+  {
+   "slug": "line-head",
+   "use": "guide hero: head line",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-of-adult-male-hand-in-stop-gesture-38834389/",
+   "title": "Close-up of Adult Male Hand in Stop Gesture",
+   "author": "NEOSiAM 18+",
+   "authorUrl": "https://www.pexels.com/@neosiam/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 5472,
+    "height": 3648
+   },
+   "crop": {
+    "left": 1357,
+    "top": 1348,
+    "width": 1424,
+    "height": 1068
+   },
+   "width": 1424,
+   "height": 1068,
+   "files": [
+    "/images/v5/line-head-800.{avif,webp}",
+    "/images/v5/line-head-1200.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "derived: full-photo real scan re-expressed in crop coordinates"
+  },
+  {
+   "slug": "line-fate",
+   "use": "guide hero: fate line",
+   "sourceUrl": "https://www.pexels.com/photo/a-persons-palm-on-white-background-8058729/",
+   "title": "A Persons Palm on White Background",
+   "author": "Hanna Pad (Anna Nekrashevich)",
+   "authorUrl": "https://www.pexels.com/@anna-nekrashevich/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 2160,
+    "height": 3840
+   },
+   "crop": {
+    "left": 408,
+    "top": 2046,
+    "width": 910,
+    "height": 1213
+   },
+   "width": 910,
+   "height": 1213,
+   "files": [
+    "/images/v5/line-fate-800.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "derived: full-photo real scan re-expressed in crop coordinates"
+  },
+  {
+   "slug": "line-sun",
+   "use": "guide hero: sun line area below the ring finger (the scanner does not trace the sun line: show no line)",
+   "sourceUrl": "https://www.pexels.com/photo/a-person-s-hand-against-beige-background-10204118/",
+   "title": "A Person's Hand Against Beige Background",
+   "author": "cottonbro studio",
+   "authorUrl": "https://www.pexels.com/@cottonbro/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 4918,
+    "height": 6885
+   },
+   "crop": {
+    "left": 1677,
+    "top": 2504,
+    "width": 1230,
+    "height": 1640
+   },
+   "width": 1230,
+   "height": 1640,
+   "files": [
+    "/images/v5/line-sun-800.{avif,webp}",
+    "/images/v5/line-sun-1200.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "not scanned (close-up or a line the scanner does not trace): show no line"
+  },
+  {
+   "slug": "line-mercury",
+   "use": "guide hero: mercury line area, little-finger side down to the wrist (not traced by the scanner: show no line)",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-of-hand-over-white-background-1257770/",
+   "title": "Person's Right Hand",
+   "author": "Juan Pablo Serrano",
+   "authorUrl": "https://www.pexels.com/@juanpphotoandvideo/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 6399,
+    "height": 4266
+   },
+   "crop": {
+    "left": 2562,
+    "top": 1962,
+    "width": 1485,
+    "height": 1114
+   },
+   "width": 1485,
+   "height": 1114,
+   "files": [
+    "/images/v5/line-mercury-800.{avif,webp}",
+    "/images/v5/line-mercury-1200.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "not scanned (close-up or a line the scanner does not trace): show no line"
+  },
+  {
+   "slug": "palm-edge-marriage",
+   "use": "guide hero: little-finger edge of the hand where marriage lines sit (not traced: show no line)",
+   "sourceUrl": "https://www.pexels.com/photo/a-persons-palm-on-white-background-8058729/",
+   "title": "A Persons Palm on White Background",
+   "author": "Hanna Pad (Anna Nekrashevich)",
+   "authorUrl": "https://www.pexels.com/@anna-nekrashevich/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 2160,
+    "height": 3840
+   },
+   "crop": {
+    "left": 35,
+    "top": 1770,
+    "width": 950,
+    "height": 950
+   },
+   "width": 950,
+   "height": 950,
+   "files": [
+    "/images/v5/palm-edge-marriage-800.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "not scanned (close-up or a line the scanner does not trace): show no line"
+  },
+  {
+   "slug": "palm-mounts",
+   "use": "guide hero: mounts (full palm)",
+   "sourceUrl": "https://www.pexels.com/photo/a-person-s-hand-against-beige-background-10204118/",
+   "title": "A Person's Hand Against Beige Background",
+   "author": "cottonbro studio",
+   "authorUrl": "https://www.pexels.com/@cottonbro/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 4918,
+    "height": 6885
+   },
+   "crop": {
+    "left": 1248,
+    "top": 1327,
+    "width": 2855,
+    "height": 3568
+   },
+   "width": 2855,
+   "height": 3568,
+   "files": [
+    "/images/v5/palm-mounts-800.{avif,webp}",
+    "/images/v5/palm-mounts-1200.{avif,webp}",
+    "/images/v5/palm-mounts-1800.{avif,webp}",
+    "/images/v5/palm-mounts-2400.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "derived: full-photo real scan re-expressed in crop coordinates"
+  },
+  {
+   "slug": "palm-fingers",
+   "use": "guide hero: fingers (spread fingers)",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-of-adult-male-hand-in-stop-gesture-38834389/",
+   "title": "Close-up of Adult Male Hand in Stop Gesture",
+   "author": "NEOSiAM 18+",
+   "authorUrl": "https://www.pexels.com/@neosiam/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 5472,
+    "height": 3648
+   },
+   "crop": {
+    "left": 908,
+    "top": 6,
+    "width": 2630,
+    "height": 3288
+   },
+   "width": 2630,
+   "height": 3288,
+   "files": [
+    "/images/v5/palm-fingers-800.{avif,webp}",
+    "/images/v5/palm-fingers-1200.{avif,webp}",
+    "/images/v5/palm-fingers-1800.{avif,webp}",
+    "/images/v5/palm-fingers-2400.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "derived: full-photo real scan re-expressed in crop coordinates"
+  },
+  {
+   "slug": "palm-m",
+   "use": "guide hero: the palmistry M (heart, head, life and fate lines area)",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-shot-of-a-palm-8058739/",
+   "title": "Close-Up Shot of a Palm",
+   "author": "Hanna Pad (Anna Nekrashevich)",
+   "authorUrl": "https://www.pexels.com/@anna-nekrashevich/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 2160,
+    "height": 3840
+   },
+   "crop": {
+    "left": 321,
+    "top": 1457,
+    "width": 1405,
+    "height": 1405
+   },
+   "width": 1405,
+   "height": 1405,
+   "files": [
+    "/images/v5/palm-m-800.{avif,webp}",
+    "/images/v5/palm-m-1200.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "derived: full-photo real scan re-expressed in crop coordinates"
+  },
+  {
+   "slug": "hand-type-a",
+   "use": "hand types: real hand A (wide, squarer palm)",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-of-adult-male-hand-in-stop-gesture-38834389/",
+   "title": "Close-up of Adult Male Hand in Stop Gesture",
+   "author": "NEOSiAM 18+",
+   "authorUrl": "https://www.pexels.com/@neosiam/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 5472,
+    "height": 3648
+   },
+   "crop": {
+    "left": 856,
+    "top": 0,
+    "width": 2736,
+    "height": 3648
+   },
+   "width": 2736,
+   "height": 3648,
+   "files": [
+    "/images/v5/hand-type-a-800.{avif,webp}",
+    "/images/v5/hand-type-a-1200.{avif,webp}",
+    "/images/v5/hand-type-a-1800.{avif,webp}",
+    "/images/v5/hand-type-a-2400.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "real scan of this crop (palm4_v2, local, handSide left)"
+  },
+  {
+   "slug": "hand-type-b",
+   "use": "hand types: real hand B (long palm, slim fingers)",
+   "sourceUrl": "https://www.pexels.com/photo/photograph-of-a-person-s-arm-8062714/",
+   "title": "Photograph of a Person's Arm",
+   "author": "Amusan John",
+   "authorUrl": "https://www.pexels.com/@picturesbyamusan/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 2643,
+    "height": 3500
+   },
+   "crop": {
+    "left": 559,
+    "top": 353,
+    "width": 1959,
+    "height": 2613
+   },
+   "width": 1959,
+   "height": 2613,
+   "files": [
+    "/images/v5/hand-type-b-800.{avif,webp}",
+    "/images/v5/hand-type-b-1200.{avif,webp}",
+    "/images/v5/hand-type-b-1800.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "real scan of this crop (palm4_v2, local, handSide right)"
+  },
+  {
+   "slug": "hand-type-c",
+   "use": "hand types: real hand C (shorter fingers)",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-of-hand-over-white-background-1257770/",
+   "title": "Person's Right Hand",
+   "author": "Juan Pablo Serrano",
+   "authorUrl": "https://www.pexels.com/@juanpphotoandvideo/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 6399,
+    "height": 4266
+   },
+   "crop": {
+    "left": 1424,
+    "top": 915,
+    "width": 2952,
+    "height": 2214
+   },
+   "width": 2952,
+   "height": 2214,
+   "files": [
+    "/images/v5/hand-type-c-800.{avif,webp}",
+    "/images/v5/hand-type-c-1200.{avif,webp}",
+    "/images/v5/hand-type-c-1800.{avif,webp}",
+    "/images/v5/hand-type-c-2400.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "real scan of this crop (palm4_v2, local, handSide right)"
+  },
+  {
+   "slug": "hand-type-d",
+   "use": "hand types: real hand D (long fingers held together)",
+   "sourceUrl": "https://www.pexels.com/photo/person-showing-his-left-human-palm-236372/",
+   "title": "Person Showing His Left Human Palm",
+   "author": "Pixabay",
+   "authorUrl": "https://www.pexels.com/@pixabay/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 3264,
+    "height": 2448
+   },
+   "crop": {
+    "left": 0,
+    "top": 0,
+    "width": 3264,
+    "height": 2448
+   },
+   "width": 3264,
+   "height": 2448,
+   "files": [
+    "/images/v5/hand-type-d-800.{avif,webp}",
+    "/images/v5/hand-type-d-1200.{avif,webp}",
+    "/images/v5/hand-type-d-1800.{avif,webp}",
+    "/images/v5/hand-type-d-2400.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "real scan of this crop (palm4_v2, local, handSide left)"
+  },
+  {
+   "slug": "palm-career",
+   "use": "guide hero: career (palm close-up)",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-shot-of-a-person-s-palm-6642895/",
+   "title": "Close-Up Shot of a Person's Palm",
+   "author": "Karola G",
+   "authorUrl": "https://www.pexels.com/@karola-g/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 3693,
+    "height": 5539
+   },
+   "crop": {
+    "left": 0,
+    "top": 0,
+    "width": 3693,
+    "height": 5539
+   },
+   "width": 3693,
+   "height": 5539,
+   "files": [
+    "/images/v5/palm-career-800.{avif,webp}",
+    "/images/v5/palm-career-1200.{avif,webp}",
+    "/images/v5/palm-career-1800.{avif,webp}",
+    "/images/v5/palm-career-2400.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "not scanned (close-up or a line the scanner does not trace): show no line"
+  },
+  {
+   "slug": "palm-money",
+   "use": "guide hero: money (palm skin close-up)",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-human-palm-skin-7479542/",
+   "title": "Close Up Photo of Human Palm Skin",
+   "author": "Angela Roma",
+   "authorUrl": "https://www.pexels.com/@angela-roma/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 3552,
+    "height": 2368
+   },
+   "crop": {
+    "left": 0,
+    "top": 0,
+    "width": 3552,
+    "height": 2368
+   },
+   "width": 3552,
+   "height": 2368,
+   "files": [
+    "/images/v5/palm-money-800.{avif,webp}",
+    "/images/v5/palm-money-1200.{avif,webp}",
+    "/images/v5/palm-money-1800.{avif,webp}",
+    "/images/v5/palm-money-2400.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "not scanned (close-up or a line the scanner does not trace): show no line"
+  },
+  {
+   "slug": "palm-lucky-signs",
+   "use": "guide hero: lucky signs (palm creases close-up)",
+   "sourceUrl": "https://www.pexels.com/photo/palms-of-faceless-person-under-sunlight-7479987/",
+   "title": "Palms of faceless person under sunlight",
+   "author": "Angela Roma",
+   "authorUrl": "https://www.pexels.com/@angela-roma/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 4000,
+    "height": 6000
+   },
+   "crop": {
+    "left": 0,
+    "top": 900,
+    "width": 4000,
+    "height": 5000
+   },
+   "width": 4000,
+   "height": 5000,
+   "files": [
+    "/images/v5/palm-lucky-signs-800.{avif,webp}",
+    "/images/v5/palm-lucky-signs-1200.{avif,webp}",
+    "/images/v5/palm-lucky-signs-1800.{avif,webp}",
+    "/images/v5/palm-lucky-signs-2400.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "not scanned (close-up or a line the scanner does not trace): show no line"
+  },
+  {
+   "slug": "palm-crosses",
+   "use": "guide hero: crosses (crossing creases macro)",
+   "sourceUrl": "https://www.pexels.com/photo/hand-palm-close-up-photo-4046682/",
+   "title": "Hand Palm Close Up Photo",
+   "author": "Karola G",
+   "authorUrl": "https://www.pexels.com/@karola-g/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 6040,
+    "height": 4027
+   },
+   "crop": {
+    "left": 0,
+    "top": 0,
+    "width": 6040,
+    "height": 4027
+   },
+   "width": 6040,
+   "height": 4027,
+   "files": [
+    "/images/v5/palm-crosses-800.{avif,webp}",
+    "/images/v5/palm-crosses-1200.{avif,webp}",
+    "/images/v5/palm-crosses-1800.{avif,webp}",
+    "/images/v5/palm-crosses-2400.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "not scanned (close-up or a line the scanner does not trace): show no line"
+  },
+  {
+   "slug": "tool-sample-right-palm",
+   "use": "tools: replacement for the 306 px hand-type sample (src/lib/tools/hand/examples/right-palm-v5.jpg + right-palm-v5.json, MediaPipe points regenerated; passes assessHand)",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "derivedFrom": "hero-palm-a",
+   "width": 1800,
+   "height": 2400,
+   "files": [
+    "src/lib/tools/hand/examples/right-palm-v5.jpg"
+   ],
+   "scan": "hand-model points (right-palm-v5.json); palm-line scan = hero-palm-a.scan.json",
+   "scanNote": ""
+  },
+  {
+   "slug": "line-life",
+   "use": "guide hero: life line",
+   "sourceUrl": "https://www.pexels.com/photo/close-up-shot-of-a-palm-8058739/",
+   "title": "Close-Up Shot of a Palm",
+   "author": "Hanna Pad (Anna Nekrashevich)",
+   "authorUrl": "https://www.pexels.com/@anna-nekrashevich/",
+   "licence": "Pexels License",
+   "original": {
+    "width": 2160,
+    "height": 3840
+   },
+   "crop": {
+    "left": 753,
+    "top": 1458,
+    "width": 1207,
+    "height": 1610
+   },
+   "width": 1207,
+   "height": 1610,
+   "files": [
+    "/images/v5/line-life-800.{avif,webp}",
+    "/images/v5/line-life-1200.{avif,webp}"
+   ],
+   "scan": "yes",
+   "scanNote": "derived: full-photo real scan re-expressed in crop coordinates"
+  },
+  {
+   "slug": "photo-do-good",
+   "use": "photo do/don't example (label it as an example): unchanged crop of hero-palm-a (good light, whole hand, sharp)",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "derivedFrom": "hero-palm-a",
+   "width": 3341,
+   "height": 4455,
+   "files": [
+    "/images/v5/photo-do-good-800.{avif,webp}",
+    "/images/v5/photo-do-good-1200.{avif,webp}"
+   ],
+   "scan": "yes (same pixels as hero-palm-a: hero-palm-a.scan.json)",
+   "scanNote": ""
+  },
+  {
+   "slug": "photo-dont-dark",
+   "use": "photo do/don't example (label it as an example): brightness cut to about a quarter (sharp linear 0.3, -8), like a dim room",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "derivedFrom": "hero-palm-a",
+   "width": 3341,
+   "height": 4455,
+   "files": [
+    "/images/v5/photo-dont-dark-800.{avif,webp}",
+    "/images/v5/photo-dont-dark-1200.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "deliberately degraded example: never draw lines on it"
+  },
+  {
+   "slug": "photo-dont-blurry",
+   "use": "photo do/don't example (label it as an example): Gaussian blur (sigma 36 at full size), like a shaky or out-of-focus shot",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "derivedFrom": "hero-palm-a",
+   "width": 3341,
+   "height": 4455,
+   "files": [
+    "/images/v5/photo-dont-blurry-800.{avif,webp}",
+    "/images/v5/photo-dont-blurry-1200.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "deliberately degraded example: never draw lines on it"
+  },
+  {
+   "slug": "photo-dont-glare",
+   "use": "photo do/don't example (label it as an example): a white light patch composited over the palm centre, like flash or lamp glare",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "derivedFrom": "hero-palm-a",
+   "width": 3341,
+   "height": 4455,
+   "files": [
+    "/images/v5/photo-dont-glare-800.{avif,webp}",
+    "/images/v5/photo-dont-glare-1200.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "deliberately degraded example: never draw lines on it"
+  },
+  {
+   "slug": "photo-dont-too-close",
+   "use": "photo do/don't example (label it as an example): cropped to the palm centre only (edges, thumb and fingers out of frame), like a phone held too close",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "derivedFrom": "hero-palm-a",
+   "width": 1804,
+   "height": 2406,
+   "files": [
+    "/images/v5/photo-dont-too-close-800.{avif,webp}",
+    "/images/v5/photo-dont-too-close-1200.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "deliberately degraded example: never draw lines on it"
+  },
+  {
+   "slug": "photo-dont-fingers-cut",
+   "use": "photo do/don't example (label it as an example): top of the frame cut through the fingers (fingertips missing)",
+   "sourceUrl": "https://www.pexels.com/photo/9017588/",
+   "title": "Person's Hand Doing Stop Hand Sign",
+   "author": "Kevin Malik",
+   "authorUrl": "https://www.pexels.com/@kevin-malik/",
+   "licence": "Pexels License",
+   "derivedFrom": "hero-palm-a",
+   "width": 3341,
+   "height": 3201,
+   "files": [
+    "/images/v5/photo-dont-fingers-cut-800.{avif,webp}",
+    "/images/v5/photo-dont-fingers-cut-1200.{avif,webp}"
+   ],
+   "scan": "no",
+   "scanNote": "deliberately degraded example: never draw lines on it"
+  }
+ ]
+}

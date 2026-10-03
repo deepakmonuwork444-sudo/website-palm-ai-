@@ -46,3 +46,6 @@ design-v4/guide-assets/*.png
 # 3D hero research sources (raw GLB + reference renders; the optimised model is in public/models/)
 research/hero3d/*.png
 research/hero3d/*.glb
+
+# premium pass photo originals (Pexels/Unsplash/Wikimedia downloads, large; optimised copies in public/images/v5/, log in design-v4/photos-v5/manifest.json)
+design-v4/photos-v5/raw/
