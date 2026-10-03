@@ -20,7 +20,8 @@ import { site } from '../../config/site';
 import { t } from '../../i18n';
 import { pageEntities } from '../../lib/entities';
 import { pageId, webApplicationSchema, webPageSchema } from '../../lib/schema';
-import { otherTools, toolMedium, type ToolInfo } from '../../lib/tools/registry';
+import { scanAction } from '../../lib/reading/open';
+import { otherTools, TOOLS, toolMedium, type ToolInfo } from '../../lib/tools/registry';
 import { TOOL_ICON } from '../../lib/tools/tool-icons';
 
 export interface HowStep {
@@ -104,10 +105,18 @@ const jsonLd = [
   webPageSchema({ path: tool.path, name: title, locale: 'en', entities, breadcrumb: true, mainEntity: pageId(tool.path, 'app') }),
   webApplicationSchema({ name: tool.name, path: tool.path, locale: 'en', description, entities, inToolsCollection: true }),
 ];
-const liveLinks = links.filter((link) => isLive(link.href));
-const others = otherTools(tool.id).filter((other) => isLive(other.path));
-const readingLive = site.webReadingEnabled;
 const medium = toolMedium(tool.id);
+// A tool whose registry flag says "not open yet" (the palm line finder) is not linked: it would be a dead end. It comes back when its flag turns live.
+const toolOpen = (path: string) => TOOLS.find((item) => item.path === path)?.live !== false;
+const liveLinks = links.filter((link) => isLive(link.href) && (link.href === '/' || toolOpen(link.href)));
+// The free reading's entry leads to the scan that works today: the web scan when open, else the app (as the guides do).
+const scan = scanAction('en', { medium, campaign: 'other_tools' });
+const others = otherTools(tool.id)
+  .filter((other) => isLive(other.path) && (other.id === 'free-reading' || other.live))
+  .map((other) =>
+    other.id === 'free-reading' ? { ...other, href: scan.href, name: scan.app ? 'Free palm reading in our app' : other.name } : { ...other, href: other.path },
+  );
+const readingLive = site.webReadingEnabled;
 ---
 
 <BaseLayout title={title} description={description} path={tool.path} locale="en" jsonLd={jsonLd}>
@@ -272,10 +281,9 @@ const medium = toolMedium(tool.id);
           {
             others.map((other) => (
               <li>
-                <a href={other.path}>
+                <a href={other.href}>
                   <span class="t-other-icon"><MediaIcon name={TOOL_ICON[other.glyph]} sizes="2.25rem" /></span>
                   <span>{other.name}</span>
-                  {!other.live && <span class="t-other-soon">opens soon</span>}
                 </a>
               </li>
             ))

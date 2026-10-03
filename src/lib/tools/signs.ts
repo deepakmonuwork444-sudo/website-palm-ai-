@@ -23,6 +23,8 @@ export interface PalmSign {
   where: string;
   /** What the books read, in our words; null when no book we use describes it. */
   booksSay: string | null;
+  /** When no book gives it a meaning but there is still an honest way to read it (the M: line by line). */
+  readAs?: string;
   /** What we leave out, and why. */
   leftOut: string;
   cites: readonly Cite[];
@@ -45,6 +47,8 @@ export const SIGNS: readonly PalmSign[] = [
     glyph: 'M4 19 L7.5 5 L12 13 L16.5 5 L20 19',
     where: 'Not a separate mark: the heart, head and life lines (often with the fate line) sit so that together they draw a capital M across the palm.',
     booksSay: null,
+    readAs:
+      'The M is read line by line, through the four lines that draw it: the heart line for feelings and how you relate to people, the head line for how you think and decide, the life line for energy and how you meet change, and the fate line for direction and work.',
     leftOut:
       'None of the classical books we use describes an “M sign”. It is a modern idea. What they do read are the lines that make it, so the honest way to read an M is line by line. Claims online that an M means wealth, luck or a special destiny have no source in these books.',
     cites: [],
@@ -120,6 +124,11 @@ export const SIGNS: readonly PalmSign[] = [
     guide: '/lucky-signs/',
   },
 ];
+
+/** "the letter M", "the mystic cross": a name that starts with "The" keeps its own words and capitals. */
+export function signPhrase(name: string): string {
+  return name.startsWith('The ') ? `the ${name.slice(4)}` : `the ${name.toLowerCase()}`;
+}
 
 export function signById(id: string): PalmSign | undefined {
   return SIGNS.find((sign) => sign.id === id);

@@ -1,12 +1,14 @@
 import { trackToolUse } from '../analytics';
 import { focusHeading, h, watchStoreClicks, whenVisible } from '../dom';
-import { pickedSigns, type PalmSign } from '../signs';
+import { pickedSigns, signPhrase, type PalmSign } from '../signs';
 import { citeText } from '../sources';
 import { liveGuides, nextStepBlock, sourceList } from './render';
 
 const TOOL = 'signs-checker' as const;
 
 function card(sign: PalmSign, guides: Set<string>): HTMLElement {
+  const firstLabel = sign.booksSay ? 'What the books say' : sign.readAs ? 'How to read it' : 'What the books say';
+  const secondLabel = sign.booksSay ? 'What we leave out' : sign.readAs ? 'Where the idea comes from' : 'Why';
   return h(
     'section',
     { class: 't-group', 'data-sign': sign.id },
@@ -15,12 +17,12 @@ function card(sign: PalmSign, guides: Set<string>): HTMLElement {
     h(
       'div',
       { class: 't-reading' },
-      h('span', { class: 't-trad', text: 'What the books say' }),
-      h('p', { class: 't-reading-text', text: sign.booksSay ?? 'No meaning is given here. See why below.' }),
+      h('span', { class: 't-trad', text: firstLabel }),
+      h('p', { class: 't-reading-text', text: sign.booksSay ?? sign.readAs ?? 'No meaning is given here. See why below.' }),
     ),
-    h('div', { class: 't-reading' }, h('span', { class: 't-trad', text: sign.booksSay ? 'What we leave out' : 'Why' }), h('p', { class: 't-reading-text', text: sign.leftOut })),
+    h('div', { class: 't-reading' }, h('span', { class: 't-trad', text: secondLabel }), h('p', { class: 't-reading-text', text: sign.leftOut })),
     sign.cites.length ? sourceList(sign.cites.map(citeText), 3) : h('p', { class: 't-more', text: 'No classical source' }),
-    guides.has(sign.guide) ? h('p', {}, h('a', { class: 'text-link', href: sign.guide, text: `Read more about the ${sign.name.toLowerCase()}` })) : null,
+    guides.has(sign.guide) ? h('p', {}, h('a', { class: 'text-link', href: sign.guide, text: `Read more about ${signPhrase(sign.name)}` })) : null,
   );
 }
 

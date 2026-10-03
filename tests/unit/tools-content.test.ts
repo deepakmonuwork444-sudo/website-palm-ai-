@@ -11,7 +11,7 @@ import { LINE_PINS, lineThumb, lineThumbKeys, MAP_VIEWBOX, MOUNT_AREAS, SIGN_SPO
 import { MAP_SPOTS, spotById } from '../../src/lib/tools/palm-map';
 import { HAND_MODEL_LABEL, KIND_ORDER, LINE_SCAN_LIVE, otherTools, TOOLS, toolById, toolMedium } from '../../src/lib/tools/registry';
 import { toolsHubSchema } from '../../src/lib/tools/schema';
-import { pickedSigns, SIGNS } from '../../src/lib/tools/signs';
+import { pickedSigns, signPhrase, SIGNS } from '../../src/lib/tools/signs';
 import { BOOKS, citeText } from '../../src/lib/tools/sources';
 
 const SLUGS: Record<number, string> = {
@@ -46,7 +46,7 @@ describe('tool registry', () => {
     for (const tool of TOOLS) {
       if (tool.kind === 'ai') expect(tool.label).toMatch(/^Uses AI to trace your lines\./);
       else if (tool.kind === 'hand') expect(tool.label === HAND_MODEL_LABEL || /AI scanner, which receives the photos/.test(tool.label)).toBe(true);
-      else if (tool.kind === 'device') expect(tool.label).toBe('Runs on your phone: your photo never leaves this device.');
+      else if (tool.kind === 'device') expect(tool.label).toBe('Runs on your device: your photo never leaves it.');
       else expect(tool.label).toMatch(/not AI|no photo needed/);
     }
     expect(KIND_ORDER).toHaveLength(4);
@@ -85,6 +85,10 @@ describe('palm signs checker content', () => {
     const m = SIGNS.find((sign) => sign.id === 'm');
     expect(m?.booksSay).toBeNull();
     expect(m?.cites).toHaveLength(0);
+    // Picking the M gives its honest reading (line by line), never "no meaning".
+    expect(m?.readAs).toMatch(/heart line.*head line.*life line.*fate line/);
+    expect(signPhrase('The letter M')).toBe('the letter M');
+    expect(signPhrase('Mystic cross')).toBe('the mystic cross');
     expect(SIGNS.find((sign) => sign.id === 'island')?.booksSay).toBeNull();
   });
 

@@ -289,8 +289,7 @@ const openParts = [
         <h2 id="sample-title" class="text-h2 font-bold section-title">{sampleTitle.before}{sampleTitle.em && <em>{sampleTitle.em}</em>}{sampleTitle.after}</h2>
         <p class="section-sub">{home.sample.note}</p>
       </div>
-      <!-- Decorative: the real report screen (scripts/make-ui-previews.mjs) in a plain phone frame; it replaced the AI-made 3D phone render (WEB-DEC-060). -->
-      <img class="sample-render device" src={`/samples/ui-step-3-${locale}.webp`} width="560" height="700" alt="" loading="lazy" decoding="async" />
+      <!-- No report screenshot here: it repeated the live sample text just below (visual audit 2026-10-03, bug 5). -->
 
       <div class="sample-open">
         <div class="glance glass-card">
@@ -655,8 +654,6 @@ const openParts = [
   /* ---------- 5. Sample report: the reading sits on a lit glass plinth ---------- */
   .sample-grid { display: grid; gap: 1.5rem; }
   .sample-head { display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-  /* The real report screen in a plain phone frame (the .device bezel). */
-  .sample-render { display: block; justify-self: center; width: min(100%, 17rem); height: auto; aspect-ratio: 4 / 5; object-fit: cover; background: var(--surface-1); }
   .sample-open, .sample-locked { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
   .sample-open { position: relative; padding-bottom: 1.75rem; }
   .sample-open > * { position: relative; z-index: 1; }
@@ -688,8 +685,7 @@ const openParts = [
   .sample-cta { margin-top: 0.25rem; }
   @media (min-width: 64rem) {
     .sample-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); column-gap: 3rem; row-gap: 2rem; align-items: start; }
-    .sample-head { grid-column: 1; grid-row: 1; align-self: center; }
-    .sample-render { grid-column: 2; grid-row: 1; width: min(100%, 17rem); }
+    .sample-head { grid-column: 1 / -1; grid-row: 1; }
     .sample-locked { position: sticky; top: 5.5rem; }
     .sample-open { padding-bottom: 2.25rem; }
   }

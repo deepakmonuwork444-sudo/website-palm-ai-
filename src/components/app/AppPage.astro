@@ -45,7 +45,8 @@ const jsonLd = [
   mobileApplicationSchema({ locale, description: dict.meta.appDescription, featureList: page.does, entities }),
 ];
 const { planFromPerMonth, packFrom } = site.appPrices;
-const doesIcons: MediaIconName[] = ['palm-lines', 'scan', 'book', 'globe'];
+// One icon per item of dict.app.does, in order: lines, hand type + fingers, "not clear" instead of guessing, the books, language.
+const doesIcons: MediaIconName[] = ['palm-lines', 'hand-shape', 'question', 'book', 'globe'];
 ---
 
 <BaseLayout

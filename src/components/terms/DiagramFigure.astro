@@ -6,7 +6,7 @@
  * Zero JS. A page that shows a diagram lists its path in the diagram's `pages` (image sitemap, checks).
  *
  *   <DiagramFigure id="heart-line-start-end-and-types" />
- *   <DiagramFigure id="…" compact />   (gallery card: the wide file only, smaller)
+ *   <DiagramFigure id="…" compact />   (gallery card: smaller; phones get the tall file too, so the words stay readable)
  *   <DiagramFigure id="…" reuse="details" />   (blog posts: the licence + PNG link fold into "Reuse this image")
  */
 import { isLive } from '../../config/pages';
@@ -18,7 +18,7 @@ interface Props {
   /** Override the registry alt / caption (same language as the page). */
   alt?: string;
   caption?: string;
-  /** Gallery card: the wide file only, no licence sentence (the gallery says it once). */
+  /** Gallery card: smaller, no licence sentence (the gallery says it once). */
   compact?: boolean;
   /** Extra line under the caption, e.g. a link to the guide the diagram belongs to. */
   more?: { href: string; text: string } | undefined;
@@ -40,8 +40,8 @@ const policyLive = isLive(pagePath.split('#')[0] ?? pagePath);
 <figure class:list={['dg', compact && 'dg-compact']} id={compact ? undefined : item.id}>
   <div class="dg-art">
     <picture>
-      {!compact && <source media="(max-width: 39.99rem)" type="image/avif" srcset={`${base}-tall.avif`} width={item.tall.width} height={item.tall.height} />}
-      {!compact && <source media="(max-width: 39.99rem)" type="image/webp" srcset={`${base}-tall.webp`} width={item.tall.width} height={item.tall.height} />}
+      <source media="(max-width: 39.99rem)" type="image/avif" srcset={`${base}-tall.avif`} width={item.tall.width} height={item.tall.height} />
+      <source media="(max-width: 39.99rem)" type="image/webp" srcset={`${base}-tall.webp`} width={item.tall.width} height={item.tall.height} />
       <source type="image/avif" srcset={`${base}-900.avif 900w, ${base}.avif ${item.width}w`} sizes={sizes} />
       <img
         class="dg-img"

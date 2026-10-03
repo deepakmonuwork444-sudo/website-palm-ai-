@@ -131,7 +131,7 @@ export const TOOLS: readonly ToolInfo[] = [
     name: 'Palm photo checker',
     blurb: 'Is your photo bright, sharp and close enough? Checked in seconds, then use it in the photo tools.',
     kind: 'device',
-    label: 'Runs on your phone: your photo never leaves this device.',
+    label: 'Runs on your device: your photo never leaves it.',
     glyph: 'photo',
     live: true,
     noSignUp: true,

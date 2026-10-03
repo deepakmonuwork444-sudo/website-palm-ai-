@@ -127,6 +127,8 @@ const dict = t('en');
   .doc-body :global(p), .doc-body :global(li) { max-width: 68ch; line-height: 1.7; }
   .doc-body :global(p) { margin: 0 0 1rem; }
   .doc-body :global(ul), .doc-body :global(ol) { margin: 0 0 1rem; padding-inline-start: 1.25rem; display: grid; gap: 0.5rem; }
+  /* Steps are numbered (the reset preflight removes list markers). */
+  .doc-body :global(ol) { list-style: decimal; }
   .doc-body :global(li::marker) { color: var(--accent); }
   .doc-body :global(strong) { color: var(--fg); }
   .doc-body :global(.muted) { color: var(--fg-muted); }

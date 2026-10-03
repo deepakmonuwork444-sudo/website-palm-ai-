@@ -199,11 +199,10 @@ export function mountCompare(): void {
       focusHeading(heading);
       return;
     }
-    // Columns follow the real sides when they differ, else the photo order.
-    const leftFirst = same || a.verdict.side === 'Left';
-    const [L, R] = leftFirst ? [a, b] : [b, a];
-    const names = same ? ['Photo 1', 'Photo 2'] : ['Left hand', 'Right hand'];
-    const { rows, differences } = compareHands(L.verdict.measures, R.verdict.measures);
+    // Columns follow the photo slots above, so the table reads in the same order as the photos; each header names its hand.
+    const handName = (slot: Slot) => (sideName(slot.verdict.side) === 'left' ? 'Left hand' : 'Right hand');
+    const names = same ? ['Photo 1', 'Photo 2'] : [handName(a), handName(b)];
+    const { rows, differences } = compareHands(a.verdict.measures, b.verdict.measures);
     const heading = h('h2', {
       class: 't-result-title',
       text: differences === 0 ? `Your two hands match on all ${rows.length} measures` : `Your hands differ in ${differences} of ${rows.length} measures`,
