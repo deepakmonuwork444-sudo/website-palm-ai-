@@ -102,7 +102,7 @@ const toolLive = toolHref ? isLive(toolHref) : false;
   {
     showCta && (
       <div class="fp-cta" data-hero-cta>
-        <PrimaryButton href={scan.href} block data-store-link={scan.app ? '' : undefined}>
+        <PrimaryButton href={scan.href} block>
           {scan.app ? heroScan.ctaApp : s.scanCta}
         </PrimaryButton>
         {scan.app && <p class="text-small text-fg-muted fp-note">{heroScan.factsApp(freeReadings)}</p>}
