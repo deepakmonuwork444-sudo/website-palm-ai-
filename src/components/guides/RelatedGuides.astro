@@ -2,6 +2,7 @@
 /** Related guides (CONTENT_GUIDE.md §5 block 19): 3–4 text links with line glyphs; live pages only. */
 import { localeFromPath } from '../../i18n';
 import { guideStrings } from '../../lib/guides/strings';
+import Icon from '../Icon.astro';
 
 type Line = 'heart' | 'head' | 'life' | 'fate';
 
@@ -32,7 +33,7 @@ const s = guideStrings(localeFromPath(Astro.url.pathname));
                 </svg>
               </span>
               <span class="related-name">{item.name}</span>
-              <span class="related-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg></span>
+              <span class="related-go" aria-hidden="true"><Icon name="chevron" class="related-go-icon" /></span>
             </a>
           </li>
         ))}
@@ -56,7 +57,7 @@ const s = guideStrings(localeFromPath(Astro.url.pathname));
   .related-name { flex: 1; min-width: 0; font-family: var(--ff-display); font-weight: 700; font-size: calc(var(--fs-h3) * 1.02); line-height: 1.2; }
   :global(:lang(hi)) .related-name { font-family: var(--ff-sans); font-size: var(--fs-body); }
   .related-go { display: grid; place-items: center; flex: none; width: 2rem; height: 2rem; color: var(--accent); transition: transform 360ms var(--ease-out); }
-  .related-go svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .related-go :global(.related-go-icon) { width: 1.125rem; height: 1.125rem; }
   .related-link:hover .related-go, .related-link:focus-visible .related-go { transform: translateX(3px); }
   .related-link:hover .related-name { color: var(--accent); }
   .glyph-halo { fill: none; stroke: var(--color-halo); stroke-width: 6; stroke-linecap: round; }

@@ -63,9 +63,9 @@ const mostAsked = mostAskedThisWeek();
 
 const reveals: { key: string; icon: MediaIconName; title: string; text: string | null }[] = [
   { key: 'love', icon: 'love', title: home.reveals.parts.love, text: teasers.love },
-  { key: 'personality', icon: 'personality', title: home.reveals.parts.personality, text: teasers.personality },
-  { key: 'career', icon: 'career', title: home.reveals.parts.careerMoney, text: teasers.careerMoney },
-  { key: 'direction', icon: 'direction', title: home.reveals.parts.direction, text: teasers.direction },
+  { key: 'personality', icon: 'self', title: home.reveals.parts.personality, text: teasers.personality },
+  { key: 'career', icon: 'briefcase', title: home.reveals.parts.careerMoney, text: teasers.careerMoney },
+  { key: 'direction', icon: 'compass', title: home.reveals.parts.direction, text: teasers.direction },
 ];
 
 // Real screens of the reading page (scripts/make-ui-previews.mjs); a missing file is simply not shown.
@@ -87,7 +87,7 @@ const tools = [
   { key: 'leftRight', href: toolHref(['/tools/left-vs-right-palm/', '/tools/left-vs-right/', '/tools/which-hand-quiz/']), local: true, soon: false },
 ] as const;
 const toolsAll = localizedLink('/tools/', locale, localizePath);
-const toolIcons: Record<(typeof tools)[number]['key'], MediaIconName> = { handShape: 'hand-shape', fingers: 'fingers', lineFinder: 'palm-lines', leftRight: 'hands-compare' };
+const toolIcons: Record<(typeof tools)[number]['key'], MediaIconName> = { handShape: 'hand-shape', fingers: 'fingers', lineFinder: 'line-finder', leftRight: 'hands-compare' };
 
 // Guides: the page's own language when that twin is live, otherwise the English guide (said on the card).
 type GuideKey = keyof typeof home.guides.items;
@@ -109,9 +109,9 @@ const guides = guideItems
     return null;
   })
   .filter((item) => item !== null);
-// 3D icon per guide: the line guides keep their line's colour (heart red, head blue, life green, fate purple).
+// One icon per guide: the line guides show a mini palm with that line drawn; no two cards share a drawing.
 const guideIcon = (guide: { key: GuideKey; line?: 'heart' | 'head' | 'life' | 'fate' }): MediaIconName =>
-  guide.line ? `${guide.line}-line` : guide.key === 'isReal' ? 'question' : guide.key === 'marriage' ? 'love' : guide.key === 'handLines' ? 'palm-lines' : 'book';
+  guide.line ? `line-${guide.line}` : guide.key === 'isReal' ? 'balance' : guide.key === 'marriage' ? 'line-marriage' : guide.key === 'handLines' ? 'palm-lines' : 'book';
 const guidesHub = guides.find((g) => g.key === 'palmReading') ?? null;
 
 // Gold-foil key word in a heading: the dictionary text is only split around the word, never changed.
@@ -179,7 +179,7 @@ const openParts = [
             <li class:list={['reveal-card', 'glass-card', `reveal-${card.key}`]}>
               <div class="reveal-head">
                 <span class="reveal-icon" aria-hidden="true">
-                  <MediaIcon name={card.icon} sizes="3.5rem" />
+                  <MediaIcon name={card.icon} />
                 </span>
                 <h3 class="text-h3 font-bold reveal-title">{card.title}</h3>
               </div>
@@ -252,7 +252,7 @@ const openParts = [
             const body = (
               <>
                 <span class="tool-visual glass-well" aria-hidden="true">
-                  <MediaIcon name={toolIcons[tool.key]} class="tool-icon" sizes="(min-width: 64rem) 6rem, 4.25rem" />
+                  <MediaIcon name={toolIcons[tool.key]} class="tool-icon" />
                 </span>
                 <span class="tool-text">
                   <span class="tool-name text-h3 font-bold">{tool.href ? <a class="stretch-link" href={tool.href} hreflang={locale === 'hi' ? 'en' : undefined}>{copy.name}</a> : copy.name}</span>
@@ -388,7 +388,7 @@ const openParts = [
                 <div class="guide-card glass-card">
                   <span class="guide-top">
                     <span class="guide-mark glass-well" aria-hidden="true">
-                      <MediaIcon name={guideIcon(guide)} class="guide-icon3d" sizes="4.25rem" />
+                      <MediaIcon name={guideIcon(guide)} class="guide-icon" />
                     </span>
                     {guide.english && home.guides.inEnglish && <span class="guide-lang text-caption">{home.guides.inEnglish}</span>}
                   </span>
@@ -454,7 +454,7 @@ const openParts = [
           <h2 id="app-title" class="text-h2 font-bold section-title">{appTitle.before}{appTitle.em && <em>{appTitle.em}</em>}{appTitle.after}</h2>
           <p class="measure">{home.app.body}</p>
           <ul class="ticks">
-            {home.app.ticks.map((item) => <li><Icon name="check" class="tick" /><span>{item}</span></li>)}
+            {home.app.ticks.map((item) => <li><Icon name="tick" class="tick" /><span>{item}</span></li>)}
           </ul>
           <p class="text-small text-fg-muted">{dict.store.playName(site.appNameOnPlay)}</p>
           <a class="btn btn-secondary app-more" href={appPath}>{home.app.more}</a>
@@ -514,11 +514,10 @@ const openParts = [
   .reveal-card > * { position: relative; }
   .reveal-head { display: flex; align-items: center; gap: 0.75rem; }
   .reveal-title { margin: 0; }
-  /* The 3D glass-and-gold object stands on its own soft light (no drawn circle). */
+  /* The flat duotone icon, sized to its slot. */
   .reveal-icon { position: relative; display: grid; place-items: center; width: 3.5rem; height: 3.5rem; flex: none; margin: -0.25rem 0; }
 
-  .reveal-icon :global(.media-icon) { position: relative; width: 3.5rem;  }
-  :global([data-theme="day"]) .reveal-icon :global(.media-icon) {  }
+  .reveal-icon :global(.media-icon) { position: relative; width: 2.75rem; }
   .reveal-quote {
     flex: 1; margin: 0; padding-inline-start: 1rem; font-size: var(--fs-lead); line-height: var(--lh-lead);
     background: linear-gradient(180deg, var(--tone), color-mix(in srgb, var(--tone) 10%, transparent)) no-repeat 0 0.3em / 2px calc(100% - 0.3em);
@@ -618,10 +617,9 @@ const openParts = [
   .tool-visual { position: relative; display: grid; place-items: center; aspect-ratio: 1; overflow: hidden; }
 
   .tool-visual :global(.tool-icon) {
-    position: relative; width: 78%; 
+    position: relative; width: 66%;
     transition: transform 600ms var(--ease-out);
   }
-  :global([data-theme="day"]) .tool-visual :global(.tool-icon) {  }
   .tool-text { display: flex; flex-direction: column; gap: 0.375rem; min-width: 0; height: 100%; }
   .tool-name { line-height: 1.25; }
   .tool-blurb { color: var(--fg-muted); line-height: 1.55; }
@@ -711,10 +709,9 @@ const openParts = [
     border-top: 1px solid transparent; border-image: linear-gradient(90deg, rgba(230,184,92,0.35), var(--gc-edge) 45%, transparent) 1;
   }
   .guide-time { color: var(--fg-faint); }
-  .guide-mark :global(.guide-icon3d) { width: 4.25rem;  transition: transform 600ms var(--ease-out); }
-  :global([data-theme="day"]) .guide-mark :global(.guide-icon3d) {  }
+  .guide-mark :global(.guide-icon) { width: 3.25rem; transition: transform 600ms var(--ease-out); }
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .guide-card:hover .guide-mark :global(.guide-icon3d) { transform: translateY(-3px) scale(1.06); }
+    .guide-card:hover .guide-mark :global(.guide-icon) { transform: translateY(-3px) scale(1.06); }
   }
   @media (min-width: 64rem) {
     .guide-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }

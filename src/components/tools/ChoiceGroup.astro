@@ -43,7 +43,7 @@ const cards = choices.some((choice) => choice.glyph || choice.hint || choice.fig
           <span class="t-opt-box">
             {choice.figure && <MiniPalm figure={choice.figure} />}
             {!choice.figure && choice.glyph && (
-              <svg class="t-choice-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <svg class="t-choice-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                 <path d={choice.glyph} />
               </svg>
             )}

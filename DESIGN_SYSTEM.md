@@ -641,13 +641,15 @@ Prose sits on `surface-1` at 680px wide at most. Long sections use `content-visi
 
 ## 8. Iconography
 
-- **Set:** Ionicons **outline** (MIT, the same set as the app), shipped as an inline SVG sprite of about 20 icons.
-- **Stroke:** 1.75px on a 24px grid, round caps and joins. Ionicons' default of 32 on a 512 grid is 1.5px, so set `stroke-width` to about 37 for consistency.
-- **A small custom set in the same stroke:** the 4 lines, the mounts and the 4 hand shapes.
-- **Icons always come with a visible text label.** Icon-only controls also need an `aria-label` and still get a 48px hit area.
-- **No emoji in the UI.** Emoji render differently on every Android version. The app's ❤️🧠⭐ line labels become line-colour dots.
-- **3D icon images (WEB-DEC-046, updated 2026-09-28):** our own AI-made 3D icon renders, not emoji (gift = free, crown = membership, bolt = one-time packs) in `public/images/icons/price-*` (AVIF + WebP, 128 + 256 px, centred 80% crop of the 2048 px render), shown on the /app/ price boxes as dark studio tiles (4.5rem Free, 3.75rem group heads, 1rem radius, hairline rim, soft drop shadow; same in Night and Day). Always `<picture>` + `<img alt="" width height loading="lazy" decoding="async">`, served from our own origin (CSP `img-src 'self'`); never emoji characters or emoji image sets.
-- No filled or duotone icon styles, and no icon fonts.
+**v4 (2026-10-03, premium pass wave 1, owner approved the pass):** one bespoke set replaces the thin Ionicons-style outlines, the repeated glyphs and the AI-3D price icons.
+
+- **Source:** `src/lib/icons.ts` (inline SVG markup, one named export per icon) rendered by `Icon.astro`, `MediaIcon.astro` (feature size, square, accent colour) and `reading/Icons.tsx` (React island). No sprite files, no icon font, no images.
+- **Style:** solid duotone on a 24px grid. Main shapes solid `currentColor`; supporting shapes in one group at 40 % opacity (so overlaps never darken and the second tone follows the theme). Rounded geometry. Strokes only where the stroke is the shape (checks, chevrons, palm lines): 2–2.5px, round caps and joins. No gradients, glow, shadows or 3D.
+- **Colour:** `var(--accent)` (gold on Night, goldInk `#7A5200` on Day; brand gold is never an icon colour on Day). Line colours stay data and are not used in icons.
+- **One drawing per concept:** a mini palm with the one line drawn for each palm line (heart, head, life, fate, sun, mercury, marriage), one icon per tool (`src/lib/tools/tool-icons.ts`), gift / crown / bolt for pricing, privacy / document / trash / key / pen for the legal heroes. Preview sheet: rebuilt from the module at 24/48/96px on Night and Day.
+- **Sizing:** a feature icon fills about 60–80 % of its tile; never a small glyph in a big empty box.
+- **Icons always come with a visible text label.** Decorative icons are `aria-hidden`; icon-only controls need an `aria-label` and a 48px hit area.
+- **No emoji in the UI**, no emoji image sets, no AI-rendered icon images.
 
 ## 9. Imagery and diagrams
 

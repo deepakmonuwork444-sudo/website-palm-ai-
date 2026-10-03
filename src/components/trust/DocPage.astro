@@ -1,7 +1,7 @@
 ---
 /**
  * The shared shell of the legal and trust pages (WEB-FEAT-013, WEB-FEAT-035):
- * breadcrumbs, a lit hero (3D icon, title, promise, meta line), an "On this
+ * breadcrumbs, a lit hero (icon, title, promise, meta line), an "On this
  * page" list and one glass panel that holds the text. Same content on every
  * screen size: the contents list sits above the text on phones and becomes a
  * sticky side column from 64rem. Page text is English (these pages have no
@@ -45,7 +45,7 @@ const dict = t('en');
       ) : monogram ? (
         <span class="doc-orb doc-monogram font-display" aria-hidden="true">{monogram}</span>
       ) : (
-        <span class="doc-orb" aria-hidden="true"><MediaIcon name={icon} sizes="4rem" class="doc-orb-icon" /></span>
+        <span class="doc-orb" aria-hidden="true"><MediaIcon name={icon} class="doc-orb-icon" /></span>
       )
     }
     <p class="doc-kicker">{kicker}</p>
@@ -88,7 +88,7 @@ const dict = t('en');
     display: inline-grid; place-items: center; width: 5.5rem; height: 5.5rem; margin-bottom: 1rem; border-radius: 9999px; border: 1px solid transparent;
     background: var(--glass-1) padding-box, var(--glass-base) padding-box, var(--rim) border-box; box-shadow: var(--e1);
   }
-  .doc-orb :global(.doc-orb-icon) { width: 4rem; }
+  .doc-orb :global(.doc-orb-icon) { width: 3rem; }
   .doc-portrait { width: 7rem; height: 7rem; padding: 0.25rem; object-fit: cover; }
   .doc-monogram { width: 7rem; height: 7rem; font-size: 2.5rem; font-weight: 700; letter-spacing: 0.02em; color: var(--accent); }
   .doc-kicker { margin: 0 0 0.5rem; font-size: var(--fs-small); font-weight: 700; letter-spacing: 0.04em; color: var(--accent); }

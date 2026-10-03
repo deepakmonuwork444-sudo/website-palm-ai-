@@ -347,14 +347,13 @@ describe('crops and mount areas', () => {
     expect(Object.keys(WORD_TILE).sort()).toEqual(guideStrings('en').teach.words.map((w) => w.key).sort());
   });
 
-  it('the price boxes (shared PricePanel on /app/ and home) use our own 3D icons at 128 and 256 px, no emoji images left', () => {
+  it('the price boxes (shared PricePanel on /app/ and home) use our own flat SVG icons, no 3D renders or emoji images', () => {
     const app = read('src/components/PricePanel.astro');
     expect(read('src/components/app/AppPage.astro')).toContain('<PricePanel');
     expect(read('src/components/home/Pricing.astro')).toContain('<PricePanel');
-    for (const name of ['gift', 'crown', 'bolt']) {
-      for (const w of [128, 256]) for (const ext of ['avif', 'webp']) expect(existsSync(join(ROOT, `public/images/icons/price-${name}-${w}.${ext}`)), `${name}-${w}.${ext}`).toBe(true);
-      expect(app).toContain(`icon3d('${name}')`);
-    }
+    for (const name of ['gift', 'crown', 'bolt']) expect(app).toContain(`<Icon name="${name}"`);
+    expect(app).not.toMatch(/images\/icons\/price-|<picture/);
+    expect(existsSync(join(ROOT, 'public/images/icons'))).toBe(false);
     expect(app).not.toMatch(/images\/emoji/);
     expect(existsSync(join(ROOT, 'public/images/emoji'))).toBe(false);
   });

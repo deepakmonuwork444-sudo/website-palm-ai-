@@ -6,12 +6,32 @@ import { h, svg } from '../dom';
  * never links to a page that isn't built.
  */
 
+/**
+ * Two icons from the site set (src/lib/icons.ts: document, info), drawn here
+ * with DOM calls so the tool scripts don't bundle the whole set. Same drawings.
+ */
+function iconEl(...parts: SVGElement[]): SVGSVGElement {
+  const icon = svg('svg', { viewBox: '0 0 24 24', fill: 'currentColor', 'stroke-width': '2.2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true', focusable: 'false' });
+  icon.append(...parts);
+  return icon;
+}
+function soft(...parts: SVGElement[]): SVGGElement {
+  const group = svg('g', { opacity: '.4' });
+  group.append(...parts);
+  return group;
+}
+const documentIcon = (): SVGSVGElement =>
+  iconEl(
+    soft(svg('path', { d: 'M6.8 2.4h7.4l5.4 5.4v11a2.8 2.8 0 0 1-2.8 2.8H6.8A2.8 2.8 0 0 1 4 18.8V5.2a2.8 2.8 0 0 1 2.8-2.8Z' })),
+    svg('path', { d: 'M14.2 2.4v3.8a1.6 1.6 0 0 0 1.6 1.6h3.8Z' }),
+    svg('path', { d: 'M8 12.2h7.6M8 15.6h7.6M8 19h4.6', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }),
+  );
+
 /** "Cheiro, Palmistry for All (1916), …" as a small list; the first two, then "and N more books". */
 export function sourceList(cites: readonly string[], max = 2): HTMLElement {
   const list = h('ul', { class: 't-sources', 'aria-label': 'Sources' });
   for (const text of cites.slice(0, max)) {
-    const icon = svg('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75', 'aria-hidden': 'true' });
-    icon.append(svg('path', { d: 'M5 4.5h9.5L19 9v10.5H5z M14.5 4.5V9H19' }));
+    const icon = documentIcon();
     list.append(h('li', { class: 't-source' }, icon, h('span', { text: text })));
   }
   if (cites.length > max) {
@@ -53,7 +73,9 @@ export function liveGuides(root: HTMLElement): Set<string> {
 
 /** The small info icon used in notes. */
 export function infoIcon(): SVGSVGElement {
-  const icon = svg('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75', 'aria-hidden': 'true' });
-  icon.append(svg('circle', { cx: '12', cy: '12', r: '9' }), svg('path', { d: 'M12 11v5.5M12 7.6v.2', 'stroke-linecap': 'round' }));
-  return icon;
+  return iconEl(
+    soft(svg('circle', { cx: '12', cy: '12', r: '9.8' })),
+    svg('rect', { x: '10.85', y: '10.4', width: '2.3', height: '7.2', rx: '1.15' }),
+    svg('circle', { cx: '12', cy: '7.4', r: '1.45' }),
+  );
 }

@@ -17,7 +17,7 @@ import MediaIcon from '../../components/MediaIcon.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { isLive } from '../../config/pages';
 import { t } from '../../i18n';
-import { TOOLS, toolById, type ToolGlyph } from '../../lib/tools/registry';
+import { TOOLS, toolById } from '../../lib/tools/registry';
 import { TOOL_ICON } from '../../lib/tools/tool-icons';
 import { toolsHubSchema } from '../../lib/tools/schema';
 
@@ -33,8 +33,7 @@ const compare = toolById('hand-compare');
 const checker = toolById('photo-checker');
 const lineFinder = toolById('line-finder');
 const learn = TOOLS.filter((tool) => !tool.photo);
-// 3D glass-and-gold icon per tool glyph (src/lib/tools/tool-icons.ts, shared with the tool pages).
-const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
+// One icon per tool (src/lib/tools/tool-icons.ts, shared with the tool pages).
 ---
 
 <BaseLayout title={title} description={description} path="/tools/" locale="en" jsonLd={jsonLd}>
@@ -68,7 +67,7 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
             <li class="hub-pcard hub-pcard-wide glass-card">
               <div class="hub-pcard-copy">
                 <span class="hub-card-top">
-                  <span class="t-tile"><MediaIcon name={icon3d(tool.glyph)} sizes="2.75rem" /></span>
+                  <span class="t-tile"><MediaIcon name={TOOL_ICON[tool.id]} /></span>
                   <a class="hub-card-name hub-stretch" href={tool.path}>{tool.name}</a>
                 </span>
                 <span class="hub-card-blurb">{tool.blurb}</span>
@@ -84,7 +83,7 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
         <li class="hub-pcard glass-card">
           <div class="hub-pcard-copy">
             <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(compare.glyph)} sizes="2.75rem" /></span>
+              <span class="t-tile"><MediaIcon name={TOOL_ICON[compare.id]} /></span>
               <a class="hub-card-name hub-stretch" href={compare.path}>{compare.name}</a>
             </span>
             <span class="hub-card-blurb">{compare.blurb}</span>
@@ -93,15 +92,15 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
           </div>
           <div class="hub-pcard-demo hub-demo" aria-hidden="true">
             <span class="hub-demo-title">What you’ll see</span>
-            <span class="hub-demo-row"><Icon name="check" />Both photos with the points we found</span>
-            <span class="hub-demo-row"><Icon name="check" />Hand type, fingers and thumb, side by side</span>
-            <span class="hub-demo-row"><Icon name="check" />Only real differences marked</span>
+            <span class="hub-demo-row"><Icon name="tick" />Both photos with the points we found</span>
+            <span class="hub-demo-row"><Icon name="tick" />Hand type, fingers and thumb, side by side</span>
+            <span class="hub-demo-row"><Icon name="tick" />Only real differences marked</span>
           </div>
         </li>
         <li class="hub-pcard glass-card">
           <div class="hub-pcard-copy">
             <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(checker.glyph)} sizes="2.75rem" /></span>
+              <span class="t-tile"><MediaIcon name={TOOL_ICON[checker.id]} /></span>
               <a class="hub-card-name hub-stretch" href={checker.path}>{checker.name}</a>
             </span>
             <span class="hub-card-blurb">{checker.blurb}</span>
@@ -110,16 +109,16 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
           </div>
           <div class="hub-pcard-demo hub-demo" aria-hidden="true">
             <span class="hub-demo-title">What you’ll see</span>
-            <span class="hub-demo-row"><Icon name="check" />Bright enough, not washed out</span>
-            <span class="hub-demo-row"><Icon name="check" />Sharp, not blurry</span>
-            <span class="hub-demo-row"><Icon name="check" />Whole hand in the frame</span>
+            <span class="hub-demo-row"><Icon name="tick" />Bright enough, not washed out</span>
+            <span class="hub-demo-row"><Icon name="tick" />Sharp, not blurry</span>
+            <span class="hub-demo-row"><Icon name="tick" />Whole hand in the frame</span>
           </div>
         </li>
         {lineFinder.live && (
         <li class="hub-pcard glass-card">
           <div class="hub-pcard-copy">
             <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(lineFinder.glyph)} sizes="2.75rem" /></span>
+              <span class="t-tile"><MediaIcon name={TOOL_ICON[lineFinder.id]} /></span>
               <a class="hub-card-name hub-stretch" href={lineFinder.path}>{lineFinder.name}</a>
             </span>
             <span class="hub-card-blurb">{lineFinder.blurb}</span>
@@ -141,7 +140,7 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
           learn.map((tool) => (
             <li>
               <div class="hub-row glass-card">
-                <span class="hub-row-tile"><MediaIcon name={icon3d(tool.glyph)} sizes="2.75rem" /></span>
+                <span class="hub-row-tile"><MediaIcon name={TOOL_ICON[tool.id]} /></span>
                 <span class="hub-row-text">
                   <a class="hub-row-name stretch-link" href={tool.path}>{tool.name}</a>
                   <span class="hub-row-blurb">{tool.blurb}</span>
@@ -296,12 +295,11 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
     flex: none; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border-radius: 0.875rem; border: 1px solid transparent;
     background: var(--well) padding-box, var(--rim) border-box;
   }
-  /* 3D icons: the glass-and-gold object sits in the lit well, a little proud of it. */
+  /* Each tool's own icon, sized to its well. */
   .hub-card-top :global(.t-tile) { width: 4rem; height: 4rem; }
-  .hub-card-top :global(.media-icon) { width: 3.25rem;  transition: transform 600ms var(--ease-out); }
+  .hub-card-top :global(.media-icon) { width: 2.5rem; transition: transform 600ms var(--ease-out); }
   .hub-row-tile { width: 3.25rem; height: 3.25rem; }
-  .hub-row-tile :global(.media-icon) { width: 2.75rem;  transition: transform 600ms var(--ease-out); }
-  :global([data-theme="day"]) .hub-card-top :global(.media-icon), :global([data-theme="day"]) .hub-row-tile :global(.media-icon) {  }
+  .hub-row-tile :global(.media-icon) { width: 2.125rem; transition: transform 600ms var(--ease-out); }
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .hub-pcard:not(.hub-pcard-soon):hover .hub-card-top :global(.media-icon), .hub-row:hover .hub-row-tile :global(.media-icon) { transform: translateY(-3px) scale(1.06); }
   }

@@ -62,25 +62,16 @@ const freeBody = colon > 0 ? freeText.slice(colon + 1).trim() : freeText;
 const priceNotes: { icon: IconName; text: string }[] = [
   { icon: 'info', text: price.renewal },
   ...(trialPlan ? [{ icon: 'info' as IconName, text: price.trialNote(trialPlan.trialDays, trialPlan.trialReadings, trialPlan.inr) }] : []),
-  { icon: 'check', text: price.sameReading },
+  { icon: 'tick', text: price.sameReading },
   { icon: 'shield', text: price.payment },
 ];
-// Our own 3D icon renders (AI-made, 2026-09-28; public/images/icons/price-*, AVIF + WebP 128/256), decorative.
-const icon3d = (name: 'gift' | 'crown' | 'bolt') => ({
-  avif: `/images/icons/price-${name}-128.avif 128w, /images/icons/price-${name}-256.avif 256w`,
-  webp: `/images/icons/price-${name}-128.webp 128w, /images/icons/price-${name}-256.webp 256w`,
-  src: `/images/icons/price-${name}-128.webp`,
-});
-const gift = icon3d('gift');
-const crown = icon3d('crown');
-const bolt = icon3d('bolt');
 const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
 ---
 
 <div class="price-panel">
-  <!-- 3D icons: our own renders (not emoji), local AVIF/WebP, decorative (public/images/icons/). -->
+  <!-- Price icons: the site's own flat duotone set (Icon.astro), decorative. -->
   <div class="free-box glass-card">
-    <picture class="icon3d icon3d-lg"><source type="image/avif" srcset={gift.avif} sizes="4.5rem" /><img src={gift.src} srcset={gift.webp} sizes="4.5rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+    <span class="price-icon price-icon-lg glass-well" aria-hidden="true"><Icon name="gift" class="price-glyph" /></span>
     <div class="free-copy">
       <h3 class="free-title">{freeTitle}<span class="sr-only">:</span></h3>
       <p>{freeBody}</p>
@@ -93,12 +84,12 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
     <legend class="sr-only">{price.switchLabel}</legend>
     <label class="ptab">
       <input type="radio" name="price-tab" value="plans" checked />
-      <picture class="ptab-icon"><source type="image/avif" srcset={crown.avif} sizes="2.25rem" /><img src={crown.src} srcset={crown.webp} sizes="2.25rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <Icon name="crown" class="ptab-icon" />
       <span>{price.membershipTitle}</span>
     </label>
     <label class="ptab">
       <input type="radio" name="price-tab" value="packs" />
-      <picture class="ptab-icon"><source type="image/avif" srcset={bolt.avif} sizes="2.25rem" /><img src={bolt.src} srcset={bolt.webp} sizes="2.25rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <Icon name="bolt" class="ptab-icon" />
       <span>{price.packsTitle}</span>
     </label>
   </fieldset>
@@ -106,7 +97,7 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
 
   <div class="price-group group-plans">
     <div class="group-head">
-      <picture class="icon3d"><source type="image/avif" srcset={crown.avif} sizes="3.75rem" /><img src={crown.src} srcset={crown.webp} sizes="3.75rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <span class="price-icon glass-well" aria-hidden="true"><Icon name="crown" class="price-glyph" /></span>
       <div>
         <h3 id="membership-title" class="text-h3 font-bold group-title">{price.membershipTitle}</h3>
         <p class="group-lead">{price.membershipLead}</p>
@@ -140,7 +131,7 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
 
   <div class="price-group group-packs">
     <div class="group-head">
-      <picture class="icon3d"><source type="image/avif" srcset={bolt.avif} sizes="3.75rem" /><img src={bolt.src} srcset={bolt.webp} sizes="3.75rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <span class="price-icon glass-well" aria-hidden="true"><Icon name="bolt" class="price-glyph" /></span>
       <div>
         <h3 id="packs-title" class="text-h3 font-bold group-title">{price.packsTitle}</h3>
         <p class="group-lead">{price.packsLead}</p>
@@ -184,10 +175,10 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
   .pack-count, .pack-tag, .pack-price, .pack-each { margin: 0; }
   .plan-grid, .pack-grid, .price-notes { list-style: none; margin: 0; padding: 0; }
   /* Our 3D icon renders: a dark studio tile in a soft rim (Night and Day alike). */
-  .icon3d { display: block; flex: none; width: 3.75rem; height: 3.75rem; border-radius: 1rem; overflow: hidden; border: 1px solid var(--hairline); box-shadow: 0 10px 22px -10px rgba(0,0,0,0.55); }
-  .icon3d img { display: block; width: 100%; height: 100%; }
-  .icon3d-lg { width: 4.5rem; height: 4.5rem; border-radius: 1.125rem; }
-  :global([data-theme="day"]) .icon3d { box-shadow: 0 10px 20px -10px rgba(23,19,61,0.35); }
+  .price-icon { display: grid; place-items: center; flex: none; width: 3.75rem; height: 3.75rem; border-radius: 1rem; color: var(--accent); }
+  .price-icon :global(.price-glyph) { width: 2.25rem; height: 2.25rem; }
+  .price-icon-lg { width: 4.5rem; height: 4.5rem; border-radius: 1.125rem; }
+  .price-icon-lg :global(.price-glyph) { width: 2.75rem; height: 2.75rem; }
   /* Gold foil numbers: the prices and the word "Free". */
   .free-title, .amount, .pack-price {
     font-family: var(--ff-display); font-weight: 700; letter-spacing: -0.01em; line-height: 1;
@@ -258,10 +249,10 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
   .ptab:hover { color: var(--fg); }
   .ptab:has(input:checked) { background-image: var(--gold-gradient); color: var(--color-on-gold); box-shadow: none; }
   .ptab:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .ptab-icon { flex: none; }
-  .ptab-icon img { display: block; width: 2.25rem; height: 2.25rem; border-radius: 0.625rem; }
+  .price-switch :global(.ptab-icon) { width: 1.5rem; height: 1.5rem; color: var(--accent); }
+  .ptab:has(input:checked) :global(.ptab-icon) { color: inherit; }
   /* The tab already shows the crown / bolt: the group keeps its heading and line, not a second icon. */
-  .price-panel:has(.price-switch input:checked) .group-head .icon3d { display: none; }
+  .price-panel:has(.price-switch input:checked) .group-head .price-icon { display: none; }
   .price-panel:has(input[value="packs"]:checked) .group-plans,
   .price-panel:has(input[value="plans"]:checked) .group-packs { display: none; }
 
@@ -279,7 +270,7 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
 
   @media (min-width: 48rem) {
     .free-box { grid-template-columns: auto minmax(0, 1fr) auto; column-gap: 1.5rem; padding: 1.75rem 2rem; }
-    .free-box .icon3d-lg { grid-row: span 2; }
+    .free-box .price-icon-lg { grid-row: span 2; }
     .free-copy p { grid-column: 2; margin-top: 0.5rem; }
     .free-cta { grid-column: 3; grid-row: 1 / span 2; width: auto; margin-top: 0; padding-inline: 1.75rem; white-space: nowrap; }
     .price-switch { width: 100%; max-width: 40rem; margin-inline: auto; }

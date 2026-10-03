@@ -56,7 +56,7 @@ const toolLive = toolHref ? isLive(toolHref) : false;
 <section class="fp glass-panel" aria-labelledby="find-title" data-find>
   <div class="fp-head">
     <span class="fp-mark glass-well" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" /><circle cx="12" cy="12" r="2" /><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" /></svg>
+      <Icon name="target" class="fp-mark-icon" />
     </span>
     <h2 id="find-title" class="text-h3 font-bold fp-title">{title}</h2>
   </div>
@@ -126,7 +126,7 @@ const toolLive = toolHref ? isLive(toolHref) : false;
   :global([data-theme="day"]) .fp::before { background: linear-gradient(90deg, transparent, rgba(122,82,0,0.35) 30%, rgba(122,82,0,0.35) 70%, transparent); }
   .fp-head { display: flex; align-items: center; gap: 0.875rem; }
   .fp-mark { display: grid; place-items: center; flex: none; width: 2.75rem; height: 2.75rem; border-radius: 9999px; }
-  .fp-mark svg { width: 1.375rem; height: 1.375rem; fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; }
+  .fp-mark :global(.fp-mark-icon) { width: 1.5rem; height: 1.5rem; color: var(--accent); }
   .fp-title { margin: 0; }
   .fp-prompt { margin: 0; font-size: var(--fs-lead); line-height: var(--lh-lead); color: var(--fg); }
 

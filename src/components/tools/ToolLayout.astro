@@ -127,7 +127,7 @@ const readingLive = site.webReadingEnabled;
       <div class="t-main">
         <header class="t-head">
           <div class="t-title-row">
-            <span class="t-tile"><MediaIcon name={TOOL_ICON[tool.glyph]} sizes="3rem" class="t-tile-icon" /></span>
+            <span class="t-tile"><MediaIcon name={TOOL_ICON[tool.id]} class="t-tile-icon" /></span>
             <h1 class="t-h1">{h1}</h1>
           </div>
           <p class="t-promise">{promise}</p>
@@ -282,7 +282,7 @@ const readingLive = site.webReadingEnabled;
             others.map((other) => (
               <li>
                 <a href={other.href}>
-                  <span class="t-other-icon"><MediaIcon name={TOOL_ICON[other.glyph]} sizes="2.25rem" /></span>
+                  <span class="t-other-icon"><MediaIcon name={TOOL_ICON[other.id]} /></span>
                   <span>{other.name}</span>
                 </a>
               </li>
