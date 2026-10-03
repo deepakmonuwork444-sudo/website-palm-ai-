@@ -327,7 +327,7 @@ describe('crops and mount areas', () => {
     const areas = mountAreas(scan);
     const box = palmCrop(scan);
     expect(areas.map((a) => a.key).sort()).toEqual([...MOUNT_ORDER].sort());
-    expect(MOUNT_ORDER).toEqual(['jupiter', 'saturn', 'sun', 'mercury', 'venus', 'moon', 'marsInner', 'marsOuter']);
+    expect(MOUNT_ORDER).toEqual(['jupiter', 'saturn', 'sun', 'mercury', 'marsInner', 'venus', 'moon', 'marsOuter']);
     for (const a of areas) expect(a.cx - a.rx >= box.x && a.cx + a.rx <= box.x + box.w && a.cy - a.ry >= box.y && a.cy + a.ry <= box.y + box.h, a.key).toBe(true);
   });
 

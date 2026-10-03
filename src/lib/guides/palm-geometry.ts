@@ -157,7 +157,8 @@ export const VARIANTS = {
   // Crosses (/palm-crosses/, WEB-DEC-054): a small X in gold, where the books place it. Drawings only.
   'cross-mystic': { kind: 'minor', paths: ['M113 150 L 123 160', 'M123 150 L 113 160'] },
   'cross-mystic-jupiter': { kind: 'minor', paths: ['M131 143 L 141 153', 'M141 143 L 131 153'] },
-  'cross-mystic-luna': { kind: 'minor', paths: ['M77 162 L 87 172', 'M87 162 L 77 172'] },
+  // Low on the outer side, on the upper mount of the Moon just under the head line's end (cross-moon sits lower on the same mount).
+  'cross-mystic-luna': { kind: 'minor', paths: ['M59 199 L 69 209', 'M69 199 L 59 209'] },
   'cross-jupiter': { kind: 'minor', paths: ['M145 136 L 154 145', 'M154 136 L 145 145'] },
   'cross-saturn': { kind: 'minor', paths: ['M115 126 L 124 135', 'M124 126 L 115 135'] },
   'cross-sun': { kind: 'minor', paths: ['M85 129 L 94 138', 'M94 129 L 85 138'] },
@@ -208,7 +209,8 @@ export const VARIANTS = {
   'sign-star-jupiter': { kind: 'minor', paths: ['M150 133.5 V 144.5', 'M145.2 136.2 L 154.8 141.8', 'M154.8 136.2 L 145.2 141.8'] },
   'sign-star-sun': { kind: 'minor', paths: ['M90 126.5 V 137.5', 'M85.2 129.2 L 94.8 134.8', 'M94.8 129.2 L 85.2 134.8'] },
   'sign-triangle-jupiter': { kind: 'minor', paths: ['M150 133 L 156 144 L 144 144 Z'] },
-  'sign-triangle-saturn': { kind: 'minor', paths: ['M120 124 L 126 135 L 114 135 Z'] },
+  // On the Saturn mount but clear of the fate line's tip (118, 136), which it used to sit on.
+  'sign-triangle-saturn': { kind: 'minor', paths: ['M127 123 L 132.5 133 L 121.5 133 Z'] },
   'sign-square-life': {
     kind: 'minor',
     paths: ['M119.5 199.5 H 131.5 V 211.5 H 119.5 Z'],

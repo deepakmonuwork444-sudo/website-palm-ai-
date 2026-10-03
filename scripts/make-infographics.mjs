@@ -215,7 +215,7 @@ const P = (x, y, s, [u, v]) => [x + (u - 36) * s, y + (v - 30) * s];
 const MINOR = {
   sun: { name: 'Sun line', where: 'Up towards the ring finger', d: ['M90 200 C 90 180, 89 160, 88 138'] },
   mercury: { name: 'Mercury line', where: 'Up towards the little finger', d: ['M104 244 C 92 216, 78 184, 62 150'] },
-  marriage: { name: 'Marriage lines', where: 'Short lines on the edge, under the little finger', d: ['M50 134 C 53 134, 57 133.5, 60 133', 'M50 140 C 53 140, 56 139.5, 59 139'], ring: [55, 137, 11] },
+  marriage: { name: 'Marriage lines', where: 'Short lines on the edge, under the little finger', d: ['M50 130 C 53 130, 57 129.5, 60 129', 'M50 135.5 C 53 135.5, 56 135, 59 134.5'], ring: [55, 132.5, 8] },
   bracelets: { name: 'Bracelets', where: 'Creases across the wrist', d: ['M76 247 C 100 250, 126 250, 146 247'] },
   girdle: { name: 'Girdle of Venus', where: 'A curve above the heart line', d: ['M131 130 C 119 122, 93 122, 80 133'] },
   intuition: { name: 'Intuition line', where: 'A curve on the outer palm', d: ['M64 164 C 56 182, 57 200, 66 214'] },

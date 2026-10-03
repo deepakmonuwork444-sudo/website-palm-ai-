@@ -249,11 +249,15 @@ function lineDiagram(line) {
   const W = d.width;
   const H = d.height;
   const tileW = 280;
+  // Four lines of key text only fit the 236 px box from a higher first line with a smaller gap (head line).
+  const tight = wrap(cfg.start, 44).length + wrap(cfg.end, 44).length > 3;
+  const keyY = tight ? 200 : 222;
+  const keyGap = tight ? 30 : 50;
   const wide = frame(W, H, `<text x="80" y="96" class="title">${esc(d.name)}</text>
   ${palm(40, 150, 4.3, big)}
   <rect x="860" y="146" width="880" height="236" rx="12" fill="${C.panel}" stroke="${C.border}" stroke-width="2"/>
-  ${keyRow(1, cfg.start, 910, 222, 32, 44)}
-  ${keyRow(2, cfg.end, 910, 222 + wrap(cfg.start, 44).length * 40 + 50, 32, 44)}
+  ${keyRow(1, cfg.start, 910, keyY, 32, 44)}
+  ${keyRow(2, cfg.end, 910, keyY + wrap(cfg.start, 44).length * 40 + keyGap, 32, 44)}
   ${cfg.forms.map(([name, label], i) => tile(name, label, 860 + (i % 3) * (tileW + 20), 408 + Math.floor(i / 3) * (tileHeight(1.1, 28) + 14), 1.1, 28, tileW)).join('')}
   ${credit(W, H, cfg.page, cfg.note, false)}`);
 

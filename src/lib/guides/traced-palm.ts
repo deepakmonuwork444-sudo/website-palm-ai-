@@ -366,8 +366,8 @@ export function fingerLabels(scan: GuideScan, texts: readonly string[], cam: Cam
 // them (Cheiro, Markun). Never lines, never measured "raised".
 
 export type MountKey = 'jupiter' | 'saturn' | 'sun' | 'mercury' | 'venus' | 'moon' | 'marsInner' | 'marsOuter';
-/** The order the guide's text lists them (Guru, Shani, Surya, Budh, Shukra, Chandra, then the two Mangal). */
-export const MOUNT_ORDER: readonly MountKey[] = ['jupiter', 'saturn', 'sun', 'mercury', 'venus', 'moon', 'marsInner', 'marsOuter'];
+/** Numbered as on the mounts chart (public/img/diagrams/mounts-of-the-palm-chart.png), so the photo map and the chart agree: 5 Mars inner, 6 Venus, 7 Moon, 8 Mars outer. */
+export const MOUNT_ORDER: readonly MountKey[] = ['jupiter', 'saturn', 'sun', 'mercury', 'marsInner', 'venus', 'moon', 'marsOuter'];
 
 export interface MountArea {
   key: MountKey;
