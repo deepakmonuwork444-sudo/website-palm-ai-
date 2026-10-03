@@ -3,14 +3,15 @@
  * End block (CONTENT_GUIDE.md §5 block 18, guide template v3): the same one
  * gold action as the top module, "Scan my palm to see mine" (→ /reading/),
  * three photo tips with the photo checker, then the Play badge with its price
- * line (QR on desktop). While the web reading is off (site.webReadingEnabled),
- * a note says so before the click; /reading/ then says it opens soon and
- * never fakes a reading.
+ * line (QR on desktop). While the web scan is closed (webScanOpen,
+ * src/lib/reading/open.ts) the gold button uses the home hero's words, "Get my
+ * free reading in the app", and goes to Google Play (utm_medium guide_end).
  */
 import { isLive } from '../../config/pages';
 import { site } from '../../config/site';
 import { localeFromPath, localizePath, t } from '../../i18n';
 import { guideStrings } from '../../lib/guides/strings';
+import { scanAction } from '../../lib/reading/open';
 import PrimaryButton from '../PrimaryButton.astro';
 import StoreButton from '../StoreButton.astro';
 
@@ -25,8 +26,8 @@ const { campaign, topic } = Astro.props;
 const locale = localeFromPath(Astro.url.pathname);
 const s = guideStrings(locale);
 const dict = t(locale);
-const live = site.webReadingEnabled;
-const scanHref = locale === 'hi' ? '/reading/?lang=hi' : '/reading/';
+const scan = scanAction(locale, { medium: 'guide_end', campaign });
+const freeReadings = site.freeReadings.guest + site.freeReadings.afterEmail;
 const checker = localizePath('/tools/palm-photo-checker/', locale);
 const checkerLive = isLive(checker);
 const playName: string = site.appNameOnPlay;
@@ -45,8 +46,8 @@ const appAnchor = s.appAnchors[[...Astro.url.pathname].reduce((sum, ch) => sum +
   </ul>
   <p class="text-small text-fg-muted measure">{s.photoShort}</p>
   <div class="end-action" data-scan-cta>
-    <PrimaryButton href={scanHref}>{s.scanCta}</PrimaryButton>
-    {!live && <p class="text-small text-fg-muted">{s.scanSoon}</p>}
+    <PrimaryButton href={scan.href} data-store-link={scan.app ? '' : undefined}>{scan.app ? dict.home.scan.ctaApp : s.scanCta}</PrimaryButton>
+    {scan.app && <p class="text-small text-fg-muted">{dict.home.scan.factsApp(freeReadings)}</p>}
     {checkerLive && <p class="text-small"><a class="text-link" href={checker}>{s.tipCheckLink}</a></p>}
   </div>
   <div class="end-store">

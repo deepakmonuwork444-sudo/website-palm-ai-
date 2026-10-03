@@ -6,16 +6,19 @@
  *
  * Zero JS: the chips are real radio buttons; the picked answer shows through
  * :has(). Browsers without :has() show every answer, so nothing is lost.
- * While the web reading is off (site.webReadingEnabled), a note under the
- * button says so before the click, never after. The button is the page's
+ * While the web scan is closed (webScanOpen, src/lib/reading/open.ts) the
+ * button uses the home hero's words, "Get my free reading in the app", goes to
+ * Google Play (utm_medium guide_find) and the hero's facts line sits under it,
+ * so the words match the destination. The button is the page's
  * [data-hero-cta]: src/scripts/site.ts shows the shared mobile bottom bar and
  * the header's outline action only once it has scrolled away (as on home).
  */
 import { isLive } from '../../config/pages';
 import { site, type Locale } from '../../config/site';
-import { localizePath } from '../../i18n';
+import { localizePath, t } from '../../i18n';
 import { inlineMarkdown } from '../../lib/guides/guides';
 import { guideStrings } from '../../lib/guides/strings';
+import { scanAction } from '../../lib/reading/open';
 import Icon from '../Icon.astro';
 import PrimaryButton from '../PrimaryButton.astro';
 
@@ -37,11 +40,15 @@ interface Props {
   /** The page's scan action (false on pages that must not carry a CTA near their content). */
   showCta: boolean;
   tool?: { slug: string; name: string; label?: string | undefined } | undefined;
+  /** utm_campaign for the Play link while the web scan is closed (the guide's slug). */
+  campaign: string;
 }
 
-const { locale, title, prompt, steps, question, choices, showCta, tool } = Astro.props;
+const { locale, title, prompt, steps, question, choices, showCta, tool, campaign } = Astro.props;
 const s = guideStrings(locale);
-const scanHref = locale === 'hi' ? '/reading/?lang=hi' : '/reading/';
+const heroScan = t(locale).home.scan;
+const scan = scanAction(locale, { medium: 'guide_find', campaign });
+const freeReadings = site.freeReadings.guest + site.freeReadings.afterEmail;
 const toolHref = tool ? localizePath(`/tools/${tool.slug}/`, locale) : null;
 const toolLive = toolHref ? isLive(toolHref) : false;
 ---
@@ -95,10 +102,10 @@ const toolLive = toolHref ? isLive(toolHref) : false;
   {
     showCta && (
       <div class="fp-cta" data-hero-cta>
-        <PrimaryButton href={scanHref} block>
-          {s.scanCta}
+        <PrimaryButton href={scan.href} block data-store-link={scan.app ? '' : undefined}>
+          {scan.app ? heroScan.ctaApp : s.scanCta}
         </PrimaryButton>
-        {!site.webReadingEnabled && <p class="text-small text-fg-muted fp-note">{s.scanSoon}</p>}
+        {scan.app && <p class="text-small text-fg-muted fp-note">{heroScan.factsApp(freeReadings)}</p>}
       </div>
     )
   }

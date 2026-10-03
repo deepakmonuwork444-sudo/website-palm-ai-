@@ -8,7 +8,8 @@
  * "Step n of 4" on the 4 line pages, then the "Find your line" module: a REAL
  * palm photo with a clearly labelled "where to look" region (RegionPhoto) and
  * a panel with steps to check your own hand, answer chips and the one gold
- * action, "Scan my palm to see mine" → /reading/ (FindPanel).
+ * action, "Scan my palm to see mine" → /reading/ (FindPanel); while the web
+ * scan is closed, "Get my free reading in the app" → Google Play (open.ts).
  * Body: TOC, the MDX (variation card grid with self-checks, myth
  * vs reality, the one limits box), quick facts, compact FAQ, sources collapsed, the next
  * line, the end block, related guides; the shared mobile bottom bar (the home
@@ -43,6 +44,7 @@ import { guideDates } from '../lib/guides/dates';
 import { diagramsOnPage, diagramUrl } from '../lib/diagrams';
 import { pageEntities } from '../lib/entities';
 import { guideStrings } from '../lib/guides/strings';
+import { scanAction } from '../lib/reading/open';
 import { GUIDE_LINES } from '../lib/guides/traced-palm';
 import { articleSchema, citationSchema, diagramImageSchema, primaryImageSchema, webPageSchema, type Crumb } from '../lib/schema';
 import BaseLayout from './BaseLayout.astro';
@@ -109,7 +111,8 @@ const focusLine = GUIDE_LINES.find((line) => line === g.find.region);
 const findTitle =g.find.title ?? (lineName ? s.findTitle(lineName) : s.findTitleAll);
 // The module's scan button is this page's hero action (off where the page must not carry one).
 const showCta = g.inlineCta && g.find.cta;
-const scanHref = locale === 'hi' ? '/reading/?lang=hi' : '/reading/';
+// Mobile bottom bar: the same action as the module (the web scan, else Play with utm, src/lib/reading/open.ts).
+const stickyScan = scanAction(locale, { medium: 'guide_sticky', campaign });
 
 // One @graph (BaseLayout): WebPage + Article + the share image; the BreadcrumbList is Breadcrumbs.astro's own block.
 // about/mentions come from src/lib/entities.ts; no FAQPage (D9, WEB-DEC-049): the visible FAQ stays.
@@ -173,6 +176,7 @@ const jsonLd = [
           choices={g.find.choices}
           showCta={showCta}
           tool={g.tool}
+          campaign={campaign}
         />
       </div>
     </header>
@@ -220,7 +224,7 @@ const jsonLd = [
       </nav>
     </div>
   </article>
-  {showCta && <StickyCta href={scanHref} label={dict.nav.scan} />}
+  {showCta && <StickyCta href={stickyScan.href} label={stickyScan.app ? dict.nav.getApp : dict.nav.scan} />}
 </BaseLayout>
 
 <style>
