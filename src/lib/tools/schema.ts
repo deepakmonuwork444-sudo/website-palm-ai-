@@ -1,5 +1,6 @@
 import { absoluteUrl } from '../../config/site';
-import { ORGANIZATION_ID, WEBSITE_ID } from '../schema';
+import { pageEntities } from '../entities';
+import { entityProps, ORGANIZATION_ID, pageId, TOOLS_COLLECTION_ID, WEBSITE_ID } from '../schema';
 import type { ToolInfo } from './registry';
 
 /**
@@ -10,12 +11,15 @@ export function toolsHubSchema(input: { name: string; description: string; tools
   return {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
+    '@id': TOOLS_COLLECTION_ID,
     name: input.name,
     description: input.description,
     url: absoluteUrl('/tools/'),
     inLanguage: 'en',
     isPartOf: { '@id': WEBSITE_ID },
+    breadcrumb: { '@id': pageId('/tools/', 'breadcrumb') },
     publisher: { '@id': ORGANIZATION_ID },
+    ...entityProps(pageEntities('/tools/'), 'en'),
     mainEntity: {
       '@type': 'ItemList',
       numberOfItems: input.tools.length,

@@ -1,0 +1,297 @@
+---
+/**
+ * The price panel shared by /app/ and the home page (#pricing), so both show
+ * the same thing (owner 2026-09-28: the home still had the old "from ₹199 /
+ * from ₹149" tiers). The Free box with its button, the app paywall's two tabs
+ * (Membership / One-time packs; native radios + :has(), no JS, both lists stay
+ * in the HTML), every price in its own box with a "Get it in the app" button to
+ * the Play listing (per-option referrer), then the notes.
+ *
+ * Prices (WEB-DEC-046): every number comes from site.ts. Per-reading and
+ * per-month figures are whole rupees rounded UP, as the app does (DEC-044), so
+ * a figure never looks cheaper than it is.
+ */
+import Icon, { type IconName } from './Icon.astro';
+import { playStoreUrl, site, type Locale } from '../config/site';
+import { t } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  /** Play referrer utm_medium for the buttons: which page they sit on. */
+  medium: 'app_page' | 'home';
+}
+
+const { locale, medium } = Astro.props;
+const price = t(locale).appPage.price;
+const { guest, afterEmail } = site.freeReadings;
+const up = (amount: number) => Math.ceil(amount - 1e-9);
+const inr = (amount: number) => `₹${amount.toLocaleString('en-IN')}`;
+const monthlyPlan = site.appPlans.find((plan) => plan.id === 'monthly');
+const trialPlan = site.appPlans.find((plan) => plan.trialDays > 0);
+const plans = site.appPlans.map((plan) => {
+  const yearly = plan.per === 'year';
+  const readingsPerPayment = plan.readingsPerMonth * (yearly ? 12 : 1);
+  return {
+    id: plan.id,
+    name: price.planNames[plan.id],
+    amount: inr(plan.inr),
+    per: price.per[plan.per],
+    spoken: price.spoken[plan.per](plan.inr),
+    readings: price.readingsAMonth(plan.readingsPerMonth),
+    trial: plan.trialDays > 0 ? price.trial(plan.trialDays, plan.trialReadings) : null,
+    lines: yearly
+      ? [
+          // "under ₹N": the smallest whole number above the real per-reading price.
+          price.yearlyPerMonth(up(plan.inr / 12), Math.floor(plan.inr / readingsPerPayment + 1e-9) + 1),
+          ...(monthlyPlan ? [price.yearlyVsMonthly(monthlyPlan.inr * 12)] : []),
+        ]
+      : [price.planPerReading(up(plan.inr / readingsPerPayment))],
+  };
+});
+const packs = site.appPacks.map((pack) => ({
+  readings: pack.readings,
+  tag: price.packTags[pack.tag],
+  amount: inr(pack.inr),
+  each: price.packPerReading(up(pack.inr / pack.readings)),
+}));
+/* The free line keeps its words; the part before the first colon is the box's title. */
+const freeText = price.freeReadings(guest, afterEmail);
+const colon = freeText.indexOf(':');
+const freeTitle = colon > 0 ? freeText.slice(0, colon) : '';
+const freeBody = colon > 0 ? freeText.slice(colon + 1).trim() : freeText;
+const priceNotes: { icon: IconName; text: string }[] = [
+  { icon: 'info', text: price.renewal },
+  ...(trialPlan ? [{ icon: 'info' as IconName, text: price.trialNote(trialPlan.trialDays, trialPlan.trialReadings, trialPlan.inr) }] : []),
+  { icon: 'check', text: price.sameReading },
+  { icon: 'shield', text: price.payment },
+];
+// Our own 3D icon renders (AI-made, 2026-09-28; public/images/icons/price-*, AVIF + WebP 128/256), decorative.
+const icon3d = (name: 'gift' | 'crown' | 'bolt') => ({
+  avif: `/images/icons/price-${name}-128.avif 128w, /images/icons/price-${name}-256.avif 256w`,
+  webp: `/images/icons/price-${name}-128.webp 128w, /images/icons/price-${name}-256.webp 256w`,
+  src: `/images/icons/price-${name}-128.webp`,
+});
+const gift = icon3d('gift');
+const crown = icon3d('crown');
+const bolt = icon3d('bolt');
+const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
+---
+
+<div class="price-panel">
+  <!-- 3D icons: our own renders (not emoji), local AVIF/WebP, decorative (public/images/icons/). -->
+  <div class="free-box glass-card">
+    <picture class="icon3d icon3d-lg"><source type="image/avif" srcset={gift.avif} sizes="4.5rem" /><img src={gift.src} srcset={gift.webp} sizes="4.5rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+    <div class="free-copy">
+      <h3 class="free-title">{freeTitle}<span class="sr-only">:</span></h3>
+      <p>{freeBody}</p>
+    </div>
+    <a class="btn btn-gold price-cta free-cta" href={store('price_free')}>{price.startFree}</a>
+  </div>
+
+  <!-- Two tabs like the app's paywall (Membership / One-time packs): native radios, no JS; both lists stay in the HTML. -->
+  <fieldset class="price-switch">
+    <legend class="sr-only">{price.switchLabel}</legend>
+    <label class="ptab">
+      <input type="radio" name="price-tab" value="plans" checked />
+      <picture class="ptab-icon"><source type="image/avif" srcset={crown.avif} sizes="2.25rem" /><img src={crown.src} srcset={crown.webp} sizes="2.25rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <span>{price.membershipTitle}</span>
+    </label>
+    <label class="ptab">
+      <input type="radio" name="price-tab" value="packs" />
+      <picture class="ptab-icon"><source type="image/avif" srcset={bolt.avif} sizes="2.25rem" /><img src={bolt.src} srcset={bolt.webp} sizes="2.25rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <span>{price.packsTitle}</span>
+    </label>
+  </fieldset>
+  <p class="currency-note"><Icon name="info" class="note-icon" /><span>{price.currencyNote}</span></p>
+
+  <div class="price-group group-plans">
+    <div class="group-head">
+      <picture class="icon3d"><source type="image/avif" srcset={crown.avif} sizes="3.75rem" /><img src={crown.src} srcset={crown.webp} sizes="3.75rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <div>
+        <h3 id="membership-title" class="text-h3 font-bold group-title">{price.membershipTitle}</h3>
+        <p class="group-lead">{price.membershipLead}</p>
+      </div>
+    </div>
+    <ul class="plan-grid" aria-labelledby="membership-title">
+      {
+        plans.map((plan) => (
+          <li class:list={['plan glass-card', { 'plan-lead': plan.id === 'yearly' }]}>
+            <div class="plan-top">
+              <p class="plan-name">{plan.name}</p>
+              {plan.trial && <p class="plan-trial">{plan.trial}</p>}
+            </div>
+            <p class="plan-price">
+              <span class="price-show" aria-hidden="true">
+                <span class="amount">{plan.amount}</span>
+                <span class="per">{plan.per}</span>
+              </span>
+              <span class="sr-only">{plan.spoken}</span>
+            </p>
+            <p class="plan-readings">{plan.readings}</p>
+            {plan.lines.map((line) => <p class="plan-line">{line}</p>)}
+            <a class:list={['btn price-cta', plan.id === 'yearly' ? 'btn-gold' : 'btn-secondary']} href={store(`price_${plan.id}`)}>
+              {price.getInApp}<span class="sr-only">: {plan.name}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <div class="price-group group-packs">
+    <div class="group-head">
+      <picture class="icon3d"><source type="image/avif" srcset={bolt.avif} sizes="3.75rem" /><img src={bolt.src} srcset={bolt.webp} sizes="3.75rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <div>
+        <h3 id="packs-title" class="text-h3 font-bold group-title">{price.packsTitle}</h3>
+        <p class="group-lead">{price.packsLead}</p>
+      </div>
+    </div>
+    <ul class="pack-grid" aria-labelledby="packs-title">
+      {
+        packs.map((pack) => (
+          <li class="pack glass-card">
+            <p class="pack-count">
+              <span class="pack-num">{pack.readings}</span>
+              <span class="pack-word">{price.readingsWord}</span>
+            </p>
+            <p class="pack-tag">{pack.tag}</p>
+            <p class="pack-price">{pack.amount}</p>
+            <p class="pack-each">{pack.each}</p>
+            <a class="btn btn-secondary price-cta" href={store(`price_pack_${pack.readings}`)}>
+              {price.getInApp}<span class="sr-only">: {pack.readings} {price.readingsWord}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <ul class="price-notes glass-well">
+    {
+      priceNotes.map((note) => (
+        <li>
+          <Icon name={note.icon} class="note-icon" />
+          <span>{note.text}</span>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .price-panel { display: grid; gap: 2.25rem; }
+  .free-title, .free-copy p, .group-title, .group-lead, .plan-name, .plan-trial, .plan-price, .plan-readings, .plan-line,
+  .pack-count, .pack-tag, .pack-price, .pack-each { margin: 0; }
+  .plan-grid, .pack-grid, .price-notes { list-style: none; margin: 0; padding: 0; }
+  /* Our 3D icon renders: a dark studio tile in a soft rim (Night and Day alike). */
+  .icon3d { display: block; flex: none; width: 3.75rem; height: 3.75rem; border-radius: 1rem; overflow: hidden; border: 1px solid var(--hairline); box-shadow: var(--shine), 0 10px 22px -10px rgba(0,0,0,0.55); }
+  .icon3d img { display: block; width: 100%; height: 100%; }
+  .icon3d-lg { width: 4.5rem; height: 4.5rem; border-radius: 1.125rem; }
+  :global([data-theme="day"]) .icon3d { box-shadow: var(--shine), 0 10px 20px -10px rgba(23,19,61,0.35); }
+  /* Gold foil numbers: the prices and the word "Free". */
+  .free-title, .amount, .pack-price {
+    font-family: var(--ff-display); font-weight: 700; letter-spacing: -0.01em; line-height: 1;
+    background: var(--foil); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  @media print { .free-title, .amount, .pack-price { background: none; color: var(--fg); } }
+
+  .amount, .pack-price, .pack-num { font-variant-numeric: lining-nums; }
+  /* Phone: gift + "Free" on one row, the words and the button full width below; wider screens: gift, words, button in a row. */
+  .free-box { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 1rem; align-items: center; padding: 1.5rem 1.375rem; }
+  .free-copy { display: contents; }
+  .free-title { font-size: clamp(2rem, 6vw, 2.5rem); padding-block: 0.1em; }
+  :lang(hi) .free-title { font-family: var(--ff-sans); }
+  .free-copy p { grid-column: 1 / -1; margin-top: 0.875rem; line-height: 1.6; }
+
+  .price-group { display: grid; gap: 1.25rem; }
+  .group-head { display: flex; gap: 0.875rem; align-items: center; }
+  .group-lead { margin-top: 0.25rem; color: var(--fg-muted); font-size: var(--fs-small); line-height: 1.5; }
+
+  /* Membership: Yearly first with the gold rim (no "most popular" badge, as in the app). */
+  .plan-grid { display: grid; gap: 1rem; }
+  .plan { display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem 1.375rem; isolation: isolate; }
+  .plan-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 0.75rem; min-height: 2rem; }
+  .plan-name { font-family: var(--ff-display); font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
+  :lang(hi) .plan-name, :lang(hi) .pack-word { font-family: var(--ff-sans); }
+  .plan-trial {
+    padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8125rem; font-weight: 700; line-height: 1.4;
+    color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .price-show { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem; padding-top: 0.25rem; }
+  .amount { font-size: clamp(2.25rem, 7vw, 2.75rem); padding-block: 0.08em; }
+  .per { font-size: 1rem; font-weight: 600; color: var(--fg-muted); }
+  .plan-readings { margin-top: 0.25rem; padding-top: 0.75rem; border-top: 1px solid var(--edge); font-weight: 700; color: var(--fg); }
+  .plan-line { color: var(--fg-muted); font-size: var(--fs-small); line-height: 1.5; }
+  .plan-lead {
+    background: var(--glass-1) padding-box,
+      linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
+      linear-gradient(150deg, rgba(255,236,190,0.9), rgba(230,184,92,0.3) 35%, rgba(230,184,92,0.16) 65%, rgba(245,217,139,0.85)) border-box;
+    box-shadow: var(--shine), var(--e1), 0 24px 60px -30px rgba(230,184,92,0.5);
+  }
+  .plan-lead::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+    background: radial-gradient(24rem 10rem at 20% 0%, rgba(245,217,139,0.12), transparent 70%);
+  }
+  :global([data-theme="day"]) .plan-lead {
+    background: var(--glass-1) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(150deg, var(--color-gold-deep), rgba(160,110,20,0.3) 40%, rgba(160,110,20,0.22) 60%, var(--color-gold-day)) border-box;
+    box-shadow: var(--shine), var(--e1), 0 24px 50px -30px rgba(122,82,0,0.3);
+  }
+  :global([data-theme="day"]) .plan-lead::before { background: radial-gradient(24rem 10rem at 20% 0%, rgba(214,170,80,0.1), transparent 70%); }
+
+  /* One-time packs: the readings count is the headline, then its price and price per reading. */
+  .pack-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  .pack { display: flex; flex-direction: column; gap: 0.25rem; padding: 1.25rem 1rem; }
+  .pack-count { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.375rem; font-family: var(--ff-display); line-height: 1.1; }
+  .pack-num { font-size: clamp(2rem, 7vw, 2.5rem); font-weight: 700; color: var(--fg); }
+  .pack-word { font-size: 1rem; font-weight: 600; color: var(--fg-muted); }
+  .pack-tag { margin-bottom: 0.5rem; color: var(--fg-muted); font-size: var(--fs-small); line-height: 1.4; }
+  .pack-price { margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--edge); font-size: 1.625rem; padding-bottom: 0.08em; }
+  .pack-each { color: var(--fg); font-size: var(--fs-small); font-weight: 600; line-height: 1.4; }
+
+  /* Tabs like the app's paywall: native radios + :has(); without :has() both lists simply show. */
+  .price-switch {
+    display: flex; gap: 0.375rem; margin: 0; padding: 0.375rem; min-inline-size: 0; border-radius: 9999px;
+    border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--shine);
+  }
+  .ptab {
+    position: relative; flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 3.25rem; padding: 0 0.875rem; border-radius: 9999px; cursor: pointer;
+    font-weight: 700; line-height: 1.2; text-align: center; color: var(--fg-muted); transition: background 250ms var(--ease), color 250ms var(--ease);
+  }
+  .ptab input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .ptab:hover { color: var(--fg); }
+  .ptab:has(input:checked) { background-image: var(--gold-gradient); color: var(--color-on-gold); box-shadow: 0 10px 24px -12px rgba(230,184,92,0.7); }
+  .ptab:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .ptab-icon { flex: none; }
+  .ptab-icon img { display: block; width: 2.25rem; height: 2.25rem; border-radius: 0.625rem; }
+  /* The tab already shows the crown / bolt: the group keeps its heading and line, not a second icon. */
+  .price-panel:has(.price-switch input:checked) .group-head .icon3d { display: none; }
+  .price-panel:has(input[value="packs"]:checked) .group-plans,
+  .price-panel:has(input[value="plans"]:checked) .group-packs { display: none; }
+
+  /* One action per box, all to the Play listing (with a per-option referrer). */
+  .price-cta { width: 100%; margin-top: auto; }
+  .plan-line:last-of-type { margin-bottom: 1rem; }
+  .pack .price-cta { min-height: 2.75rem; margin-top: 0.875rem; padding-inline: 0.5rem; font-size: var(--fs-small); }
+  .free-cta { grid-column: 1 / -1; margin-top: 1.25rem; }
+
+  .currency-note { display: flex; gap: 0.5rem; align-items: flex-start; justify-content: center; margin: 0; color: var(--fg-muted); font-size: var(--fs-small); line-height: 1.5; text-align: center; }
+  .currency-note :global(.note-icon) { flex: none; margin-top: 0.15rem; color: var(--accent); }
+  .price-notes { display: grid; gap: 0.75rem; padding: 1rem 1.25rem; }
+  .price-notes li { display: flex; gap: 0.75rem; align-items: flex-start; color: var(--fg-muted); font-size: var(--fs-small); line-height: 1.6; }
+  .price-notes :global(.note-icon) { flex: none; margin-top: 0.2rem; color: var(--accent); }
+
+  @media (min-width: 48rem) {
+    .free-box { grid-template-columns: auto minmax(0, 1fr) auto; column-gap: 1.5rem; padding: 1.75rem 2rem; }
+    .free-box .icon3d-lg { grid-row: span 2; }
+    .free-copy p { grid-column: 2; margin-top: 0.5rem; }
+    .free-cta { grid-column: 3; grid-row: 1 / span 2; width: auto; margin-top: 0; padding-inline: 1.75rem; white-space: nowrap; }
+    .price-switch { width: 100%; max-width: 40rem; margin-inline: auto; }
+    .ptab { white-space: nowrap; font-size: 1.0625rem; }
+    .plan-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+    .pack-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+    .plan { padding: 1.75rem 1.5rem; }
+    .pack { padding: 1.5rem 1.375rem; }
+    .price-notes { padding: 1.125rem 1.5rem; }
+  }
+</style>

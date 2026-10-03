@@ -1,0 +1,17 @@
+---
+/**
+ * Decorative "palm plate" at the top of a photo drop well (showroom look,
+ * WEB-DEC-042): the porcelain 3D hand (public/media/tools/, the same render
+ * the tool diagrams use) with a slow scan light (CSS only, off under reduced
+ * motion). Hidden from assistive tech; hidden by CSS once a photo has been
+ * checked.
+ */
+import { HAND_PLATE } from '../../lib/tools/palm-geometry';
+---
+
+<span class="t-drop-orb" aria-hidden="true">
+  <picture>
+    <source type="image/avif" srcset={`${HAND_PLATE.right}.avif`} />
+    <img class="t-drop-palm" src={`${HAND_PLATE.right}.webp`} width={HAND_PLATE.width} height={HAND_PLATE.height} alt="" loading="lazy" decoding="async" />
+  </picture>
+</span>

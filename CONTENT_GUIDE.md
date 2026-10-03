@@ -4,7 +4,7 @@
 
 **Read with:** `KEYWORD_MAP.md` (what the page targets) and `SEO_PLAYBOOK.md` (titles, headings, schema). **Precedence:** owner decisions (`WEBSITE_MASTER_PLAN.md` §15b) > this file > the research files. **Content must agree with the app's palmistry knowledge** (read-only, in `D:\palm ai\palm-ai-new--feat-m1-foundation`): `src/features/engagement/lessons.ts`, `src/features/knowledge/` (rules, sources, hand roles), `tools/extract/citations.ts` (blocked claims), `web/guides/content.mjs` (the existing EN + HI guide drafts).
 
-**Status:** v1, 2026-09-26. Author: **Deepak Chauhan** (founder; full bio pending). Hindi reviewer: **not yet named**. India keyword data: pending.
+**Status:** v1, 2026-09-26; guide template v3 "user-first" (§5) the same day; the owner's writing standard (§15: no em dashes, no AI-sounding phrases, the 2026 SEO checklist) on 2026-10-01. Author: **Deepak Chauhan** (founder; full bio pending). Hindi reviewer: **not yet named**. India keyword data: pending.
 
 ---
 
@@ -41,8 +41,10 @@ Write so Neha is calmed, Rahul finds nothing false, and Sunita understands every
 |---|---|
 | Body | **Devanagari**, simple spoken-style Hindi, warm "आप". Everyday words (फ़ोटो, ऐप, रीडिंग, ऑनलाइन are fine). "रीडिंग", never "क्रेडिट". Avoid heavy Sanskrit except established terms (हृदय रेखा, पर्वत). |
 | Key terms | First use with Hinglish/English in brackets: "हृदय रेखा (Heart Line / hriday rekha)". |
-| Title | Devanagari first, then a Hinglish phrase after a `\|` separator, ≤ ~55 characters. Keep the spelling people type ("फोटो", "फ्री"). |
-| H1 | Devanagari, with a small Hinglish subtitle line under it. |
+| Title | Devanagari first, then **one romanised phrase** after a `\|` separator ("Hast Rekha", "Hath Ki Rekha", "Bhagya Rekha"), plus "Palmistry" where it fits; ≤ ~55 characters. Keep the spelling people type ("फोटो", "फ्री"). Example: "भाग्य रेखा: कहां होती है, प्रकार और चित्र \| Bhagya Rekha". Why: romanised "hast rekha" / "hath ki rekha" are searched 3–4× more than the Devanagari forms (SEMANTIC_SEO_PLAN.md §2.7, WEB-DEC-051). |
+| H1 | Devanagari, with a small Hinglish subtitle line under it that carries the romanised query ("hath ki rekha kaise dekhe"). `/hi/` puts "hast rekha scanner" in its subtitle **only when the web scanner is live**; until then "Hast Rekha in Hindi". |
+| Romanised term in the body | The body stays Devanagari; the romanised term appears **once more** in the answer-first sentence or the quick facts, so the page matches both scripts. |
+| "चित्र सहित" / "with pictures" | In a title only when the page really has labelled diagrams (§5 v4, the chart files of WEB-DEC-051). |
 | Meta | Devanagari with one Hinglish phrase. |
 | FAQ | Devanagari, plus 1–2 questions written the way people type in Hinglish ("hath ki rekha kaise dekhe?"). |
 | Hinglish (Latin script) | Only where search demands it: the title suffix, the subtitle, 1–2 FAQ questions. Never whole paragraphs. No separate Hinglish pages. |
@@ -132,31 +134,52 @@ A famous scary reading may be **named only to take it apart** ("Some books call 
 
 ---
 
-## 5. Guide template (fixed blocks, in this order)
+## 5. Guide template v3, "user-first" (fixed blocks, in this order)
 
-Every guide, English or Hindi. Each block must earn its place (plan §7.2, §11.1). **Change from the plan:** block 11 is a **tool card** that links to the tool's own page; guides never embed a tool (owner decision: one canonical home per tool).
+Every guide, English or Hindi. Each block must earn its place (plan §7.2, §11.1). **v3 rule (owner, 2026-09-26):** every guide answers "why should I care, what do I do next" in the first 3 seconds, has **one focal point** (the reader's own hand), and lets the reader check **their own** hand. No text walls, no repeated disclaimers, no drawn "cartoon" palm as the header. Guides never embed a tool; they link to its own page (owner decision: one canonical home per tool). Code: `src/layouts/GuideLayout.astro` + `src/components/guides/*`.
 
 | # | Block | Rule |
 |---|---|---|
-| 1 | Breadcrumb | Logical trail: Home › Palm lines › Heart line |
-| 2 | H1 + one-line subtitle | Hindi pages: a small Hinglish subtitle |
-| 3 | Byline | "Written by Deepak Chauhan" (once his author page is live; before that "Written by the PalmSays team") · "Reviewed by {name}" **only** if a real person reviewed it · "Last reviewed {date}" |
-| 4 | Answer first | ≤ 40 words that answer the page's main question. On YMYL pages, this answers the fear. |
-| 5 | Header image | The line traced on a real, consented sample photo; until those exist, a labelled SVG marked "diagram" |
-| 6 | Quick facts card | Hindi and Sanskrit name, other names, where it sits, what the tradition reads it for, which hand |
-| 7 | Small inline CTA | "Find your heart line on your own photo" → the home upload card |
-| 8 | TOC | Collapsible chip on mobile, side list on desktop |
-| 9 | Sections | H2 = the questions people type; each answered in its first sentence. YMYL: the fear H2 comes first |
-| 10 | Variation cards | One per type: SVG thumbnail, the meaning in our words, a source chip. Stacked on mobile |
-| 11 | **Tool card** | "Which heart line do you have? Try the heart line finder →", a static thumbnail and the tool's honesty label. Links to `/tools/<slug>/` |
+| 1 | Breadcrumb | Logical trail that follows the entity graph: Home › How to read palms › Palm lines › Heart line (`/hand-lines/` sits under `/palm-reading/`, WEB-DEC-051). Crumb names = entity names, never "Guides" |
+| 2 | H1 (+ subtitle on Hindi pages) | The SEO H1 from KEYWORD_MAP / SEO_PLAYBOOK stays; Hindi pages add a small Hinglish subtitle |
+| 3 | Answer first | ≤ 40 words directly under the H1, featured-snippet style. On YMYL pages, this answers the fear |
+| 4 | Byline | One row: "Written by Deepak Chauhan" (once his author page is live; before that "Written by the PalmSays team"), "Reviewed by {name}" **only** if a real person reviewed it, "Last reviewed {date}" |
+| 5 | Step n of 4 | The 4 line pillars only (heart → head → life → fate): a 4-part bar, the page's line in its colour. It shows the page's place in the path, never progress the reader didn't make |
+| 6 | **"Find your line" module** (`find` front matter) | A **real palm photo** (public/samples/, shared with home; credit in `public/samples/LICENSE.txt` and under the photo). The line's area is marked from the scanner **only if real scanner output for that exact photo exists** (`public/samples/hero-palm.json`); otherwise a clearly labelled "where to look" area (an ellipse; all 4 lines = one pin each), **never a drawn line**. Beside it: one curiosity prompt the reader answers on their own hand (no unsourced statistic, e.g. "Heart lines end in different places. Where does yours stop?"), 2–4 look steps, optional answer chips (≤ 5, short meaning + link to the card or section, no JS), the one gold "Scan my palm to see mine" → `/reading/` (with the "opens soon" note while the web reading is off) and a link to the matching tool (`tool`). No scan button where the scan doesn't read the topic (`find.cta: false`, marriage) or near medical facts (`inlineCta: false`, simian) |
+| 7 | TOC | Collapsible chip on mobile, sticky side list on desktop |
+| 8 | Body sections | The most useful answer first (on line guides: the types grid). H2 = the questions people type; each answered in its first sentence. YMYL: the fear H2 comes first. "Where is it?" sections are short step lists |
+| 9 | Variation cards (grid) | One per type, 1 column on phones, 2 from 40rem: small shape drawing, name, `gist` (the meaning in ≤ 16 words), `check` ("Do you have this?": what to look for on your own hand), then the books' fuller reading + source chip one tap away ("What the books say") |
+| 10 | Tool card | Right after the grid: "Not sure which card is yours?" + the tool's honesty label. Links to `/tools/<slug>/` |
+| 11 | Key point | A pull-quote of the page's own key sentence (`<KeyPoint>`), at most 1–2 per guide. Never a book quote (those need a locator) |
 | 12 | Myth vs reality | Common myths answered, with sources |
-| 13 | Limits box | §4.11, links to `/is-palmistry-real/`. The care line follows it on lifespan pages only |
-| 14 | Photo tips | Links to `/tools/palm-photo-checker/` |
+| 13 | **One** limits box | §4.11, links to `/is-palmistry-real/`; it carries its own heading, so no second "What X can't tell you" section. The care line follows it on lifespan pages only. The three-part block (§4.4) stays only on sensitive meanings (life, marriage). Elsewhere a "can't tell" point gets at most one short line, where the fear arises |
+| 14 | Quick facts | After the body: Hindi and Sanskrit name, other names, where it sits, what the tradition reads, which hand |
 | 15 | FAQ | 3–8, `<details>`, owned questions only (KEYWORD_MAP) |
-| 16 | Sources box | Every book and study used on the page (§9) |
-| 17 | Step n of 7 pager | Only the 7 core steps: which hand, hand shape, heart, head, life, fate, mounts and signs |
-| 18 | End block | Gold "Read my palm free"; the Play badge (QR on desktop) with the price line from config |
+| 16 | Sources | Every book and study used on the page (§9), collapsed in a `<details>` |
+| 17 | Next line / start card | Line pillars: "Next: step n of 4" (fate: all 4 done → the palm lines chart). Hubs and which-hand: "Start the 4 main lines" |
+| 18 | End block | Gold "Scan my palm to see mine" (→ `/reading/`), 3 photo tip chips + what a phone photo can't show + the photo checker link, then the Play badge (QR on desktop) with the price line from config |
 | 19 | Related guides | 3–4, from the related-link groups (SEO_PLAYBOOK §11) |
+| 20 | Mobile bottom bar | The home page's shared `StickyCta` ("Scan my palm"), shown by `src/scripts/site.ts` only after the module's button (`data-hero-cta`) scrolls away and hidden while another scan button (`data-scan-cta`) is on screen. Not on pages without the module button |
+
+Word counts (§8) still apply: keep the SERP depth, but the reader must get the answer before the depth.
+
+**Heading spec (entity → attribute → value; WEB-DEC-051, owner decision D4; SEMANTIC_SEO_PLAN.md §3.2).** Line pillars, in this order:
+1. H1 and the answer-first line (unchanged).
+2. The module title (`find.title`) **"Where is the <line> on your palm?"**. It is the page's only "where is it" heading: no second "Where is…" H2 in the body. A body section that teaches finding the line is titled as the comparison it really is ("How to tell the heart line from the head line"; on /life-line/ "Life line vs fate line").
+3. H2 "<Line> types and their meanings", holding the attribute groups as **H3 questions with the line's name** ("Where does your heart line start and end?", "How long is your heart line?", "What shape…", "How clear is your heart line?", "Does your heart line break, fork or branch?") and the type cards as **H4 values** (`<Variation>` default `level` 4; cards that sit straight under an H2 use `level={3}`). One question = one group; never a second H2 for the same attribute.
+4. Then: marks on the line, life-topic questions (most important first), "<Line> in the left and right hand, for women and men", one "<Line> vs <other line>", "Check yourself: <line> quiz", the one limits box, "Myths about the <line>".
+5. End matter carries the entity: "<Line> quick facts", "<Line>: questions people ask", "Sources for this <line> guide (n …)", "See your own <line>", "Related palm lines".
+
+**Marks and missing lines (U4–U9, 2026-09-28).** "Marks on the <line>" names each mark the books read (island, square, cross, crossing lines) with its attributed reading, keeps only the tendency part, names a health, lifespan, marriage or money reading only to refuse it, and says the photo can't show the mark (§4.6). A "no <line>" card first sends the reader to the likelier cause (the simian line, a faint line, the light). A new card drawing is one entry in `palm-geometry.ts` VARIANTS: the shared sprite `/img/guides/palm-sprite.svg` builds itself from it (WEB-DEC-052); never paste path data into a page.
+
+YMYL exception: on /life-line/ the fear H2 and the limits box stay right after the module. Other guides define their entity first ("What is palm reading?" is the first body H2 on /palm-reading/) and keep **one** limits section. Heading changes never change the look (the card title keeps its serif at h4), the TOC (H2 only) or any `#type-…` anchor.
+
+**Link words (WEB-DEC-051, SEMANTIC_SEO_PLAN.md §4.4):** one phrase → one page site-wide; the first link to a page carries its best anchor (its topic words: "how to read palm lines" → /palm-reading/, "lines on your palm" → /hand-lines/, "<line> meaning" → the pillar, "palm reading app" → /app/); never "Open the guide", "Read the guide", "See what the app does", "their own page"; at most 3 identical anchors per page; no link in the answer-first line or on a paragraph's first word; a card's link is its title only.
+
+**Template v4, "teach by seeing" (WEB-DEC-047, pilot on /palm-reading/ only).** Same blocks and order as v3, plus:
+- **Hero** (`find.show: animate`): `TracedPalm` replaces RegionPhoto: the whole photo (an AI-made HD palm, 2026-09-28, labelled as AI-made) with the real scanner's own 4 lines for that image drawn one by one, names at the edges, finger names, chips All/Heart/Head/Life/Fate. Caption: "An AI-made palm photo, traced by the real PalmSays scanner. Your reading is made from your own photo." Never a meaning for the person in the photo.
+- **Teaching blocks inside the sections** (words in `src/lib/guides/strings.ts` `teach`; import them at the top of the MDX so their CSS loads only on that page): `<WordsToKnow />` before the first H2; `<ReadFlow />` and `<StepMap items={[…]} />` in "What is…"; `<PhotoDoDont />` in "What you need"; `<WhichHand />`, `<HandShapes />`; `<LineLesson line forms={[[variant, name] × 3]} />` in each line step (photo crop with only that line + "Read for" + 3 drawn forms + the line's guide); `<LineQuestions />` after the 4 lines; `<MountMap />`; `<MistakePair kind="crease|start|shadow" />` between the mistakes list items; a new H2 "Check yourself" with `<CheckQuiz />` before the limits box.
+- **Rules:** a line on a photo only from the scanner's output for that photo (mount and crease marks are labelled AREAS); drawings are labelled "Drawing"; "Do"/"Don't" and "Not this"/"This" in words, never colour alone; every figure has alt text and a caption; each quiz question has one right answer and an answer for every option; no invented statistics. The blocks that reuse the hero's shapes (#tpd-*, #pgd-*) need `find.show: animate` (`tests/unit/guide-visuals.test.ts`). Longest text-only stretch on a 390 px phone ≤ ~1,300 px (pilot: 1,178 px).
 
 ---
 
@@ -187,8 +210,11 @@ For all 12 tools (tool 1 is home and follows the home layout in plan §7.1). The
 
 Breadcrumb · H1 (the question) · byline and dates · answer first (≤ 40 words) · TOC · sections with one diagram per major section · a mid-post inline CTA to the matching tool or pillar · FAQ · sources · end block · links to 1 pillar and home, plus up to 3 related posts (plan §7.8).
 
+- **Infographics (owner, 2026-10-01):** every blog post gets 2–3 infographics (`src/lib/diagrams.ts`, `kind: 'infographic'`, made by `scripts/make-infographics.mjs`) where they teach best: one idea per image, labels written directly on what they name (never a numbered legend), big text and few words, a phone layout readable at 390 px, every key fact also in the page text and the alt text, AI-made photos or icons said in the caption.
+
 - **Comparison post** (`/blog/best-palm-reading-apps/`): disclose at the top that PalmSays is our app; test every app the same way; state what each one really does and costs, with the date checked; no affiliate links unless disclosed.
 - **Fear post** (`/blog/can-palm-reading-predict-death/`): "No" in the first sentence, the three-part block, the care line, owner OK.
+- **As built (WEB-DEC-057):** one MDX file per post in `src/content/blog/<slug>.mdx` (front matter in ARCHITECTURE.md §4 and `src/content.config.ts`), plus its row in `src/config/pages.ts` (sitemap group `blog`). The layout adds the breadcrumb, byline, TOC, the limits box (every YMYL post; the care line on lifespan and health), FAQ, sources, the end block and "Keep reading" (the `pillar` + `related`), so the MDX holds only the body. Writing standard: §15.
 
 ---
 
@@ -260,7 +286,7 @@ If a guide and the app disagree, the app wins, or the disagreement goes to the o
 Marriage lines, children lines, the Mercury line, simian line (palmistry side), M, crosses, stars, fish, triangles, hand types and fingers have no rule in the app.
 - Read the chapter in the corpus text (app repo, read-only: `knowledge/raw/<tradition>/`) and cite book + chapter in `sources[]` with `ruleIds: []`. The fact-checker opens the same passage.
 - If no corpus book covers the claim, don't write "the tradition says". Cite a named modern book (facts only) or drop the claim.
-- **Hand types:** the earth / air / fire / water system is usually credited to 20th-century palmistry (Fred Gettings, *The Book of the Hand*, 1965 [verify]) and is not in the corpus. The corpus books use the older seven types (elementary, square, spatulate, philosophic, conic, psychic, mixed) [verify in Cheiro]. Settle the source before `/hand-types/` and tool 9 publish.
+- **Hand types:** the earth / air / fire / water system is usually credited to 20th-century palmistry (Fred Gettings, *The Book of the Hand*, 1965 [verify]) and is not in the corpus. The corpus books use the older seven types (elementary, square, spatulate, philosophic, conic, psychic, mixed) [verify in Cheiro]. Settle the source before `/hand-types/` and tool 9 publish. **Settled 2026-09-28 (WEB-DEC-054):** the seven types are checked in Cheiro (*Palmistry for All*, Part II ch. I) and d’Arpentigny (*The Science of the Hand*, tr. Heron-Allen 1886, ¶ 88); the element system is labelled "modern" with no book cited (Gettings still [verify], not named on the site).
 
 ### 9.5 Science and medical sources
 - `/is-palmistry-real/`: every claim cited to a peer-reviewed or reputable source (for example the Forer 1949 study for the Barnum effect; a medical or embryology source for how flexion creases form).
@@ -349,6 +375,8 @@ Allowed: "आख़िरी मुफ़्त रीडिंग" / "your last
 
 Guides: `title` (≤ 60), `description` (≤ 155), `locale`, `slug`, `translationKey`, `pillar`, `isPillar`, `keywordCluster` {primary, secondary ≤ 15, usVolume, kd, inVolume}, `related` (≤ 6), `tool` (the tool page this guide links to), `appLesson`, `sources[]` {title, author, year, locator, url, ruleIds} (≥ 1), `reviewedBy` {name, role, date}, `published`, `updated`, `ymyl` (`none` | `marriage` | `children` | `lifespan` | `health`), `stepOf7`, `faq[]` (≤ 8), `heroImage`, `status`, `draft`, `noindex`.
 
+As built (`src/content.config.ts`, template v3): `find` {region `heart|head|life|fate|all|marriage|simian|none`, title?, prompt, steps (2–4), question?, choices[] ≤ 5 {label, answer, href?}, cta (default true)}, `tool` {slug, name, label?}, `step` (1–7; 3–6 = "Step n of 4"), `inlineCta`, `quickFacts`, `line`. The old header-drawing fields (`figureVariant`, `figureAlt`, `figureCaption`) are gone. v4 (WEB-DEC-047): `find.show` (`region` default = RegionPhoto, `animate` = TracedPalm hero). Every `<Variation>` needs `gist` (≤ 16 words) and `check`; `tests/unit/guides.test.ts` checks both and that every answer-chip link lands on a card, a heading or a registered page.
+
 Tools (YAML): `id`, titles and descriptions per language, `kind` (`photo-ai` | `photo-local` | `quiz` | `picker` | `map`), `usesAI`, `label`, `island`, `guide`, `relatedTools`, `faq`, `limits`, `howItWorks`, `sources`.
 
 ---
@@ -357,7 +385,43 @@ Tools (YAML): `id`, titles and descriptions per language, `kind` (`photo-ai` | `
 
 1. Deepak Chauhan's full bio and photo (for the author page and bylines).
 2. A named Hindi reviewer; until then, the owner reads every Hindi page.
-3. A citable source for the element hand types (§9.4).
+3. A citable source for the element hand types (§9.4). Until then /hand-types/ labels the system "modern" and cites no book for it (WEB-DEC-054).
 4. The Hindi examples here and the limits-box Hindi need the Hindi reviewer.
 5. Nukta style for Hindi body text (§3).
 6. `[verify]` before claiming it: what Dale 1895 or Jain 1927 say about reading a woman's left hand.
+
+---
+
+## 15. Writing standard (owner, 2026-10-01)
+
+The owner's standard for **every blog post and page**: the best 2026 SEO practice; the best words, with a lot of information in few words and easy to read; **no AI-sounding words and no em dashes**; a proper semantic and entity structure, written for the right intent. It adds to §2 (voice) and §11 (banned claims). WEB-DEC-057.
+
+### 15.1 Punctuation (check-web ERRORS)
+
+- **No em dash (—)**, anywhere in visible copy or front matter. Rewrite the sentence: a comma, a full stop, a colon or brackets, whichever the sentence needs. Never swap it blindly for another dash.
+- **En dash (–) only inside a number range:** `1,200–1,800`, `1886–1916`, `pp. 87–90`, `chs. VI–VIII`, `₹199–₹349`. Anywhere else it is an error ("heart – head" → "heart and head", "Online – See" → "Online: See").
+- **No spaced hyphen as a dash** (`word - word`, `word -- word`). Hyphenated words (`left-handed`) and Markdown list items are fine.
+- Citation locators use a colon after the chapter: `Part II, ch. VII: The Line of Head, pp. 87–90`; an old name goes in brackets: `The Via Solis (the old name for the sun line)`.
+
+### 15.2 AI-sounding phrases (check-web ERRORS, whole words, any case)
+
+The list lives in `src/lib/writing-standard.ts` (`AI_PHRASES`, with a plain word to use instead) and is shared by check-web and the unit tests:
+
+delve · tapestry · testament to · in today's world · in the realm of · embark · unleash · unlock the secrets (or mysteries, power) · navigate the complexities · it's important to note · it is worth noting · let's dive · dive into / deep dive · look no further · whether you're a · game-changer · seamless · elevate (elevated, elevating) · vibrant · intricate · multifaceted · myriad · pivotal · robust · leverage · holistic · nuanced · comprehensive guide · ultimate guide · in conclusion · moreover · furthermore · additionally · plethora · bustling · beacon · harness the power · a journey of · ever-evolving · crucial role.
+
+**False positives** (a quoted book title, a verbatim quote) go in `WRITING_ALLOW` in the same file, with the file, the sentence snippet and a reason. Never weaken a rule to pass a page. Allow-list today: empty.
+
+**Where it is checked:** the source of `src/content/guides/*.mdx`, `src/content/blog/*.mdx`, `src/i18n/en.ts`, `src/i18n/hi.ts` and `src/lib/guides/strings.ts` (front matter included, code comments skipped, reported as file:line), and the visible text of every built guide, blog post and the `/blog/` index. Tool result texts that are the app's rule meanings word for word (`src/lib/tools/lines/*.ts` `meaning`, `palm-map.ts` `book`) still carry the app's em dashes: they change only when the app's rule set changes (tools parity test).
+
+### 15.3 The 2026 SEO checklist (every new or refreshed page)
+
+1. **Answer first.** The first 40 words answer the query in plain words (`answer` front matter). No warm-up sentence.
+2. **One intent per page.** One query family per URL (KEYWORD_MAP rule 1). If a question belongs to another page, answer it in one or two sentences and link there.
+3. **Entities and attributes.** Name the page's `about` entity in the H1 and the first paragraph; cover its attributes (where it is, how it looks, its types, what the books read, what they don't) and set `about`/`mentions` ids from `src/lib/entities.ts` (SEMANTIC_SEO_PLAN.md §5).
+4. **Question headings.** H2/H3s are the questions people search ("Do palm lines change with age?"), in sentence case, each answered in its first sentence.
+5. **Short paragraphs.** 1–3 sentences, ≤ 18 words a sentence on average, active voice, "you".
+6. **Sourced facts.** Every meaning cites a book (author, year, chapter) or a study; no statistic without a source (§9).
+7. **Information gain.** Each page adds something the top results don't: our own diagram, a measured fact, the source the others skip, an honest "the books disagree".
+8. **Honest limits.** The limits box on every guide and every YMYL post; never a prediction (§4, §11).
+9. **Internal links: one phrase → one target.** A given anchor phrase always points to the same URL across the site (WEB-DEC-051 R1); use the registry label of the target page.
+10. **No filler.** Cut any sentence that would read the same on a competitor's page. Prefer the specific number, name or place.

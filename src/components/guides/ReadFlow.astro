@@ -1,0 +1,19 @@
+---
+/** "How a reading works" (guide v4, WEB-DEC-047): look, learn, ask yourself; three steps joined by chevrons. Zero JS. */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import './teach.css';
+
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+---
+
+<ol class="tb tb-flow" aria-label={t.flowTitle}>
+  {
+    t.flow.map((step, i) => (
+      <li class="tb-well">
+        <span class="tb-n" aria-hidden="true">{i + 1}</span>
+        <span><strong>{step.title}</strong> {step.text}</span>
+      </li>
+    ))
+  }
+</ol>

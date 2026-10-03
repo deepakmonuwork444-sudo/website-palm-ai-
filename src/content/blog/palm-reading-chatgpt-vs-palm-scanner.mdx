@@ -1,0 +1,140 @@
+---
+title: 'Palm Reading with ChatGPT vs a Palm Scanner'
+description: 'Can ChatGPT read your palm? What a chatbot does with a palm photo, how a palm scanner traces lines instead, and how to check any reading against your hand.'
+path: /blog/palm-reading-chatgpt-vs-palm-scanner/
+h1: 'Can ChatGPT read your palm?'
+answer: 'ChatGPT can describe a palm photo and repeat what palmistry books say, but it doesn’t trace your lines and can describe lines that aren’t there. A palm scanner marks each line on your photo, so you can check it.'
+summary: 'What a chatbot does with a palm photo, how a palm scanner traces your lines instead, and a simple test for any palm reading.'
+crumb: ChatGPT vs palm scanner
+topic: AI readings
+takeaways:
+  - 'ChatGPT describes a palm photo in words but does not mark the lines.'
+  - 'Chatbots can describe lines that are not on your palm.'
+  - 'A palm scanner draws each line it finds on your own photo.'
+  - 'Check any reading: ask where the line is, and which book says so.'
+disclosure: '**PalmSays is our app, and it uses a palm scanner.** We describe chatbots from their makers’ own documents and from published research, and we say where our scanner falls short too.'
+pillar: /palm-reading/
+related: ['/blog/best-palm-reading-apps/', '/hand-lines/', '/is-palmistry-real/']
+about: ['palm-lines']
+mentions: ['heart-line', 'head-line', 'life-line', 'fate-line', 'sun-line', 'palmistry']
+ymyl: none
+status: checked
+published: '2026-10-01'
+updated: '2026-10-01'
+keyword:
+  primary: palm reading chatgpt
+  secondary:
+    - palm reading free chatgpt
+    - palm reading ai prompt
+    - can chatgpt read palms
+    - chatgpt palm reading prompt
+    - ai palm reading vs chatgpt
+sources:
+  - title: 'Images and vision: Limitations'
+    author: 'OpenAI'
+    publisher: 'OpenAI API documentation (read 1 October 2026)'
+    url: 'https://developers.openai.com/api/docs/guides/images-vision'
+  - title: 'GPT-4V(ision) System Card'
+    author: 'OpenAI'
+    year: 2023
+    publisher: 'OpenAI'
+    url: 'https://cdn.openai.com/papers/GPTV_System_Card.pdf'
+  - title: 'Evaluating Object Hallucination in Large Vision-Language Models'
+    author: 'Y. Li, Y. Du, K. Zhou, J. Wang, W. X. Zhao and J.-R. Wen'
+    year: 2023
+    publisher: 'EMNLP 2023 (arXiv:2305.10355)'
+    url: 'https://arxiv.org/abs/2305.10355'
+  - title: 'Hallucination of Multimodal Large Language Models: A Survey'
+    author: 'Z. Bai, P. Wang, T. Xiao, T. He, Z. Han, Z. Zhang and M. Z. Shou'
+    year: 2024
+    publisher: 'arXiv:2404.18930'
+    url: 'https://arxiv.org/abs/2404.18930'
+  - title: 'Image segmentation'
+    author: 'TensorFlow'
+    publisher: 'TensorFlow Core tutorials'
+    url: 'https://www.tensorflow.org/tutorials/images/segmentation'
+  - title: 'U-Net: Convolutional Networks for Biomedical Image Segmentation'
+    author: 'O. Ronneberger, P. Fischer and T. Brox'
+    year: 2015
+    publisher: 'MICCAI 2015 (arXiv:1505.04597)'
+    url: 'https://arxiv.org/abs/1505.04597'
+faq:
+  - q: Can ChatGPT read palms for free?
+    a: 'You can upload a palm photo to a chatbot and ask, and many plans allow it free. You get a description in words, not a tracing, so check each line it names against your own hand.'
+  - q: What is a good ChatGPT prompt for palm reading?
+    a: 'Ask it to describe only the lines it can see, say where each one starts and ends, say “not clear” when unsure, and leave out health and lifespan. The prompt is in the section above.'
+  - q: Is a palm scanner better than ChatGPT for palm reading?
+    a: 'For finding your lines, yes: a scanner marks where each line is on your photo, so you can check it. For the meaning, both depend on what palmistry books say, and neither can predict anything.'
+  - q: Can AI predict your future from your palm?
+    a: 'No. AI can find the lines in a photo. What the lines mean comes from a tradition, and no line can show the future, your health or your lifespan.'
+  - q: Does PalmSays use ChatGPT?
+    a: 'No. It finds your lines with its own line model. It uses a language model to help word parts of the report, but a line only reaches your report if the line model traced it on your photo.'
+---
+
+## What does ChatGPT do with a palm photo?
+
+It looks at the whole picture and answers in words. ChatGPT and similar chatbots are vision-language models: they take in the image with your question and write a reply, drawing on what they learned in training. Ask for a palm reading and you get a fluent paragraph about your heart line, head line and life line.
+
+What you don’t get is a map. The chatbot doesn’t mark where on your photo it found each line. OpenAI’s own guide to its vision models says they “can make mistakes”, and that the model “struggles with tasks requiring precise spatial localization”. Finding a thin crease on a palm is exactly that kind of task.
+
+The reading part comes from palmistry text the model has read. It may mix books, websites and modern ideas without saying which is which.
+
+## Why can a chatbot describe lines that aren’t there?
+
+Because these models are known to “hallucinate” objects. A 2023 study found that vision-language models “tend to generate objects that are inconsistent with the target images”. The objects most at risk are the ones that often appear together in training data.
+
+A palm is a perfect trap. Palmistry text almost always mentions a fate line, a sun line and marriage lines, so a model expects them. If your fate line is faint or missing, as it is on many palms, a chatbot may still describe one.
+
+OpenAI’s system card for its first vision model noted the same risk: it “was prone to hallucinations” and could state errors “in an authoritative tone”. It could also give different answers to the same question. Ask twice with the same photo, and you may get two readings.
+
+## How does a palm scanner read your lines?
+
+A palm scanner uses a different kind of model, built only to find lines. It is a **segmentation model**: it labels each pixel of the photo as part of a line or not. TensorFlow’s tutorial describes segmentation as assigning a class to each pixel of the image. The U-Net design many such models use was first built for medical images, where the exact outline matters.
+
+The result is a line drawn on your own photo. You can see where the heart line starts and ends, and compare it with your hand.
+
+The PalmSays app works this way. Its line model traces the heart, head, life and fate lines on your photo. When it can’t find a line clearly, it says so, and that line isn’t read. The meanings then come from a fixed rule set built from classical palmistry books, each with its source.
+
+<DiagramFigure id="chatbot-vs-palm-scanner-flow" />
+
+## Where does a palm scanner fall short?
+
+It has limits too, and they are worth knowing:
+
+- **It reads only what it was trained on.** Ours traces four lines. It doesn’t read the sun, marriage, Mercury or children lines.
+- **Small marks are too small.** Islands, crosses and stars are a few pixels wide in most phone photos, so they stay out of the reading.
+- **Light still matters.** A shadow can look like a break, so a dark or angled photo gives a weaker tracing.
+- **It finds lines, not futures.** Tracing a line well says nothing about whether palmistry’s meanings are true.
+
+PalmSays also uses a language model, to help word parts of the report. But a line only reaches your report if the line model traced it on your photo.
+
+## ChatGPT vs a palm scanner: side by side
+
+| | General chatbot | Palm scanner |
+|---|---|---|
+| What you get | A description in words | Lines drawn on your photo |
+| Shows where each line is | No | Yes |
+| A line it can’t find | May describe one anyway | Marked as not clear |
+| Same photo twice | Answers can differ | The same tracing |
+| Where meanings come from | Mixed text, usually unnamed | Depends on the app; ours names the book |
+| Health or lifespan questions | Varies by chatbot | Ours never reads them |
+
+## How do you check any palm reading?
+
+Use the same test on a chatbot, an app or a person:
+
+1. **Ask it to show the line.** “Where exactly is my heart line on this photo?” A scanner can show you. If the answer is only words, check them against your hand.
+2. **Ask about a line you don’t have.** If your palm shows no clear fate line, ask about it. An honest reader says it can’t see one.
+3. **Ask the same question twice.** Two different readings of one photo tell you the answer wasn’t from your lines.
+4. **Ask for the source.** “Which book says that?” A real meaning has an author and a title.
+5. **Drop any health or lifespan answer.** No line shows them, whoever reads it.
+
+<DiagramFigure id="check-any-palm-reading-steps" />
+
+## Is a ChatGPT palm reading prompt worth trying?
+
+It can be a fun way to learn the names of the lines, as long as you check its answers. This prompt asks for honesty first:
+
+“Look at this photo of my palm. Describe only the lines you can clearly see: where each one starts, where it ends and what shape it takes. If you can’t see a line clearly, say ‘not clear’. Then tell me what classical palmistry books say about each line, naming the book. Don’t predict health, lifespan, marriage or money.”
+
+Then check every line it names against your own palm in daylight. To learn what each line is read for, start with [how to read palm lines](/palm-reading/). If you are comparing apps, see our [best palm reading apps](/blog/best-palm-reading-apps/) checks.

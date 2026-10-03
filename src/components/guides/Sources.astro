@@ -1,11 +1,13 @@
 ---
 /**
  * Sources box (CONTENT_GUIDE.md §9.3, DESIGN_SYSTEM.md §7.8 SourcesList): a
- * numbered list of every book and study used on the page. Books come from
+ * numbered list of every book and study used on the page, collapsed at the
+ * end of the guide (template v3) in a native <details>. Books come from
  * the app's catalogue (src/lib/guides/books.ts); books with unknown rights
  * are marked "facts only".
  */
-import { localeFromPath } from '../../i18n';
+import { isLive } from '../../config/pages';
+import { localeFromPath, localizePath } from '../../i18n';
 import { BOOKS, isBookId, type Book } from '../../lib/guides/books';
 import { guideStrings } from '../../lib/guides/strings';
 
@@ -15,10 +17,18 @@ export type GuideSource =
 
 interface Props {
   sources: GuideSource[];
+  /** The line guide's entity ("Heart line"): the heading then names it (heading spec, WEB-DEC-051). */
+  topic?: string | undefined;
+  /** Blog posts: the list starts open, so the sources stay in view (the reader can still fold it). */
+  open?: boolean;
 }
 
-const { sources } = Astro.props;
-const s = guideStrings(localeFromPath(Astro.url.pathname));
+const { sources, topic, open = false } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const s = guideStrings(locale);
+// "How we choose sources" → the editorial policy (SEMANTIC_SEO_PLAN.md §4.5 #15), once that page is live.
+const policyPath = localizePath('/editorial-policy/', locale);
+const policyLive = isLive(policyPath);
 
 const items = sources.map((source) => {
   if ('book' in source) {
@@ -46,8 +56,10 @@ const items = sources.map((source) => {
 });
 ---
 
-<section class="sources" aria-labelledby="sources-title">
-  <h2 id="sources-title" class="text-h2 font-bold">{s.sourcesTitle}</h2>
+<details class="sources guide-block" open={open}>
+  <summary class="sources-summary">
+    <h2 id="sources-title" class="text-h3 font-bold">{topic ? s.sourcesSummaryOf(topic, items.length) : s.sourcesSummary(items.length)}</h2>
+  </summary>
   <ol class="sources-list">
     {
       items.map((item) => (
@@ -66,13 +78,52 @@ const items = sources.map((source) => {
       ))
     }
   </ol>
-  <p class="text-small text-fg-muted">{s.sourcesNote}</p>
-</section>
+  <p class="text-small text-fg-muted">
+    {s.sourcesNote}
+    {policyLive && <> <a class="text-link" href={policyPath}>{s.sourcesPolicy}</a></>}
+  </p>
+</details>
 
 <style>
-  .sources { margin-top: 3rem; }
-  .sources h2 { margin: 0 0 1rem; }
-  .sources-list { margin: 0 0 1rem; padding-inline-start: 1.5rem; list-style: decimal; display: flex; flex-direction: column; gap: 0.625rem; }
+  /* Showroom: a quiet glass drawer at the foot of the article. */
+  .sources {
+    margin-top: 2.5rem; border-radius: var(--r-card); border: 1px solid transparent;
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: 0 10px 24px -18px rgba(0,0,0,0.7);
+  }
+  .sources-summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; padding: 0.5rem 1rem 0.5rem 1.25rem;
+    cursor: pointer; list-style: none; border-radius: inherit;
+  }
+  .sources-summary::-webkit-details-marker { display: none; }
+  .sources-summary::after {
+    content: ""; flex: none; width: 2rem; height: 2rem; border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    background:
+      linear-gradient(var(--accent), var(--accent)) center / 0.75rem 1.5px no-repeat,
+      linear-gradient(var(--accent), var(--accent)) center / 1.5px 0.75rem no-repeat;
+    transition: transform 360ms var(--ease-out), background-size 360ms var(--ease-out);
+  }
+  .sources[open] .sources-summary::after {
+    transform: rotate(180deg);
+    background:
+      linear-gradient(var(--accent), var(--accent)) center / 0.75rem 1.5px no-repeat,
+      linear-gradient(var(--accent), var(--accent)) center / 1.5px 0 no-repeat;
+  }
+  .sources h2 { margin: 0; }
+  .sources-list {
+    margin: 0.25rem 1.25rem 1rem; padding-inline-start: 1.5rem; list-style: decimal; display: flex; flex-direction: column; gap: 0.75rem;
+    font-size: var(--fs-small); line-height: var(--lh-small);
+  }
   .sources-list li::marker { color: var(--accent); font-weight: 700; }
-  .sources p { margin: 0; }
+  .sources p { margin: 0 1.25rem 1.25rem; }
+  @supports selector(::details-content) {
+    .sources { interpolate-size: allow-keywords; }
+    .sources::details-content { block-size: 0; overflow: hidden; transition: block-size 480ms var(--ease-out), content-visibility 480ms allow-discrete; }
+    .sources[open]::details-content { block-size: auto; }
+  }
+  @media (min-width: 40rem) {
+    .sources-summary { padding-inline: 1.5rem 1.125rem; }
+    .sources-list { margin-inline: 1.5rem; }
+    .sources p { margin-inline: 1.5rem; }
+  }
 </style>

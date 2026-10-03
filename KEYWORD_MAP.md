@@ -57,30 +57,32 @@
 | Tools 3, 8, 11 | §3 | — | — | — | P1 | `/hi/tools/<slug>/` (P2) |
 | `/head-line/double/` **NEW** | — (US has only fork / split wording, ~230, which stays on `/head-line/`) | two head line palmistry 6,600/30 | — | ~6.8K | **P1-late** (after `/head-line/`) | none yet (no hreflang) |
 | `/simian-line/` | one line on palm 1,000/34 · simian line palmistry 390/12 | simian line 6,600/28 | ~3K | ~18.7K (about half is medical wording, K10) | **P1-late** (was P2; sourced medical section + owner OK first) | later |
-| `/palm-crosses/` | palmistry crosses 880/23 | mystic cross on palm 480/24 | ~1K | ~2.5K | P2 #1 | later |
-| `/blog/rarest-palm-lines/` | — (not in the export) | rare hand lines meaning 1,000/31 | — | ~1.5K | P2 #2 (was P3) | — |
-| `/career-palmistry/` | career palmistry 880/5 | career palm reading 110/10 | ~1.2K | ~430 | P2 #3 | later |
-| `/hand-types/` | different types of hands 720/22 | palm reading fire hand 140/3 | ~2.6K | ~250 | P2 #4 | later |
-| `/sun-line/` | sun line palmistry 480/29 | success line on palm 480/30 | ~1.1K | ~480 | P2 #5 | later |
-| `/palmistry-m/` | palmistry m 390/23 | — (not in the export) | ~1.5K | 0 | P2 #6 | `/hi/palmistry-m/` |
-| `/money-line/` | money line in hand palmistry 320/22 | — | ~1.5K | 0 | P2 #7 | `/hi/money-line/` |
-| `/life-line/broken/` | broken life line palmistry 390/14 | — | ~740 | 0 | P2 #8 (was the first P2 guide) | none (no hreflang) |
-| `/children-line/` | palm reading children line 210/8 | — | ~1K | 0 | P2 #9 | `/hi/children-line/` |
-| `/lucky-signs/` | rare lucky signs on palm 260/6 | — | ~1K | 0 | P2 #10 | `/hi/lucky-signs/` |
+| `/palmistry-terms/` **BUILT 2026-09-28** (WEB-DEC-053; SEMANTIC_SEO_PLAN.md §5.4, owner decision D2; title "Palmistry Terms: Palm Reading Glossary with Hindi Names") | palmistry terms · palmistry glossary · palm reading terms [unverified] | हस्तरेखा शब्दावली [unverified] | — | — | **P2 first** (the glossary = the site's entity registry, 84 terms from `src/lib/entities.ts`; no volume target, it must not target any term an owner page owns, C-rule §6; its "Read more" anchors are the owner page's registry label, R1) | `/hi/palmistry-terms/` (Hindi order #3) — NOT built: waits for the Hindi reviewer and Hindi definitions |
+| `/palm-mounts/` | palm reading mounts 140/7 · mount of moon palm reading 70/4 · mount of luna palmistry 70/4 · mounts of the hand 70/1 | — (Hindi "पर्वत" terms: Devanagari export pending) | ~350 | 0 | **Built 2026-09-28, status checked (WEB-DEC-054)**; P2, after the glossary (was P3; owner decision D3, 2026-09-28: the app reads mounts, tool 11 shows them) | `/hi/palm-mounts/` later |
+| `/palmistry-fingers/` | palmistry fingers 110/5 | palmistry fingers 320/15 | ~250 | ~1.4K (with thumb terms) | **Built 2026-09-28, status checked (WEB-DEC-054)**; P2, after /palm-mounts/ (was P3 #1; owner decision D3: tool 13 has no guide partner) | later |
+| `/palm-crosses/` | palmistry crosses 880/23 | mystic cross on palm 480/24 | ~1K | ~2.5K | **Built 2026-09-28, status checked (WEB-DEC-054)**; P2 #1 | later |
+| `/blog/rarest-palm-lines/` | — (not in the export) | rare hand lines meaning 1,000/31 | — | ~1.5K | **Written 2026-10-01, status checked (WEB-FEAT-052, N-7)**; P2 #2 (was P3). Figures only where a study gives one (simian line: MedlinePlus; Sydney line: 3 crease studies); every other line “no figure” | — |
+| `/career-palmistry/` | career palmistry 880/5 | career palm reading 110/10 | ~1.2K | ~430 | **Built 2026-10-01, status checked (WEB-FEAT-037)**; P2 #3. Owns "business line" (no classical book names one; K8). Never targets "career line" (C8, `/fate-line/`) | later |
+| `/hand-types/` | different types of hands 720/22 | palm reading fire hand 140/3 | ~2.6K | ~250 | **Built 2026-09-28, status checked (WEB-DEC-054)**; P2 #4 | later |
+| `/sun-line/` | sun line palmistry 480/29 | success line on palm 480/30 | ~1.1K | ~480 | **Built 2026-09-28, status checked (WEB-DEC-054)**; P2 #5 | later |
+| `/palmistry-m/` | palmistry m 390/23 | — (not in the export) | ~1.5K | 0 | **Built 2026-10-01, status checked (WEB-FEAT-039)**; P2 #6. Says plainly that no classical book reads an M | `/hi/palmistry-m/` |
+| `/money-line/` | money line in hand palmistry 320/22 | — | ~1.5K | 0 | **Built 2026-10-01, status checked (WEB-FEAT-040)**; P2 #7. Owns money line, wealth line, money triangle, dhan rekha, "line of fortune"; links the fate, sun and head pillars, never targets their names | `/hi/money-line/` |
+| `/life-line/broken/` | broken life line palmistry 390/14 | — | ~740 | 0 | **Built 2026-10-01, status checked, YMYL lifespan: production waits for the owner’s OK** (WEB-FEAT-036); P2 #8 (was the first P2 guide) | none (no hreflang) |
+| `/children-line/` | palm reading children line 210/8 | — | ~1K | 0 | **Built 2026-10-01, status checked, YMYL children: production waits for the owner’s OK** (WEB-FEAT-045); P2 #9 | `/hi/children-line/` |
+| `/lucky-signs/` | rare lucky signs on palm 260/6 | — | ~1K | 0 | **Built 2026-10-01, status checked (WEB-FEAT-046)**; P2 #10. Owns star, triangle, square, fish, trident and the Indian signs; crosses stay on `/palm-crosses/`, the M on `/palmistry-m/` | `/hi/lucky-signs/` |
 | `/palmistry-pdf/` | palm reading pdf 70/3 | palm reading book pdf 590/17 | ~260 | ~980 | P2 (when WEB-SRV-008/013 are ready) | `/hi/palmistry-pdf/` (published days 61–90) |
-| Blog posts 1–4 | §4 | §4 | — | — | P2 | — |
+| Blog posts 1–3 | §4 | §4 | — | — | **Written 2026-10-01, status checked (WEB-FEAT-052, N-14, N-15)**; post 4 not written (C18 retarget pending) | — |
 | Tools 2, 4–7, 9, 10, 12 | §3 | — | — | — | P2 | later |
-| `/palmistry-fingers/` | palmistry fingers 110/5 | palmistry fingers 320/15 | ~250 | ~1.4K (with thumb terms) | P3 #1 | later |
-| `/indian-palmistry/` | indian palmistry (palmistry india 170/30) | — | ~350 | 0 | P3 | `/hi/hast-rekha/` (only if equivalent) |
+| `/indian-palmistry/` | indian palmistry (palmistry india 170/30) | — | ~350 | 0 | **P3 #1** (D3) | `/hi/hast-rekha/` (only if equivalent) |
 | `/chinese-palmistry/` | chinese palmistry 720/16 | — | ~1.1K | 0 | P3 | — |
-| `/palm-mounts/` | palm reading mounts 140/7 | — | ~350 | 0 | P3 | — |
-| `/history-of-palmistry/` | history of palmistry 70/31 | — | ~260 | 0 | P3 | — |
-| `/mercury-line/` | line of mercury palmistry 70/4 | — | ~140 | 0 | P3 | — |
+| `/history-of-palmistry/` | history of palmistry 70/31 | — | ~260 | 0 | **Built 2026-10-01, status checked** (WEB-FEAT-058; title “History of Palmistry: From India and Greece to Today”: no Chinese section, no specialist source yet); P3 | — |
+| `/mercury-line/` | line of mercury palmistry 70/4 | — | ~140 | 0 | **Built 2026-10-01, status checked, YMYL health: production waits for the owner’s OK** (WEB-FEAT-058); P3 | — |
 | Blog post 7 | §4 | — | — | — | P3 | — |
 | ~~`/blog/palm-reading-for-female/`~~ (blog 5) | — | — | — | — | **DROPPED** (merged into `/which-hand-to-read/` before it was written, K2) | — |
 
 - US vol for `/` changed from ~21K to ~18.7K only because 2,600 of app wording (palm reading app, free palm reading app, palm astrology app) belongs to `/app/` (C17).
 - The P2 order is India-first: pages with India demand first, then the US-only pages. It replaces the P2 order in SEO_PLAYBOOK §17.
+- **2026-09-28 (owner decisions D2 + D3, WEB-DEC-051):** P2 now opens with `/palmistry-terms/` (new glossary), then `/palm-mounts/` and `/palmistry-fingers/` (both moved up from P3); the numbered P2 list follows them. `/indian-palmistry/` is the first P3 page. The glossary gives each term one sentence and a link to its owner page; it never takes a title or H1 target from an owner page. `/hand-lines/` owns the six minor-line names it now covers (girdle of Venus, intuition line, travel lines, line of Mars / sister line, ring of Solomon, via lasciva) until one earns its own page (SEO_PLAYBOOK §15 new-URL test).
 
 ### 2.1 US: launch-set pages
 
@@ -108,13 +110,13 @@ Tool pages 1, 3, 8 and 11 are also P1: see §3. `/head-line/double/` has no US k
 | `/career-palmistry/` | career palmistry (880, KD 5) | job palmistry · palm reading for career · career in palmistry for women and men (in-page) | ~1.2K (1–19); part of this total is career-line terms now owned by `/fate-line/` (C8) | I | later |
 | `/marriage-line/` | marriage line palm (1,000, KD 7) | marriage line on hand · marriage line palmistry · palm reading marriage line · palmistry and marriage (590, KD 6) · hand line reading marriage line · chiromancy marriage line · relationship line · how many marriage lines · two marriage lines · divorce line (a myth section) · marriage line age (answer: it can't be worked out) | ~12.7K (0–24) | I (YMYL) | `/hi/marriage-line/` · no tool (owner) |
 | `/palmistry-m/` | m on palm | palmistry m · letter m on palm meaning · m sign on palm · m on both hands / left / right · is the m rare · m on palm spiritual meaning (framed as belief) | ~1.5K (13–28) | I | `/hi/palmistry-m/` |
-| `/money-line/` | money line on palm | money line in hand · wealth line · rich line · money triangle · no money line | ~1.5K (9–28) | I | `/hi/money-line/` |
+| `/money-line/` | money line on palm | money line in hand · wealth line · rich line · money triangle · no money line · dhan rekha · line of fortune (2026-10-01) | ~1.5K (9–28) | I | `/hi/money-line/` |
 | `/hand-types/` | types of hands in palmistry | hand shape palmistry · different types of hands (palmistry) · element hands · earth / air / fire / water hand · what is a fire hand in palmistry · types of hands and fingers | ~2.6K (0–42) | I | later |
 | `/simian-line/` | simian line | one line on palm · one line across palm · straight line across palm · single palmar crease / simian crease · is a simian line rare / normal · on both hands · is it lucky / good or bad · simian line personality · "lines on palm down syndrome" (medical-facts section only) | ~3K (11–39) | I (YMYL) | later |
 | `/sun-line/` | sun line palmistry | Apollo line · line of success · what does the sun line mean on your palm · no sun line · sun line on the right hand | ~1.1K (2–29) | I | later |
 | `/palm-crosses/` | cross on palm | palmistry crosses · mystic cross · x on palm · x and m on palm · cross on the right hand | ~1K (19–23) | I | later |
 | `/children-line/` | children lines on palm | children line palmistry · how many children palm reading (answer: no line can tell) · children line for women · where is the children line | ~1K (5–16) | I (YMYL) | `/hi/children-line/` · no tool (owner) |
-| `/lucky-signs/` | rare lucky signs on palm (260, KD 6) | lucky signs on palm · fish sign on palm · palmistry star · triangle on palm · trident (trishul) on palm | ~1K (4–26) | I | `/hi/lucky-signs/` |
+| `/lucky-signs/` | rare lucky signs on palm (260, KD 6) | lucky signs on palm · fish sign on palm · palmistry star · triangle on palm · trident (trishul) on palm · square on palm · auspicious signs (conch, wheel, lotus, flag) (2026-10-01) | ~1K (4–26) | I | `/hi/lucky-signs/` |
 | `/palmistry-pdf/` | palm reading pdf | palmistry guide pdf · palmistry pdf free (free by email) | ~260 (3–19) | I/T | `/hi/palmistry-pdf/` (built in P2, published days 61–90) |
 
 ### 2.3 US: later guides (priority: §2.0)
@@ -211,7 +213,7 @@ Long-term (big but hard): hand reading lines 27,100/50 (`/hand-lines/`), how to 
 
 ---
 
-## 3. The 12 tools: one canonical page each (owner decision, 2026-09-26)
+## 3. The tools: one canonical page each (owner decision, 2026-09-26; v3 photo tools 13–14 added the same day, WEB-DEC-039)
 
 Each tool has **one** home. The matching guide links to it (a tool card) and never embeds a second copy. Every tool keyword below is distinct from the guide it explains.
 
@@ -225,10 +227,12 @@ Each tool has **one** home. The matching guide links to it (a tool card) and nev
 | 6 | Life line finder | `/tools/life-line-finder/` | which life line do I have | life line finder · life line checker | `/life-line/`: life line meaning, short life line, age calculation | [unverified] | P2 |
 | 7 | Fate line finder | `/tools/fate-line-finder/` | do I have a fate line | fate line finder · fate line checker | `/fate-line/`: fate line meaning, "no fate line" meaning, destiny / career line | [unverified] | P2 |
 | 8 | Which-hand quiz | `/tools/which-hand-quiz/` | which hand should I read quiz | palm reading hand quiz · left or right hand palm reading quiz | `/which-hand-to-read/`: which hand to read palm, for female, left or right | [unverified] | P1 |
-| 9 | Hand-type quiz | `/tools/hand-type-quiz/` | what hand type do I have | hand type quiz · palmistry hand shape quiz · what is my hand type | `/hand-types/`: types of hands, hand shapes, element hands | Autocomplete, R11 §1.10 | P2 |
+| 9 | Hand type from your photo (URL kept from the quiz, which stays on the page as the no-photo way) | `/tools/hand-type-quiz/` | what hand type do I have | hand type quiz · palmistry hand shape quiz · what is my hand type · hand type from photo [unverified] | `/hand-types/`: types of hands, hand shapes, element hands | Autocomplete, R11 §1.10 | P2 |
 | 10 | Palm signs checker | `/tools/palm-signs-checker/` | palm signs checker | check the signs on my palm · which signs are on my palm | `/lucky-signs/`: rare lucky signs, fish, star, triangle · `/palmistry-m/`: m on palm · `/palm-crosses/`: cross on palm | [unverified] | P2 |
 | 11 | Interactive palm map | `/tools/palm-map/` | interactive palm reading chart | interactive palm map · palmistry map · tap a palm line for its meaning | `/hand-lines/`: palm reading chart, palm diagram, palmistry images (static chart for image search) | [unverified] | P1 |
 | 12 | Spot-the-line quiz | `/tools/palm-reading-quiz/` | palm reading quiz | palmistry quiz · palm lines quiz · test your palmistry knowledge | `/palm-reading/`: how to read palms | R11 §2.4 [unverified] | P2 |
+| 13 | Finger reader (photo) | `/tools/finger-reader/` | palmistry finger reader [unverified, no volume data] | index finger vs ring finger palmistry · thumb angle palmistry · finger gaps palmistry | `/palmistry-fingers/`: palmistry fingers, finger length palmistry, types of fingers, thumb (C: the tool never targets "palmistry fingers") | India export: palmistry fingers 320/15 belongs to the guide [unverified for the tool wording] | P2 |
+| 14 | Left vs right hand (photo) | `/tools/left-vs-right-palm/` | compare left and right palm [unverified, no volume data] | left vs right palm difference · both hands palm reading | `/which-hand-to-read/`: which hand to read, left or right hand, for female/male (C5); tool 8 keeps the quiz wording | India cluster "left vs right hand reading" [unverified for this wording] | P2 |
 
 - **Never** a `/tools/free-palm-reading/` page. It would copy home. The `/tools/` card for tool 1 links to `/`.
 - **Hindi tool pages:** `/hi/tools/` and `/hi/tools/<same slug>/` in P2, each published only after review. Their targets are set from a Devanagari export or Search Console queries (the English-script India export has no Hindi tool wording). They never use "स्कैनर / scanner / online check" terms, which belong to `/hi/` (H1 below).
@@ -242,12 +246,12 @@ Each post links to 1 pillar and to home (R11 §2.4). No dates in URLs.
 
 | # | URL | Primary | Secondary | Must not take from | Pri |
 |---|---|---|---|---|---|
-| 1 | `/blog/palm-reading-chatgpt-vs-palm-scanner/` | palm reading chatgpt | palm reading free chatgpt · palm reading ai prompt | Home keeps "ai palm reading" | P2 |
-| 2 | `/blog/best-palm-reading-apps/` | best palm reading app | which app is best for palm reading · most accurate palm reading app (answered honestly: none is "accurate") · palm reading app reddit | `/app/` keeps "palm reading app", "…for android" and the brand | P2 |
-| 3 | `/blog/do-palm-lines-change/` | do palm lines change | can palm lines change over time · do palm lines change with age | Hubs and pillars answer in ≤ 2 sentences and link here (C20) | P2 |
+| 1 | `/blog/palm-reading-chatgpt-vs-palm-scanner/` | palm reading chatgpt | palm reading free chatgpt · palm reading ai prompt | Home keeps "ai palm reading", "palm scanner" | P2 · **written 2026-10-01** |
+| 2 | `/blog/best-palm-reading-apps/` | best palm reading app | which app is best for palm reading · most accurate palm reading app (answered honestly: none is "accurate") · palm reading app reddit | `/app/` keeps "palm reading app", "…for android", "free palm reading app" and the brand | P2 · **written 2026-10-01** (listings checked that day; re-check prices before each refresh) |
+| 3 | `/blog/do-palm-lines-change/` | do palm lines change | can palm lines change over time · do palm lines change with age | Hubs and pillars answer in ≤ 2 sentences and link here (C20) | P2 · **written 2026-10-01** |
 | 4 | `/blog/how-to-take-a-palm-photo/` | **retarget or merge (C18):** recommended new target "palm lines not showing in photo" | why palm lines look faint in photos | Tool 3 owns "how to take a palm photo" | P2 |
 | 5 | ~~`/blog/palm-reading-for-female/`~~ | — | — | **DROPPED** before writing: "palm reading for female / male" belongs to `/which-hand-to-read/` (K2, C19) | — |
-| 6 | `/blog/rarest-palm-lines/` | rare palm lines (IN 390/18) | rare hand lines meaning (IN 1,000/31) · rare hand lines (IN 140/30) · rarest palm lines · what is the rarest palm line | `/hand-lines/` answers in ≤ 2 sentences and links; `/lucky-signs/` keeps signs (K5) | P2 (was P3) |
+| 6 | `/blog/rarest-palm-lines/` | rare palm lines (IN 390/18) | rare hand lines meaning (IN 1,000/31) · rare hand lines (IN 140/30) · rarest palm lines · what is the rarest palm line | `/hand-lines/` answers in ≤ 2 sentences and links; `/lucky-signs/` keeps signs (K5) | P2 (was P3) · **written 2026-10-01** |
 | 7 | `/blog/can-palm-reading-predict-death/` | can palm reading predict death | death line on palm · can palmistry predict life expectancy | `/life-line/` keeps "short life line early death"; `/is-palmistry-real/` answers briefly and links | P3 (YMYL, care line) |
 
 ---

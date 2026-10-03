@@ -1,0 +1,360 @@
+---
+/**
+ * Guide template v3, "user-first" (WEB-FEAT-006; CONTENT_GUIDE.md §5,
+ * DESIGN_SYSTEM.md §7.8). Every guide answers "why should I care, what do I
+ * do next" in the first screen, with one focal point: the reader's own hand.
+ *
+ * Top: breadcrumbs, H1, the one-line answer (featured-snippet style), byline,
+ * "Step n of 4" on the 4 line pages, then the "Find your line" module: a REAL
+ * palm photo with a clearly labelled "where to look" region (RegionPhoto) and
+ * a panel with steps to check your own hand, answer chips and the one gold
+ * action, "Scan my palm to see mine" → /reading/ (FindPanel).
+ * Body: TOC, the MDX (variation card grid with self-checks, myth
+ * vs reality, the one limits box), quick facts, compact FAQ, sources collapsed, the next
+ * line, the end block, related guides; the shared mobile bottom bar (the home
+ * page's StickyCta) with the same action.
+ *
+ * Zero JS of its own: the bottom bar and the header action run on
+ * src/scripts/site.ts. WebPage + Article + BreadcrumbList JSON-LD (no FAQPage, D9), all from
+ * front matter.
+ *
+ * Publishing guard (CONTENT_GUIDE.md §10): a production build refuses a
+ * `draft` guide, and a YMYL guide without the owner's OK.
+ */
+import type { MarkdownHeading } from 'astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import EndCta from '../components/guides/EndCta.astro';
+import Faq from '../components/guides/Faq.astro';
+import FindPanel from '../components/guides/FindPanel.astro';
+import LineSteps from '../components/guides/LineSteps.astro';
+import RegionPhoto from '../components/guides/RegionPhoto.astro';
+import RelatedGuides from '../components/guides/RelatedGuides.astro';
+import StickyCta from '../components/home/StickyCta.astro';
+import TracedPalm from '../components/guides/TracedPalm.astro';
+import Sources from '../components/guides/Sources.astro';
+import { isPreview } from '../config/env';
+import { isLive } from '../config/pages';
+import { absoluteUrl, site } from '../config/site';
+import { localizePath, t } from '../i18n';
+import { formatDate, inlineMarkdown, isoWithOffset } from '../lib/guides/guides';
+import { guideDates } from '../lib/guides/dates';
+import { diagramsOnPage, diagramUrl } from '../lib/diagrams';
+import { pageEntities } from '../lib/entities';
+import { guideStrings } from '../lib/guides/strings';
+import { GUIDE_LINES } from '../lib/guides/traced-palm';
+import { articleSchema, citationSchema, diagramImageSchema, primaryImageSchema, webPageSchema, type Crumb } from '../lib/schema';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  entry: CollectionEntry<'guides'>;
+  headings: MarkdownHeading[];
+}
+
+const { entry, headings } = Astro.props;
+const g = entry.data;
+const locale = g.locale;
+const dict = t(locale);
+const s = guideStrings(locale);
+
+const ownerOk = g.status === 'owner-ok' || g.status === 'published';
+if (!isPreview && (g.status === 'draft' || (g.ymyl !== 'none' && !ownerOk))) {
+  throw new Error(`${g.path}: status "${g.status}" can't be published (CONTENT_GUIDE.md §10: YMYL guides need the owner's OK)`);
+}
+
+// Other guides, for breadcrumbs and related links (only live, registered pages).
+const all = await getCollection('guides');
+const byPath = new Map(all.map((item) => [item.data.path, item.data]));
+const crumbs: Crumb[] = [];
+for (let parent = g.parent; parent; parent = byPath.get(parent)?.parent) {
+  const data = byPath.get(parent);
+  if (!data) throw new Error(`${g.path}: parent ${parent} is not a guide`);
+  crumbs.unshift({ name: data.crumb, path: data.path });
+}
+crumbs.unshift({ name: dict.nav.home, path: localizePath('/', locale) });
+crumbs.push({ name: g.crumb, path: g.path });
+
+const related = g.related
+  .map((path) => byPath.get(path))
+  .filter((data): data is NonNullable<typeof data> => Boolean(data) && isLive(data!.path))
+  .map((data) => ({ path: data.path, name: data.crumb, line: data.line }));
+
+// The 4 line guides name their line in the end-matter headings ("Heart line quick facts"; heading spec, WEB-DEC-051).
+const topic = g.line && g.step !== undefined && g.step >= 3 && g.step <= 6 ? dict.lines[g.line].name : undefined;
+// TOC: the body's H2s, then the template's own sections.
+const toc = [
+  ...headings.filter((heading) => heading.depth === 2).map((heading) => ({ id: heading.slug, text: heading.text })),
+  { id: 'faq-title', text: topic ? s.faqTitleOf(topic) : s.faqTitle },
+  { id: 'sources-title', text: topic ? s.sourcesTitleOf(topic) : s.sourcesTitle },
+];
+
+const authorPath = '/about/deepak-chauhan/';
+const authorLive = isLive(authorPath);
+const lineName = g.line ? dict.lines[g.line].name.toLowerCase() : null;
+const campaign = g.path.replace(/^\/|\/$/g, '').replace(/\//g, '-').slice(0, 40);
+// The 4 main lines are steps 3–6 of the 7-step path; the line pages show "Step n of 4".
+const lineStep = g.line && g.step !== undefined && g.step >= 3 && g.step <= 6 ? g.line : null;
+// Pages before the 4 lines (the hubs, which hand to read) lead into step 1. /hand-lines/ sits under
+// /palm-reading/ in the breadcrumb (WEB-DEC-051) but is still the lines hub.
+const startsLines = !lineStep && (g.step === 1 || !g.parent || g.path === localizePath('/hand-lines/', locale));
+// Gold foil on the page's own keyword (its crumb, as written in the H1): the same words, only a styling span.
+const foilAt = g.h1.toLowerCase().indexOf(g.crumb.toLowerCase());
+const h1Parts =
+  foilAt >= 0
+    ? { before: g.h1.slice(0, foilAt), key: g.h1.slice(foilAt, foilAt + g.crumb.length), after: g.h1.slice(foilAt + g.crumb.length) }
+    : null;
+// Guide v4 on a line page: the hero puts that one line in focus (TracedPalm `focus`).
+const focusLine = GUIDE_LINES.find((line) => line === g.find.region);
+const findTitle =g.find.title ?? (lineName ? s.findTitle(lineName) : s.findTitleAll);
+// The module's scan button is this page's hero action (off where the page must not carry one).
+const showCta = g.inlineCta && g.find.cta;
+const scanHref = locale === 'hi' ? '/reading/?lang=hi' : '/reading/';
+
+// One @graph (BaseLayout): WebPage + Article + the share image; the BreadcrumbList is Breadcrumbs.astro's own block.
+// about/mentions come from src/lib/entities.ts; no FAQPage (D9, WEB-DEC-049): the visible FAQ stays.
+const entities = pageEntities(g.path);
+const dates = guideDates(g.published, g.updated);
+const jsonLd = [
+  webPageSchema({ path: g.path, name: g.title, locale, entities, breadcrumb: true, primaryImage: true, lastReviewed: g.updated }),
+  articleSchema({
+    headline: g.h1,
+    description: g.description,
+    path: g.path,
+    locale,
+    datePublished: isoWithOffset(dates.published),
+    dateModified: isoWithOffset(dates.modified),
+    authorName: site.author.name,
+    ...(authorLive ? { authorUrl: authorPath } : {}),
+    entities,
+    citation: citationSchema(g.sources),
+  }),
+  primaryImageSchema(g.path, locale),
+  // Our diagram files shown on this page (src/lib/diagrams.ts `pages`: the /hand-lines/ chart, the line diagrams)
+  // for image search, with their CC BY licence (D11, WEB-DEC-053).
+  ...diagramsOnPage(g.path).map((d) => diagramImageSchema({ id: `${absoluteUrl(g.path)}#img-${d.id}`, url: diagramUrl(d), name: d.name, caption: d.caption })),
+];
+---
+
+<BaseLayout title={g.title} description={g.description} path={g.path} locale={locale} jsonLd={jsonLd} ogType="article" headerCtaAfterHero={showCta}>
+  <article class="guide">
+    <header class="gh wrap">
+      <div class="gh-intro">
+        <Breadcrumbs items={crumbs} label={dict.a11y.breadcrumb} />
+        <h1 class="font-display text-h1 tracking-display-en gh-title">
+          {h1Parts ? <>{h1Parts.before}<span class="foil">{h1Parts.key}</span>{h1Parts.after}</> : g.h1}
+        </h1>
+        {g.subtitle && <p class="text-lead text-fg-muted gh-subtitle">{g.subtitle}</p>}
+        <div class="gh-answer glass-panel measure">
+          <p class="text-lead" set:html={inlineMarkdown(g.answer, locale)} />
+        </div>
+        <ul class="byline text-small text-fg-muted">
+          <li>
+            {s.writtenBy}{' '}
+            {authorLive ? <a class="text-link" href={authorPath} rel="author">{site.author.name}</a> : <span class="text-fg">{site.author.name}</span>}
+          </li>
+          {g.reviewedBy && <li>{s.reviewedBy} {g.reviewedBy.name}, {g.reviewedBy.role}</li>}
+          <li>{s.lastReviewed} <time datetime={g.updated}>{formatDate(g.updated, locale)}</time></li>
+        </ul>
+        {lineStep && <LineSteps locale={locale} current={lineStep} variant="top" />}
+      </div>
+
+      <div class="gh-photo">
+        {g.find.show === 'animate' ? <TracedPalm locale={locale} photo={g.find.photo} focus={focusLine} /> : <RegionPhoto region={g.find.region} />}
+      </div>
+
+      <div class="gh-panel">
+        <FindPanel
+          locale={locale}
+          title={findTitle}
+          prompt={g.find.prompt}
+          steps={g.find.steps}
+          question={g.find.question}
+          choices={g.find.choices}
+          showCta={showCta}
+          tool={g.tool}
+        />
+      </div>
+    </header>
+
+    <div class="guide-grid wrap">
+      <div class="guide-main">
+
+        <details class="toc-mobile glass-panel">
+          <summary class="toc-summary font-bold">{s.onThisPage}</summary>
+          <ol class="toc-list">
+            {toc.map((item) => <li><a class="nav-link" href={`#${item.id}`}>{item.text}</a></li>)}
+          </ol>
+        </details>
+
+        <div class="guide-prose">
+          <slot />
+        </div>
+
+        <section class="facts glass-panel guide-block" aria-labelledby="facts-title">
+          <h2 id="facts-title" class="text-h3 font-bold facts-title">{topic ? s.quickFactsOf(topic) : s.quickFacts}</h2>
+          <dl>
+            {
+              g.quickFacts.map((fact) => (
+                <div class="fact">
+                  <dt class="text-caption text-fg-muted">{fact.label}</dt>
+                  <dd class="text-small" set:html={inlineMarkdown(fact.value, locale)} />
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+
+        <Faq title={topic ? s.faqTitleOf(topic) : s.faqTitle} items={g.faq} />
+        <Sources sources={g.sources} topic={topic} />
+        {(lineStep || startsLines) && <LineSteps locale={locale} current={lineStep} variant="end" />}
+        <EndCta campaign={campaign} topic={topic} />
+        <RelatedGuides items={related} title={topic ? s.relatedLinesTitle : undefined} />
+      </div>
+
+      <nav class="toc-side glass-panel" aria-label={s.onThisPage}>
+        <p class="font-bold toc-side-title">{s.onThisPage}</p>
+        <ol class="toc-list">
+          {toc.map((item) => <li><a class="nav-link" href={`#${item.id}`}>{item.text}</a></li>)}
+        </ol>
+      </nav>
+    </div>
+  </article>
+  {showCta && <StickyCta href={scanHref} label={dict.nav.scan} />}
+</BaseLayout>
+
+<style>
+  /* Showroom (WEB-DEC-042): an editorial guide under soft light. Words and order unchanged. */
+  .guide { padding-bottom: var(--section); position: relative; }
+  .gh { position: relative; display: grid; gap: 1.5rem; padding-top: 0.5rem; }
+  /* A warm light pool behind the header, so the first screen feels lit, not flat. */
+  .gh::before {
+    content: ""; position: absolute; z-index: -1; pointer-events: none; inset: -5rem 0 auto; height: 44rem;
+    background: radial-gradient(closest-side, rgba(124,96,236,0.16), rgba(124,96,236,0.05) 55%, transparent);
+  }
+  :global([data-theme="day"]) .gh::before { background: radial-gradient(closest-side, rgba(120,92,230,0.08), transparent); }
+  .gh-intro, .gh-photo, .gh-panel { min-width: 0; }
+  .gh-title { margin: 0.75rem 0 1rem; letter-spacing: -0.015em; }
+  :global(:lang(hi)) .gh-title { letter-spacing: 0; }
+  .gh-title :global(.foil) { padding-bottom: 0.06em; }
+  .gh-subtitle { margin: 0 0 1rem; }
+
+  /* The one-line answer: a lit glass panel with a slim gold rim on its leading edge. */
+  .gh-answer { position: relative; margin: 0 0 1.25rem; padding: 1.125rem 1.25rem 1.125rem 1.5rem; border-radius: var(--r-card); overflow: hidden; }
+  .gh-answer::before {
+    content: ""; position: absolute; inset: 0.875rem auto 0.875rem 0; width: 3px; border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #F5D98B, #E6B85C 55%, rgba(230,184,92,0.2));
+    box-shadow: 0 0 14px rgba(230,184,92,0.55);
+  }
+  :global([data-theme="day"]) .gh-answer::before { background: linear-gradient(180deg, #B07A12, #7A5200); box-shadow: none; }
+  .gh-answer p { margin: 0; color: var(--fg); }
+
+  .byline {
+    list-style: none; margin: 0 0 1.25rem; padding: 0; display: flex; flex-wrap: wrap; align-items: center; column-gap: 1.25rem; row-gap: 0.25rem;
+  }
+  .byline li { display: inline-flex; align-items: center; gap: 0.25rem; }
+  @media (min-width: 48rem) {
+    .byline li + li::before {
+      content: ""; width: 4px; height: 4px; margin-inline-end: 0.75rem; margin-inline-start: -0.5rem; border-radius: 9999px;
+      background: var(--accent); opacity: 0.6;
+    }
+  }
+
+  .guide-grid { display: grid; gap: 2rem; margin-top: 3rem; }
+  .guide-main { min-width: 0; max-width: 42.5rem; }
+
+  /* Quick facts: a glass panel of small inset tiles. */
+  .facts { margin-top: 3.5rem; padding: 1.5rem 1.25rem 1.25rem; }
+  .facts-title { margin: 0 0 1rem; }
+  .facts dl { margin: 0; display: grid; gap: 0.625rem; }
+  .fact {
+    padding: 0.75rem 1rem; border-radius: var(--r-well); border: 1px solid transparent;
+    background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02)) border-box;
+  }
+  :global([data-theme="day"]) .fact { background: var(--well) padding-box, linear-gradient(180deg, rgba(23,19,61,0.07), rgba(255,255,255,1)) border-box; }
+  .fact dt, .fact dd { margin: 0; }
+  .fact dt { letter-spacing: 0.02em; margin-bottom: 0.125rem; }
+  .fact dd { color: var(--fg); }
+  @media (min-width: 40rem) {
+    .facts { padding: 1.75rem 1.75rem 1.5rem; }
+    .facts dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  /* Contents: a glass drawer on phones, a slim lit rail beside the text on desktop. */
+  .toc-mobile { margin-top: 1.5rem; border-radius: var(--r-card); overflow: hidden; }
+  .toc-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.25rem; padding: 0 1.25rem; cursor: pointer; list-style: none; }
+  .toc-summary::-webkit-details-marker { display: none; }
+  .toc-summary::after {
+    content: ""; flex: none; width: 0.5rem; height: 0.5rem; margin-top: -0.25rem;
+    border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(45deg);
+    transition: transform 320ms var(--ease-out);
+  }
+  .toc-mobile[open] .toc-summary::after { transform: rotate(225deg); margin-top: 0.25rem; }
+  .toc-mobile .toc-list { padding: 0 1.25rem 1rem 2.5rem; }
+  .toc-list { margin: 0; list-style: decimal; display: flex; flex-direction: column; gap: 0.125rem; }
+  .toc-list li::marker { color: var(--accent); font-size: var(--fs-caption); font-weight: 700; }
+  .toc-list a { display: inline-flex; min-height: 2.75rem; align-items: center; color: var(--fg-muted); transition: color 200ms var(--ease); }
+  .toc-list a:hover, .toc-list a:focus-visible { color: var(--accent); }
+  .toc-side { display: none; }
+
+  @media (min-width: 64rem) {
+    .gh {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); grid-template-areas: "intro photo" "panel photo";
+      grid-template-rows: auto 1fr; column-gap: 4rem; row-gap: 2rem; align-items: start; padding-top: 1.25rem;
+    }
+    .gh-intro { grid-area: intro; }
+    .gh-panel { grid-area: panel; max-width: 36rem; }
+    .gh-photo { grid-area: photo; position: sticky; top: 6rem; }
+    .gh-answer { padding: 1.375rem 1.625rem 1.375rem 1.875rem; }
+    .guide-grid { grid-template-columns: minmax(0, 42.5rem) minmax(0, 16rem); justify-content: space-between; gap: 4rem; margin-top: 5rem; }
+    .toc-mobile { display: none; }
+    .toc-side {
+      display: block; position: sticky; top: 6rem; align-self: start; max-height: calc(100dvh - 7.5rem); overflow-y: auto;
+      padding: 1.25rem 1.25rem 1rem; border-radius: var(--r-card); scrollbar-width: thin;
+    }
+    .toc-side-title { margin: 0 0 0.5rem; font-family: var(--ff-display); font-size: calc(var(--fs-h3) * 1.05); }
+    .toc-side .toc-list { padding-inline-start: 1.375rem; }
+    .toc-side a { font-size: var(--fs-small); line-height: 1.35; min-height: 2.5rem; padding-block: 0.25rem; }
+  }
+
+  /* The MDX body: an editorial column with a calm rhythm. */
+  .guide-prose { margin-top: 1rem; }
+  .guide-prose > :global(h2) {
+    position: relative; font-size: var(--fs-h2); line-height: var(--lh-h2); margin: 4rem 0 1.25rem;
+  }
+  .guide-prose > :global(h2)::before {
+    content: ""; display: block; width: 2.75rem; height: 2px; margin-bottom: 1.125rem; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent); box-shadow: 0 0 12px rgba(230,184,92,0.45);
+  }
+  .guide-prose > :global(h2:first-child) { margin-top: 1.5rem; }
+  .guide-prose > :global(h3) { font-size: var(--fs-h3); line-height: var(--lh-h3); margin: 2.25rem 0 0.625rem; }
+  .guide-prose > :global(p:not([class])) { margin: 0 0 1.125rem; line-height: 1.7; }
+  :global(:lang(hi)) .guide-prose > :global(p:not([class])) { line-height: var(--lh-body); }
+  .guide-prose > :global(ul:not([class])), .guide-prose > :global(ol:not([class])) { margin: 0 0 1.5rem; padding-inline-start: 1.375rem; list-style: disc; display: flex; flex-direction: column; gap: 0.625rem; line-height: 1.65; }
+  .guide-prose > :global(ul:not([class]) > li::marker) { color: var(--accent); }
+  .guide-prose > :global(ol:not([class])) { list-style: decimal; padding-inline-start: 1.625rem; }
+  .guide-prose > :global(ol:not([class]) > li::marker) { color: var(--accent); font-weight: 700; }
+  .guide-prose :global(a:not([class])) {
+    color: var(--accent); text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent); transition: text-decoration-color 200ms var(--ease);
+  }
+  .guide-prose :global(a:not([class]):hover) { text-decoration-color: var(--accent); }
+  .guide-prose :global(strong) { font-weight: 700; color: var(--fg); }
+  /* Tables sit in a glass panel. */
+  .guide-prose > :global(table) {
+    width: 100%; border-collapse: separate; border-spacing: 0; margin: 0.5rem 0 2rem; font-size: var(--fs-small); overflow: hidden;
+    border: 1px solid transparent; border-radius: var(--r-card);
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--e1);
+  }
+  .guide-prose :global(th), .guide-prose :global(td) { text-align: start; vertical-align: top; padding: 0.75rem 1rem; border-bottom: 1px solid var(--edge); }
+  .guide-prose :global(tr:last-child td) { border-bottom: none; }
+  .guide-prose :global(th) { font-weight: 700; color: var(--fg); background: linear-gradient(180deg, rgba(230,184,92,0.10), rgba(230,184,92,0.03)); }
+  /* Tables become stacked rows on phones (DESIGN_SYSTEM.md §4.1). */
+  @media (max-width: 39.99rem) {
+    .guide-prose :global(thead) { display: none; }
+    .guide-prose :global(tr) { display: block; padding: 0.75rem 1rem; border-bottom: 1px solid var(--edge); }
+    .guide-prose :global(tr:last-child) { border-bottom: none; }
+    .guide-prose :global(td) { display: block; padding: 0.125rem 0; border: none; }
+    .guide-prose :global(td:first-child) { font-weight: 700; color: var(--fg); }
+  }
+</style>

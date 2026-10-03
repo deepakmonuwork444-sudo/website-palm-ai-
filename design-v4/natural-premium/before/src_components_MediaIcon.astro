@@ -1,0 +1,38 @@
+---
+/**
+ * 3D glass-and-gold icons (WEB-DEC-042 showroom pass): AI-rendered images in
+ * public/media/icons/ (list and prompts in public/media/README.md). Decorative:
+ * always next to a visible text label, so alt is empty. 96 px and 192 px WebP;
+ * `sizes` is the shown width.
+ */
+export type MediaIconName =
+  | 'love' | 'personality' | 'career' | 'direction'
+  | 'hand-shape' | 'fingers' | 'palm-lines' | 'hands-compare'
+  | 'heart-line' | 'head-line' | 'life-line' | 'fate-line'
+  | 'book' | 'question' | 'camera' | 'scan' | 'globe' | 'map' | 'signs' | 'shield';
+
+interface Props {
+  name: MediaIconName;
+  class?: string;
+  sizes?: string;
+}
+
+const { name, class: className, sizes = '3rem' } = Astro.props;
+const base = `/media/icons/${name}`;
+---
+
+<img
+  class:list={['media-icon', className]}
+  src={`${base}-96.webp`}
+  srcset={`${base}-96.webp 96w, ${base}-192.webp 192w`}
+  sizes={sizes}
+  width="96"
+  height="96"
+  alt=""
+  loading="lazy"
+  decoding="async"
+/>
+
+<style>
+  .media-icon { display: block; flex: none; width: 3rem; height: auto; aspect-ratio: 1; object-fit: contain; }
+</style>

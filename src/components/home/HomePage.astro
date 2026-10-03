@@ -1,23 +1,44 @@
 ---
 /**
- * Home page, both languages (`/` and `/hi/`). Tool 1 (the free reading) lives
- * here once the web reading is live; until then the page is honest about it
- * (site.webReadingEnabled). Section order follows UX_PSYCHOLOGY.md §3.1:
- * hero → sample (meaning first) → how it works → what's free → the lines → app.
+ * Home page, both languages (`/` and `/hi/`): the v4 opening, then the v3
+ * sections until their own v4 phases (DESIGN_V4_BRIEF.md):
+ *  1. Hero (Hero3D.astro, WEB-DEC-044): the headline and the first gold action beside a
+ *     live, draggable 3D hand (a poster image first; HandStory.astro is no longer used).
+ *  2. What your palm reveals: 4 scroll cards quoting a real reading.
+ *  3. How it works: big-number step row with real reading-page screens.
+ *  4. Free tools that use your photo.
+ *  5. A real sample report (full-bleed band): 2 parts open, 2 locked with
+ *     their real first sentence.
+ *  Then guides, FAQ, pricing (Pricing.astro: the /app/ tiers), the app (price beside the store button), footer.
+ * Every sample sentence is built at build time by the app's own engine from
+ * a stored real scan (src/lib/home/sample-reading.ts). No counters, timers or
+ * invented numbers; "Most asked" shows only from real data (none yet).
+ * The gold action always goes to /reading/, which explains itself while the
+ * web reading is switched off (site.webReadingEnabled).
  */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Chip from '../Chip.astro';
 import Icon from '../Icon.astro';
+import MediaIcon, { type MediaIconName } from '../MediaIcon.astro';
 import LockedCard from '../LockedCard.astro';
-import PalmTrace, { type LineName } from '../PalmTrace.astro';
 import StoreButton from '../StoreButton.astro';
-import UploadCard from './UploadCard.astro';
-import { isLive } from '../../config/pages';
+import Hero3D from './Hero3D.astro';
+import Pricing from './Pricing.astro';
+import { webScanOpen } from '../../lib/reading/open';
+import StickyCta from './StickyCta.astro';
+import { isLive, localizedLink } from '../../config/pages';
+import { getCollection } from 'astro:content';
+import { LINE_SCAN_LIVE } from '../../lib/tools/registry';
 import { site, type Locale } from '../../config/site';
 import { localizePath, t } from '../../i18n';
-import { en } from '../../i18n/en';
-import { hi } from '../../i18n/hi';
-import { organizationSchema, webApplicationSchema, websiteSchema } from '../../lib/schema';
+import { inlineMarkdown } from '../../lib/guides/guides';
+import { mostAskedThisWeek } from '../../lib/home/most-asked';
+import { sampleReport, sampleTeasers } from '../../lib/home/sample-reading';
+import { pageEntities } from '../../lib/entities';
+import { organizationSchema, primaryImageSchema, webApplicationSchema, webPageSchema, websiteSchema } from '../../lib/schema';
 
 interface Props {
   locale: Locale;
@@ -30,178 +51,146 @@ const path = localizePath('/', locale);
 const live = site.webReadingEnabled;
 const title = live ? dict.meta.homeTitleLive : dict.meta.homeTitleSoon;
 const description = live ? dict.meta.homeDescriptionLive : dict.meta.homeDescriptionSoon;
-const h1 = live ? home.h1Live : home.h1Soon;
 
+// The gold action goes where it says: the web scan when a visitor can finish one, else the app (src/lib/reading/open.ts).
+const readingHref = webScanOpen ? (locale === 'hi' ? '/reading/?lang=hi' : '/reading/') : `${localizePath('/app/', locale)}#get`;
+const appPath = localizePath('/app/', locale);
+const { guest, afterEmail } = site.freeReadings;
+
+const teasers = await sampleTeasers(locale);
+const report = await sampleReport(locale);
+const mostAsked = mostAskedThisWeek();
+
+const reveals: { key: string; icon: MediaIconName; title: string; text: string | null }[] = [
+  { key: 'love', icon: 'love', title: home.reveals.parts.love, text: teasers.love },
+  { key: 'personality', icon: 'personality', title: home.reveals.parts.personality, text: teasers.personality },
+  { key: 'career', icon: 'career', title: home.reveals.parts.careerMoney, text: teasers.careerMoney },
+  { key: 'direction', icon: 'direction', title: home.reveals.parts.direction, text: teasers.direction },
+];
+
+// Real screens of the reading page (scripts/make-ui-previews.mjs); a missing file is simply not shown.
+const stepShot = (n: number) => {
+  const file = `/samples/ui-step-${n}-${locale}.webp`;
+  return existsSync(join(process.cwd(), 'public', file)) ? file : null;
+};
+const stepNumbers = locale === 'hi' ? ['१', '२', '३'] : ['1', '2', '3'];
+
+// Tool pages are built by the tools session: link the first live candidate, else the tools hub.
+const toolsHub = isLive('/tools/') ? '/tools/' : null;
+const toolHref = (candidates: string[]) => candidates.find((candidate) => isLive(candidate)) ?? toolsHub;
+// local: the tool reads the photo on the phone (nothing uploaded, src/lib/tools/client/photo-tool.ts).
+// soon: the line finder needs the scanning server's lines-only mode (LINE_SCAN_LIVE); until then its card says so.
+const tools = [
+  { key: 'handShape', href: toolHref(['/tools/hand-shape/', '/tools/hand-shape-finder/', '/tools/hand-type/', '/tools/hand-type-quiz/']), local: true, soon: false },
+  { key: 'fingers', href: toolHref(['/tools/finger-reader/', '/tools/finger-length/', '/tools/fingers/']), local: true, soon: false },
+  { key: 'lineFinder', href: toolHref(['/tools/palm-line-finder/']), local: false, soon: !LINE_SCAN_LIVE },
+  { key: 'leftRight', href: toolHref(['/tools/left-vs-right-palm/', '/tools/left-vs-right/', '/tools/which-hand-quiz/']), local: true, soon: false },
+] as const;
+const toolsAll = localizedLink('/tools/', locale, localizePath);
+const toolIcons: Record<(typeof tools)[number]['key'], MediaIconName> = { handShape: 'hand-shape', fingers: 'fingers', lineFinder: 'palm-lines', leftRight: 'hands-compare' };
+
+// Guides: the page's own language when that twin is live, otherwise the English guide (said on the card).
+type GuideKey = keyof typeof home.guides.items;
+const guideItems: { key: GuideKey; path: string; line?: 'heart' | 'head' | 'life' | 'fate' }[] = [
+  { key: 'heart', path: '/heart-line/', line: 'heart' },
+  { key: 'head', path: '/head-line/', line: 'head' },
+  { key: 'life', path: '/life-line/', line: 'life' },
+  { key: 'fate', path: '/fate-line/', line: 'fate' },
+  { key: 'marriage', path: '/marriage-line/' },
+  { key: 'handLines', path: '/hand-lines/' },
+  { key: 'palmReading', path: '/palm-reading/' },
+  { key: 'isReal', path: '/is-palmistry-real/' },
+];
+const guides = guideItems
+  .map((item) => {
+    const own = localizePath(item.path, locale);
+    if (isLive(own)) return { ...item, href: own, english: false };
+    if (isLive(item.path)) return { ...item, href: item.path, english: true };
+    return null;
+  })
+  .filter((item) => item !== null);
+// 3D icon per guide: the line guides keep their line's colour (heart red, head blue, life green, fate purple).
+const guideIcon = (guide: { key: GuideKey; line?: 'heart' | 'head' | 'life' | 'fate' }): MediaIconName =>
+  guide.line ? `${guide.line}-line` : guide.key === 'isReal' ? 'question' : guide.key === 'marriage' ? 'love' : guide.key === 'handLines' ? 'palm-lines' : 'book';
+const guidesHub = guides.find((g) => g.key === 'palmReading') ?? null;
+
+// Gold-foil key word in a heading: the dictionary text is only split around the word, never changed.
+const foil = (text: string, word: string) => {
+  const at = text.indexOf(word);
+  return at < 0 ? { before: text, em: '', after: '' } : { before: text.slice(0, at), em: word, after: text.slice(at + word.length) };
+};
+const hi = locale === 'hi';
+const revealsTitle = foil(home.reveals.title, hi ? 'हथेली' : 'reveals');
+const sampleTitle = foil(home.sample.title, hi ? 'असली रीडिंग' : 'real reading');
+const guidesTitle = foil(home.guides.title, hi ? 'रेखाएं' : 'your palm');
+const appTitle = foil(home.app.title, hi ? 'पूरी रीडिंग' : 'full reading');
+
+// Reading time from the guide's real text (about 200 words a minute), not a guess.
+const guideEntries = await getCollection('guides');
+const guideMinutes = (path: string): number | null => {
+  const body = guideEntries.find((entry) => entry.data.path === path)?.body;
+  if (!body) return null;
+  const words = body.replace(/^import .*$/gm, ' ').replace(/<[^>]*>/g, ' ').split(/\s+/).filter((word) => /\p{L}/u.test(word)).length;
+  return Math.max(1, Math.round(words / 200));
+};
+
+// The free-reading answer follows what a visitor can really do today (webScanOpen): the site or the app (X2, WEB-DEC-049).
+const faqAnswer = (item: (typeof home.faq.items)[number]) => item.a(guest, afterEmail, webScanOpen);
+
+// One @graph (BaseLayout). No FAQPage (D9, WEB-DEC-049): the visible FAQ below stays.
 const jsonLd = [
   organizationSchema(),
   websiteSchema(locale),
-  ...(live ? [webApplicationSchema({ name: h1, path, locale, description })] : []),
+  webPageSchema({ path, name: title, description, locale, entities: pageEntities(path), primaryImage: true }),
+  primaryImageSchema(path, locale),
+  ...(live ? [webApplicationSchema({ name: home.h1, path, locale, description })] : []),
 ];
-
-const appPath = localizePath('/app/', locale);
-const lineOrder: LineName[] = ['heart', 'head', 'life', 'fate'];
-const guidePath = (line: LineName) => localizePath(`/${line}-line/`, locale);
-const stepNumbers = locale === 'hi' ? ['१', '२', '३'] : ['1', '2', '3'];
-const parts = home.sample.parts;
-const otherDict = locale === 'en' ? hi : en;
+const loveOpen = report.open.find((section) => section.key === 'love');
+const selfOpen = report.open.find((section) => section.key === 'personality');
+const openParts = [
+  { section: loveOpen, bullets: 2 },
+  { section: selfOpen, bullets: 1 },
+].flatMap((part) => (part.section ? [{ section: part.section, bullets: part.bullets }] : []));
 ---
 
-<BaseLayout title={title} description={description} path={path} locale={locale} jsonLd={jsonLd} headerCta={false}>
-  <section class="hero wrap" aria-labelledby="hero-title">
-    <div class="hero-copy">
-      <h1 id="hero-title" class="font-display text-display tracking-display-en hero-title">{h1}</h1>
-      <p class="text-lead text-fg-muted measure hero-lead">{home.lead}</p>
-      {!live && <p class="measure hero-soon">{home.leadSoon}</p>}
-      <UploadCard locale={locale} />
-      <ul class="hero-chips" aria-label={site.brand}>
-        <li><Chip variant="promise" locale={locale} icon="shield" text={home.chips.noPayment} /></li>
-        <li><Chip variant="promise" locale={locale} icon="globe" text={home.chips.bilingual} /></li>
-      </ul>
-    </div>
-    <div class="hero-art">
-      <PalmTrace locale={locale} id="hero-palm" animate caption={dict.palm.diagramCaption} />
-    </div>
-  </section>
+<BaseLayout
+  title={title}
+  description={description}
+  path={path}
+  locale={locale}
+  jsonLd={jsonLd}
+  headerCta
+  headerCtaAfterHero
+  photoCredit={home.heroCredit}
+>
+  <!-- 1. Hero: the headline and scan button beside a live 3D hand (poster first). -->
+  <Hero3D locale={locale} readingHref={readingHref} />
 
-  <section id="sample" class="section" aria-labelledby="sample-title">
+  <!-- 2. What your palm reveals: real first sentences, scroll cards on phones. -->
+  <section id="reveals" class="section reveals" aria-labelledby="reveals-title">
     <div class="wrap">
       <div class="section-head">
-        <h2 id="sample-title" class="text-h2 font-bold">{home.sample.title}</h2>
-        <Chip variant="label" locale={locale} text={home.sample.badge} />
+        <h2 id="reveals-title" class="text-h2 font-bold section-title">{revealsTitle.before}{revealsTitle.em && <em>{revealsTitle.em}</em>}{revealsTitle.after}</h2>
+        <p class="section-sub">{home.reveals.sub}</p>
       </div>
-      <p class="measure text-fg-muted section-intro">{home.sample.intro}</p>
-
-      <div class="sample-grid">
-        <div class="sample-figure">
-          <PalmTrace locale={locale} id="sample-palm" size="compact" missing={['fate']} alt={dict.palm.sampleAlt} />
-          <div class="not-clear">
-            <p class="font-bold">{home.sample.notClearTitle}</p>
-            <p class="text-small text-fg-muted">{home.sample.notClearBody}</p>
-          </div>
-        </div>
-
-        <div class="sample-report">
-          <div class="glance">
-            <h3 class="text-h3 font-bold">{home.sample.glanceTitle}</h3>
-            <ul>
-              {home.sample.glance.map((item) => <li>{item}</li>)}
-            </ul>
-          </div>
-
-          {
-            [parts.love, parts.personality].map((part) => (
-              <article class="part">
-                <h3 class="text-h3 font-bold">{part.title}</h3>
-                <p class="part-label text-small">{home.sample.sawLabel}</p>
-                <p>{part.saw}</p>
-                <p class="part-label text-small">{home.sample.saysLabel}</p>
-                <p>{part.says}</p>
-                <p class="part-source text-small text-fg-muted">{part.source}</p>
-              </article>
-            ))
-          }
-
-          <p class="read-count font-bold">{home.sample.readCount}</p>
-          <div class="locked-grid">
-            {
-              [parts.career, parts.direction].map((part) => (
-                <LockedCard
-                  title={part.title}
-                  firstSentence={part.firstSentence}
-                  href={`${appPath}#get`}
-                  actionLabel={dict.locked.open}
-                  lockedLabel={dict.locked.lockedLabel}
-                />
-              ))
-            }
-          </div>
-          <p class="text-small text-fg-muted">{home.sample.lockNote}</p>
-          <p class="honesty text-small">
-            <Icon name="info" class="honesty-icon" />
-            <span>{home.sample.honesty}</span>
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="how-it-works" class="section band" aria-labelledby="how-title">
-    <div class="wrap">
-      <h2 id="how-title" class="text-h2 font-bold">{home.how.title}</h2>
-      <ol class="steps">
+      <ul class="reveal-list">
         {
-          home.how.steps.map((step, index) => (
-            <li class="step">
-              <span class="step-num" aria-hidden="true">
-                {stepNumbers[index]}
-              </span>
-              <h3 class="text-h3 font-bold">{step.title}</h3>
-              <p class="text-fg-muted">{step.body}</p>
-            </li>
-          ))
-        }
-      </ol>
-      {!live && <p class="soon-note text-small"><Icon name="info" class="honesty-icon" /><span>{home.how.soonNote}</span></p>}
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="free-title">
-    <div class="wrap">
-      <h2 id="free-title" class="text-h2 font-bold">{home.free.title}</h2>
-      <div class="free-grid">
-        <div class="free-web">
-          <h3 class="text-h3 font-bold">{home.free.webTitle}</h3>
-          <ul class="ticks">
-            {home.free.web.map((item) => <li><Icon name="check" class="tick" /><span>{item}</span></li>)}
-          </ul>
-          <p class="no-card text-small"><Icon name="shield" class="tick" /><span>{home.free.noCard}</span></p>
-        </div>
-        <div class="free-app">
-          <h3 class="text-h3 font-bold">{home.free.appTitle}</h3>
-          <ul class="ticks">
-            {home.free.app.map((item) => <li><Icon name="check" class="tick" /><span>{item}</span></li>)}
-          </ul>
-          <ul class="app-prices text-small" aria-label={dict.store.priceLabel}>
-            <li>{dict.store.freeToInstall}</li>
-            <li>{dict.store.plansFrom(site.appPrices.planFromPerMonth)}</li>
-            <li>{dict.store.packsFrom(site.appPrices.packFrom)}</li>
-            <li>{dict.store.cancelAnytime}</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section band" aria-labelledby="lines-title">
-    <div class="wrap">
-      <h2 id="lines-title" class="text-h2 font-bold">{home.learn.title}</h2>
-      <p class="measure text-fg-muted section-intro">{home.learn.intro}</p>
-      <ul class="lines-list">
-        {
-          lineOrder.map((line) => (
-            <li class="line-row">
-              <svg class="line-glyph" viewBox="0 0 48 24" aria-hidden="true">
-                <path class="glyph-halo" d="M4 18 C 16 6, 30 6, 44 12" />
-                <path class:list={['glyph-line', `glyph-${line}`]} d="M4 18 C 16 6, 30 6, 44 12" />
-              </svg>
-              <div class="line-copy">
-                <h3 class="text-h3 font-bold">
-                  {dict.lines[line].name}
-                  <span
-                    class:list={['line-other text-small', { 'script-system': locale === 'en' }]}
-                    lang={locale === 'en' ? 'hi' : 'en'}
-                  >
-                    {otherDict.lines[line].name}
-                  </span>
-                </h3>
-                <p class="text-small text-fg-muted">{dict.lines[line].where}</p>
-                <p>{dict.lines[line].reads}</p>
-                {isLive(guidePath(line)) && (
-                  <a class="text-link" href={guidePath(line)}>
-                    {dict.lines.guideLink(dict.lines[line].name)}
-                  </a>
-                )}
+          reveals.map((card) => (
+            <li class:list={['reveal-card', 'glass-card', `reveal-${card.key}`]}>
+              <div class="reveal-head">
+                <span class="reveal-icon" aria-hidden="true">
+                  <MediaIcon name={card.icon} sizes="3.5rem" />
+                </span>
+                <h3 class="text-h3 font-bold reveal-title">{card.title}</h3>
               </div>
+              {card.text ? (
+                <p class="reveal-quote">{card.text}</p>
+              ) : (
+                <p class="reveal-quote reveal-quote-none">{home.reveals.directionNone}</p>
+              )}
+              <a class="text-link reveal-ask" href={readingHref}>
+                {home.reveals.ask}
+              </a>
             </li>
           ))
         }
@@ -209,113 +198,614 @@ const otherDict = locale === 'en' ? hi : en;
     </div>
   </section>
 
-  <section id="app" class="section" aria-labelledby="app-title">
-    <div class="wrap app-grid">
-      <div class="app-copy">
-        <h2 id="app-title" class="text-h2 font-bold">{home.app.title}</h2>
-        <p class="measure">{home.app.body}</p>
-        <ul class="ticks">
-          {home.free.app.map((item) => <li><Icon name="check" class="tick" /><span>{item}</span></li>)}
-        </ul>
-        <p class="text-small text-fg-muted">{dict.store.playName(site.appNameOnPlay)}</p>
-        <a class="text-link" href={appPath}>{home.card.moreAboutApp}</a>
+  <!-- 3. How it works: a big-number step row with real screens. -->
+  <section id="how-it-works" class="section band" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="how-title" class="text-h2 font-bold section-title">{home.how.title}</h2>
       </div>
-      <StoreButton locale={locale} medium="home" campaign="app_section" showQr />
+      <!-- A short 3D product film (decorative; public/media/README.md): a 3D phone whose screen is a real recording of our own /reading/ page (preview mode). Plays only in view, never under reduced motion or lite mode. -->
+      <div class="scan-film" aria-hidden="true">
+        <video class="scan-video" muted loop playsinline preload="none" poster={`/media/video/product-film-${locale}-poster.webp`} width="1280" height="720" data-inview-video>
+          <source src={`/media/video/product-film-${locale}.webm`} type="video/webm" />
+          <source src={`/media/video/product-film-${locale}.mp4`} type="video/mp4" />
+        </video>
+      </div>
+      <ol class="steps">
+        {
+          home.how.steps.map((step, index) => {
+            const shot = stepShot(index + 1);
+            return (
+              <li class="step">
+                <span class="step-num" aria-hidden="true">
+                  <span class="step-digit">{stepNumbers[index]}</span>
+                </span>
+                <div class="step-text">
+                  <h3 class="text-h3 font-bold">{step.title}</h3>
+                  <p class="text-fg-muted" set:html={inlineMarkdown(step.body, locale)} />
+                </div>
+                {shot && (
+                  <div class="step-stage">
+                    <img class="step-shot device" src={shot} alt={step.alt} width="560" height="700" loading="lazy" decoding="async" />
+                  </div>
+                )}
+              </li>
+            );
+          })
+        }
+      </ol>
+      <p class="text-caption text-fg-muted steps-note">{home.how.previewNote}</p>
     </div>
   </section>
+
+  <!-- 4. Free tools that use your photo. -->
+  <section id="tools" class="section glass-stage" aria-labelledby="tools-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="tools-title" class="text-h2 font-bold section-title">{home.tools.title}</h2>
+        <p class="section-sub">{home.tools.sub}</p>
+      </div>
+      <ul class="tool-grid">
+        {
+          tools.map((tool) => {
+            const copy = home.tools.items[tool.key];
+            const body = (
+              <>
+                <span class="tool-visual glass-well" aria-hidden="true">
+                  <MediaIcon name={toolIcons[tool.key]} class="tool-icon" sizes="(min-width: 64rem) 6rem, 4.25rem" />
+                </span>
+                <span class="tool-text">
+                  <span class="tool-name text-h3 font-bold">{tool.href ? <a class="stretch-link" href={tool.href} hreflang={locale === 'hi' ? 'en' : undefined}>{copy.name}</a> : copy.name}</span>
+                  <span class="tool-blurb">{copy.blurb}</span>
+                  <span class="tool-foot">
+                    {tool.local && <span class="tool-chip text-caption"><Icon name="phone" class="chip-icon" />{home.tools.local}</span>}
+                    {tool.soon ? (
+                      <span class="tool-soon text-small">{home.tools.soon}</span>
+                    ) : (
+                      <span class="tool-open text-small">{home.tools.open}<Icon name="chevron" class="go-icon" /></span>
+                    )}
+                  </span>
+                </span>
+              </>
+            );
+            return <li><div class:list={['tool-card glass-card', { 'is-link': Boolean(tool.href) }]}>{body}</div></li>;
+          })
+        }
+      </ul>
+      {home.tools.englishNote && <p class="text-small text-fg-muted tools-note">{home.tools.englishNote}</p>}
+      {toolsAll && (
+        <a class="btn btn-secondary section-more" href={toolsAll.href} hreflang={toolsAll.lang}>
+          {home.tools.all}<Icon name="chevron" class="go-icon" />
+        </a>
+      )}
+    </div>
+  </section>
+
+  <!-- 5. A real sample report: the one full-bleed band. -->
+  <section id="sample" class="section band-hero sample" aria-labelledby="sample-title">
+    <div class="wrap sample-grid">
+      <div class="sample-head">
+        <Chip variant="label" locale={locale} text={home.sample.tag} />
+        <h2 id="sample-title" class="text-h2 font-bold section-title">{sampleTitle.before}{sampleTitle.em && <em>{sampleTitle.em}</em>}{sampleTitle.after}</h2>
+        <p class="section-sub">{home.sample.note}</p>
+      </div>
+      <!-- Decorative: the real report screen (scripts/make-ui-previews.mjs) in a plain phone frame; it replaced the AI-made 3D phone render (WEB-DEC-060). -->
+      <img class="sample-render device" src={`/samples/ui-step-3-${locale}.webp`} width="560" height="700" alt="" loading="lazy" decoding="async" />
+
+      <div class="sample-open">
+        <div class="glance glass-card">
+          <h3 class="text-small glance-title">{home.sample.glanceTitle}</h3>
+          <p class="glance-lead">{report.glance[0]?.text}</p>
+          {
+            report.glance.length > 1 && (
+              <ul class="glance-list">
+                {report.glance.slice(1).map((item) => (
+                  <li>
+                    <span class="glance-label">{item.label}</span>
+                    <span>{item.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
+        {
+          openParts.map(({ section, bullets }) => (
+            <article class="part glass-card">
+              <h3 class="text-h3 font-bold">{section.title}</h3>
+              {section.parts
+                .filter((part) => part.summary)
+                .slice(0, 1)
+                .map((part) => (
+                  <>
+                    <p class="part-summary">{part.summary}</p>
+                    <ul class="part-bullets">
+                      {part.bullets.slice(0, bullets).map((bullet) => (
+                        <li>
+                          <span class="part-label text-small">{bullet.label}</span>
+                          <span>{bullet.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ))}
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="sample-locked">
+        <p class="read-count font-bold">{home.sample.readCount}</p>
+        {
+          report.locked.map((part) => (
+            <LockedCard
+              title={part.title}
+              firstSentence={part.sentence ?? home.reveals.directionNone}
+              href={`${appPath}#get`}
+              actionLabel={dict.locked.open}
+              lockedLabel={dict.locked.lockedLabel}
+            />
+          ))
+        }
+        <p class="text-small lock-note">{home.sample.lockNote}</p>
+        <a class="btn btn-secondary btn-block sample-cta" href={readingHref} data-scan-cta>
+          <Icon name="camera" class="cta-icon" />
+          <span>{webScanOpen ? home.sample.cta : dict.nav.getApp}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {
+    mostAsked && (
+      <section class="section most-asked" aria-labelledby="most-title">
+        <div class="wrap">
+          <h2 id="most-title" class="text-h3 font-bold">{home.mostAsked.title}</h2>
+          <ol>
+            {mostAsked.items.map((item) => (
+              <li>
+                {item.label} <span class="text-fg-muted">{item.count}</span>
+              </li>
+            ))}
+          </ol>
+          <p class="text-caption text-fg-muted">{home.mostAsked.weekEnding(mostAsked.weekEnding)}</p>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Guides strip. -->
+  {
+    guides.length > 0 && (
+      <section id="guides" class="section guides glass-stage" aria-labelledby="guides-title">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 id="guides-title" class="text-h2 font-bold section-title">{guidesTitle.before}{guidesTitle.em && <em>{guidesTitle.em}</em>}{guidesTitle.after}</h2>
+            <p class="section-sub" set:html={inlineMarkdown(home.guides.sub, locale)} />
+          </div>
+          <ul class="guide-row">
+            {guides.map((guide) => (
+              <li>
+                <div class="guide-card glass-card">
+                  <span class="guide-top">
+                    <span class="guide-mark glass-well" aria-hidden="true">
+                      <MediaIcon name={guideIcon(guide)} class="guide-icon3d" sizes="4.25rem" />
+                    </span>
+                    {guide.english && home.guides.inEnglish && <span class="guide-lang text-caption">{home.guides.inEnglish}</span>}
+                  </span>
+                  <a class="guide-name stretch-link" href={guide.href} hreflang={guide.english && locale !== 'en' ? 'en' : undefined}>{home.guides.items[guide.key]}</a>
+                  <span class="guide-blurb">{home.guides.blurbs[guide.key]}</span>
+                  <span class="guide-foot text-small">
+                    <span class="guide-go">{home.guides.read}<Icon name="chevron" class="go-icon" /></span>
+                    {guideMinutes(guide.path) && <span class="guide-time">{home.guides.minutes(guideMinutes(guide.path) ?? 1)}</span>}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {guidesHub && (
+            <a class="btn btn-secondary section-more" href={guidesHub.href} hreflang={guidesHub.english && locale !== 'en' ? 'en' : undefined}>
+              {home.guides.all}<Icon name="chevron" class="go-icon" />
+            </a>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- FAQ: 5 questions, native details. -->
+  <section id="faq" class="section faq-section" aria-labelledby="faq-title">
+    <div class="wrap faq-wrap">
+      <div class="section-head">
+        <h2 id="faq-title" class="text-h2 font-bold section-title">{home.faq.title}</h2>
+      </div>
+      <div class="faq">
+        {
+          home.faq.items.map((item, index) => (
+            <details>
+              <summary>
+                <span>{item.q}</span>
+                <span class="faq-toggle" aria-hidden="true"><Icon name="chevron" class="faq-chevron" /></span>
+              </summary>
+              <div class="faq-body">
+                <p>{faqAnswer(item)}</p>
+                {index === 1 && (
+                  <p>
+                    <a class="text-link" href="/privacy/#website" hreflang={locale === 'hi' ? 'en' : undefined}>
+                      {home.faq.privacyLink}
+                    </a>
+                  </p>
+                )}
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing (#pricing): the same three tiers as /app/, the free tier gold-rimmed, one gold action. -->
+  <Pricing locale={locale} readingHref={readingHref} />
+
+  <!-- The app: price beside the store button, iPhone note, QR on desktop. -->
+  <section id="app" class="section app-section" aria-labelledby="app-title">
+    <div class="wrap">
+      <div class="app-card glass-panel">
+        <div class="app-copy">
+          <h2 id="app-title" class="text-h2 font-bold section-title">{appTitle.before}{appTitle.em && <em>{appTitle.em}</em>}{appTitle.after}</h2>
+          <p class="measure">{home.app.body}</p>
+          <ul class="ticks">
+            {home.app.ticks.map((item) => <li><Icon name="check" class="tick" /><span>{item}</span></li>)}
+          </ul>
+          <p class="text-small text-fg-muted">{dict.store.playName(site.appNameOnPlay)}</p>
+          <a class="btn btn-secondary app-more" href={appPath}>{home.app.more}</a>
+        </div>
+        <StoreButton locale={locale} medium="home" campaign="app_section" showQr />
+      </div>
+    </div>
+  </section>
+
+  <StickyCta href={readingHref} label={webScanOpen ? dict.nav.scan : dict.nav.getApp} />
 </BaseLayout>
 
+<script>
+  import '../../scripts/home.ts';
+</script>
+
+<script>
+  // Decorative 3D films (a few hundred KB) play only while on screen; never under reduced motion (the poster stays).
+  const films = document.querySelectorAll<HTMLVideoElement>('video[data-inview-video]');
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  if (films.length && 'IntersectionObserver' in window) {
+    const seen = new IntersectionObserver(
+      (entries) => {
+        for (const { target, isIntersecting } of entries) {
+          const film = target as HTMLVideoElement;
+          if (isIntersecting && !still.matches) film.play().catch(() => {});
+          else film.pause();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    films.forEach((film) => seen.observe(film));
+  }
+</script>
+
 <style>
-  .hero { display: grid; gap: 2.5rem; padding-block: 1.5rem 3rem; }
-  .hero-copy { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
-  .hero-title { margin: 0; }
-  .hero-lead, .hero-soon { margin: 0; }
-  .hero-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; margin: 0; padding: 0; }
-  .hero-art { min-width: 0; }
+  /* Showroom pass (WEB-DEC-042): rim-lit glass, soft depth and light. Layout and words are unchanged. */
+  .sample-cta :global(.cta-icon) { width: 1.35rem; height: 1.35rem; }
+
+  /* ---------- section heads ---------- */
+  .section-head { margin-bottom: 0; }
+  /* Room around the foil word so Devanagari matras and italic tails are never clipped by the text-clip. */
+  .section-title em { padding-block: 0.14em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+  /* ---------- 2. Reveals: glass cards, each lit by its own line colour ---------- */
+  .reveal-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  @media (min-width: 48rem) { .reveal-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .reveal-card {
+    --tone: var(--accent);
+    display: flex; flex-direction: column; gap: 1.125rem; padding: 1.5rem 1.375rem 0.75rem; overflow: hidden;
+  }
+  .reveal-love { --tone: var(--line-heart); }
+  .reveal-personality { --tone: var(--line-head); }
+  .reveal-direction { --tone: var(--line-fate); }
+
+  :global([data-theme="day"]) .reveal-card::before { background: radial-gradient(90% 100% at 12% 0%, color-mix(in srgb, var(--tone) 9%, transparent), transparent 72%); }
+  .reveal-card > * { position: relative; }
+  .reveal-head { display: flex; align-items: center; gap: 0.75rem; }
+  .reveal-title { margin: 0; }
+  /* The 3D glass-and-gold object stands on its own soft light (no drawn circle). */
+  .reveal-icon { position: relative; display: grid; place-items: center; width: 3.5rem; height: 3.5rem; flex: none; margin: -0.25rem 0; }
+
+  .reveal-icon :global(.media-icon) { position: relative; width: 3.5rem;  }
+  :global([data-theme="day"]) .reveal-icon :global(.media-icon) {  }
+  .reveal-quote {
+    flex: 1; margin: 0; padding-inline-start: 1rem; font-size: var(--fs-lead); line-height: var(--lh-lead);
+    background: linear-gradient(180deg, var(--tone), color-mix(in srgb, var(--tone) 10%, transparent)) no-repeat 0 0.3em / 2px calc(100% - 0.3em);
+  }
+  .reveal-quote-none {
+    color: var(--fg-muted); font-size: var(--fs-body); line-height: var(--lh-body);
+    background: repeating-linear-gradient(180deg, var(--fg-muted) 0 4px, transparent 4px 8px) no-repeat 0 0.3em / 1.5px calc(100% - 0.3em);
+  }
+  .reveal-ask {
+    display: flex; align-items: center; min-height: 3rem; margin-top: 0.25rem; font-weight: 700;
+    border-top: 1px solid var(--gc-edge);
+  }
   @media (min-width: 64rem) {
-    .hero { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); align-items: start; gap: 4rem; padding-block: 3rem 1rem; }
-    .hero-art { position: sticky; top: 5rem; }
+    .reveal-list { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+    .reveal-quote { font-size: 1.125rem; line-height: 1.6; }
+    :lang(hi) .reveal-quote { line-height: 1.8; }
   }
 
-  .band { background-color: var(--surface-1); border-block: 1px solid var(--edge); }
-  .section-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
-  .section-head h2, section h2 { margin: 0; }
-  .section-intro { margin: 0.75rem 0 0; }
+  /* ---------- 3. How it works: gold-numbered discs, a floating phone trio ---------- */
+  /* The 3D film: a dark studio window, the same navy as the film's own edges, so the frame never shows a seam. */
+  .scan-film {
+    position: relative; overflow: hidden; isolation: isolate; aspect-ratio: 4 / 3; border-radius: var(--r-panel); border: 1px solid transparent;
+    background: linear-gradient(rgb(2,1,25), rgb(2,1,25)) padding-box, var(--rim) border-box;
+    box-shadow: var(--e2);
+  }
 
-  .sample-grid { display: grid; gap: 2rem; margin-top: 2rem; }
-  .sample-figure { display: flex; flex-direction: column; gap: 1rem; }
-  .not-clear { padding: 1rem 1.25rem; border-radius: 1.25rem; border: 1.5px dashed var(--fg-muted); }
-  .not-clear p { margin: 0; }
-  .not-clear p + p { margin-top: 0.25rem; }
-  .sample-report { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
-  .glance, .part { padding: 1.25rem; border-radius: 1.25rem; background-color: var(--surface-1); border: 1px solid var(--edge); }
-  .glance h3, .part h3 { margin: 0 0 0.5rem; }
-  .glance ul { margin: 0; padding-inline-start: 1.25rem; list-style: disc; display: flex; flex-direction: column; gap: 0.375rem; }
-  .glance li::marker { color: var(--accent); }
-  .part p { margin: 0; }
-  .part-label { margin-top: 0.75rem !important; color: var(--accent); font-weight: 700; }
-  .part-source { margin-top: 0.75rem !important; }
-  .read-count { margin: 0.25rem 0 0; }
-  .locked-grid { display: grid; gap: 1rem; }
-  .honesty, .soon-note { display: flex; gap: 0.625rem; align-items: flex-start; margin: 0; padding: 1rem 1.25rem; border-radius: 0.75rem;
-    background-color: var(--surface-2); color: var(--fg); }
-  .honesty :global(.honesty-icon), .soon-note :global(.honesty-icon) { color: var(--accent); margin-top: 0.15rem; }
+  .scan-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   @media (min-width: 48rem) {
-    .locked-grid { grid-template-columns: 1fr 1fr; }
+    .scan-film { aspect-ratio: auto; height: clamp(19rem, 30vw, 25rem); }
+    .scan-video {
+      left: 50%; width: auto; aspect-ratio: 16 / 9; transform: translateX(-50%);
+      -webkit-mask-image: linear-gradient(90deg, transparent, var(--color-black) 22%, var(--color-black) 78%, transparent);
+      mask-image: linear-gradient(90deg, transparent, var(--color-black) 22%, var(--color-black) 78%, transparent);
+    }
+  }
+  .steps { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 3rem; }
+  .step {
+    position: relative; display: grid; grid-template-columns: 3.25rem minmax(0, 1fr); grid-template-areas: "num text" "shot shot";
+    column-gap: 1rem; row-gap: 1.25rem; align-items: start;
+  }
+  .step-num {
+    grid-area: num; display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: 9999px;
+    border: 1px solid transparent;
+    background: var(--glass-1) padding-box, linear-gradient(var(--accent), var(--accent)) border-box;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 0 0 6px rgba(230,184,92,0.06);
+  }
+  :global([data-theme="day"]) .step-num {
+    background: var(--glass-1) padding-box, linear-gradient(var(--accent), var(--accent)) border-box;
+    box-shadow: inset 0 1px 0 var(--color-white), 0 0 0 6px rgba(122,82,0,0.05);
+  }
+  .step-digit {
+    font-family: var(--ff-display); font-size: 1.625rem; line-height: 1; font-weight: 700; padding-bottom: 0.1em; font-variant-numeric: lining-nums;
+    background: var(--foil); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  :lang(hi) .step-digit { padding-bottom: 0; font-size: 1.5rem; }
+  .step-text { grid-area: text; align-self: center; }
+  .step-text h3 { margin: 0 0 0.375rem; }
+  .step-text p { margin: 0; }
+  .step-stage { grid-area: shot; position: relative; justify-self: center; width: min(100%, 19rem); padding-bottom: 2.25rem; }
+  /* The light pool the phone floats above. */
+
+  .step-shot {
+    position: relative; z-index: 1; display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: top;
+    background-color: var(--surface-2);
+    transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(calc(var(--tilt-y) + var(--yaw, 0deg))) translateY(var(--lift, 0px));
+  }
+  .steps-note { margin: 1.5rem 0 0; }
+  @media (min-width: 64rem) {
+    .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto 1fr; column-gap: 2.5rem; row-gap: 0; margin-top: 2.5rem; }
+    .step { grid-row: span 3; grid-template-rows: subgrid; grid-template-columns: 1fr; grid-template-areas: "num" "text" "shot"; row-gap: 1.25rem; }
+    .step-text { align-self: start; }
+    /* A thin gold thread joins the discs. */
+    .step:not(:last-child)::before {
+      content: ""; position: absolute; top: 1.625rem; left: 4.5rem; right: -1.25rem; height: 1px; pointer-events: none;
+      background: linear-gradient(90deg, rgba(230,184,92,0.6), rgba(230,184,92,0.15) 70%, rgba(230,184,92,0.4));
+    }
+    .step-stage { justify-self: stretch; width: auto; max-width: 20rem; margin-top: 1rem; padding-bottom: 3rem; }
+    .step:nth-child(1) .step-shot { --yaw: 7deg; }
+    .step:nth-child(2) .step-shot { --lift: -1.75rem; }
+    .step:nth-child(2) .step-stage::after { bottom: 0.5rem; }
+    .step:nth-child(3) .step-shot { --yaw: -7deg; }
+  }
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(:root:not([data-lite])) .step-shot { animation: phone-float 7s var(--ease) infinite alternate; }
+    :global(:root:not([data-lite])) .step:nth-child(2) .step-shot { animation-delay: -2.3s; }
+    :global(:root:not([data-lite])) .step:nth-child(3) .step-shot { animation-delay: -4.6s; }
+  }
+  @keyframes phone-float { from { translate: 0 0; } to { translate: 0 -0.625rem; } }
+
+  /* ---------- 4. Tools ---------- */
+  .tool-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.875rem; }
+  .tool-grid > li { min-width: 0; }
+  .tool-card {
+    display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 1rem; align-items: center; height: 100%;
+    padding: 1rem; color: var(--fg); text-decoration: none;
+  }
+  .tool-visual { position: relative; display: grid; place-items: center; aspect-ratio: 1; overflow: hidden; }
+
+  .tool-visual :global(.tool-icon) {
+    position: relative; width: 78%; 
+    transition: transform 600ms var(--ease-out);
+  }
+  :global([data-theme="day"]) .tool-visual :global(.tool-icon) {  }
+  .tool-text { display: flex; flex-direction: column; gap: 0.375rem; min-width: 0; height: 100%; }
+  .tool-name { line-height: 1.25; }
+  .tool-blurb { color: var(--fg-muted); line-height: 1.55; }
+  .tool-foot { display: flex; flex-direction: column; align-items: flex-start; gap: 0.625rem; margin-top: auto; padding-top: 0.5rem; }
+  .tool-open, .guide-go { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--accent); font-weight: 700; }
+  .tool-open :global(.go-icon), .guide-go :global(.go-icon), .section-more :global(.go-icon) {
+    width: 1rem; height: 1rem; transition: transform 320ms var(--ease-out);
+  }
+  .tool-soon { color: var(--fg-muted); font-weight: 700; }
+  .tool-chip {
+    display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.1875rem 0.625rem; border-radius: 9999px; color: var(--fg-muted);
+    border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box;
+  }
+  :global([data-theme="day"]) .tool-chip { background: linear-gradient(180deg, var(--color-white), var(--color-day-page)) padding-box, var(--rim) border-box; }
+  .tool-chip :global(.chip-icon) { width: 0.875rem; height: 0.875rem; color: var(--accent); }
+  .tool-card:not(.is-link) .tool-open { display: none; }
+  .tools-note { margin: 1rem 0 0; }
+  .section-more { margin-top: 1.5rem; }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .tool-card.is-link:hover .tool-open :global(.go-icon), .guide-card:hover .guide-go :global(.go-icon), .section-more:hover :global(.go-icon) { transform: translateX(3px); }
+    .tool-card.is-link:hover .tool-visual :global(.tool-icon) { transform: translateY(-4px) scale(1.06) rotate(-2deg); }
   }
   @media (min-width: 64rem) {
-    .sample-grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 3rem; align-items: start; }
-    .sample-figure { position: sticky; top: 5rem; }
+    .tool-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+    .tool-card { grid-template-columns: 1fr; grid-template-rows: auto 1fr; align-items: stretch; gap: 1.25rem; padding: 1.25rem 1.25rem 1.375rem; }
+    .tool-visual { aspect-ratio: 16 / 10; }
+    .tool-visual :global(.tool-icon) { width: 6rem; }
   }
 
-  .steps { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 1.5rem; }
-  .step { display: flex; flex-direction: column; gap: 0.375rem; }
-  .step h3 { margin: 0; }
-  .step p { margin: 0; }
-  /* Mukta, not Cormorant: Cormorant's old-style 1 reads as "I". */
-  .step-num { font-size: var(--fs-h2); font-weight: 700; line-height: 1.2; color: var(--accent); }
-  .soon-note { margin-top: 2rem; }
+  /* ---------- 5. Sample report: the reading sits on a lit glass plinth ---------- */
+  .sample-grid { display: grid; gap: 1.5rem; }
+  .sample-head { display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  /* The real report screen in a plain phone frame (the .device bezel). */
+  .sample-render { display: block; justify-self: center; width: min(100%, 17rem); height: auto; aspect-ratio: 4 / 5; object-fit: cover; background: var(--surface-1); }
+  .sample-open, .sample-locked { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+  .sample-open { position: relative; padding-bottom: 1.75rem; }
+  .sample-open > * { position: relative; z-index: 1; }
+  .glance { padding: 1.5rem 1.5rem 1.375rem; background: var(--glass-1) padding-box, var(--rim-hover) border-box; box-shadow: var(--e2); }
+  .glance-title {
+    display: inline-block; margin: 0 0 0.625rem; font-weight: 700; letter-spacing: 0.02em;
+    background: var(--foil); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .glance-lead { margin: 0; font-family: var(--ff-display); font-size: calc(var(--fs-h3) * 1.28); line-height: 1.25; font-weight: 700; }
+  :lang(hi) .glance-lead { font-size: calc(var(--fs-h3) * 1.1); line-height: 1.6; }
+  .glance-list { list-style: none; margin: 1.125rem 0 0; padding: 1.125rem 0 0; display: grid; gap: 0.875rem; border-top: 1px solid transparent;
+    border-image: linear-gradient(90deg, rgba(230,184,92,0.45), var(--gc-edge) 40%, transparent) 1; }
+  .glance-list li, .part-bullets li { display: flex; flex-direction: column; gap: 0.125rem; }
+  .glance-label, .part-label { color: var(--accent); font-weight: 700; font-size: var(--fs-small); }
+  .part { padding: 1.375rem 1.5rem; }
+  .part h3 { margin: 0 0 0.5rem; }
+  .part-summary { margin: 0; }
+  .part-bullets { list-style: none; margin: 0.875rem 0 0; padding: 0; display: grid; gap: 0.75rem; }
+  .read-count { margin: 0; display: flex; flex-direction: column; gap: 0.625rem; }
+  /* Four segments, two lit: the same "2 of 4" the sentence says. */
+  .read-count::after {
+    content: ""; display: block; height: 4px; border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent) 0 50%, var(--gc-edge) 50%);
+    box-shadow: none;
+    -webkit-mask: repeating-linear-gradient(90deg, var(--color-black) 0 calc(25% - 5px), transparent calc(25% - 5px) 25%);
+    mask: repeating-linear-gradient(90deg, var(--color-black) 0 calc(25% - 5px), transparent calc(25% - 5px) 25%);
+  }
+  .lock-note { margin: 0; color: var(--fg-muted); }
+  .sample-cta { margin-top: 0.25rem; }
   @media (min-width: 64rem) {
-    .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem; }
+    .sample-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); column-gap: 3rem; row-gap: 2rem; align-items: start; }
+    .sample-head { grid-column: 1; grid-row: 1; align-self: center; }
+    .sample-render { grid-column: 2; grid-row: 1; width: min(100%, 17rem); }
+    .sample-locked { position: sticky; top: 5.5rem; }
+    .sample-open { padding-bottom: 2.25rem; }
   }
 
-  .free-grid { display: grid; gap: 1.25rem; margin-top: 2rem; }
-  .free-web, .free-app { padding: 1.5rem; border-radius: 1.25rem; border: 1px solid var(--edge); }
-  .free-web { background-color: var(--surface-1); }
-  .free-app { background-color: var(--surface-2); }
-  .free-web h3, .free-app h3 { margin: 0 0 1rem; }
-  .ticks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.625rem; }
-  .ticks li, .no-card { display: flex; gap: 0.625rem; align-items: flex-start; }
-  .ticks :global(.tick), .no-card :global(.tick) { color: var(--accent); margin-top: 0.2rem; }
-  .no-card { margin: 1.25rem 0 0; padding-top: 1rem; border-top: 1px solid var(--border); }
-  .app-prices { list-style: none; margin: 1.25rem 0 0; padding: 1rem 0 0; border-top: 1px solid var(--border-strong); display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; color: var(--fg-muted); }
-  @media (min-width: 48rem) {
-    .free-grid { grid-template-columns: 1fr 1fr; }
+  /* ---------- guides strip ---------- */
+  .guide-row { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.875rem; }
+  .guide-row > li { min-width: 0; }
+  .guide-card {
+    display: flex; flex-direction: column; gap: 0.5rem; height: 100%; padding: 1rem 1rem 1.125rem;
+    color: var(--fg); text-decoration: none;
   }
-
-  .lines-list { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 0; }
-  .line-row { display: grid; grid-template-columns: 3rem 1fr; gap: 1rem; padding-block: 1.25rem; border-top: 1px solid var(--border); }
-  .line-row:last-child { border-bottom: 1px solid var(--border); }
-  .line-glyph { width: 3rem; height: 1.5rem; margin-top: 0.35rem; }
-  .glyph-halo { fill: none; stroke: var(--color-halo); stroke-width: 6; stroke-linecap: round; }
-  .glyph-line { fill: none; stroke-width: 3.5; stroke-linecap: round; }
-  .glyph-life { stroke: var(--line-life); }
-  .glyph-head { stroke: var(--line-head); }
-  .glyph-heart { stroke: var(--line-heart); }
-  .glyph-fate { stroke: var(--line-fate); }
-  :global([data-theme="day"]) .glyph-halo { display: none; }
-  .line-copy h3 { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.625rem; }
-  .line-other { color: var(--fg-muted); font-weight: 400; }
-  .line-copy p { margin: 0.25rem 0 0; }
+  .guide-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.375rem; }
+  .guide-mark { display: grid; place-items: center; width: 4.75rem; height: 4.75rem; flex: none; }
+  .guide-lang {
+    padding: 0.125rem 0.5rem; border-radius: 9999px; color: var(--fg-muted);
+    border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box;
+  }
+  .guide-name { font-family: var(--ff-display); font-weight: 700; font-size: var(--fs-h3); line-height: 1.2; }
+  :lang(hi) .guide-name { font-size: var(--fs-body); line-height: 1.5; }
+  .guide-blurb { color: var(--fg-muted); font-size: var(--fs-small); line-height: 1.5; }
+  .guide-foot {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.25rem 0.75rem; margin-top: auto; padding-top: 0.625rem;
+    border-top: 1px solid transparent; border-image: linear-gradient(90deg, rgba(230,184,92,0.35), var(--gc-edge) 45%, transparent) 1;
+  }
+  .guide-time { color: var(--fg-faint); }
+  .guide-mark :global(.guide-icon3d) { width: 4.25rem;  transition: transform 600ms var(--ease-out); }
+  :global([data-theme="day"]) .guide-mark :global(.guide-icon3d) {  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .guide-card:hover .guide-mark :global(.guide-icon3d) { transform: translateY(-3px) scale(1.06); }
+  }
   @media (min-width: 64rem) {
-    .lines-list { grid-template-columns: 1fr 1fr; column-gap: 3rem; }
-    .line-row:nth-last-child(2) { border-bottom: 1px solid var(--border); }
+    .guide-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+    .guide-card { padding: 1.375rem 1.5rem 1.5rem; gap: 0.625rem; }
+    .guide-blurb { font-size: var(--fs-body); }
   }
 
-  .app-grid { display: grid; gap: 2rem; }
-  .app-copy { display: flex; flex-direction: column; gap: 1rem; }
+  /* ---------- FAQ: glass rows that open smoothly ---------- */
+  .faq { display: grid; gap: 0.75rem; max-width: 50rem; margin-top: 0; }
+  .faq details {
+    border: 1px solid transparent; border-radius: var(--r-well);
+    background: linear-gradient(165deg, rgba(64,56,132,0.3), rgba(22,19,54,0.5) 60%, rgba(12,10,34,0.6)) padding-box, var(--rim) border-box;
+    box-shadow: var(--shine);
+    transition: background 300ms var(--ease), box-shadow 420ms var(--ease-out);
+  }
+  .faq details[open] { background: var(--glass-1) padding-box, var(--rim-hover) border-box; box-shadow: var(--e1); }
+  :global([data-theme="day"]) .faq details { background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--shine); }
+  :global([data-theme="day"]) .faq details[open] { background: var(--glass-1) padding-box, var(--rim-hover) border-box; box-shadow: var(--e1); }
+  .faq summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.75rem; padding: 0.75rem 0.875rem 0.75rem 1.25rem;
+    border-radius: var(--r-well); cursor: pointer; font-weight: 700; list-style: none;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .faq-toggle {
+    display: grid; place-items: center; width: 2.125rem; height: 2.125rem; flex: none; border-radius: 9999px; color: var(--accent);
+    border: 1px solid transparent;
+    background: rgba(230,184,92,0.1) padding-box, linear-gradient(var(--accent), var(--accent)) border-box;
+    transition: transform 450ms var(--ease-out), background 300ms var(--ease), box-shadow 300ms var(--ease);
+  }
+  :global([data-theme="day"]) .faq-toggle { background: var(--color-cream-3) padding-box, linear-gradient(var(--accent), var(--accent)) border-box; }
+  .faq details[open] .faq-toggle { transform: rotate(180deg); box-shadow: none; }
+  .faq summary :global(.faq-chevron) { width: 1rem; height: 1rem; transform: rotate(90deg); }
+  @media (hover: hover) { .faq summary:hover .faq-toggle { box-shadow: none; } }
+  .faq-body { padding: 0 1.25rem 1.25rem; }
+  .faq-body::before {
+    content: ""; display: block; height: 1px; margin-bottom: 1rem;
+    background: linear-gradient(90deg, rgba(230,184,92,0.45), var(--gc-edge) 40%, transparent);
+  }
+  .faq-body p { margin: 0 0 0.75rem; color: var(--fg-muted); max-width: 68ch; }
+  .faq-body p:last-child { margin-bottom: 0; }
+  @supports (interpolate-size: allow-keywords) {
+    .faq { interpolate-size: allow-keywords; }
+    .faq details::details-content {
+      block-size: 0; overflow: clip;
+      transition: block-size 480ms var(--ease-out), content-visibility 480ms allow-discrete;
+    }
+    .faq details[open]::details-content { block-size: auto; }
+  }
+  @media (min-width: 64rem) {
+    .faq-wrap { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr); column-gap: 4rem; align-items: start; }
+    /* Not sticky: the title moving along while the list scrolled looked unstable (owner 2026-09-28). */
+    .faq-wrap .section-head { margin-bottom: 0; }
+  }
+
+  /* ---------- app: a lit glass panel ---------- */
+  .app-card {
+    position: relative; overflow: hidden; display: grid; gap: 2rem; padding: 1.75rem 1.375rem;
+    background: var(--glass-1) padding-box, var(--rim-hover) border-box; box-shadow: var(--e2);
+  }
+
+  .app-card > * { position: relative; }
+  .app-copy { display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; }
   .app-copy p { margin: 0; }
-  @media (min-width: 64rem) {
-    .app-grid { grid-template-columns: 1fr 1fr; align-items: start; gap: 4rem; }
+  .ticks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  .ticks li { display: flex; gap: 0.75rem; align-items: flex-start; }
+  .ticks :global(.tick) {
+    flex: none; width: 1.5rem; height: 1.5rem; padding: 0.25rem; margin-top: 0.05rem; border-radius: 9999px; color: var(--accent);
+    background: rgba(230,184,92,0.12); box-shadow: inset 0 0 0 1px rgba(230,184,92,0.4);
   }
+  .app-more { align-self: flex-start; }
+  /* The store column sits in an inset glass tray. */
+  .app-card :global(.store) { padding: 1.5rem 1.25rem; border-radius: var(--r-card); border: 1px solid transparent;
+    background: var(--well) padding-box, var(--rim) border-box;
+    box-shadow: inset 0 2px 12px rgba(0,0,0,0.3); }
+  :global([data-theme="day"]) .app-card :global(.store) { background: var(--well) padding-box, var(--rim) border-box; box-shadow: inset 0 2px 8px rgba(23,19,61,0.06); }
+  @media (max-width: 47.99rem) { .app-card :global(.store) { padding: 1.25rem 1rem; } }
+  @media (min-width: 64rem) {
+    .app-card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3.5rem; padding: 3rem; align-items: center; }
+    .app-card :global(.store) { padding: 2rem; }
+  }
+  /* Desktop: badge and prices on top, the QR tile below with its install line beside it. */
+  @media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+    .app-card :global(.store-with-qr) { flex-direction: column; gap: 1.75rem; }
+    .app-card :global(.store-qr) { max-width: none; flex-direction: row; align-items: center; gap: 1.5rem; padding-top: 1.75rem; border-top: 1px solid var(--gc-edge); }
+    .app-card :global(.store-remote) { margin-top: 0; max-width: 14rem; }
+  }
+
+  .most-asked ol { margin: 1rem 0 0.5rem; }
 </style>

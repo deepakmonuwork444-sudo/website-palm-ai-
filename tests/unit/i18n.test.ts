@@ -61,7 +61,7 @@ describe('dictionaries', () => {
   });
 
   it('Hindi strings are Devanagari where they must be', () => {
-    expect(t('hi').home.h1Soon).toMatch(/[ऀ-ॿ]/);
+    expect(t('hi').home.h1).toMatch(/[ऀ-ॿ]/);
     expect(t('hi').lang.switchTo).toBe('English');
     expect(t('en').lang.switchTo).toBe('हिंदी');
   });

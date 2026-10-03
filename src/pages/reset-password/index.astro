@@ -1,0 +1,53 @@
+---
+/**
+ * /reset-password/ (WEB-FEAT-013, plan §12.11). noindex (F8). /reset-password.html 301s here
+ * (the #… part is kept, but nothing reads it). The app resets passwords with a 6-digit code
+ * inside the app (app repo src/features/auth/password-reset.ts, DEC-035), so the old emailed
+ * reset link is orphaned: this page is the pointer to the app. The website itself has no
+ * password (Google or an email code), so there is nothing to reset here.
+ */
+import DocPage from '../../components/trust/DocPage.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../config/site';
+import { companyForBuild } from '../../lib/legal-page';
+
+const company = companyForBuild();
+const path = '/reset-password/';
+const brand = site.brand;
+---
+
+<BaseLayout
+  title={`Reset your ${brand} password`}
+  description={`How to reset your ${brand} password: in the app, with a 6-digit code we email you. Older emailed reset links no longer work.`}
+  path={path}
+  locale="en"
+>
+  <DocPage
+    crumb="Reset your password"
+    path={path}
+    icon="question"
+    kicker="Your account"
+    title="Reset your password in the app"
+    lead={`${brand} resets passwords inside the app, with a 6-digit code we email you. If you came here from an older reset email, that link no longer works: follow the steps below instead.`}
+  >
+    <h2>Steps in the app</h2>
+    <ol>
+      <li>Open the {brand} app (on Google Play it may still be called {site.appNameOnPlay}) and go to sign in.</li>
+      <li>Tap <strong>Forgot password?</strong> and type the email of your account.</li>
+      <li>We email you a 6-digit code. It can take a minute; check Spam too.</li>
+      <li>Type the code, then your new password twice (at least 8 characters).</li>
+    </ol>
+    <p class="muted">A code works for about an hour. If it has expired, send a new one from the same screen.</p>
+
+    <h2>On the website</h2>
+    <p>
+      The website has no password: you sign in with Google or with a 6-digit code sent to your email, on the <a class="text-link" href="/account/">Account page</a>. It is the same account as in the app.
+    </p>
+
+    <h2>Still stuck?</h2>
+    <p>
+      Email <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a> from the address of your account. To remove your
+      account instead, use the <a class="text-link" href="/delete-account/">delete-account page</a>.
+    </p>
+  </DocPage>
+</BaseLayout>

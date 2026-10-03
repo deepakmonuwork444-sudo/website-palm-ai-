@@ -12,16 +12,16 @@ const tool = toolById('photo-checker');
 
 <ToolLayout
   tool={tool}
-  title="Palm Photo Checker: Is Your Photo Good Enough to Read?"
+  title="Palm Photo Checker: How to Take a Palm Photo for Reading"
   description="Check your palm photo before a reading: light, sharpness and whole-palm framing, checked on your phone. Your photo never leaves your device."
   h1="Palm photo checker"
-  promise="Take or choose a photo of your palm and see in seconds whether it is bright, sharp and close enough to read — checked on your phone."
+  promise="Take or choose a photo of your palm and see in seconds whether it is bright, sharp and close enough to read, checked on your phone. A photo that passes goes straight into our photo tools."
   ownPalm={false}
   spot={{
     title: 'How to take a palm photo for a reading',
     paras: [
       'Use the hand you write with. Open it flat with the fingers together, and hold the phone straight above the palm, close enough that the whole palm and the base of the fingers fill the frame.',
-      'Light matters most. Face a window in daylight, or stand under an even room light. Avoid direct sun and the flash: both wash the lines out. If the lines look faint, tilt your hand a little so the light falls from the side — palm lines are creases, and side light turns them into shadows.',
+      'Light matters most. Face a window in daylight, or stand under an even room light. Avoid direct sun and the flash: both wash the lines out. If the lines look faint, tilt your hand a little so the light falls from the side. Palm lines are creases, and side light turns them into shadows.',
       'Hold still for a moment before you tap. Resting your elbow on a table stops blur, the most common reason a photo can’t be read.',
     ],
   }}
@@ -30,9 +30,9 @@ const tool = toolById('photo-checker');
     { title: 'You take or pick a photo', body: 'It opens only in this browser tab. Nothing is uploaded.' },
     {
       title: 'Your phone checks a tiny copy',
-      body: 'A 96-pixel copy is checked for brightness, blur, how much of the frame is palm, and how strongly the creases stand out — the same checks, with the same starting thresholds, as our Android app.',
+      body: 'A 96-pixel copy is checked for brightness, blur, how much of the frame is palm, and how strongly the creases stand out. These are the same checks, with the same starting thresholds, as in our Android app.',
     },
-    { title: 'You see what to fix', body: 'Each check says OK or what to change. Close the page and the photo is gone.' },
+    { title: 'You see what to fix, or use it', body: 'Each check says OK or what to change. A ready photo can go straight to the hand type or finger tool, still only on this device. Close the page and the photo is gone.' },
   ]}
   saysTitle="What makes a palm photo readable"
   says={[
@@ -66,7 +66,7 @@ const tool = toolById('photo-checker');
     },
     {
       q: 'My phone saved the photo as HEIC. What now?',
-      a: 'Some browsers can’t open HEIC. Choose a JPG instead — on an iPhone, set Camera, Formats to Most Compatible.',
+      a: 'Some browsers can’t open HEIC. Choose a JPG instead. On an iPhone, set Camera, Formats to Most Compatible.',
     },
     {
       q: 'Does this use AI?',
@@ -75,6 +75,8 @@ const tool = toolById('photo-checker');
   ]}
   links={[
     { href: '/palm-reading/', label: 'How to read palm lines: the beginner’s guide' },
+    { href: '/tools/hand-type-quiz/', label: 'Hand type from your photo' },
+    { href: '/tools/finger-reader/', label: 'Finger reader' },
     { href: '/tools/which-hand-quiz/', label: 'Which hand should you photograph? Take the quiz' },
     { href: '/tools/palm-line-finder/', label: 'Palm line finder' },
     { href: '/#sample', label: 'See how a full palm reading looks' },

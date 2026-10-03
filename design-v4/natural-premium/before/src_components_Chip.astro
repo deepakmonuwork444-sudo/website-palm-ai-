@@ -1,0 +1,84 @@
+---
+/**
+ * Chips (DESIGN_SYSTEM.md §7.2). Not interactive: they must not look like buttons.
+ * - promise: a static, true fact ("No payment on this site") with an outline icon.
+ * - line: a line-colour dot + the name in both scripts; `missing` = dashed
+ *   "not clearly seen" chip with a hollow dot (the line is never drawn).
+ * - label: a small tag, e.g. "Sample".
+ * Devanagari on an English page uses the system font (.script-system), so
+ * English pages never download a Devanagari web font.
+ */
+import { en } from '../i18n/en';
+import { hi } from '../i18n/hi';
+import type { Locale } from '../config/site';
+import Icon, { type IconName } from './Icon.astro';
+
+type LineName = 'life' | 'head' | 'heart' | 'fate';
+
+interface Props {
+  variant: 'promise' | 'line' | 'label';
+  locale: Locale;
+  text?: string;
+  icon?: IconName;
+  line?: LineName;
+  missing?: boolean;
+}
+
+const { variant, locale, text, icon, line, missing = false } = Astro.props;
+const dict = locale === 'hi' ? hi : en;
+const other = locale === 'hi' ? en : hi;
+const otherLang = locale === 'hi' ? 'en' : 'hi';
+---
+
+{
+  variant === 'promise' && (
+    <span class="chip chip-promise text-small">
+      {icon && <Icon name={icon} class="chip-icon" />}
+      <span>{text}</span>
+    </span>
+  )
+}
+{variant === 'label' && <span class="chip chip-label text-caption">{text}</span>}
+{
+  variant === 'line' && line && (
+    <span class:list={['chip chip-line text-small', { 'chip-missing': missing }]}>
+      <span class:list={['dot', `dot-${line}`, { hollow: missing }]} aria-hidden="true" />
+      <span class="chip-names">
+        <span>{dict.lines[line].name}</span>
+        <span lang={otherLang} class:list={['chip-other', { 'script-system': otherLang === 'hi' }]}>
+          {other.lines[line].name}
+        </span>
+        {missing && <span class="chip-note">{dict.lines.notClearlySeen}</span>}
+      </span>
+    </span>
+  )
+}
+
+<style>
+  .chip { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 9999px; border: 1px solid transparent; }
+  .chip-promise, .chip-line { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--rim) border-box; box-shadow: var(--shine); color: var(--fg); }
+  :global([data-theme="day"]) .chip-promise, :global([data-theme="day"]) .chip-line { background: linear-gradient(180deg, var(--color-white), var(--color-day-page)) padding-box, var(--rim) border-box; }
+  .chip-promise { min-height: 2rem; padding: 0.25rem 0.875rem; }
+  .chip-promise :global(.chip-icon) { width: 1.05rem; height: 1.05rem; color: var(--accent); }
+  .chip-label {
+    gap: 0.4375rem; padding: 0.1875rem 0.75rem 0.1875rem 0.625rem; color: var(--fg); font-weight: 700; letter-spacing: 0.02em;
+    background: linear-gradient(180deg, rgba(230,184,92,0.16), rgba(230,184,92,0.04)) padding-box,
+      linear-gradient(150deg, rgba(255,236,190,0.7), rgba(230,184,92,0.15) 50%, rgba(230,184,92,0.5)) border-box;
+    box-shadow: inset 0 1px 0 rgba(255,236,190,0.18), 0 0 20px -8px rgba(230,184,92,0.5);
+  }
+  .chip-label::before { content: ""; width: 0.375rem; height: 0.375rem; border-radius: 9999px; flex: none; background: var(--accent); box-shadow: 0 0 8px rgba(230,184,92,0.9); }
+  :global([data-theme="day"]) .chip-label { background: linear-gradient(180deg, var(--color-cream-1), var(--color-cream-4)) padding-box, linear-gradient(150deg, var(--color-white), rgba(122,82,0,0.4)) border-box; box-shadow: none; }
+  :global([data-theme="day"]) .chip-label::before { box-shadow: none; }
+  .chip-line { min-height: 2.25rem; padding: 0.375rem 0.875rem 0.375rem 0.75rem; }
+  .chip-missing { border: 1.5px dashed var(--fg-muted); background: transparent; box-shadow: none; }
+  :global([data-theme="day"]) .chip-missing { background: transparent; }
+  .chip-names { display: inline-flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.5rem; }
+  .chip-other { color: var(--fg-muted); }
+  .chip-note { color: var(--fg-muted); flex-basis: 100%; font-size: var(--fs-caption); line-height: var(--lh-caption); }
+  .dot { width: 0.625rem; height: 0.625rem; border-radius: 9999px; flex: none; }
+  .dot-life { background-color: var(--line-life); box-shadow: 0 0 8px color-mix(in srgb, var(--line-life) 60%, transparent); }
+  .dot-head { background-color: var(--line-head); box-shadow: 0 0 8px color-mix(in srgb, var(--line-head) 60%, transparent); }
+  .dot-heart { background-color: var(--line-heart); box-shadow: 0 0 8px color-mix(in srgb, var(--line-heart) 60%, transparent); }
+  .dot-fate { background-color: var(--line-fate); box-shadow: 0 0 8px color-mix(in srgb, var(--line-fate) 60%, transparent); }
+  .dot.hollow { background-color: transparent; border: 1.5px solid var(--fg-muted); box-shadow: none; }
+</style>

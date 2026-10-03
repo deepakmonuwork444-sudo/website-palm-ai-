@@ -1,0 +1,45 @@
+---
+/**
+ * Home pricing (`#pricing`, just before the app card): the section title and
+ * line, then the SAME price panel as /app/ (src/components/PricePanel.astro):
+ * Free with its button, the Membership / One-time packs tabs, every price in
+ * its own box with a "Get it in the app" button, the notes. Owner 2026-09-28:
+ * the old "Packs from ₹199 / Plans from ₹149" tiers had no real sections and
+ * no buttons. Every number comes from site.ts. No struck prices, no
+ * "most popular", no timers (ux-conversion §4).
+ */
+import PricePanel from '../PricePanel.astro';
+import { type Locale } from '../../config/site';
+import { t } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+  /** Kept so the home page needs no change; the panel's buttons go to the Play listing. */
+  readingHref?: string;
+}
+
+const { locale } = Astro.props;
+const copy = t(locale).home.pricing;
+
+// Gold-foil key word in the heading: the text is only split around the word, never changed.
+const word = locale === 'hi' ? 'मुफ़्त' : 'free';
+const at = copy.title.indexOf(word);
+const title = at < 0 ? { before: copy.title, em: '', after: '' } : { before: copy.title.slice(0, at), em: word, after: copy.title.slice(at + word.length) };
+---
+
+<section id="pricing" class="section band pricing" aria-labelledby="pricing-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="pricing-title" class="text-h2 font-bold section-title">{title.before}{title.em && <em>{title.em}</em>}{title.after}</h2>
+      <p class="section-sub measure">{copy.sub}</p>
+    </div>
+    <div class="pricing-body">
+      <PricePanel locale={locale} medium="home" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .pricing-body { margin-top: 1.75rem; }
+  @media (min-width: 64rem) { .pricing-body { margin-top: 2.5rem; } }
+</style>

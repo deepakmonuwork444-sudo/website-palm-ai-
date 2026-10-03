@@ -4,19 +4,42 @@
  * Love and Personality in full, then Career & Money and Life Direction as
  * locked cards with their real first sentence — the rest of those parts was
  * dropped before this reading was stored, so it is not in the DOM.
+ *
+ * Personal (owner 2026-09-27): with the details typed on this device the
+ * heading speaks to the reader by name ("Deepak," / "दीपक जी,"), a warm
+ * opening follows the reading's own at-a-glance, and "Keep and share" offers
+ * the PDF, WhatsApp, the phone's share sheet and "Copy link".
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import type { Locale } from '../../config/site';
 import type { Balance, WebUser } from '../../lib/reading/api';
+import { AUTH_COPY } from '../../lib/auth/copy';
 import { COPY } from '../../lib/reading/copy';
 import type { ReadingFlow } from '../../lib/reading/machine';
+import {
+  EMPTY_DETAILS,
+  INTAKE_COPY,
+  birthText,
+  detailsForReading,
+  deviceStorage,
+  isPersonal,
+  linkDetails,
+  openingLine,
+  reportTitle,
+  saveLast,
+  writesWithText,
+  type PersonalDetails,
+} from '../../lib/reading/personal';
 import { buildReportView, nextStep, type ReportView } from '../../lib/reading/report';
 import type { SavedReading } from '../../lib/reading/store';
-import { LockIcon } from './Icons';
+import { LockIcon, PenIcon } from './Icons';
+import { DetailsForm } from './Intake';
+import KeepShare from './KeepShare';
+import { Sheet } from './Sheets';
 import { usePhotoUrl } from './hooks';
-import PalmPhoto from './PalmPhoto';
+import ReportPhoto from './ReportPhoto';
 import Store from './Store';
 
 export default function Report({
@@ -25,7 +48,6 @@ export default function Report({
   locale,
   balance,
   user,
-  justRevealed,
   readingsCount,
 }: {
   flow: ReadingFlow;
@@ -33,7 +55,6 @@ export default function Report({
   locale: Locale;
   balance: Balance | null;
   user: WebUser | null;
-  justRevealed: boolean;
   readingsCount: number;
 }) {
   const url = usePhotoUrl(reading.photo);
@@ -41,21 +62,43 @@ export default function Report({
   const step = nextStep(balance, user);
   const hand = reading.handSide === 'left' ? COPY.leftHand[locale] : COPY.rightHand[locale];
   const date = new Date(reading.createdAt).toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'long' });
+  const [details, setDetails] = useState<PersonalDetails | null>(() => detailsForReading(deviceStorage(), reading.id));
+  const [editing, setEditing] = useState(false);
+  const overview = reading.synthesis?.overview;
+  const opening = view ? openingLine(details, { insufficient: overview?.pattern === 'insufficient', hasStrength: Boolean(overview?.strength) }, locale) : null;
+  const facts = details ? [writesWithText(details, locale), birthText(details, locale)].filter((x): x is string => Boolean(x)) : [];
+  const saveDetails = (next: PersonalDetails) => {
+    const merged: PersonalDetails = { ...next, hand: details?.hand ?? null, writeHand: details?.writeHand ?? null };
+    linkDetails(deviceStorage(), reading.id, merged);
+    saveLast(deviceStorage(), merged);
+    setDetails(merged);
+    setEditing(false);
+  };
 
   return (
     <article className="rd-report" aria-labelledby="rd-report-title">
       <header className="rd-report-head">
         <h2 id="rd-report-title" className="text-h2 font-display">
-          {COPY.yourPalm[locale]}
+          {reportTitle(details, locale)}
         </h2>
+        {opening && <p className="rd-opening">{opening}</p>}
         <p className="rd-muted text-small">
-          {hand} · {date}
+          {[hand, date, ...facts].join(' · ')}
         </p>
+        <button type="button" className="text-link rd-link-button rd-link-left rd-edit-details" onClick={() => setEditing(true)}>
+          <PenIcon />
+          <span>{isPersonal(details) ? INTAKE_COPY.editDetails[locale] : INTAKE_COPY.addDetails[locale]}</span>
+        </button>
         {reading.preview && <p className="rd-preview text-small">{COPY.previewLabel[locale]}</p>}
       </header>
+      {editing && (
+        <Sheet title={INTAKE_COPY.editTitle[locale]} locale={locale} onClose={() => setEditing(false)}>
+          <DetailsForm locale={locale} initial={details ?? EMPTY_DETAILS} onSave={saveDetails} />
+        </Sheet>
+      )}
 
       {url && (
-        <PalmPhoto src={url} width={reading.photoWidth} height={reading.photoHeight} lines={reading.lines} locale={locale} animate={justRevealed} chips alt={COPY.yourPalm[locale]} />
+        <ReportPhoto src={url} width={reading.photoWidth} height={reading.photoHeight} lines={reading.lines} locale={locale} alt={COPY.yourPalm[locale]} />
       )}
       {reading.missing.includes('fate') && (
         <p className="text-small rd-muted">
@@ -129,6 +172,8 @@ export default function Report({
         <p className="rd-note">{COPY.notClearLine[locale]}</p>
       )}
 
+      <KeepShare locale={locale} reading={reading} view={view} details={details} opening={opening} gold={step === 'app'} />
+
       <aside className="rd-honesty text-small">
         <p>{COPY.honesty[locale]}</p>
         <p>{COPY.selfCheck[locale]}</p>
@@ -159,8 +204,8 @@ export default function Report({
         )}
         {step === 'app' && (
           <>
-            <p className="rd-strong">{COPY.wantFull[locale]}</p>
-            <p>{COPY.appPromise[locale]}</p>
+            <p className="rd-strong">{balance?.appPaid ? AUTH_COPY.planZero[locale] : COPY.wantFull[locale]}</p>
+            {!balance?.appPaid && <p>{COPY.appPromise[locale]}</p>}
             <Store locale={locale} placement="reading" qr />
             <p className="text-small rd-muted">{COPY.continuity[locale]}</p>
           </>

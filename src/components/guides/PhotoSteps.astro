@@ -1,0 +1,96 @@
+---
+/**
+ * "Where is it?" in three looks (guide v4, the 4 line guides): three crops of
+ * the SAME real photo, zero JS. 1: the whole hand with the finger names
+ * (placed from the scanner's hand points, as in the hero); 2: the finger
+ * creases marked as an AREA, "Skip these"; 3: the page's line, the scanner's
+ * own, with its start (solid dot) and end (ring). Nothing else is drawn as a
+ * line on the photo. The numbered text steps stay below it in the MDX.
+ */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { cropAround, fingerCreaseArea, fingerLabels, guideScan, lineCrop, lineEnds, wordBeside, type Box, type GuideLine } from '../../lib/guides/traced-palm';
+import PhotoCrop from './PhotoCrop.astro';
+import './teach.css';
+
+interface Props {
+  line: GuideLine;
+}
+
+type P = [number, number];
+const { line } = Astro.props;
+const s = guideStrings(localeFromPath(Astro.url.pathname));
+const t = s.teach;
+const scan = guideScan();
+const name = s.zoneName[line];
+const looks = t.looks[line];
+const r1 = (n: number) => Math.round(n * 10) / 10;
+const whole: Box = { x: 0, y: 0, w: scan.width, h: scan.height };
+
+// 1: the whole hand, finger names as in the hero (no push-in).
+const lm = scan.landmarks;
+const fingers = fingerLabels(scan, t.fingers, { ox: 0, oy: 0, scale: 1, classes: [] });
+const nameCorners = fingers.flatMap((f): P[] => [
+  [f.screen.x, f.screen.y],
+  [f.screen.x + f.screen.w, f.screen.y + f.screen.h],
+]);
+const handBox = lm ? cropAround([...lm, ...nameCorners], 10, 0.8, scan) : whole;
+
+// 2: the finger bases down to the heart line, the creases as an area.
+const crease = fingerCreaseArea(scan);
+const heartPts = scan.lines.find((trace) => trace.line === 'heart')?.points ?? [];
+const creaseBox = lm ? cropAround([lm[6]!, lm[18]!, lm[5]!, lm[17]!, ...heartPts], 14, 1, scan) : whole;
+const creaseFont = r1(creaseBox.w * 0.1);
+// "Skip these" sits just above the tilted area (its bounding box), inside the crop.
+const tilt = crease ? (crease.rotate * Math.PI) / 180 : 0;
+const creaseTop = crease ? crease.cy - Math.hypot(crease.rx * Math.sin(tilt), crease.ry * Math.cos(tilt)) : 0;
+const skipY = r1(Math.max(creaseTop - 5, creaseBox.y + creaseFont + 2));
+
+// 3: the line, start and end.
+const lineBox = lineCrop(scan, line, 26, 1);
+const ends = lineEnds(scan, line);
+const lineFont = lineBox ? r1(lineBox.w * 0.085) : 0;
+const startWord = lineBox && ends ? wordBeside(ends.start, ends.end, lineBox, lineFont, t.start) : null;
+const endWord = lineBox && ends ? wordBeside(ends.end, ends.start, lineBox, lineFont, t.end) : null;
+---
+
+<figure class="tb tb-looks glass-panel tb-box">
+  <p class="tb-title">{t.looksTitle}</p>
+  <ol>
+    <li>
+      <PhotoCrop box={handBox} alt={t.looksAlt.hand}>
+        {fingers.map((f) => <text class="tb-lab" x={f.x} y={f.y} font-size={f.font} text-anchor="middle">{f.text}</text>)}
+      </PhotoCrop>
+      <p><span class="tb-n">1</span> {looks[0]}</p>
+    </li>
+    <li>
+      <PhotoCrop box={creaseBox} alt={t.looksAlt.creases}>
+        {
+          crease && (
+            <>
+              <ellipse class="tb-area" cx={crease.cx} cy={crease.cy} rx={crease.rx} ry={crease.ry} transform={`rotate(${crease.rotate} ${crease.cx} ${crease.cy})`} />
+              <text class="tb-lab" x={crease.cx} y={skipY} font-size={creaseFont} text-anchor="middle">{t.skipThese}</text>
+            </>
+          )
+        }
+      </PhotoCrop>
+      <p><span class="tb-n">2</span> {looks[1]}</p>
+    </li>
+    <li>
+      {
+        lineBox && ends ? (
+          <PhotoCrop box={lineBox} lines={[line]} alt={t.looksAlt.line(name.toLowerCase())}>
+            <circle class="tb-start" cx={ends.start[0]} cy={ends.start[1]} r={r1(lineBox.w * 0.022)} />
+            <circle class="tb-end" cx={ends.end[0]} cy={ends.end[1]} r={r1(lineBox.w * 0.022)} />
+            {startWord && <text class="tb-lab" x={startWord.x} y={startWord.y} font-size={lineFont} text-anchor="middle">{t.start}</text>}
+            {endWord && <text class="tb-lab" x={endWord.x} y={endWord.y} font-size={lineFont} text-anchor="middle">{t.end}</text>}
+          </PhotoCrop>
+        ) : (
+          <p class="tp-miss">{name}: {t.notClear}</p>
+        )
+      }
+      <p><span class="tb-n">3</span> {looks[2]}</p>
+    </li>
+  </ol>
+  <figcaption>{t.looksCaption}</figcaption>
+</figure>

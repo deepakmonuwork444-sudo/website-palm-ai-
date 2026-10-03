@@ -15,6 +15,19 @@ export interface TracedLine {
   type: TracedLineName;
   /** Normalised 0..1 points on the photo (origin top-left). */
   path: [number, number][];
+  /**
+   * The scanner saw this crease faintly (pixel_confidence < 0.6): drawn dashed,
+   * as in the app. Missing on readings saved before WEB-DEC-043 = not faint.
+   */
+  faint?: boolean;
+}
+
+/** The scanner's hand (MediaPipe's 21 landmarks), normalised 0..1 on the photo. */
+export interface StoredHand {
+  landmarks: [number, number][];
+  handedness: string;
+  /** The hand's skin outline from the scanner, null when it sent none. */
+  outline: [number, number][] | null;
 }
 
 export interface SavedReading {
@@ -27,10 +40,26 @@ export interface SavedReading {
   lines: TracedLine[];
   /** The four main lines the scan did not trace (drawn as dashed "not clearly seen" chips). */
   missing: TracedLineName[];
+  /** The scanner's hand for this photo; missing on readings saved before WEB-DEC-043 (= no hand). */
+  hand?: StoredHand | null;
   /** The reading as shown: locked parts keep only their first sentence. Null = could not be written. */
   synthesis: FinishedSynthesis | null;
-  /** True for a preview (mock) reading: a stored sample scan, not this visitor's palm. */
+  /**
+   * True for a preview (mock) reading: a stored sample scan, not this visitor's
+   * palm. Since WEB-DEC-043 its photo is the sample palm that scan belongs to.
+   */
   preview: boolean;
+}
+
+/** A traced line is faint only when it says so (older readings never do). */
+export function isFaint(line: TracedLine): boolean {
+  return line.faint === true;
+}
+
+/** The hand of a saved reading; null for a reading saved before hands were kept. */
+export function handOf(reading: Pick<SavedReading, 'hand'>): StoredHand | null {
+  const hand = reading.hand;
+  return hand && Array.isArray(hand.landmarks) && hand.landmarks.length === 21 ? hand : null;
 }
 
 export interface ReadingStore {

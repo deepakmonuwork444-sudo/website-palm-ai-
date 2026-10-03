@@ -24,9 +24,9 @@ const realPath = localizePath('/is-palmistry-real/', locale);
 const showLink = isLive(realPath) && Astro.url.pathname !== realPath;
 ---
 
-<aside class="limits" aria-labelledby="limits-title" data-limits-box>
+<aside class="limits guide-block" aria-labelledby="limits-title" data-limits-box>
   <div class="limits-head">
-    <Icon name="info" class="limits-icon" />
+    <span class="limits-mark glass-well"><Icon name="info" class="limits-icon" /></span>
     <h2 id="limits-title" class="text-h3 font-bold limits-title">{s.limitsTitle}</h2>
   </div>
   <div class="limits-body">
@@ -38,14 +38,24 @@ const showLink = isLive(realPath) && Astro.url.pathname !== realPath;
 </aside>
 
 <style>
+  /* Showroom: calm cool-tinted glass with a slim blue rim; no red, no warning. */
   .limits {
-    margin: 2rem 0; padding: 1.25rem;
-    border-radius: 1.25rem; background-color: var(--surface-2); border: 1px solid var(--edge);
+    --tint: var(--line-head);
+    position: relative; margin: 2.5rem 0; padding: 1.375rem 1.25rem 1.375rem 1.5rem; border-radius: var(--r-card); border: 1px solid transparent;
+    background: linear-gradient(150deg, color-mix(in srgb, var(--tint) 14%, transparent), rgba(20,18,50,0.55) 70%) padding-box, var(--rim) border-box;
+    box-shadow: var(--e1);
   }
-  .limits-head { display: flex; gap: 0.625rem; align-items: center; margin: 0 0 0.75rem; }
-  .limits :global(.limits-icon) { color: var(--accent); width: 1.5rem; height: 1.5rem; }
+  :global([data-theme="day"]) .limits { background: linear-gradient(150deg, var(--color-day-info), var(--color-white) 70%) padding-box, var(--rim) border-box; }
+  .limits::before {
+    content: ""; position: absolute; inset: 1.125rem auto 1.125rem 0; width: 3px; border-radius: 0 3px 3px 0;
+    background: var(--tint); box-shadow: 0 0 14px color-mix(in srgb, var(--tint) 60%, transparent);
+  }
+  .limits-head { display: flex; gap: 0.75rem; align-items: center; margin: 0 0 0.875rem; }
+  .limits-mark { display: grid; place-items: center; flex: none; width: 2.5rem; height: 2.5rem; border-radius: 9999px; }
+  .limits :global(.limits-icon) { color: var(--accent); width: 1.375rem; height: 1.375rem; }
   .limits-title { margin: 0; }
   .limits-body p { margin: 0 0 0.625rem; }
   .limits-body p:last-child { margin-bottom: 0; }
-  .limits-care { padding-top: 0.625rem; border-top: 1px solid var(--border-strong); color: var(--fg-muted); }
+  .limits-care { padding-top: 0.75rem; border-top: 1px solid var(--edge); color: var(--fg-muted); }
+  @media (min-width: 40rem) { .limits { padding: 1.625rem 1.75rem 1.625rem 2rem; } }
 </style>

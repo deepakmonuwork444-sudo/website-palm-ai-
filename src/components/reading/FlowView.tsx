@@ -5,15 +5,19 @@
  * only — supabase-js.
  */
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
 import type { Locale } from '../../config/site';
-import { createMockApi } from '../../lib/reading/api-mock';
+import { googleSetupFor } from '../../lib/auth/config';
+import { AUTH_COPY } from '../../lib/auth/copy';
+import { browserStorage, hadAccount, markHadAccount, syncHeader } from '../../lib/auth/state';
+import { MOCK_SAMPLE, createMockApi } from '../../lib/reading/api-mock';
 import type { ReadingApi } from '../../lib/reading/api';
 import type { ReadingConfig } from '../../lib/reading/config';
 import { EventTally } from '../../lib/reading/events';
 import { preparePhoto, shrinkCopy } from '../../lib/reading/image';
 import { ReadingFlow, type FlowState } from '../../lib/reading/machine';
+import { deviceStorage, linkDetails, type PersonalDetails } from '../../lib/reading/personal';
 import { checkPhoto } from '../../lib/reading/quality';
 import { buildReportView } from '../../lib/reading/report';
 import { browserStore } from '../../lib/reading/store';
@@ -23,6 +27,8 @@ import Report from './Report';
 import { OffScreen } from './Off';
 import { CheckingScreen, ErrorScreen, RejectedScreen, ReviewScreen, WorkingScreen, ZeroScreen } from './Screens';
 import { LockSheet, SignupSheet } from './Sheets';
+import GoogleButton, { type GoogleSetup } from '../auth/GoogleButton';
+import { InfoIcon } from './Icons';
 
 interface Props {
   config: ReadingConfig;
@@ -35,7 +41,9 @@ async function makeFlow(config: ReadingConfig, locale: Locale, tally: EventTally
   let api: ReadingApi | null = null;
   let tokens: TokenSource = fakeTokenSource();
   if (config.mode === 'mock') {
-    const mock = createMockApi({ failOnce: new URLSearchParams(location.search).get('mockError') });
+    const query = new URLSearchParams(location.search);
+    // The preview account is shared with the header and /account/ (lib/auth/mock.ts).
+    const mock = createMockApi({ failOnce: query.get('mockError'), persist: browserStorage(), googleExisting: query.get('mockGoogle') === 'existing' });
     api = mock;
     // Preview QA only (mock mode never talks to a server): lets a test read what would have been sent.
     (window as Window & { __palmsaysMock?: typeof mock }).__palmsaysMock = mock;
@@ -57,13 +65,46 @@ async function makeFlow(config: ReadingConfig, locale: Locale, tally: EventTally
     sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     track: (event, detail) => tally.add(event, detail),
     onceOnline: (callback) => window.addEventListener('online', callback, { once: true }),
-    lineDrawMs: 1400,
+    // The live scan plays before the report (WEB-DEC-043): the reading never waits for the drawing.
+    lineDrawMs: 0,
+    holdForShow: true,
     slowAfterMs: 45_000,
+    // Signed out on a browser that had an account: "Sign in to read", not a silent new guest (case 20).
+    hadAccount: () => hadAccount(browserStorage()),
+    // Preview only: the stored scan's own photo, so its lines never sit on the visitor's photo.
+    ...(config.mode === 'mock'
+      ? {
+          sample: {
+            ...MOCK_SAMPLE,
+            load: async () => {
+              const res = await fetch(MOCK_SAMPLE.url);
+              if (!res.ok) throw new Error('sample photo');
+              return res.blob();
+            },
+          },
+        }
+      : {}),
   });
   return { flow, api, tokens };
 }
 
-function Body({ flow, state, locale, inApp, missing }: { flow: ReadingFlow; state: FlowState; locale: Locale; inApp: boolean; missing: string[] }) {
+function Body({
+  flow,
+  state,
+  locale,
+  inApp,
+  missing,
+  onDetails,
+  detailsVersion,
+}: {
+  flow: ReadingFlow;
+  state: FlowState;
+  locale: Locale;
+  inApp: boolean;
+  missing: string[];
+  onDetails: (details: PersonalDetails | null) => void;
+  detailsVersion: number;
+}) {
   const screen = state.screen;
   switch (screen.name) {
     case 'loading':
@@ -84,7 +125,7 @@ function Body({ flow, state, locale, inApp, missing }: { flow: ReadingFlow; stat
     case 'checking':
       return <CheckingScreen locale={locale} />;
     case 'review':
-      return <ReviewScreen flow={flow} state={state} locale={locale} />;
+      return <ReviewScreen flow={flow} state={state} locale={locale} onDetails={onDetails} />;
     case 'working':
       return <WorkingScreen flow={flow} state={state} locale={locale} />;
     case 'rejected':
@@ -98,12 +139,12 @@ function Body({ flow, state, locale, inApp, missing }: { flow: ReadingFlow; stat
       if (!reading) return <ZeroScreen flow={flow} state={state} locale={locale} />;
       return (
         <Report
+          key={`${reading.id}-${detailsVersion}`}
           flow={flow}
           reading={reading}
           locale={locale}
           balance={state.balance}
           user={state.user}
-          justRevealed={state.fresh === reading.id}
           readingsCount={state.readings.length}
         />
       );
@@ -138,7 +179,15 @@ export default function FlowView({ config, locale, inApp, initialFile }: Props) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /** Details from the questions before the scan, kept with the reading once it is saved (this device only). */
+  const pending = useRef<PersonalDetails | null | undefined>(undefined);
+  const [detailsVersion, setDetailsVersion] = useState(0);
+  const onDetails = useCallback((details: PersonalDetails | null) => {
+    pending.current = details;
+  }, []);
+
   const flow = ready?.flow ?? null;
+  const google: GoogleSetup | null = googleSetupFor(config.mode, inApp);
   const subscribe = useCallback((listener: () => void) => (flow ? flow.subscribe(listener) : () => undefined), [flow]);
   const snapshot = useCallback(() => (flow ? flow.getState() : null), [flow]);
   const state = useSyncExternalStore(subscribe, snapshot, () => null);
@@ -155,6 +204,22 @@ export default function FlowView({ config, locale, inApp, initialFile }: Props) 
     }
   }, [screenName]);
 
+  const fresh = state?.fresh ?? null;
+  const readingIds = state?.readings.map((r) => r.id).join('|') ?? '';
+  useEffect(() => {
+    if (!fresh || pending.current === undefined) return;
+    linkDetails(deviceStorage(), fresh, pending.current, readingIds.split('|').filter(Boolean));
+    pending.current = undefined;
+    setDetailsVersion((v) => v + 1);
+  }, [fresh, readingIds]);
+
+  // A real (non-guest) account on this browser: remember it (case 20) and refresh the header.
+  const signedIn = Boolean(state?.user && !state.user.isGuest);
+  useEffect(() => {
+    if (signedIn) markHadAccount(browserStorage());
+    syncHeader();
+  }, [signedIn]);
+
   if (!flow || !state) return <CheckingScreen locale={locale} />;
 
   const missing = config.mode === 'live' ? [!config.publishableKey && 'PUBLIC_SUPABASE_PUBLISHABLE_KEY', !config.turnstileSiteKey && 'PUBLIC_TURNSTILE_SITE_KEY'].filter((x): x is string => Boolean(x)) : [];
@@ -164,11 +229,35 @@ export default function FlowView({ config, locale, inApp, initialFile }: Props) 
 
   return (
     <>
-      <Body flow={flow} state={state} locale={locale} inApp={inApp} missing={missing} />
-      {sheet?.kind === 'lock' && view && (
-        <LockSheet flow={flow} locale={locale} view={view} section={sheet.section} canSignUp={Boolean(state.balance?.emailNeeded || (state.user?.isGuest ?? true))} />
+      {state.notice === 'guestNotMoved' && (
+        <div className="rd-notice" role="status">
+          <InfoIcon />
+          <div>
+            <p>{AUTH_COPY.guestNotMoved[locale]}</p>
+            <button type="button" className="btn btn-secondary" onClick={() => flow.dismissNotice()}>
+              {AUTH_COPY.gotIt[locale]}
+            </button>
+          </div>
+        </div>
       )}
-      {sheet?.kind === 'signup' && <SignupSheet flow={flow} locale={locale} sheet={sheet} />}
+      <Body flow={flow} state={state} locale={locale} inApp={inApp} missing={missing} onDetails={onDetails} detailsVersion={detailsVersion} />
+      {google?.mode === 'live' && !inApp && state.screen.name === 'revealed' && state.fresh && state.user?.isGuest && !sheet && (
+        // One Tap after the first free reading only (never on the home page): Google's own small prompt.
+        <div className="sr-only">
+          <GoogleButton setup={google} locale={locale} oneTap divider={false} onCredential={(c) => void flow.google(c.token, c.nonce)} />
+        </div>
+      )}
+      {sheet?.kind === 'lock' && view && (
+        <LockSheet
+          flow={flow}
+          locale={locale}
+          view={view}
+          section={sheet.section}
+          canSignUp={Boolean(state.balance?.emailNeeded || (state.user?.isGuest ?? true))}
+          google={google}
+        />
+      )}
+      {sheet?.kind === 'signup' && <SignupSheet flow={flow} locale={locale} sheet={sheet} google={google} />}
       <div className="rd-turnstile" ref={(el) => ready?.tokens.attach(el)} />
     </>
   );

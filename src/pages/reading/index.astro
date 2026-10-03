@@ -11,10 +11,14 @@
  */
 import ReadingApp from '../../components/reading/ReadingApp';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { allowGoogleSignIn } from '../../lib/auth/csp';
+
+// "Continue with Google" in the sign-up sheet (WEB-DEC-045): Google's origins on this page only.
+allowGoogleSignIn(Astro);
 ---
 
 <BaseLayout
-  title="Your palm reading — PalmSays"
+  title="Your palm reading | PalmSays"
   description="Take one photo of your palm: we trace your lines on your photo and show what palmistry says about them."
   path="/reading/"
   locale="en"

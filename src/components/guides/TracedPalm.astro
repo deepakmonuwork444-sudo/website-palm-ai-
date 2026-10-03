@@ -1,0 +1,255 @@
+---
+/**
+ * Guide template v4 hero, "teach by seeing" (WEB-DEC-047; front matter
+ * `find.show: animate`). The whole photo (the licensed real HD guide palm, Pexels, credited in
+ * the caption, or with `find.photo: left-palm` the owner's own left palm, WEB-DEC-048)
+ * with the scanner's own 4 lines on it as clean solid strokes (natural look
+ * 2026-10-02; dashed when faint), line names at the edges
+ * with thin leaders (the app's placeSideLabels) and finger names from the 21
+ * hand landmarks. A line the scanner did not return is never drawn; its chip
+ * says so. Everything is worked out at build time (src/lib/guides/traced-palm.ts).
+ *
+ * The page shows the FINAL frame (no JS, reduced motion, lite, Save-Data,
+ * print). src/scripts/traced-palm.ts (bundled as its own file, never inlined:
+ * astro.config.mjs assetsInlineLimit) adds `.tp-play` once the photo is 40%
+ * on screen: a gentle push-in toward the palm centre while the lines draw one
+ * by one (heart, head, life, fate) with a pen tip, then "Play again".
+ * Chips = real radios + :has() (no JS): the picked line stays, the others fade.
+ * CSP: no style attributes; per-photo values are SVG attributes or one of a
+ * fixed set of classes (the zoom origin). The styles are global (tp-) because
+ * the teaching blocks further down reuse the line look and the #tpd-* (photo,
+ * scanner lines) and #pgd-* (drawn palm) shapes.
+ */
+import type { Locale } from '../../config/site';
+import { BASE_PATHS, PALM_OUTLINE } from '../../lib/guides/palm-geometry';
+import { guideStrings } from '../../lib/guides/strings';
+import { fingerGuides, fingerLabels, GUIDE_HEROES, GUIDE_LINES, guideScan, heroCamera, lineEnds, lineLabels, PUSH, type GuideHeroKey, type GuideLine } from '../../lib/guides/traced-palm';
+
+interface Props {
+  locale: Locale;
+  /** Which photo and its real scan (default: the real HD guide palm, /palm-reading/). */
+  photo?: GuideHeroKey;
+  /**
+   * The 4 line guides: this line in focus (only it draws; the others stay faint, its chip is picked),
+   * dotted finger guides from the scanner's knuckle landmarks and the line's start and end dots.
+   * A line the scanner did not return is never drawn: its chip says "not clearly seen".
+   */
+  focus?: GuideLine | undefined;
+}
+
+const { locale, photo = 'guide-palm', focus } = Astro.props;
+const s = guideStrings(locale);
+const t = s.teach;
+const PHOTO = GUIDE_HEROES[photo].photo;
+const scan = guideScan(photo);
+const cam = heroCamera(scan, PUSH, PHOTO.zoom);
+const labels = lineLabels(scan, s.lineShort, cam);
+const fingers = fingerLabels(scan, t.fingers, cam, labels.map((label) => label.screen));
+const found = new Set(scan.lines.map((trace) => trace.line));
+const on = focus && found.has(focus) ? focus : undefined;
+// In focus, only that line draws (order 1); the others are "rest": shown faint, never drawn in.
+const order = new Map(scan.lines.map((trace, i) => [trace.line, on ? (trace.line === on ? 1 : 0) : i + 1]));
+const oc = (line: GuideLine) => (order.get(line) ? `tp-o${order.get(line)}` : 'tp-rest');
+const guides = on ? fingerGuides(scan) : [];
+const ends = on ? lineEnds(scan, on) : null;
+const names = scan.lines.map((trace) => s.zoneName[trace.line].toLowerCase()).join(', ');
+const alt = photo === 'left-palm' ? t.leftPalmAlt(scan.lines.map((trace) => s.lineShort[trace.line])) : on ? t.focusAlt[on] : t.heroAlt(names);
+const caption = photo === 'left-palm' ? t.leftPalmCaption : t.heroCaption;
+const missed = focus && !on ? `${s.zoneName[focus]}: ${t.notClear}.` : null;
+const { width: W, height: H } = PHOTO;
+// The HD guide palm shows larger on a desktop (.tp-hd); the which-hand photo keeps its size.
+const hd = photo === 'guide-palm';
+const sizes = hd ? '(min-width: 64rem) 480px, (min-width: 27rem) 400px, 100vw' : '(min-width: 27rem) 400px, 100vw';
+---
+
+<figure class:list={['tp', { 'tp-hd': hd, 'tp-focus': on }]} data-tp>
+  <div class="tp-frame">
+    <div class="tp-box">
+      <div class:list={['tp-cam', ...cam.classes]}>
+        <picture>
+          <source type="image/avif" srcset={PHOTO.avif} sizes={sizes} />
+          <source type="image/webp" srcset={PHOTO.webp} sizes={sizes} />
+          <img src={PHOTO.fallback} width={PHOTO.file.width} height={PHOTO.file.height} alt={alt} fetchpriority="high" decoding="async" />
+        </picture>
+        <svg class="tp-svg" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+          <defs>
+            {/* The lesson crops further down (LineLesson, MountMap …) are worked out on the HD guide photo only (WEB-DEC-047/048). */}
+            {hd && <image id="tpd-photo" href={PHOTO.crop} width={W} height={H} preserveAspectRatio="none" />}
+            {scan.lines.map((trace) => <path id={`tpd-${trace.line}`} d={trace.d} pathLength={trace.faint ? undefined : 1} />)}
+            {/* The guides' drawn palm, shared by the drawings further down (CompareRow, WhichHand). */}
+            <path id="pgd-palm" d={PALM_OUTLINE} />
+            {GUIDE_LINES.map((line) => <path id={`pgd-${line}`} d={BASE_PATHS[line]} />)}
+          </defs>
+          {
+            guides.length > 0 && (
+              <g class="tp-guides">
+                {guides.map((guide) => <line x1={guide.from[0]} y1={guide.from[1]} x2={guide.to[0]} y2={guide.to[1]} />)}
+              </g>
+            )
+          }
+          <g class="tp-fingers">
+            {fingers.map((finger) => <text x={finger.x} y={finger.y} font-size={finger.font} text-anchor="middle">{finger.text}</text>)}
+          </g>
+          {
+            scan.lines.map((trace) => (
+              <g class:list={['tp-l', `tp-${trace.line}`, oc(trace.line), { 'tp-faint': trace.faint }]}>
+                <use class="tp-glow" href={`#tpd-${trace.line}`} />
+                <use class="tp-core" href={`#tpd-${trace.line}`} />
+                <use class="tp-sheen" href={`#tpd-${trace.line}`} />
+                {!trace.faint && order.get(trace.line) !== 0 && <use class="tp-penh" href={`#tpd-${trace.line}`} />}
+                {!trace.faint && order.get(trace.line) !== 0 && <use class="tp-pen" href={`#tpd-${trace.line}`} />}
+              </g>
+            ))
+          }
+          {
+            labels.map((label) => (
+              <g class:list={['tp-lab', `tp-${label.line}`, oc(label.line)]}>
+                <path d={`M${label.from[0]} ${label.from[1]}L${label.anchor[0]} ${label.anchor[1]}`} />
+                <circle cx={label.anchor[0]} cy={label.anchor[1]} r="2.2" />
+                <rect x={label.box.x} y={label.box.y} width={label.box.w} height={label.box.h} rx="6" />
+                <text x={label.box.x + label.box.w / 2} y={Math.round((label.box.y + label.box.h / 2 + label.font * 0.36) * 10) / 10} font-size={label.font} text-anchor="middle">
+                  {label.text}
+                </text>
+              </g>
+            ))
+          }
+          {
+            on && ends && (
+              <g class:list={['tp-ends', `tp-${on}`, 'tp-o1']}>
+                <circle class="tp-end-s" cx={ends.start[0]} cy={ends.start[1]} r="3.4" />
+                <circle class="tp-end-e" cx={ends.end[0]} cy={ends.end[1]} r="3.4" />
+              </g>
+            )
+          }
+        </svg>
+      </div>
+    </div>
+    <button type="button" class="tp-replay" data-tp-replay hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5" /></svg>
+      {t.playAgain}
+    </button>
+  </div>
+  <figcaption class="tp-cap">
+    <fieldset class="tp-chips">
+      <legend class="sr-only">{t.showLine}</legend>
+      <span class="tp-chip">
+        <input type="radio" name="tp-line" id="tp-line-all" value="all" checked={!on} />
+        <label for="tp-line-all">{t.allLines}</label>
+      </span>
+      {
+        GUIDE_LINES.map((line) =>
+          found.has(line) ? (
+            <span class="tp-chip">
+              <input type="radio" name="tp-line" id={`tp-line-${line}`} value={line} checked={line === on} />
+              <label for={`tp-line-${line}`}>
+                <span class:list={['tp-dot', `tp-${line}`]} aria-hidden="true" />
+                {s.zoneName[line]}
+              </label>
+            </span>
+          ) : (
+            <span class="tp-chip tp-miss">
+              <span class:list={['tp-dot', `tp-${line}`]} aria-hidden="true" />
+              {s.zoneName[line]}: {t.notClear}
+            </span>
+          ),
+        )
+      }
+    </fieldset>
+    <p class="text-caption text-fg-muted tp-note">{caption}</p>
+    {on && <p class="text-caption text-fg-muted tp-note">{t.focusNote(s.zoneName[on].toLowerCase())}</p>}
+    {missed && <p class="text-caption text-fg-muted tp-note">{missed}</p>}
+  </figcaption>
+</figure>
+
+<script>
+  import '../../scripts/traced-palm.ts';
+</script>
+
+<style is:global>
+  /* Global (tp-): the teaching blocks below reuse the line look on their cropped views. */
+  .tp { margin: 0 auto; max-width: 25rem; display: flex; flex-direction: column; gap: 1rem; position: relative; }
+  .tp-frame {
+    position: relative; padding: 0.5rem; border-radius: var(--r-panel); border: 1px solid transparent;
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--e1);
+  }
+  .tp-box { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border-radius: calc(var(--r-panel) - 0.5rem); background: var(--surface-2); }
+  /* The HD guide palm (1800 × 2400, 3:4 like the box; SVG frame 360 × 480), up to 30rem wide on a desktop. */
+  @media (min-width: 64rem) { .tp-hd { max-width: 30rem; } }
+  .tp-cam { position: absolute; inset: 0; transform: scale(var(--tpz, 1.1)); transform-origin: var(--tox, 50%) var(--toy, 50%); }
+  /* Framing zoom (GuidePhoto.zoom, traced-palm.ts ZOOM_STEPS): start (--tpz0) and final (--tpz = zoom × 1.1) scale. */
+  .tpz-105 { --tpz0: 1.05; --tpz: 1.155; } .tpz-110 { --tpz0: 1.1; --tpz: 1.21; }
+  .tp-cam img, .tp-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .tpo-x30 { --tox: 30%; } .tpo-x35 { --tox: 35%; } .tpo-x40 { --tox: 40%; } .tpo-x45 { --tox: 45%; } .tpo-x50 { --tox: 50%; }
+  .tpo-x55 { --tox: 55%; } .tpo-x60 { --tox: 60%; } .tpo-x65 { --tox: 65%; } .tpo-x70 { --tox: 70%; }
+  .tpo-y30 { --toy: 30%; } .tpo-y35 { --toy: 35%; } .tpo-y40 { --toy: 40%; } .tpo-y45 { --toy: 45%; } .tpo-y50 { --toy: 50%; }
+  .tpo-y55 { --toy: 55%; } .tpo-y60 { --toy: 60%; } .tpo-y65 { --toy: 65%; } .tpo-y70 { --toy: 70%; }
+
+  /* The report's line look (WEB-DEC-043), in photo pixels (the photo is shown about 1 px a pixel). */
+  .tp-heart { --lc: var(--color-trace-heart); }
+  .tp-head { --lc: var(--color-trace-head); }
+  .tp-life { --lc: var(--color-trace-life); }
+  .tp-fate { --lc: var(--color-trace-fate); }
+  .tp-gold { --lc: var(--color-gold-bright); }
+  .tp-l { fill: none; stroke: var(--lc); stroke-linecap: round; stroke-linejoin: round; transition: opacity 240ms var(--ease); }
+  /* Natural look (2026-10-02): one clean solid stroke, no glow underlay, no white sheen. */
+  .tp-glow, .tp-l .tp-sheen { display: none; }
+  .tp-core { stroke-width: 2; }
+  .tp-faint :is(.tp-core, .tp-sheen) { stroke-dasharray: 4 4; }
+  .tp-l :is(.tp-pen, .tp-penh) { stroke-dasharray: 0.001 2; opacity: 0; }
+  .tp-l .tp-pen { stroke: var(--color-on-photo); stroke-width: 6; }
+  .tp-penh { stroke-width: 15; stroke-opacity: 0.35; }
+  .tp-lab, .tp-fingers { font-family: var(--ff-sans); font-weight: 600; transition: opacity 240ms var(--ease); }
+  .tp-lab path { stroke: var(--lc); stroke-width: 0.9; stroke-opacity: 0.8; }
+  .tp-lab circle { fill: var(--lc); }
+  .tp-lab rect { fill: var(--color-photo-scrim); stroke: var(--lc); stroke-width: 0.9; }
+  .tp-lab text, .tp-fingers text { fill: var(--color-on-photo); }
+  /* Focus mode: dotted finger guides (from the knuckle landmarks, never palm lines) and the line's start/end dots. */
+  .tp-guides line { stroke: var(--color-on-photo); stroke-width: 1.7; stroke-linecap: round; stroke-dasharray: 0.01 4.2; opacity: 0.8; }
+  .tp-end-s { fill: var(--color-on-photo); stroke: var(--lc); stroke-width: 1.6; }
+  .tp-end-e { fill: none; stroke: var(--color-on-photo); stroke-width: 1.6; }
+  .tp-fingers text { font-weight: 700; stroke: var(--color-halo); stroke-width: 3; stroke-linejoin: round; paint-order: stroke; }
+
+  /* Chips: the picked line stays, the others fade (radios + :has(), no JS). */
+  .tp:has([value="heart"]:checked) .tp-l:not(.tp-heart), .tp:has([value="head"]:checked) .tp-l:not(.tp-head),
+  .tp:has([value="life"]:checked) .tp-l:not(.tp-life), .tp:has([value="fate"]:checked) .tp-l:not(.tp-fate) { opacity: 0.35; }
+  .tp:has([value="heart"]:checked) .tp-lab:not(.tp-heart), .tp:has([value="head"]:checked) .tp-lab:not(.tp-head),
+  .tp:has([value="life"]:checked) .tp-lab:not(.tp-life), .tp:has([value="fate"]:checked) .tp-lab:not(.tp-fate) { opacity: 0.45; }
+  .tp-cap { display: flex; flex-direction: column; gap: 0.75rem; text-align: center; }
+  .tp-chips { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+  .tp-chip { position: relative; display: inline-flex; }
+  .tp-chip input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .tp-chip label, .tp-miss {
+    display: inline-flex; align-items: center; gap: 0.4rem; min-height: 3rem; padding: 0.25rem 1rem; border-radius: 9999px;
+    border: 1px solid var(--edge); background: var(--surface-1); color: var(--fg); font-size: var(--fs-small); cursor: pointer;
+  }
+  .tp-chip input:checked + label { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .tp-chip input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .tp-miss { color: var(--fg-muted); border-style: dashed; cursor: default; }
+  .tp-dot { width: 0.625rem; height: 0.625rem; flex: none; border-radius: 9999px; background: var(--lc); }
+  .tp-note { margin: 0; }
+  .tp-replay {
+    position: absolute; right: 1rem; bottom: 1rem; display: inline-flex; align-items: center; gap: 0.375rem; min-height: 3rem; padding: 0 1rem;
+    border-radius: 9999px; border: 1px solid var(--hairline); background: var(--color-photo-scrim); color: var(--color-on-photo);
+    font: inherit; font-size: var(--fs-small); font-weight: 700; cursor: pointer;
+  }
+  .tp-replay[hidden] { display: none; }
+  .tp-replay svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* The show (src/scripts/traced-palm.ts adds .tp-play): the final frame is the page's normal state. */
+  .tp-o1 { --d: 0.5s; } .tp-o2 { --d: 2s; } .tp-o3 { --d: 3.5s; } .tp-o4 { --d: 5s; }
+  .tp-play .tp-cam { animation: tp-push 6.8s cubic-bezier(0.33, 0, 0.12, 1) backwards; }
+  .tp-play .tp-l:not(.tp-faint) :is(.tp-glow, .tp-core, .tp-sheen) { stroke-dasharray: 1 2; animation: tp-draw 1.2s cubic-bezier(0.45, 0.05, 0.3, 1) var(--d) backwards; }
+  .tp-play .tp-l :is(.tp-pen, .tp-penh) { animation: tp-pen 1.2s cubic-bezier(0.45, 0.05, 0.3, 1) var(--d) backwards; }
+  .tp-play .tp-faint { animation: tp-in 1.2s var(--d) backwards; }
+  .tp-play .tp-lab { animation: tp-in 0.5s calc(var(--d) + 0.8s) backwards; }
+  .tp-play .tp-fingers { animation: tp-in 0.6s 0.2s backwards; }
+  /* Focus: a short show, only the page's own line draws; the rest fade in faint. */
+  .tp-focus.tp-play .tp-cam { animation-duration: 3s; }
+  .tp-play :is(.tp-l, .tp-lab).tp-rest, .tp-play .tp-guides { animation: tp-in 0.6s 0.2s backwards; }
+  .tp-play .tp-ends { animation: tp-in 0.4s calc(var(--d) + 1.1s) backwards; }
+  @keyframes tp-push { from { transform: scale(var(--tpz0, 1)); } }
+  @keyframes tp-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes tp-pen { 0% { opacity: 0; stroke-dashoffset: 0; } 4%, 94% { opacity: 1; } 100% { opacity: 0; stroke-dashoffset: -1; } }
+  @keyframes tp-in { from { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce), print { .tp-play, .tp-play * { animation: none !important; } }
+</style>

@@ -1,0 +1,92 @@
+---
+/**
+ * End block (CONTENT_GUIDE.md §5 block 18, guide template v3): the same one
+ * gold action as the top module, "Scan my palm to see mine" (→ /reading/),
+ * three photo tips with the photo checker, then the Play badge with its price
+ * line (QR on desktop). While the web reading is off (site.webReadingEnabled),
+ * a note says so before the click; /reading/ then says it opens soon and
+ * never fakes a reading.
+ */
+import { isLive } from '../../config/pages';
+import { site } from '../../config/site';
+import { localeFromPath, localizePath, t } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import PrimaryButton from '../PrimaryButton.astro';
+import StoreButton from '../StoreButton.astro';
+
+interface Props {
+  /** utm_campaign token for the store link, e.g. `heart-line`. */
+  campaign: string;
+  /** The line guide's entity ("Heart line"): the heading then names it (heading spec, WEB-DEC-051). */
+  topic?: string | undefined;
+}
+
+const { campaign, topic } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const s = guideStrings(locale);
+const dict = t(locale);
+const live = site.webReadingEnabled;
+const scanHref = locale === 'hi' ? '/reading/?lang=hi' : '/reading/';
+const checker = localizePath('/tools/palm-photo-checker/', locale);
+const checkerLive = isLive(checker);
+const playName: string = site.appNameOnPlay;
+const showPlayName = playName !== site.brand;
+// One contextual link to /app/ from every guide (SEMANTIC_SEO_PLAN.md §4.5 #4): its two registered anchors, alternated by page.
+const appPath = localizePath('/app/', locale);
+const appLive = isLive(appPath);
+const appAnchor = s.appAnchors[[...Astro.url.pathname].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % s.appAnchors.length];
+---
+
+<section class="end glass-panel guide-block" aria-labelledby="end-title">
+  <h2 id="end-title" class="text-h2 font-bold">{topic ? s.endTitleOf(topic) : s.endTitleLive}</h2>
+  <p class="measure">{s.endBodyLive}</p>
+  <ul class="end-tips" aria-label={s.photoTitle}>
+    {s.tipChips.map((tip) => <li class="text-small">{tip}</li>)}
+  </ul>
+  <p class="text-small text-fg-muted measure">{s.photoShort}</p>
+  <div class="end-action" data-scan-cta>
+    <PrimaryButton href={scanHref}>{s.scanCta}</PrimaryButton>
+    {!live && <p class="text-small text-fg-muted">{s.scanSoon}</p>}
+    {checkerLive && <p class="text-small"><a class="text-link" href={checker}>{s.tipCheckLink}</a></p>}
+  </div>
+  <div class="end-store">
+    <StoreButton locale={locale} medium="guide" campaign={campaign} showQr />
+    {showPlayName && <p class="text-small text-fg-muted">{dict.store.playName(site.appNameOnPlay)}</p>}
+    {appLive && <p class="text-small">{s.appBefore} <a class="text-link" href={appPath}>{appAnchor}</a> {s.appAfter}</p>}
+  </div>
+</section>
+
+<style>
+  /* Showroom: the closing panel, lit from above, like the home app card. */
+  .end {
+    position: relative; overflow: hidden; margin-top: 4rem; padding: 1.75rem 1.25rem;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 1.125rem;
+  }
+  .end::before {
+    content: ""; position: absolute; z-index: 0; inset: -40% -20% auto; height: 80%; pointer-events: none;
+    background: radial-gradient(closest-side, rgba(230,184,92,0.16), rgba(124,96,236,0.10) 55%, transparent);
+  }
+  :global([data-theme="day"]) .end::before { background: radial-gradient(closest-side, rgba(214,170,80,0.14), rgba(120,92,230,0.06) 55%, transparent); }
+  .end::after {
+    content: ""; position: absolute; inset: -1px 2.5rem auto; height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(245,217,139,0.75) 30%, rgba(245,217,139,0.75) 70%, transparent);
+  }
+  :global([data-theme="day"]) .end::after { background: linear-gradient(90deg, transparent, rgba(122,82,0,0.35) 30%, rgba(122,82,0,0.35) 70%, transparent); }
+  .end > * { position: relative; z-index: 1; }
+  .end h2, .end p { margin: 0; }
+  .end-tips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .end-tips li {
+    display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.25rem; padding: 0.25rem 0.875rem; border-radius: 9999px;
+    color: var(--fg); border: 1px solid transparent;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--rim) border-box;
+  }
+  :global([data-theme="day"]) .end-tips li { background: linear-gradient(180deg, var(--color-white), var(--color-day-page)) padding-box, var(--rim) border-box; }
+  .end-tips li::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 9999px; background: var(--accent); box-shadow: 0 0 8px rgba(230,184,92,0.7); }
+  .end-action { display: flex; flex-direction: column; align-items: flex-start; gap: 0.625rem; padding-top: 0.25rem; }
+  .end-store {
+    display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; padding-top: 1.5rem; width: 100%;
+    border-top: 1px solid transparent;
+    border-image: linear-gradient(90deg, transparent, var(--edge) 15%, color-mix(in srgb, var(--accent) 35%, transparent) 50%, var(--edge) 85%, transparent) 1;
+  }
+  @media (min-width: 64rem) { .end { padding: 2.75rem 2.75rem 2.5rem; } }
+</style>

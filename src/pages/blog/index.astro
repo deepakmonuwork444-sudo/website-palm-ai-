@@ -1,0 +1,81 @@
+---
+/**
+ * /blog/ (WEB-DEC-057, redesigned WEB-DEC-058; SEMANTIC_SEO_PLAN.md §6.2): every post, newest first.
+ * A compact hero, the newest post as a large card with its cover infographic, then the rest as a
+ * grid of cards (2 columns from 48rem, 1 on phones): cover thumbnail, topic chip, title, one-line
+ * summary (front matter `summary`), date and reading time. CollectionPage + ItemList JSON-LD
+ * (src/lib/blog.ts), about = palmistry. Zero JS. English only until a reviewed Hindi post exists.
+ * Posts appear here once they are registered in src/config/pages.ts. Styles: the linked
+ * src/styles/blog.css (shared with the posts), so this page has no <style> of its own.
+ */
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PostCard from '../../components/blog/PostCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { isLive } from '../../config/pages';
+import { site } from '../../config/site';
+import { t } from '../../i18n';
+import { BLOG_PATH, blogIndexSchema, sortPosts, toPostCard } from '../../lib/blog';
+import { pageEntities } from '../../lib/entities';
+import blogCss from '../../styles/blog.css?url';
+
+const title = 'Palm Reading Blog: Honest Answers About Palmistry';
+const h1 = 'Palm reading blog: honest answers to the questions people ask';
+const description =
+  'Short, sourced answers to the palm reading questions people search for, written from the classical palmistry books, with what palmistry can’t tell you.';
+const lead =
+  'Each post answers one palm reading question in its first lines, then shows what the tradition says, where it comes from and where it stops. Palmistry is a tradition for reflection, not a science.';
+
+const posts = sortPosts(
+  (await getCollection('blog'))
+    .filter((entry) => entry.data.locale === 'en' && isLive(entry.data.path))
+    .map((entry) => toPostCard(entry.data, entry.body ?? '')),
+);
+const [featured, ...rest] = posts;
+
+const jsonLd = [
+  blogIndexSchema({ name: title, description, locale: 'en', entities: pageEntities(BLOG_PATH) ?? { about: ['palmistry'] }, posts }),
+];
+const startHere = isLive('/palm-reading/');
+const dict = t('en');
+---
+
+<BaseLayout title={title} description={description} path={BLOG_PATH} locale="en" jsonLd={jsonLd}>
+  <link slot="head" rel="stylesheet" href={blogCss} />
+  <div class="bi wrap">
+    <Breadcrumbs items={[{ name: dict.nav.home, path: '/' }, { name: 'Blog', path: BLOG_PATH }]} label={dict.a11y.breadcrumb} />
+
+    <header class="bi-hero">
+      <h1 class="font-display tracking-display-en bi-title">{h1}</h1>
+      <p class="bi-lead">{lead}</p>
+      <p class="bi-meta">{posts.length} {posts.length === 1 ? 'post' : 'posts'} · by {site.author.name}</p>
+    </header>
+
+    {
+      featured ? (
+        <>
+          <PostCard post={featured} as="h2" featured summary date eager sizes="(min-width: 64rem) 38rem, calc(100vw - 2rem)" />
+          {rest.length > 0 && (
+            <ul class="bi-grid">
+              {rest.map((post) => (
+                <li>
+                  <PostCard post={post} as="h2" summary date sizes="(min-width: 48rem) 34rem, calc(100vw - 2rem)" />
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      ) : (
+        <p class="bi-empty">
+          The first posts are being checked against the books and will appear here.
+          {startHere && <> Until then, start with <a class="text-link" href="/palm-reading/">how to read palm lines</a>.</>}
+        </p>
+      )
+    }
+
+    <p class="bi-note">
+      Every post follows our <a class="text-link" href="/editorial-policy/">editorial policy</a>: each claim about the palm lines is sourced and dated, and
+      no post predicts your health, lifespan, marriage or money.
+    </p>
+  </div>
+</BaseLayout>

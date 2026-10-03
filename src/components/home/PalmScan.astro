@@ -1,0 +1,169 @@
+---
+/**
+ * A REAL palm photo in a phone frame (home hero, /app/). The frame carries the
+ * page's one gold hairline (DESIGN_SYSTEM.md §4.3).
+ *
+ * Lines: drawn ONLY from real scanner output for this exact photo
+ * (`scan`, from public/samples/<name>.json via src/lib/home/sample-scan.ts),
+ * in photo pixels on a viewBox the size of the scanned image, so they sit
+ * exactly on the photo (§7.5). With no scan, no line is drawn anywhere: the
+ * photo gets the beam and the note "your lines appear after your scan".
+ *
+ * Motion (`animate`): the page's one orchestrated moment, CSS only, once —
+ * the gold beam passes down the photo, then (with a real scan) the lines draw
+ * life → head → heart → fate, then the note fades in. Reduced motion: final
+ * state at once, no beam. Content never needs JS to appear.
+ */
+import type { SampleLineName, SampleScan } from '../../lib/home/sample-scan';
+import Icon from '../Icon.astro';
+
+interface Props {
+  scan: SampleScan | null;
+  /** Small tag in the photo's corner, e.g. "Example photo". */
+  tag: string;
+  /** Shown when there is no real scan. */
+  note: string;
+  /** Shown when real lines are drawn. */
+  scannedNote: string;
+  alt: string;
+  /** Photographer credit, read by screen readers with the description (visible credit is in LICENSE + footer). */
+  credit?: string;
+  animate?: boolean;
+  /** The LCP image (home hero): eager + fetchpriority high. */
+  priority?: boolean;
+  /** Screen-width hint for the browser's image choice. */
+  sizes?: string;
+  class?: string;
+  /** Line names for the sr-only list of what was traced. */
+  lineNames?: Record<SampleLineName, string>;
+}
+
+const {
+  scan,
+  tag,
+  note,
+  scannedNote,
+  alt,
+  credit,
+  animate = false,
+  priority = false,
+  sizes = '(min-width: 64rem) 26rem, 80vw',
+  class: className,
+  lineNames,
+} = Astro.props;
+const base = '/samples/hero-palm';
+const traced = scan?.lines ?? [];
+// Stroke widths in the scan image's own pixels: about 3px line + 4.4px halo at the frame's usual width.
+const lineWidth = scan ? +(scan.width / 110).toFixed(2) : 0;
+const haloWidth = +(lineWidth * 1.45).toFixed(2);
+---
+
+<figure class:list={['palm-scan', { animate, scanned: traced.length > 0 }, className]}>
+  <div class="device">
+    <span class="speaker" aria-hidden="true"></span>
+    <div class="screen">
+      <picture>
+        <source type="image/avif" srcset={`${base}-480.avif 480w, ${base}-960.avif 960w`} sizes={sizes} />
+        <source type="image/webp" srcset={`${base}-480.webp 480w, ${base}-960.webp 960w`} sizes={sizes} />
+        <img
+          class="photo"
+          src={`${base}-480.webp`}
+          width="480"
+          height="640"
+          alt={alt}
+          loading={priority ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : 'auto'}
+          decoding="async"
+        />
+      </picture>
+      {
+        scan && traced.length > 0 && (
+          <svg class="traces" viewBox={`0 0 ${scan.width} ${scan.height}`} preserveAspectRatio="none" aria-hidden="true">
+            {traced.map((line) => (
+              <g class:list={['trace-group', `t-${line.name}`]}>
+                <path class="trace halo" d={line.d} pathLength="1" stroke-width={haloWidth} />
+                <path class:list={['trace', 'line', `line-${line.name}`]} d={line.d} pathLength="1" stroke-width={lineWidth} />
+              </g>
+            ))}
+          </svg>
+        )
+      }
+      {animate && <div class="beam-track" aria-hidden="true"><div class="beam"></div></div>}
+      <span class="photo-tag text-caption">{tag}</span>
+      <p class="photo-note text-small">
+        <Icon name="lines" class="note-icon" />
+        <span>{traced.length > 0 ? scannedNote : note}</span>
+      </p>
+    </div>
+  </div>
+  <figcaption class="sr-only">
+    {alt}
+    {traced.length > 0 && lineNames && ` ${traced.map((l) => lineNames[l.name]).join(', ')}.`}
+    {credit && ` ${credit}`}
+  </figcaption>
+</figure>
+
+<style>
+  .palm-scan { margin: 0; display: flex; justify-content: center; }
+  /* --device-w is set by the page (hero: from the screen height, so the photo, button and line fit one screen). */
+  .device {
+    position: relative; width: min(100%, var(--device-w, 22rem)); padding: 1.35rem 0.55rem 0.55rem;
+    border-radius: 2.5rem; background-color: var(--color-bezel); border: 1px solid var(--hairline);
+  }
+  .speaker {
+    position: absolute; top: 0.55rem; left: 50%; width: 22%; height: 0.3rem; transform: translateX(-50%);
+    border-radius: 9999px; background-color: var(--surface-3);
+  }
+  .screen { position: relative; overflow: hidden; border-radius: 1.95rem; aspect-ratio: 3 / 4; background-color: var(--surface-2); }
+  .photo { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .traces { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* Widths are attributes (in the scan's pixels), so CSS must not set stroke-width here. */
+  .trace { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .halo { stroke: var(--color-halo); }
+  .line-life { stroke: var(--color-trace-life); }
+  .line-head { stroke: var(--color-trace-head); }
+  .line-heart { stroke: var(--color-trace-heart); }
+  .line-fate { stroke: var(--color-trace-fate); }
+
+  .photo-tag {
+    position: absolute; top: 0.75rem; left: 0.75rem; padding: 0.125rem 0.625rem; border-radius: 9999px;
+    background-color: var(--color-photo-scrim); color: var(--color-on-photo);
+  }
+  .photo-note {
+    position: absolute; left: 0.75rem; right: 0.75rem; bottom: 0.75rem; margin: 0;
+    display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.875rem; border-radius: 1rem;
+    background-color: var(--color-photo-scrim); color: var(--color-on-photo); border: 1px solid var(--glass-edge);
+  }
+  .photo-note :global(.note-icon) { color: var(--color-gold-bright); width: 1.15rem; height: 1.15rem; }
+
+  /* The one orchestrated moment: beam once, then (real scan only) the lines, then the note. */
+  .beam-track { position: absolute; inset: 0; pointer-events: none; transform: translateY(-100%); opacity: 0;
+    animation: scan-beam var(--dur-beam) var(--ease) 350ms 1 both; }
+  .beam { position: absolute; left: 0; right: 0; bottom: 0; height: 34px;
+    background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--color-gold-bright) 0%, transparent),
+      color-mix(in srgb, var(--color-gold-bright) 28%, transparent),
+      color-mix(in srgb, var(--color-gold-bright) 95%, transparent)); }
+  .animate .photo-note { animation: scan-fade 320ms var(--ease) 1500ms both; }
+  .animate.scanned .trace { animation: scan-draw var(--dur-draw) var(--ease) both; }
+  .animate .t-life .trace { animation-delay: 1500ms; }
+  .animate .t-head .trace { animation-delay: 1650ms; }
+  .animate .t-heart .trace { animation-delay: 1800ms; }
+  .animate .t-fate .trace { animation-delay: 1950ms; }
+  .animate.scanned .photo-note { animation-delay: 2700ms; }
+
+  @keyframes scan-beam {
+    0% { transform: translateY(-100%); opacity: 0; }
+    8% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateY(0); opacity: 0; }
+  }
+  @keyframes scan-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes scan-fade { from { opacity: 0; transform: translateY(0.375rem); } to { opacity: 1; transform: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .beam-track { display: none; }
+    .animate .photo-note, .animate.scanned .trace { animation: none; }
+  }
+</style>

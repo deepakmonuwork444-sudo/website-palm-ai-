@@ -9,8 +9,39 @@
   Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'none'
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
 
+# HSTS: one year, no `preload` yet. After ~4 weeks of clean HTTPS on palmsays.com and every subdomain
+# (api.), add "; preload" here and submit palmsays.com at https://hstspreload.org (hard to undo).
+# HTML is not listed: Workers serves it with `public, max-age=0, must-revalidate` (always fresh after a deploy).
+
+# The workers.dev copies (production + every preview version/alias) are never indexed: only palmsays.com is.
+https://:host.:account.workers.dev/*
+  X-Robots-Tag: noindex, nofollow
+
 # Hashed build assets never change.
 /_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The on-device hand model (src/lib/tools/hand/model-files.ts): versioned folder, never changes in place.
+/models/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 3D icons, renders and films (public/media/README.md): replaced files get a new name, never changed in place.
+/media/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images, samples and share images keep their names when replaced: a day fresh, then revalidated in the background.
+/images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/samples/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/badges/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/icons/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/og/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+# The guides' line-drawing sprite (WEB-DEC-052): always linked as palm-sprite.svg?v=<content hash>, so a change gets a new URL.
+/img/guides/*
   Cache-Control: public, max-age=31536000, immutable
 
 # Account pages: no referrer at all.
@@ -20,6 +51,37 @@
 /reset-password*
   ! Referrer-Policy
   Referrer-Policy: no-referrer
+
+# Sign-in pages (WEB-FEAT-029/062): keep strict-origin-when-cross-origin, never no-referrer —
+# Google's sign-in button needs the page origin (WEB_AUTH_PLAN.md §3, §9.5).
+/account/*
+  ! Referrer-Policy
+  Referrer-Policy: strict-origin-when-cross-origin
+/hi/account/*
+  ! Referrer-Policy
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Laptop webcam (WEB-DEC-059): the camera for our own origin, only on the pages that take a palm photo.
+# Cloudflare joins a header set by two matching rules with a comma, so "! Permissions-Policy" first drops the
+# /* value, then the full policy is set again with camera=(self). Every other page keeps camera=().
+/reading/*
+  ! Permissions-Policy
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+/tools/hand-type-quiz/*
+  ! Permissions-Policy
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+/tools/finger-reader/*
+  ! Permissions-Policy
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+/tools/palm-photo-checker/*
+  ! Permissions-Policy
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+/tools/palm-line-finder/*
+  ! Permissions-Policy
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+/tools/left-vs-right-palm/*
+  ! Permissions-Policy
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
 
 # Android App Links: JSON, no redirect (the file is built only with real SHA-256s).
 /.well-known/assetlinks.json

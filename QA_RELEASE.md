@@ -33,6 +33,12 @@ The scaffold (WEB-FEAT-001/016) must create these npm scripts **with these names
 
 Shortcut: `npm.cmd run gate` runs 1–8 in order and stops at the first failure.
 
+Launch tooling (WEB-FEAT-016, 2026-09-28), all on the built `dist/`:
+- `npm.cmd run links` — internal broken-link checker (`scripts/links.mjs`): every same-site href/src/srcset/og:image/CSS url()/sitemap/robots/llms URL resolves like Workers serves it, and every `#fragment` exists.
+- `npm.cmd run smoke` — Playwright smoke (`scripts/smoke.mjs`, installed Chrome, 390×844) over every sitemap URL + the noindex pages: 200, no console/page errors, no failed same-site requests, no sideways scroll, one H1, title + description, canonical = `https://palmsays.com<path>`, every visible image loads. `--only /a/,/b/` for a few pages; `--serve` only serves `dist/` on :4333 (for Lighthouse: `npx.cmd -y lighthouse@12 http://localhost:4333/ --form-factor=mobile`).
+- `npm.cmd run og` — per-page share images (`scripts/make-og.mjs` → `public/og/*.jpg` + `src/config/og-images.json`); run after a build when an H1 changes, then build again. check-web warns when one is missing or stale.
+- `npm.cmd run build:prod` — the production build (`PUBLIC_ENV=production`, values from `.env.launch`) + check-web; `npm.cmd run deploy` = `build:prod` + `wrangler deploy`. A plain `npm run build` is always a noindex preview.
+
 ### 2.1 Screenshots
 
 - Preferred: the Playwright smoke tests save screenshots to `qa/shots/<YYYY-MM-DD>-<branch>/`.
@@ -115,7 +121,7 @@ The owner runs these; hand over **one combined test sheet** at the end of a batc
 
 - Trigger: any post-deploy check fails, a frozen contract breaks, the reading fails for real users, or a false claim is live.
 - Command (project folder): `npx.cmd wrangler rollback` (to the previous version), or Cloudflare dashboard → Workers → the site Worker → Deployments → roll back (last 100 versions).
-- Static assets roll back with the version (confirm this once on day 1 — WEB-FEAT-031).
+- Static assets roll back with the version (confirm this once on day 1 — WEB-FEAT-031). `npx.cmd wrangler deployments list` shows the versions; `npx.cmd wrangler rollback <version-id>` picks a specific one. A rollback does not touch DNS, the custom domain, the www Redirect Rule or SSL settings (those live in the zone, not in the Worker version). The next `npm.cmd run deploy` makes a new version again.
 - Backend problems (caps, functions) are not fixed by a site rollback: ask the app-repo session / owner (kill switch = web caps to 0).
 - After rollback: re-run §8, add a WEB-BUG row, log it in §9.
 

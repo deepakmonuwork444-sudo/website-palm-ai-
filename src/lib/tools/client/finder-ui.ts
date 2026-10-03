@@ -77,7 +77,7 @@ export function mountFinder(finder: LineFinder, tool: ToolId): void {
         blocks.push(
           h('p', {
             class: 't-empty',
-            text: 'The books we use give no separate reading for what you picked — that is usual for the ordinary form of a line. Try another question above.',
+            text: 'The books we use give no separate reading for what you picked. That is usual for the ordinary form of a line. Try another question above.',
           }),
         );
       } else {
@@ -109,7 +109,7 @@ export function mountFinder(finder: LineFinder, tool: ToolId): void {
         blocks.push(h('p', { class: 't-empty', text: 'Having no fate line is common, and it is not a bad sign.' }));
       }
       if (finder.line === 'life') {
-        blocks.push(h('p', { class: 't-empty', text: 'Length is never read as lifespan — here or in the app.' }));
+        blocks.push(h('p', { class: 't-empty', text: 'Length is never read as lifespan, here or in the app.' }));
       }
       blocks.push(nextStepBlock());
       out.replaceChildren(heading, ...blocks.filter((b): b is HTMLElement => b !== null));

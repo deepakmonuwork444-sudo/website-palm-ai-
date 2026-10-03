@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>PalmSays promo scene v3 (60 s, glass)</title>
+<style>
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 600; font-style: normal; src: url(/fonts/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 600; font-style: italic; src: url(/fonts/cormorant-garamond/files/cormorant-garamond-latin-600-italic.woff2) format("woff2"); }
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 700; font-style: normal; src: url(/fonts/cormorant-garamond/files/cormorant-garamond-latin-700-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Mukta"; font-weight: 400; src: url(/fonts/mukta/files/mukta-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Mukta"; font-weight: 500; src: url(/fonts/mukta/files/mukta-latin-500-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Mukta"; font-weight: 600; src: url(/fonts/mukta/files/mukta-latin-600-normal.woff2) format("woff2"); }
+
+  :root {
+    --navy: #0B0A1F; --s1: #15132F; --s2: #1E1B42;
+    --gold: #E6B85C; --gold-b: #F5D98B; --cream: #F6F0E1;
+    --life: #2FD06A; --head: #4C8DFF; --heart: #FF4D5E; --fate: #B26BFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--navy); color: var(--cream); font-family: "Mukta", sans-serif; -webkit-font-smoothing: antialiased; }
+
+  /* ---------- background: glows, stars, glass orbs + bokeh (parallax) ---------- */
+  #bg { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 70% at 50% 0%, #1b1747 0%, var(--navy) 55%), var(--navy); }
+  #glowTop { position: absolute; left: 50%; top: -260px; width: 1500px; height: 1100px; margin-left: -750px; border-radius: 50%; background: radial-gradient(closest-side, rgba(122, 104, 230, .30), rgba(122, 104, 230, 0)); }
+  #glowGold { position: absolute; left: 50%; top: 1250px; width: 1400px; height: 900px; margin-left: -700px; border-radius: 50%; background: radial-gradient(closest-side, rgba(230, 184, 92, .16), rgba(230, 184, 92, 0)); }
+  #stars { position: absolute; left: 0; top: 0; }
+  #vignette { position: absolute; inset: 0; background: radial-gradient(90% 60% at 50% 50%, transparent 55%, rgba(4, 3, 14, .55) 100%); }
+  .orb { position: absolute; border-radius: 50%; will-change: transform;
+    background: radial-gradient(circle at 32% 26%, rgba(255, 255, 255, .34) 0%, rgba(214, 205, 255, .12) 18%, rgba(140, 124, 240, .07) 52%, rgba(122, 104, 230, .03) 70%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10), inset -10px -14px 34px rgba(245, 217, 139, .10), inset 6px 8px 22px rgba(255, 255, 255, .05), 0 0 50px rgba(122, 104, 230, .10); }
+  .bokeh { position: absolute; border-radius: 50%; will-change: transform; }
+
+  #cam { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform; }
+  .scene { position: absolute; inset: 0; display: none; will-change: opacity, transform; }
+
+  /* text lives between y 230 and y 1500, 60px side margins */
+  .cap { position: absolute; left: 60px; right: 60px; top: 236px; text-align: center; }
+  .h { font-family: "Cormorant Garamond", serif; font-weight: 600; color: var(--cream); letter-spacing: -.5px; text-shadow: 0 4px 30px rgba(5, 4, 20, .7), 0 2px 6px rgba(5, 4, 20, .55); }
+  .h em { font-style: italic; }
+  .gold { color: var(--gold-b); text-shadow: none; filter: drop-shadow(0 4px 16px rgba(5, 4, 20, .7)); background: linear-gradient(180deg, #FFF6DC 0%, #F8DE94 45%, #EDC46E 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .w { display: inline-block; will-change: transform, opacity, filter; }
+  .eyebrow { font-family: "Mukta"; font-weight: 600; font-size: 30px; letter-spacing: 6px; text-transform: uppercase; color: var(--gold); text-shadow: 0 2px 14px rgba(5, 4, 20, .8); }
+  .chip { position: absolute; display: flex; align-items: center; gap: 12px; padding: 12px 22px 8px 16px; border-radius: 999px; font-family: "Mukta"; font-weight: 600; font-size: 30px; line-height: 1; color: var(--cream); white-space: nowrap;
+    background: linear-gradient(165deg, rgba(150, 136, 255, .20), rgba(24, 20, 60, .55)); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid rgba(225, 218, 255, .22); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .30), 0 10px 26px rgba(0, 0, 0, .40); }
+  .chip i { width: 16px; height: 16px; border-radius: 50%; display: block; margin-top: -4px; box-shadow: 0 0 12px currentColor; background: currentColor; }
+
+  /* ---------- the glass material ---------- */
+  .gp { position: absolute; border-radius: 44px; overflow: hidden;
+    background: linear-gradient(165deg, rgba(168, 152, 255, .17) 0%, rgba(70, 60, 150, .17) 45%, rgba(22, 18, 58, .40) 100%);
+    -webkit-backdrop-filter: blur(26px) saturate(165%); backdrop-filter: blur(26px) saturate(165%);
+    border: 1px solid rgba(225, 218, 255, .20);
+    box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .36), inset 0 0 0 1px rgba(255, 255, 255, .03), inset 0 -24px 48px rgba(10, 8, 30, .20), 0 34px 80px rgba(2, 1, 12, .50), 0 10px 26px rgba(2, 1, 12, .30); }
+  .gp::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 45%; border-radius: inherit; background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, 0)); pointer-events: none; }
+  .sheen { position: absolute; top: -30%; bottom: -30%; left: 0; width: 34%; display: none; pointer-events: none;
+    background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .10) 38%, rgba(255, 255, 255, .30) 50%, rgba(255, 255, 255, .10) 62%, rgba(255, 255, 255, 0) 100%); }
+  .floor { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(245, 217, 139, .34), rgba(190, 170, 255, .10) 55%, rgba(245, 217, 139, 0)); }
+  #leak { position: absolute; inset: 0; mix-blend-mode: screen; display: none; pointer-events: none;
+    background: radial-gradient(38% 26% at var(--x) var(--y), rgba(255, 206, 128, .55), rgba(255, 206, 128, 0) 70%), radial-gradient(30% 22% at calc(var(--x) + 22%) calc(var(--y) + 12%), rgba(176, 146, 255, .45), rgba(176, 146, 255, 0) 70%); }
+
+  /* hand photo wrap (1100 wide for a 1200 x 1490 photo) */
+  .hw { position: absolute; left: -10px; top: 500px; width: 1100px; height: 1366px; transform-origin: 50% 52%; will-change: transform, opacity, filter; }
+  .hw img { position: absolute; inset: 0; width: 100%; height: 100%;
+    -webkit-mask-image: linear-gradient(to right, transparent 4%, #000 24%, #000 86%, transparent 99%), linear-gradient(to bottom, transparent 0%, #000 9%, #000 70%, transparent 96%);
+    -webkit-mask-composite: source-in; mask-composite: intersect; }
+  .hw svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .hw.hero { top: 470px; height: 1100px; }
+  .hw.hero img { -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 70%, transparent 96%); }
+
+  #hookcap .h, #k2 .h { font-size: 128px; line-height: 1.0; }
+
+  /* ---------- K3 line panels ---------- */
+  .lp { position: absolute; inset: 0; will-change: transform; }
+  .lp .hw { top: 590px; }
+  .ltop { position: absolute; left: 0; right: 0; top: 0; height: 760px; background: linear-gradient(to bottom, rgba(11, 10, 31, .75) 0%, rgba(11, 10, 31, .45) 55%, rgba(11, 10, 31, 0) 100%); }
+  .lglow { position: absolute; left: 90px; top: 860px; width: 900px; height: 900px; border-radius: 50%; }
+  .lcard { left: 60px; right: 60px; top: 206px; height: 420px; }
+  .lp .cap { top: 238px; }
+  .lname { font-size: 150px; line-height: 1; margin-top: 14px; }
+  .lmean { font-family: "Mukta"; font-weight: 500; font-size: 45px; line-height: 1.28; margin-top: 22px; color: var(--cream); text-shadow: 0 2px 12px rgba(5, 4, 20, .6); }
+  .lnote { font-family: "Mukta"; font-weight: 400; font-size: 33px; line-height: 1.3; margin-top: 12px; color: rgba(246, 240, 225, .82); text-shadow: 0 2px 12px rgba(5, 4, 20, .6); }
+
+  /* ---------- K4 how it works ---------- */
+  #k4 .h.title { font-size: 116px; line-height: 1; margin-top: 16px; }
+  .step { left: 90px; width: 900px; height: 236px; border-radius: 40px; display: flex; align-items: center; gap: 40px; padding: 0 44px 0 36px; }
+  .step .ic { position: relative; flex: 0 0 156px; height: 156px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 50% 30%, rgba(245, 217, 139, .22), rgba(20, 18, 50, .55) 72%); border: 1px solid rgba(245, 217, 139, .45); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3); }
+  .step .ic img { width: 118px; height: 118px; }
+  .step .n { font-family: "Mukta"; font-weight: 600; font-size: 26px; letter-spacing: 5px; color: var(--gold); text-transform: uppercase; }
+  .step .t { font-family: "Cormorant Garamond"; font-weight: 700; font-size: 60px; line-height: 1.02; color: var(--cream); margin-top: 4px; }
+  .step .s { font-family: "Mukta"; font-weight: 400; font-size: 30px; line-height: 1.25; color: rgba(246, 240, 225, .84); margin-top: 8px; }
+  .step .hl { position: absolute; inset: 0; border-radius: 40px; border: 2px solid var(--gold-b); box-shadow: 0 0 40px rgba(245, 217, 139, .35), inset 0 0 36px rgba(245, 217, 139, .14); opacity: 0; }
+
+  /* ---------- K5 report ---------- */
+  .rep { position: absolute; transform-origin: 50% 50%;
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
+  #rep1 { left: -10px; top: 470px; width: 1100px; height: 1375px; }
+  #rep2 { left: -40px; top: 540px; width: 1160px; height: 1160px; }
+  .capg { left: 60px; right: 60px; top: 206px; height: 306px; }
+  #k5 .h, #k7 .h { font-size: 100px; line-height: 1.02; margin-top: 14px; }
+  #wipeEdge { position: absolute; top: -200px; width: 10px; height: 2400px; margin-left: -5px; background: linear-gradient(180deg, transparent, var(--gold-b) 20%, #fff 50%, var(--gold-b) 80%, transparent); box-shadow: 0 0 40px 8px rgba(245, 217, 139, .55); display: none; }
+  #wipeEdgeH { position: absolute; left: -100px; width: 1280px; height: 8px; margin-top: -4px; background: linear-gradient(90deg, transparent, var(--gold-b) 20%, #fff 50%, var(--gold-b) 80%, transparent); box-shadow: 0 0 40px 8px rgba(245, 217, 139, .5); display: none; }
+
+  /* ---------- K6 tools (phone) ---------- */
+  #cap67 { display: none; }
+  #k6 .h.title { font-size: 124px; line-height: 1; margin-top: 12px; }
+  .phone { position: absolute; left: 274px; top: 540px; width: 532px; height: 1032px; border-radius: 70px; padding: 16px; transform-origin: 50% 0;
+    background: linear-gradient(145deg, #4a4478, #15122e 42%, #2c2754 78%, #4a4478); border: 2px solid rgba(245, 217, 139, .6);
+    box-shadow: 0 50px 120px rgba(2, 1, 10, .8), 0 0 90px rgba(122, 104, 230, .28), inset 0 0 0 2px rgba(0, 0, 0, .6), inset 0 2px 0 rgba(255, 255, 255, .35);
+    -webkit-box-reflect: below 16px linear-gradient(to bottom, transparent 74%, rgba(255, 255, 255, .16)); }
+  .screen { position: relative; width: 500px; height: 1000px; border-radius: 56px; overflow: hidden; background: var(--navy); }
+  .screen img { position: absolute; left: 0; top: 38px; width: 500px; height: 962px; will-change: transform; }
+  .notch { position: absolute; left: 50%; top: 8px; width: 112px; height: 26px; margin-left: -56px; border-radius: 20px; background: #05040c; z-index: 3; }
+  .glare { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit; background: linear-gradient(128deg, rgba(255, 255, 255, .12) 0%, rgba(255, 255, 255, .04) 26%, rgba(255, 255, 255, 0) 40%); }
+  .clipsheen { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 4; pointer-events: none; }
+  #pills { position: absolute; left: 60px; right: 60px; top: 418px; height: 70px; }
+  #pills .chip { left: 0; right: 0; margin: 0 auto; width: max-content; top: 0; font-size: 34px; padding: 16px 30px 12px 24px; border-color: rgba(245, 217, 139, .45); }
+  #pills .chip img { width: 40px; height: 40px; margin-top: -4px; }
+  #floor6 { left: 170px; top: 1440px; width: 740px; height: 110px; }
+
+  /* ---------- K7 guides (cover flow) ---------- */
+  #flow { position: absolute; left: 0; top: 540px; width: 1080px; height: 1000px; perspective: 1700px; }
+  .gcard { position: absolute; left: 280px; top: 0; width: 520px; height: 1000px; border-radius: 38px; overflow: hidden; border: 2px solid rgba(245, 217, 139, .5);
+    box-shadow: 0 40px 110px rgba(2, 1, 10, .8), 0 0 70px rgba(122, 104, 230, .22), inset 0 2px 0 rgba(255, 255, 255, .3); background: var(--navy); will-change: transform;
+    -webkit-box-reflect: below 14px linear-gradient(to bottom, transparent 78%, rgba(255, 255, 255, .14)); }
+  .gcard img { width: 100%; height: 100%; display: block; }
+  .gcard .dim { position: absolute; inset: 0; background: #07061a; z-index: 3; }
+  #floor7 { left: 170px; top: 1500px; width: 740px; height: 110px; }
+
+  /* ---------- K8 kinetic ---------- */
+  #k8bg { position: absolute; left: -10px; top: 300px; width: 1100px; height: 1366px; opacity: .2; will-change: transform;
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 100%); }
+  #k8bg img { width: 100%; height: 100%; }
+  #k8ic { position: absolute; left: 50%; top: 470px; width: 250px; height: 250px; margin-left: -125px; border-radius: 50%;
+    background: linear-gradient(165deg, rgba(168, 152, 255, .24), rgba(30, 26, 70, .70)); border: 1px solid rgba(225, 218, 255, .26);
+    box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .4), 0 30px 70px rgba(2, 1, 12, .5), 0 0 60px rgba(122, 104, 230, .25); }
+  #k8ic img { position: absolute; left: 40px; top: 40px; width: 170px; height: 170px; }
+  #diff { position: absolute; left: 60px; right: 60px; top: 800px; text-align: center; font-size: 150px; line-height: 1; }
+  #roll { position: absolute; left: 60px; right: 60px; top: 950px; height: 200px; text-align: center; }
+  #roll .h { position: absolute; left: 0; right: 0; top: 0; font-size: 176px; line-height: 1.05; }
+  #k8rule { position: absolute; left: 50%; top: 1180px; width: 420px; height: 2px; margin-left: -210px; background: linear-gradient(90deg, transparent, rgba(245, 217, 139, .8), transparent); }
+
+  /* ---------- K9 / K10: one glass slab that grows from the tradition line into the end card ---------- */
+  #slab { left: 90px; width: 900px; border-radius: 56px; display: none; }
+  #k9 .h { position: absolute; left: 60px; right: 60px; top: 760px; text-align: center; font-size: 104px; line-height: 1.08; }
+  #k9rule { position: absolute; left: 50%; top: 1060px; width: 360px; height: 2px; margin-left: -180px; background: linear-gradient(90deg, transparent, rgba(245, 217, 139, .75), transparent); }
+  #k9halo { position: absolute; left: 50%; top: 560px; width: 1000px; height: 700px; margin-left: -500px; border-radius: 50%; background: radial-gradient(closest-side, rgba(122, 104, 230, .22), rgba(122, 104, 230, 0)); }
+  #k10 { text-align: center; }
+  #mark { position: absolute; left: 50%; top: 300px; width: 210px; margin-left: -105px; filter: drop-shadow(0 12px 40px rgba(230, 184, 92, .35)); }
+  #halo { position: absolute; left: 50%; top: 250px; width: 520px; height: 520px; margin-left: -260px; border-radius: 50%; background: radial-gradient(closest-side, rgba(245, 217, 139, .22), rgba(245, 217, 139, 0)); }
+  #brand { position: absolute; left: 60px; right: 60px; top: 560px; font-size: 150px; line-height: 1; font-weight: 700; }
+  #domain { position: absolute; left: 60px; right: 60px; top: 745px; font-family: "Mukta"; font-weight: 500; font-size: 50px; letter-spacing: 3px; color: var(--gold-b); }
+  #rule { position: absolute; left: 50%; top: 850px; width: 360px; height: 2px; margin-left: -180px; background: linear-gradient(90deg, transparent, rgba(245, 217, 139, .7), transparent); }
+  #appline { position: absolute; left: 60px; right: 60px; top: 900px; font-size: 76px; line-height: 1.05; }
+  #badge { position: absolute; left: 50%; top: 1040px; width: 440px; margin-left: -220px; }
+  #guides5 { position: absolute; left: 60px; right: 60px; top: 1236px; font-family: "Mukta"; font-weight: 500; font-size: 38px; color: var(--cream); opacity: .92; }
+  #honest { position: absolute; left: 110px; right: 110px; top: 1330px; font-family: "Mukta"; font-weight: 400; font-size: 30px; line-height: 1.35; color: rgba(246, 240, 225, .72); }
+</style>
+</head>
+<body>
+<div id="bg"><div id="glowTop"></div><div id="glowGold"></div><canvas id="stars" width="1080" height="2300"></canvas><div id="orbs"></div><div id="vignette"></div></div>
+
+<div id="cam">
+<!-- K1: hook, fast cuts of different hands -->
+<div id="k1" class="scene">
+  <div class="hw" id="hk0"><img src="/pub/images/story/hand-2-1200.webp" alt="" /></div>
+  <div class="hw" id="hk1"><img src="/pub/images/story/hand-3-1200.webp" alt="" /></div>
+  <div class="hw" id="hk2"><img src="/pub/images/story/hand-4-1200.webp" alt="" /></div>
+  <div class="hw hero" id="hk3"><img src="/pub/images/hero/hand-v1-1200.webp" alt="" /></div>
+</div>
+
+<!-- K2: what do your hands say + four lines (v1 animation on hand-1) -->
+<div id="k2" class="scene">
+  <div class="hw" id="hw2">
+    <img src="/pub/images/story/hand-1-1200.webp" alt="" />
+    <svg viewBox="0 0 1200 1490" id="svg2">
+      <defs>
+        <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9" /></filter>
+        <filter id="dotglow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="6" /></filter>
+      </defs>
+    </svg>
+    <div class="chip" id="c-heart" style="color:var(--heart)"><i></i><span style="color:var(--cream)">Heart</span></div>
+    <div class="chip" id="c-head" style="color:var(--head)"><i></i><span style="color:var(--cream)">Head</span></div>
+    <div class="chip" id="c-life" style="color:var(--life)"><i></i><span style="color:var(--cream)">Life</span></div>
+    <div class="chip" id="c-fate" style="color:var(--fate)"><i></i><span style="color:var(--cream)">Fate</span></div>
+  </div>
+  <div class="cap" id="cap2"><h2 class="h"><span class="w">What</span> <span class="w">do</span> <span class="w">your</span><br /><em class="w gold">hands</em> <span class="w">say?</span></h2></div>
+</div>
+
+<div id="k1cap" class="scene">
+  <div class="cap" id="hookcap"><h1 class="h"><span class="w">No</span> <span class="w">two</span> <span class="w">hands</span><br /><em class="w gold">are the same.</em></h1></div>
+</div>
+
+<!-- K3: the four lines, one hand each -->
+<div id="k3" class="scene"></div>
+
+<!-- K4: how it works (in the app) -->
+<div id="k4" class="scene">
+  <div class="cap">
+    <div class="eyebrow w">In the PalmSays app</div>
+    <h2 class="h title"><span class="w">How</span> <span class="w">it</span> <em class="w gold">works</em></h2>
+  </div>
+  <div class="step gp" style="top:590px"><div class="sheen"></div><div class="hl"></div><div class="ic"><img src="/pub/media/icons/camera-192.webp" alt="" /></div><div><div class="n">Step 1</div><div class="t">Take one photo</div><div class="s">Of your palm, with your phone camera.</div></div></div>
+  <div class="step gp" style="top:870px"><div class="sheen"></div><div class="hl"></div><div class="ic"><img src="/pub/media/icons/palm-lines-192.webp" alt="" /></div><div><div class="n">Step 2</div><div class="t">We trace your lines</div><div class="s">Heart, head, life and fate, on your own photo.</div></div></div>
+  <div class="step gp" style="top:1150px"><div class="sheen"></div><div class="hl"></div><div class="ic"><img src="/pub/media/icons/book-192.webp" alt="" /></div><div><div class="n">Step 3</div><div class="t">Read what palmistry says</div><div class="s">In short, clear sections.</div></div></div>
+</div>
+
+<!-- K5: the reading report (app) -->
+<div id="k5" class="scene">
+  <img class="rep" id="rep1" src="/pub/media/renders/phone-report-en-800.webp" alt="" />
+  <img class="rep" id="rep2" src="/pub/media/renders/phone-report-close-en-800.webp" alt="" />
+  <div class="gp capg" id="cap5g"><div class="sheen"></div></div>
+  <div class="cap">
+    <div class="eyebrow w">Your reading, in the app</div>
+    <h2 class="h"><span class="w">What</span> <span class="w">palmistry</span> <span class="w">reads</span><br /><span class="w">in</span> <em class="w gold">your lines</em></h2>
+  </div>
+</div>
+
+<!-- shared caption glass for K6 + K7 (carries across the cut) -->
+<div class="gp capg" id="cap67"><div class="sheen"></div></div>
+
+<!-- K6: free tools on palmsays.com -->
+<div id="k6" class="scene">
+  <div class="cap">
+    <div class="eyebrow w">On palmsays.com</div>
+    <h2 class="h title"><span class="w">Free</span> <em class="w gold">tools</em></h2>
+  </div>
+  <div id="pills">
+    <div class="chip"><img src="/pub/media/icons/map-192.webp" alt="" />Interactive palm map</div>
+    <div class="chip"><img src="/pub/media/icons/heart-line-192.webp" alt="" />Heart line finder</div>
+    <div class="chip"><img src="/pub/media/icons/hands-compare-192.webp" alt="" />Which-hand quiz</div>
+    <div class="chip"><img src="/pub/media/icons/signs-192.webp" alt="" />Palm signs checker</div>
+  </div>
+  <div class="floor" id="floor6"></div>
+  <div class="phone" id="phone6"><div class="screen"><div class="notch"></div><img id="t0" alt="" /><img id="t1" alt="" /><img id="t2" alt="" /><img id="t3" alt="" /><div class="glare"></div></div><div class="clipsheen"><div class="sheen"></div></div></div>
+</div>
+
+<!-- K7: free guides -->
+<div id="k7" class="scene">
+  <div class="cap">
+    <div class="eyebrow w">Free guides</div>
+    <h2 class="h"><span class="w">Learn</span> <span class="w">to</span> <span class="w">read</span><br /><em class="w gold">your own lines</em></h2>
+  </div>
+  <div class="floor" id="floor7"></div>
+  <div id="flow">
+    <div class="gcard" id="gc0"><img id="g0" alt="" /><div class="glare"></div><div class="dim"></div></div>
+    <div class="gcard" id="gc1"><img id="g1" alt="" /><div class="glare"></div><div class="dim"></div></div>
+    <div class="gcard" id="gc2"><img id="g2" alt="" /><div class="glare"></div><div class="dim"></div></div>
+  </div>
+</div>
+
+<!-- K8: kinetic typography -->
+<div id="k8" class="scene">
+  <div id="k8bg"><img src="/pub/images/story/hand-3-1200.webp" alt="" /></div>
+  <div id="k8ic">
+    <img src="/pub/media/icons/fingers-192.webp" alt="" />
+    <img src="/pub/media/icons/hand-shape-192.webp" alt="" />
+    <img src="/pub/media/icons/palm-lines-192.webp" alt="" />
+  </div>
+  <div class="h" id="diff"></div>
+  <div id="roll">
+    <div class="h"><em class="gold">fingers.</em></div>
+    <div class="h"><em class="gold">mounts.</em></div>
+    <div class="h"><em class="gold">lines.</em></div>
+  </div>
+  <div id="k8rule"></div>
+</div>
+
+<!-- shared glass slab: tradition line -> end card -->
+<div class="gp" id="slab"><div class="sheen"></div></div>
+
+<!-- K9: tradition line -->
+<div id="k9" class="scene">
+  <div id="k9halo"></div>
+  <div class="h"><span class="w">A</span> <span class="w">tradition</span> <span class="w">for</span> <span class="w">reflection,</span><br /><em class="w gold">not</em> <em class="w gold">a</em> <em class="w gold">prediction.</em></div>
+  <div id="k9rule"></div>
+</div>
+
+<!-- K10: end card (v1 content on the glass slab) -->
+<div id="k10" class="scene">
+  <div id="halo"></div>
+  <svg id="mark" viewBox="3.6 1.6 24.8 28.8">
+    <defs>
+      <linearGradient id="ma" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B2F92" /><stop offset=".5" stop-color="#241C60" /><stop offset="1" stop-color="#120F2E" /></linearGradient>
+      <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF1CC" /><stop offset=".4" stop-color="#F5D98B" /><stop offset=".75" stop-color="#E6B85C" /><stop offset="1" stop-color="#C8963E" /></linearGradient>
+      <linearGradient id="ml" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF1CC" /><stop offset="1" stop-color="#E9BE62" /></linearGradient>
+    </defs>
+    <path d="M4.5 29.5V14.2C4.5 7.7 9.6 2.5 16 2.5s11.5 5.2 11.5 11.7v15.3Z" fill="url(#ma)" stroke="url(#mg)" stroke-width="1.1" stroke-linejoin="round" />
+    <path d="M8.2 11.2c1.3-3.6 4.3-5.9 7.8-5.9" fill="none" stroke="#FFFFFF" stroke-opacity=".28" stroke-width=".8" stroke-linecap="round" />
+    <path id="markLines" d="M26.2 13.2c-4.4-1.6-9.4-1.4-13.6.8M5.6 16.6c5.2-.3 10 1.3 13.8 4.7M5.6 16.6c4.2 2.3 6.8 6.4 7.2 11.4" fill="none" stroke="url(#ml)" stroke-width="1.9" stroke-linecap="round" />
+  </svg>
+  <div class="h" id="brand">Palm<span class="gold">Says</span></div>
+  <div id="domain">palmsays.com</div>
+  <div id="rule"></div>
+  <div class="h" id="appline">Free palm reading<br /><em class="gold">in the app</em></div>
+  <img id="badge" src="/pub/badges/google-play-en.png" alt="Get it on Google Play" />
+  <div id="guides5">Free guides &amp; tools at palmsays.com</div>
+  <div id="honest">Palmistry is a tradition for reflection, not a prediction.</div>
+</div>
+</div>
+<div id="wipeEdge"></div>
+<div id="wipeEdgeH"></div>
+<div id="leak"></div>
+
+<script>
+  // ---------- helpers ----------
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const eOut = (x) => 1 - Math.pow(1 - x, 3);
+  const eIn = (x) => x * x * x;
+  const eInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const eExpo = (x) => (x >= 1 ? 1 : (1 - Math.pow(2, -10 * x)) / (1 - Math.pow(2, -10)));
+  const eSpring = (x) => { const c = 1.08; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); }; // gentle, ~4% overshoot
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const on = (el, v) => { el.style.display = v ? 'block' : 'none'; return v; };
+  const blurPx = (b) => (b > 0.05 ? `blur(${b.toFixed(2)}px)` : 'none');
+  // text entrance: rise + blur-to-sharp (sharp and filter-free once settled)
+  const rise = (el, k, dy = 30, blur = 10, op = k) => { el.style.opacity = op; el.style.transform = k < 1 ? `translateY(${((1 - k) * dy).toFixed(2)}px)` : 'none'; el.style.filter = blurPx((1 - k) * blur); };
+  const wordsIn = (list, t, start, step = 0.07, dur = 0.75, dy = 34, from = 0) => {
+    list.forEach((el, i) => { const k = eExpo(seg(t, start + i * step, start + i * step + dur)); rise(el, k, dy, 12, lerp(from, 1, k)); });
+  };
+  // glass panel entrance (no filter on glass: it would break the backdrop blur)
+  const glassIn = (el, k, dy = 46) => { el.style.opacity = k; el.style.transform = k < 1 ? `translateY(${((1 - k) * dy).toFixed(2)}px) scale(${lerp(0.965, 1, k).toFixed(4)})` : 'none'; };
+  // specular light sweep across a glass surface
+  const sweep = (host, t, a, dur = 1.2) => {
+    const s = $('.sheen', host), p = seg(t, a, a + dur);
+    if (!s) return;
+    s.style.display = p > 0 && p < 1 ? 'block' : 'none';
+    if (p > 0 && p < 1) { s.style.transform = `translateX(${lerp(-140, 330, eInOut(p)).toFixed(1)}%) skewX(-16deg)`; s.style.opacity = Math.sin(Math.PI * p).toFixed(3); }
+  };
+  const pad4 = (i) => String(i).padStart(4, '0');
+  const setSrc = (img, src) => { if (img.dataset.src !== src) { img.dataset.src = src; img.src = src; return img.decode().catch(() => {}); } return null; };
+  window.REC = {};
+
+  // ---------- stars (seeded, drawn once) ----------
+  (() => {
+    let s = 7;
+    const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+    const c = $('#stars').getContext('2d');
+    for (let i = 0; i < 170; i++) {
+      const x = rnd() * 1080, y = rnd() * 2300, r = rnd() * 1.7 + 0.4, a = rnd() * 0.5 + 0.15;
+      c.fillStyle = rnd() < 0.25 ? `rgba(245,217,139,${a})` : `rgba(214,205,255,${a})`;
+      c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+    }
+  })();
+
+  // ---------- glass orbs + bokeh: kept to the sides and the lower third, low opacity ----------
+  const ORBS = [
+    { x: 60, y: 1600, r: 120, d: 0.55, o: 0.42 }, { x: 1010, y: 1330, r: 80, d: 0.9, o: 0.38 }, { x: 1030, y: 600, r: 52, d: 1.25, o: 0.32 },
+    { x: 880, y: 1820, r: 140, d: 0.4, o: 0.34 }, { x: 40, y: 900, r: 40, d: 1.5, o: 0.3 },
+    { b: 1, x: 150, y: 470, r: 16, d: 1.3, o: 0.35, c: '245,217,139' }, { b: 1, x: 950, y: 900, r: 22, d: 0.8, o: 0.30, c: '190,176,255' },
+    { b: 1, x: 110, y: 1230, r: 13, d: 1.6, o: 0.40, c: '245,217,139' }, { b: 1, x: 760, y: 1660, r: 20, d: 0.7, o: 0.35, c: '190,176,255' },
+    { b: 1, x: 990, y: 1640, r: 11, d: 1.4, o: 0.40, c: '245,217,139' }, { b: 1, x: 420, y: 1560, r: 9, d: 1.9, o: 0.35, c: '245,217,139' },
+    { b: 1, x: 60, y: 300, r: 10, d: 1.0, o: 0.25, c: '190,176,255' }, { b: 1, x: 1030, y: 250, r: 12, d: 1.2, o: 0.25, c: '245,217,139' },
+  ];
+  for (const O of ORBS) {
+    const el = document.createElement('div');
+    el.className = O.b ? 'bokeh' : 'orb';
+    Object.assign(el.style, { left: (O.x - O.r) + 'px', top: (O.y - O.r) + 'px', width: O.r * 2 + 'px', height: O.r * 2 + 'px', opacity: O.o });
+    if (O.b) el.style.background = `radial-gradient(circle, rgba(${O.c},.75) 0%, rgba(${O.c},.25) 38%, rgba(${O.c},0) 70%)`;
+    $('#orbs').appendChild(el); O.el = el;
+  }
+
+  // ---------- line drawing (v1 style: glow + core + highlight + travelling dot) ----------
+  const NS = 'http://www.w3.org/2000/svg';
+  const COL = { heart: '#FF4D5E', head: '#4C8DFF', life: '#2FD06A', fate: '#B26BFF' };
+  const mkLine = (svg, d, c) => {
+    const mk = (w, op, filt) => {
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', d); p.setAttribute('fill', 'none'); p.setAttribute('stroke', c);
+      p.setAttribute('stroke-width', w); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-opacity', op);
+      p.setAttribute('pathLength', '1'); p.setAttribute('stroke-dasharray', '1 1');
+      if (filt) p.setAttribute('filter', `url(#${filt})`);
+      svg.appendChild(p); return p;
+    };
+    const L = { glow: mk(26, 0.55, 'blur'), core: mk(8, 1), hi: mk(2.5, 0.8) };
+    L.hi.setAttribute('stroke', '#ffffff');
+    L.dot = document.createElementNS(NS, 'circle'); L.dot.setAttribute('r', 16); L.dot.setAttribute('fill', '#fff'); L.dot.setAttribute('filter', 'url(#dotglow)'); svg.appendChild(L.dot);
+    L.len = L.core.getTotalLength();
+    L.draw = (p, glowOp = 0.55) => {
+      const off = (1 - p).toFixed(5);
+      for (const k of ['glow', 'core', 'hi']) { L[k].setAttribute('stroke-dashoffset', off); L[k].style.display = p > 0.001 ? '' : 'none'; }
+      L.glow.setAttribute('stroke-opacity', glowOp);
+      const pt = L.core.getPointAtLength(L.len * p);
+      L.dot.setAttribute('cx', pt.x.toFixed(2)); L.dot.setAttribute('cy', pt.y.toFixed(2));
+      L.dot.setAttribute('opacity', p > 0.001 && p < 0.999 ? Math.min(1, Math.sin(Math.PI * p) * 3) * 0.95 : 0);
+    };
+    return L;
+  };
+
+  // K2: hand-1 (v1 coordinates)
+  const T2 = 4.25;
+  const LINES2 = [
+    { k: 'heart', d: 'M 352 668 C 440 660, 540 640, 612 612 C 652 596, 688 578, 716 560', a: 0.10, b: 0.72, chip: { x: 330, y: 648, anchor: 'right' } },
+    { k: 'head', d: 'M 758 668 C 690 676, 600 694, 520 718 C 470 734, 430 750, 398 770', a: 0.42, b: 1.06, chip: { x: 376, y: 772, anchor: 'right' } },
+    { k: 'life', d: 'M 752 690 C 690 720, 628 780, 604 860 C 586 920, 588 990, 610 1062', a: 0.74, b: 1.44, chip: { x: 652, y: 1040, anchor: 'left' } },
+    { k: 'fate', d: 'M 520 1070 C 530 990, 540 900, 552 820 C 560 770, 566 730, 572 690', a: 1.06, b: 1.74, chip: { x: 500, y: 1100, anchor: 'right' } },
+  ];
+  for (const L of LINES2) {
+    Object.assign(L, mkLine($('#svg2'), L.d, COL[L.k]));
+    L.chipEl = $('#c-' + L.k);
+    const f = 1100 / 1200;
+    L.chipEl.style.top = (L.chip.y * f - 26) + 'px';
+    if (L.chip.anchor === 'right') L.chipEl.style.right = (1100 - L.chip.x * f) + 'px'; else L.chipEl.style.left = (L.chip.x * f) + 'px';
+  }
+
+  // K3: one line per hand. Meanings are the site's own copy (src/i18n/en.ts, lines.*.reads).
+  const PANELS = [
+    { k: 'heart', name: 'Heart', img: 'hand-2', d: 'M 836 758 C 790 745, 745 734, 715 722 C 680 708, 640 686, 615 668 C 598 655, 585 643, 568 630', mean: 'Read for how you love and show feeling.' },
+    { k: 'head', name: 'Head', img: 'hand-3', d: 'M 785 712 C 740 718, 700 722, 670 730 C 630 740, 590 752, 560 768 C 540 778, 522 790, 505 800', mean: 'Read for how you think, learn and decide.' },
+    { k: 'life', name: 'Life', img: 'hand-4', d: 'M 738 748 C 700 775, 668 805, 648 845 C 628 885, 618 930, 616 975 C 614 1010, 618 1040, 625 1070', mean: 'Read for energy and how you meet change —<br />not for how long you live.' },
+    { k: 'fate', name: 'Fate', img: 'hand-1', d: 'M 520 1070 C 530 990, 540 900, 552 820 C 560 770, 566 730, 572 690', mean: 'Read for work and life direction.', note: 'Many hands have no clear fate line — that is common.' },
+  ];
+  const S3 = [8.0, 10.5, 13.0, 15.5];
+  PANELS.forEach((P, i) => {
+    const el = document.createElement('div');
+    el.className = 'lp';
+    el.innerHTML = `<div class="lglow" style="background:radial-gradient(closest-side, ${COL[P.k]}33, ${COL[P.k]}00)"></div>
+      <div class="hw"><img src="/pub/images/story/${P.img}-1200.webp" alt="" /><svg viewBox="0 0 1200 1490"></svg></div>
+      <div class="ltop"></div>
+      <div class="gp lcard" style="height:${P.note || P.k === 'life' ? 432 : 380}px"><div class="sheen"></div></div>
+      <div class="cap"><div class="eyebrow">In palmistry</div>
+        <div class="h lname"><span style="color:${COL[P.k]};text-shadow:0 0 40px ${COL[P.k]}66, 0 4px 30px rgba(5,4,20,.7)">${P.name}</span> line</div>
+        <div class="lmean">${P.mean}</div>${P.note ? `<div class="lnote">${P.note}</div>` : ''}</div>`;
+    $('#k3').appendChild(el);
+    P.el = el; P.s = S3[i];
+    P.hw = $('.hw', el); P.glowEl = $('.lglow', el); P.card = $('.lcard', el);
+    P.txt = [$('.eyebrow', el), $('.lname', el), $('.lmean', el), $('.lnote', el)].filter(Boolean);
+    P.L = mkLine($('svg', el), P.d, COL[P.k]);
+    const mid = P.L.core.getPointAtLength(P.L.len / 2);
+    P.hw.style.transformOrigin = `${(mid.x / 1200) * 100}% ${(mid.y / 1490) * 100}%`;
+  });
+
+  const W1 = $$('#hookcap .w'), W2 = $$('#cap2 .w'), W4 = $$('#k4 .cap .w'), W5 = $$('#k5 .cap .w'), W6 = $$('#k6 .cap .w'), W7 = $$('#k7 .cap .w'), W9 = $$('#k9 .w');
+  const STEPS = $$('#k4 .step');
+  const PILLS = $$('#pills .chip');
+  $('#diff').innerHTML = [...'Different'].map((c) => `<span class="w">${c}</span>`).join('');
+  const DIFF = $$('#diff .w');
+  const ROLL = $$('#roll .h'), K8IC = $$('#k8ic img');
+  const E10 = ['#brand', '#domain', '#appline', '#badge', '#guides5', '#honest'].map((s) => $(s));
+
+  const CUTS = [['#hk0', 0], ['#hk1', 0.8], ['#hk2', 1.6], ['#hk3', 2.4]];
+  const TOOLS = [['t0', 31.0], ['t1', 33.0], ['t2', 35.0], ['t3', 37.0]];
+  const GUIDES = [['g0', 39.3], ['g1', 41.45], ['g2', 43.75]];
+  // light leaks over the big scene changes: [start, end, from x%, to x%, y%]
+  const LEAKS = [[7.65, 8.35, -30, 120, 40], [17.55, 18.45, 120, -30, 60], [23.45, 24.35, -30, 110, 30], [38.65, 39.45, 120, -20, 55], [51.55, 52.45, -20, 120, 45]];
+
+  window.render = async (t) => {
+    const waits = [];
+    const wait = (p) => p && waits.push(p);
+    const tq = Math.floor(t * 30 + 0.5 + 1e-6) / 30; // tmix pairs sub-frames (2k-1, 2k): both map to k
+
+    // ---- background + camera: always drifting a little, so no frame is frozen ----
+    $('#stars').style.transform = `translateY(${(-t * 5).toFixed(2)}px)`;
+    $('#glowTop').style.transform = `translate(${(Math.sin(t * 0.35) * 60).toFixed(2)}px, ${(Math.cos(t * 0.3) * 30).toFixed(2)}px)`;
+    $('#glowGold').style.transform = `translate(${(Math.cos(t * 0.28) * 70).toFixed(2)}px, 0)`;
+    for (const O of ORBS) {
+      const y = -t * 7 * O.d + Math.sin(t * 0.5 * O.d + O.x) * 10;
+      const x = Math.sin(t * 0.23 + O.y) * 14 * O.d;
+      O.el.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px)`;
+    }
+    const calm = seg(t, 57.2, 58.2); // the end-card hold only breathes
+    const amp = lerp(1, 0.35, calm);
+    $('#cam').style.transform = `translate(${(Math.sin(t * 0.23) * 5 * amp).toFixed(2)}px, ${(Math.sin(t * 0.19 + 1) * 7 * amp).toFixed(2)}px) scale(${(1.012 + Math.sin(t * 0.31) * 0.006 * amp).toFixed(5)})`;
+
+    // ---- light leaks ----
+    {
+      const L = LEAKS.find(([a, b]) => t >= a && t <= b), el = $('#leak');
+      if (on(el, !!L)) {
+        const p = seg(t, L[0], L[1]);
+        el.style.setProperty('--x', lerp(L[2], L[3], eInOut(p)).toFixed(2) + '%');
+        el.style.setProperty('--y', (L[4] + Math.sin(p * Math.PI) * 6).toFixed(2) + '%');
+        el.style.opacity = (Math.sin(Math.PI * p) * 0.6).toFixed(3);
+      }
+    }
+
+    // ---- K1 hook: whip cuts ----
+    if (on($('#k1'), t < 3.45)) {
+      CUTS.forEach(([sel, s], i) => {
+        const el = $(sel), u = t - s, dir = i % 2 ? -1 : 1;
+        if (!on(el, u >= 0 && u < 1.05)) return;
+        const kin = i === 0 ? 1 : eExpo(seg(u, 0, 0.26));
+        const kout = eIn(seg(u, 0.8, 1.02));
+        const x = (1 - kin) * 170 * dir - kout * 110 * dir;
+        el.style.opacity = kin;
+        el.style.filter = blurPx((1 - kin) * 14 + kout * 6);
+        el.style.transform = `translateX(${x.toFixed(2)}px) scale(${lerp(1.16, 1.04, eOut(seg(u, 0, 1.0))).toFixed(4)})`;
+      });
+    }
+    if (on($('#k1cap'), t < 4.25)) {
+      wordsIn(W1, t, 0, 0.09, 0.7, 34, 0.25);
+      const k = eInOut(seg(t, 3.85, 4.2));
+      $('#hookcap').style.opacity = 1 - k; $('#hookcap').style.transform = `translateY(${(-k * 50).toFixed(2)}px)`;
+      $('#hookcap').style.filter = blurPx(k * 10);
+    }
+
+    // ---- K2: hand-1 is the fifth cut (3.2 s), then the four lines draw ----
+    if (on($('#k2'), t >= 3.2 && t < 8.25)) {
+      const kin = eExpo(seg(t, 3.2, 3.46));
+      const hw = $('#hw2');
+      hw.style.opacity = kin;
+      hw.style.filter = blurPx((1 - kin) * 14);
+      hw.style.transform = `translateX(${((1 - kin) * 170).toFixed(2)}px) scale(${lerp(1.16, 1.0, eOut(seg(t, 3.2, 5.6))).toFixed(4)})`;
+      $('#cap2').style.display = t >= 4.0 ? 'block' : 'none';
+      wordsIn(W2, t, 4.02, 0.08, 0.75, 40);
+      for (const L of LINES2) {
+        L.draw(eInOut(seg(t, T2 + L.a, T2 + L.b)));
+        const ck = eSpring(seg(t, T2 + L.b - 0.15, T2 + L.b + 0.35));
+        L.chipEl.style.opacity = clamp(ck);
+        L.chipEl.style.transform = `translateY(${((1 - ck) * 14).toFixed(2)}px) scale(${lerp(0.88, 1, ck).toFixed(4)})`;
+      }
+      $('#k2').style.transform = `translateX(${(-1080 * eInOut(seg(t, 7.75, 8.2))).toFixed(2)}px)`;
+    }
+
+    // ---- K3: one line per hand, pushed like stories; last one closes with an iris ----
+    if (on($('#k3'), t >= 7.75 && t < 18.3)) {
+      PANELS.forEach((P, i) => {
+        const s = P.s, last = i === PANELS.length - 1;
+        const vis = t >= s - 0.25 && (last ? t < 18.3 : t < s + 2.7);
+        if (!on(P.el, vis)) return;
+        const x = 1080 * (1 - eInOut(seg(t, s - 0.25, s + 0.2))) - (last ? 0 : 1080 * eInOut(seg(t, s + 2.25, s + 2.7)));
+        P.el.style.transform = `translateX(${x.toFixed(2)}px)`;
+        P.hw.style.transform = `scale(${lerp(1.12, 1.2, seg(t, s - 0.25, s + 2.7)).toFixed(4)})`;
+        glassIn(P.card, eExpo(seg(t, s - 0.1, s + 0.55)), 30);
+        sweep(P.card, t, s + 0.15, 1.2);
+        P.txt.forEach((el, j) => rise(el, eExpo(seg(t, s + 0.05 + j * 0.12, s + 0.8 + j * 0.12)), 26, 10));
+        const p = eInOut(seg(t, s + 0.3, s + 1.3));
+        P.L.draw(p, 0.5 + 0.18 * Math.sin((t - s) * 4) * seg(t, s + 1.3, s + 1.7));
+        const g = eOut(seg(t, s + 0.4, s + 1.4));
+        P.glowEl.style.opacity = g; P.glowEl.style.transform = `scale(${lerp(0.7, 1, g).toFixed(4)})`;
+        if (last) {
+          const r = lerp(1500, 0, eInOut(seg(t, 17.7, 18.3)));
+          P.el.style.clipPath = r < 1499 ? `circle(${r.toFixed(1)}px at 50% 62%)` : 'none';
+        }
+      });
+    }
+
+    // ---- K4: how it works ----
+    if (on($('#k4'), t >= 17.8 && t < 24.3)) {
+      wordsIn(W4, t, 18.0, 0.09, 0.75, 34);
+      $('#k4 .cap').style.opacity = 1 - eInOut(seg(t, 23.5, 23.95));
+      $('#k4 .cap').style.transform = `translateY(${(-eInOut(seg(t, 23.5, 23.95)) * 60).toFixed(2)}px)`;
+      STEPS.forEach((el, j) => {
+        const k = eExpo(seg(t, 18.35 + j * 0.45, 19.25 + j * 0.45));
+        const ko = eInOut(seg(t, 23.4 + j * 0.07, 23.9 + j * 0.07)); // glass cards glide up and away, one by one
+        el.style.opacity = k * (1 - ko);
+        el.style.transform = `translate(${((1 - k) * 300).toFixed(2)}px, ${(-ko * 260).toFixed(2)}px) scale(${lerp(0.96, 1, k).toFixed(4)})`;
+        sweep(el, t, 18.55 + j * 0.45, 1.1);
+        const a = 19.9 + j * 1.15;
+        const hk = Math.min(eInOut(seg(t, a, a + 0.35)), 1 - eInOut(seg(t, a + 1.05, a + 1.4)));
+        $('.hl', el).style.opacity = hk;
+        $('.ic img', el).style.transform = `scale(${(1 + hk * 0.1).toFixed(4)})`;
+      });
+    }
+
+    // ---- K5: the reading report ----
+    if (on($('#k5'), t >= 23.6 && t < 31.3)) {
+      const kin = eExpo(seg(t, 23.75, 24.7));
+      wordsIn(W5, t, 24.05, 0.07, 0.75, 34);
+      glassIn($('#cap5g'), eExpo(seg(t, 23.8, 24.5)), 120);
+      sweep($('#cap5g'), t, 24.2, 1.2);
+      const x = eInOut(seg(t, 27.2, 27.8));
+      const push = eInOut(seg(t, 23.7, 27.4));
+      const r1 = $('#rep1');
+      r1.style.display = x < 1 ? '' : 'none';
+      r1.style.opacity = Math.min(kin * 1.2, 1) * (1 - x);
+      r1.style.filter = blurPx((1 - kin) * 16 + x * 6);
+      r1.style.transform = `translateY(${((1 - kin) * 300).toFixed(2)}px) scale(${(lerp(0.97, 1.1, push) + x * 0.25).toFixed(4)})`;
+      const p2 = eInOut(seg(t, 27.2, 31.2));
+      const r2 = $('#rep2');
+      r2.style.opacity = x; r2.style.display = x > 0 ? '' : 'none';
+      r2.style.filter = blurPx((1 - x) * 8);
+      r2.style.transform = `translateY(${lerp(90, -170, p2).toFixed(2)}px) scale(${(lerp(1.22, 1.0, eOut(seg(t, 27.2, 28.0))) + p2 * 0.08).toFixed(4)})`;
+      const w = eInOut(seg(t, 30.7, 31.25));
+      const xt = 1080 - w * 1700, xb = xt + 620;
+      $('#k5').style.clipPath = w > 0 ? `polygon(0 0, ${xt.toFixed(1)}px 0, ${xb.toFixed(1)}px 1920px, 0 1920px)` : 'none';
+      const edge = $('#wipeEdge');
+      if (on(edge, w > 0 && w < 1)) {
+        edge.style.left = ((xt + xb) / 2).toFixed(1) + 'px'; edge.style.top = '-240px';
+        edge.style.transform = `rotate(${(-Math.atan2(620, 1920) * 180 / Math.PI).toFixed(3)}deg)`;
+        edge.style.opacity = Math.sin(Math.PI * w).toFixed(3);
+      }
+    } else on($('#wipeEdge'), false);
+
+    // ---- shared caption glass for K6 + K7 ----
+    {
+      const g = $('#cap67');
+      if (on(g, t >= 30.8 && t < 46.3)) {
+        glassIn(g, eExpo(seg(t, 30.85, 31.6)), 60);
+        sweep(g, t, 31.05, 1.2); if (t > 38.9) sweep(g, t, 39.05, 1.2);
+        const w = eInOut(seg(t, 45.7, 46.25));
+        g.style.clipPath = w > 0 ? `inset(0 0 ${(w * 100).toFixed(2)}% 0 round 44px)` : 'none';
+      }
+    }
+
+    // ---- K6: free tools, real pages in a phone ----
+    if (on($('#k6'), t >= 30.7 && t < 39.3)) {
+      const kin = eExpo(seg(t, 30.8, 31.8)), kout = eInOut(seg(t, 38.75, 39.25));
+      wordsIn(W6, t, 30.95, 0.1, 0.75, 34);
+      W6.forEach((el) => { if (kout > 0) { el.style.opacity = 1 - kout; el.style.filter = blurPx(kout * 10); el.style.transform = `translateY(${(-kout * 24).toFixed(2)}px)`; } });
+      const ph = $('#phone6');
+      ph.style.opacity = Math.min(kin * 1.3, 1) * (1 - kout);
+      ph.style.filter = blurPx(kout * 10);
+      ph.style.transform = `perspective(1600px) translateY(${((1 - kin) * 320).toFixed(2)}px) rotateX(${((1 - kin) * 22).toFixed(3)}deg) scale(${(0.9 * (1 - kout * 0.2)).toFixed(4)})`;
+      $('#floor6').style.opacity = kin * (1 - kout);
+      $('#floor6').style.transform = `scaleX(${lerp(0.6, 1, kin).toFixed(4)})`;
+      sweep($('.clipsheen', ph), t, 31.45, 1.3);
+      PILLS.forEach((p) => { p.style.display = 'none'; });
+      TOOLS.forEach(([tag, s], j) => {
+        const img = $('#' + tag), n = REC[tag] || 1;
+        const first = j === 0, last = j === TOOLS.length - 1;
+        const vis = t >= (first ? 30.7 : s - 0.22) && (last || t < s + 2.22);
+        if (!on(img, vis)) return;
+        const xi = first ? 0 : 500 * (1 - eInOut(seg(t, s - 0.22, s + 0.2)));
+        const xo = last ? 0 : -500 * eInOut(seg(t, s + 1.78, s + 2.2));
+        img.style.transform = `translateX(${(xi + xo).toFixed(2)}px)`;
+        wait(setSrc(img, `/work/site/${tag}${pad4(clamp(Math.round((tq - (s - 0.2)) * 60), 0, n - 1))}.jpg`));
+        const pk = Math.min(eExpo(seg(t, (first ? 31.1 : s - 0.05), (first ? 31.7 : s + 0.45))), last ? 1 : 1 - eInOut(seg(t, s + 1.8, s + 2.05)));
+        const pill = PILLS[j];
+        pill.style.display = pk > 0 ? 'flex' : 'none';
+        pill.style.opacity = pk * (1 - kout);
+        pill.style.filter = blurPx((1 - pk) * 8);
+        pill.style.transform = `translateY(${((1 - pk) * (t < s + 1 ? 26 : -26)).toFixed(2)}px)`;
+      });
+    }
+
+    // ---- K7: free guides, cover flow ----
+    if (on($('#k7'), t >= 38.8 && t < 46.3)) {
+      wordsIn(W7, t, 39.05, 0.08, 0.75, 34);
+      const pos = -1 + eExpo(seg(t, 38.85, 39.9)) + eInOut(seg(t, 41.2, 41.75)) + eInOut(seg(t, 43.5, 44.05));
+      GUIDES.forEach(([tag, s], i) => {
+        const card = $('#gc' + i), d = i - pos, ad = Math.abs(d);
+        if (!on(card, ad < 1.9)) return;
+        card.style.zIndex = String(10 - Math.round(ad * 3));
+        card.style.transform = `translateX(${(d * 560).toFixed(2)}px) translateZ(${(-ad * 160).toFixed(2)}px) rotateY(${(clamp(-d, -1.2, 1.2) * 34).toFixed(3)}deg)`;
+        $('.dim', card).style.opacity = (Math.min(ad, 1) * 0.55).toFixed(3);
+        wait(setSrc($('#' + tag), `/work/site/${tag}${pad4(clamp(Math.round((tq - s) * 60), 0, (REC[tag] || 1) - 1))}.jpg`));
+      });
+      $('#flow').style.opacity = eOut(seg(t, 38.85, 39.4));
+      $('#floor7').style.opacity = eOut(seg(t, 39.0, 39.8));
+      const w = eInOut(seg(t, 45.7, 46.25));
+      $('#k7').style.clipPath = w > 0 ? `inset(0 0 ${(w * 100).toFixed(2)}% 0)` : 'none';
+      const edge = $('#wipeEdgeH');
+      if (on(edge, w > 0 && w < 1)) { edge.style.top = (1920 * (1 - w)).toFixed(1) + 'px'; edge.style.opacity = Math.sin(Math.PI * w).toFixed(3); }
+    } else on($('#wipeEdgeH'), false);
+
+    // ---- K8: kinetic type ----
+    if (on($('#k8'), t >= 45.6 && t < 52.3)) {
+      const kout = eInOut(seg(t, 51.7, 52.3));
+      $('#k8').style.opacity = 1 - kout;
+      $('#k8').style.filter = blurPx(kout * 14);
+      $('#k8').style.transform = `scale(${(1 + kout * 0.05).toFixed(4)})`;
+      const a = eInOut(seg(t, 47.7, 48.4)), b = eInOut(seg(t, 49.7, 50.4));
+      const ox = lerp(lerp(50, 60, a), 50, b), oy = lerp(lerp(22, 70, a), 52, b);
+      $('#k8bg').style.transformOrigin = `${ox.toFixed(2)}% ${oy.toFixed(2)}%`;
+      $('#k8bg').style.transform = `scale(${lerp(1.35, 1.6, seg(t, 45.6, 52.3)).toFixed(4)})`;
+      $('#k8bg').style.opacity = 0.22 * eOut(seg(t, 45.6, 46.4));
+      const ick = eSpring(seg(t, 46.0, 46.7));
+      $('#k8ic').style.opacity = clamp(ick); $('#k8ic').style.transform = `scale(${lerp(0.7, 1, ick).toFixed(4)})`;
+      DIFF.forEach((el, i) => rise(el, eExpo(seg(t, 46.05 + i * 0.045, 46.75 + i * 0.045)), 50, 12));
+      [46.35, 48.0, 50.0].forEach((g, j) => {
+        const kin = eExpo(seg(t, g, g + 0.7)), ko = j < 2 ? eInOut(seg(t, g + 1.65, g + 2.0)) : 0;
+        const el = ROLL[j];
+        el.style.opacity = kin * (1 - ko);
+        el.style.transform = `translateY(${((1 - kin) * 110 - ko * 110).toFixed(2)}px)`;
+        el.style.filter = blurPx((1 - kin) * 12 + ko * 12);
+        const ik = eSpring(seg(t, g - 0.05, g + 0.55)), iko = j < 2 ? eInOut(seg(t, g + 1.6, g + 1.95)) : 0;
+        K8IC[j].style.opacity = clamp(ik) * (1 - iko);
+        K8IC[j].style.transform = `scale(${(lerp(0.6, 1, ik) * (1 - iko * 0.3)).toFixed(4)}) rotate(${((1 - clamp(ik)) * -16).toFixed(3)}deg)`;
+      });
+      const rk = eExpo(seg(t, 46.6, 47.5));
+      $('#k8rule').style.opacity = rk; $('#k8rule').style.transform = `scaleX(${rk.toFixed(4)})`;
+    }
+
+    // ---- shared glass slab: grows from the tradition line into the end card ----
+    {
+      const sl = $('#slab');
+      if (on(sl, t >= 51.95)) {
+        const k = eExpo(seg(t, 52.0, 52.9));
+        const m = eInOut(seg(t, 54.7, 55.6));
+        sl.style.top = lerp(690, 236, m).toFixed(2) + 'px';
+        sl.style.height = lerp(440, 1224, m).toFixed(2) + 'px';
+        glassIn(sl, k, 50);
+        sweep(sl, t, 52.3, 1.3); if (t > 55.2) sweep(sl, t, 55.5, 1.5);
+      }
+    }
+
+    // ---- K9: tradition, not prediction ----
+    if (on($('#k9'), t >= 51.9 && t < 55.25)) {
+      const kout = eInOut(seg(t, 54.6, 55.1));
+      $('#k9').style.opacity = 1 - kout;
+      $('#k9 .h').style.filter = blurPx(kout * 10);
+      $('#k9 .h').style.transform = `translateY(${(-kout * 30).toFixed(2)}px)`;
+      W9.forEach((el, i) => rise(el, eExpo(seg(t, 52.25 + i * 0.13, 53.25 + i * 0.13)), 18, 12));
+      const rk = eInOut(seg(t, 53.3, 54.2));
+      $('#k9rule').style.opacity = rk; $('#k9rule').style.transform = `scaleX(${rk.toFixed(4)})`;
+      const hk = eOut(seg(t, 51.9, 53.5)); $('#k9halo').style.opacity = hk; $('#k9halo').style.transform = `scale(${lerp(0.8, 1.05, seg(t, 51.9, 55.2)).toFixed(4)})`;
+    }
+
+    // ---- K10: end card on the slab (v1 content, timings + 40 s) ----
+    if (on($('#k10'), t >= 55.0)) {
+      const mk = eSpring(seg(t, 55.1, 55.95));
+      $('#mark').style.transform = `scale(${lerp(0.7, 1, mk).toFixed(4)})`; $('#mark').style.opacity = clamp(mk * 1.4);
+      const ml = eInOut(seg(t, 55.4, 56.3));
+      const lines = $('#markLines'); lines.setAttribute('pathLength', '1'); lines.setAttribute('stroke-dasharray', '1 1'); lines.setAttribute('stroke-dashoffset', (1 - ml).toFixed(5));
+      const hk = eOut(seg(t, 55.3, 56.7)); $('#halo').style.opacity = hk; $('#halo').style.transform = `scale(${lerp(0.6, 1, hk).toFixed(4)})`;
+      const starts = [55.45, 55.7, 56.05, 56.4, 56.75, 56.95];
+      E10.forEach((el, i) => rise(el, eExpo(seg(t, starts[i], starts[i] + 0.8)), 30, 10));
+      const rk = eExpo(seg(t, 55.9, 56.7)); $('#rule').style.opacity = rk; $('#rule').style.transform = `scaleX(${rk.toFixed(4)})`;
+    }
+
+    await Promise.all(waits);
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  };
+
+  window.ready = (async () => {
+    const F = ['600 100px "Cormorant Garamond"', 'italic 600 100px "Cormorant Garamond"', '700 100px "Cormorant Garamond"', '400 30px Mukta', '500 30px Mukta', '600 30px Mukta'];
+    await Promise.all(F.map((f) => document.fonts.load(f)));
+    await Promise.all([...document.images].filter((i) => i.getAttribute('src')).map((i) => i.decode().catch(() => { throw new Error('image ' + i.src); })));
+    return { fonts: F.map((f) => document.fonts.check(f)) };
+  })();
+</script>
+</body>
+</html>

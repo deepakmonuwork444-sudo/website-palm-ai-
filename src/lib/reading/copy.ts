@@ -25,6 +25,13 @@ export const COPY = {
   takePhoto: { en: 'Take a palm photo', hi: 'हथेली की फ़ोटो लें' },
   uploadPhoto: { en: 'Upload a palm photo', hi: 'हथेली की फ़ोटो डालें' },
   fromGallery: { en: 'Choose from gallery', hi: 'गैलरी से चुनें' },
+  // Desktop only (WEB-DEC-059): the laptop webcam and the "continue on your phone" QR.
+  useWebcam: { en: 'Use laptop camera', hi: 'लैपटॉप कैमरा इस्तेमाल करें' },
+  phoneQr: {
+    en: 'Phone cameras see palm lines better. Scan to continue on your phone.',
+    hi: 'फ़ोन का कैमरा हथेली की रेखाएं बेहतर देखता है। अपने फ़ोन पर जारी रखने के लिए स्कैन करें।',
+  },
+  phoneQrLabel: { en: 'QR code: open this page on your phone', hi: 'QR कोड: यह पेज अपने फ़ोन पर खोलें' },
   tips: {
     en: ['Open palm', 'Good light', 'Whole hand in the frame'],
     hi: ['खुली हथेली', 'अच्छी रोशनी', 'पूरा हाथ फ़्रेम में'],
@@ -34,8 +41,8 @@ export const COPY = {
     hi: 'मेहंदी या स्याही से रेखाएं छिप सकती हैं। कोई रेखा साफ़ न दिखे तो हम अंदाज़ा नहीं लगाएंगे, आपको बता देंगे।',
   },
   cameraNote: {
-    en: 'Your phone may ask to allow the camera. We only take one photo of your palm.',
-    hi: 'फ़ोन कैमरे की अनुमति मांग सकता है। हम सिर्फ़ आपकी हथेली की एक फ़ोटो लेते हैं।',
+    en: 'Your device may ask to allow the camera. We only take one photo of your palm.',
+    hi: 'डिवाइस कैमरे की अनुमति मांग सकता है। हम सिर्फ़ आपकी हथेली की एक फ़ोटो लेते हैं।',
   },
   uploadLine: {
     en: "We analyse your photo and don't store it on any server. A copy stays on this device.",
@@ -70,8 +77,8 @@ export const COPY = {
   checking: { en: 'Checking your photo on this device…', hi: 'इसी डिवाइस पर आपकी फ़ोटो जांच रहे हैं…' },
   checkPassed: { en: 'Photo looks good.', hi: 'फ़ोटो ठीक है।' },
   failedFree: {
-    en: "This photo didn't work — and it didn't use up your free reading.",
-    hi: 'यह फ़ोटो काम नहीं आई — और आपकी मुफ़्त रीडिंग ख़र्च नहीं हुई।',
+    en: "This photo didn't work, and it didn't use up your free reading.",
+    hi: 'यह फ़ोटो काम नहीं आई, और आपकी मुफ़्त रीडिंग ख़र्च नहीं हुई।',
   },
   whichHand: { en: 'Which hand is this?', hi: 'यह कौन सा हाथ है?' },
   whichHandTip: {
@@ -96,12 +103,38 @@ export const COPY = {
     reading: { en: 'Reading your palm', hi: 'आपकी हथेली पढ़ रहे हैं' },
     writing: { en: 'Writing your reading', hi: 'आपकी रीडिंग लिख रहे हैं' },
     done: { en: 'Done', hi: 'हो गया' },
+    ready: { en: 'Your reading is ready', hi: 'आपकी रीडिंग तैयार है' },
   },
   slow: {
-    en: 'Taking longer than usual — your internet may be slow. You can wait, or try again.',
-    hi: 'आज थोड़ा ज़्यादा समय लग रहा है — शायद इंटरनेट धीमा है। रुकें, या दोबारा कोशिश करें।',
+    en: 'Taking longer than usual. Your internet may be slow. You can wait, or try again.',
+    hi: 'आज थोड़ा ज़्यादा समय लग रहा है। शायद इंटरनेट धीमा है। रुकें, या दोबारा कोशिश करें।',
   },
   tryAgain: { en: 'Try again', hi: 'दोबारा कोशिश करें' },
+
+  // Live scan over the photo (WEB-DEC-043): the app's own words, in short.
+  skipToReading: { en: 'Skip to my reading', hi: 'सीधे मेरी रीडिंग देखें' },
+  scanPhotoLabel: { en: 'Your palm photo being scanned', hi: 'आपकी हथेली की फ़ोटो स्कैन हो रही है' },
+  samplePhotoLabel: { en: 'A sample palm photo being scanned', hi: 'एक नमूना हथेली की फ़ोटो स्कैन हो रही है' },
+  scanWords: [
+    { en: 'Finding your fingers…', hi: 'आपकी उंगलियां खोजी जा रही हैं…' },
+    { en: 'Measuring your palm…', hi: 'आपकी हथेली नापी जा रही है…' },
+    { en: 'Looking for your lines…', hi: 'आपकी रेखाएं खोजी जा रही हैं…' },
+  ],
+  readWords: [
+    { en: 'Reading your palm…', hi: 'आपकी हथेली पढ़ी जा रही है…' },
+    { en: 'Reading line depth and length…', hi: 'रेखाओं की गहराई और लंबाई पढ़ी जा रही है…' },
+    { en: 'Matching with the books…', hi: 'किताबों से मिलान हो रहा है…' },
+  ],
+  handFound: {
+    left: { en: 'Found your left hand', hi: 'आपका बायां हाथ मिला' },
+    right: { en: 'Found your right hand', hi: 'आपका दायां हाथ मिला' },
+  },
+  /** "{line}" is the line's name (COPY.lines). */
+  lineTraced: { en: '{line} traced', hi: '{line} मिली' },
+  lineTracedFaint: { en: '{line} traced, faint in this photo', hi: '{line} मिली, इस फ़ोटो में हल्की' },
+  tourLine: { en: 'Reading your {line}…', hi: 'आपकी {line} पढ़ी जा रही है…' },
+  tourPalm: { en: 'Reading your whole palm…', hi: 'पूरी हथेली पढ़ी जा रही है…' },
+  opening: { en: 'Opening your report…', hi: 'आपकी रिपोर्ट खुल रही है…' },
 
   // Report
   yourPalm: { en: 'Your palm', hi: 'आपकी हथेली' },
@@ -114,12 +147,12 @@ export const COPY = {
   partsRead: { en: "You've read 2 of 4 parts.", hi: 'आपने 4 में से 2 हिस्से पढ़ लिए।' },
   locked: { en: 'In the app', hi: 'ऐप में' },
   tapToOpen: { en: 'Tap to see how to open it', hi: 'खोलने का तरीका देखें' },
-  selfCheck: { en: 'Look at your own hand now — can you see this?', hi: 'अब अपना हाथ देखिए — क्या आपको यह दिख रहा है?' },
+  selfCheck: { en: 'Look at your own hand now. Can you see this?', hi: 'अब अपना हाथ देखिए। क्या आपको यह दिख रहा है?' },
   honesty: {
-    en: 'Palmistry is an old tradition, not a science. We show what the tradition says about your lines — not your future.',
-    hi: 'हस्तरेखा एक पुरानी परंपरा है, विज्ञान नहीं। हम बताते हैं कि परंपरा आपकी रेखाओं के बारे में क्या कहती है — आपका भविष्य नहीं।',
+    en: 'Palmistry is an old tradition, not a science. We show what the tradition says about your lines, not your future.',
+    hi: 'हस्तरेखा एक पुरानी परंपरा है, विज्ञान नहीं। हम बताते हैं कि परंपरा आपकी रेखाओं के बारे में क्या कहती है, आपका भविष्य नहीं।',
   },
-  signupCta: { en: 'Read one more palm free — sign up', hi: 'एक और हथेली मुफ़्त पढ़ें — साइन-अप करें' },
+  signupCta: { en: 'Sign up to read one more palm free', hi: 'साइन-अप करें और एक और हथेली मुफ़्त पढ़ें' },
   fullInApp: { en: 'See the full reading in the app', hi: 'पूरी रीडिंग ऐप में देखें' },
   anotherPalm: { en: 'Read another palm', hi: 'एक और हथेली पढ़ें' },
   otherHandTeaser: {
@@ -131,8 +164,15 @@ export const COPY = {
     hi: 'इसी ब्राउज़र में सेव है। ब्राउज़र का डेटा साफ़ करने पर यह हट जाएगी।',
   },
   previewLabel: {
-    en: 'Preview mode: a stored sample scan, not your palm. Nothing was sent.',
-    hi: 'प्रीव्यू: यह पहले से रखा एक सैंपल स्कैन है, आपकी हथेली नहीं। कुछ भी भेजा नहीं गया।',
+    en: 'Preview mode: these lines are drawn on a sample palm, not on your photo. Nothing was sent.',
+    hi: 'प्रीव्यू: ये रेखाएं एक नमूना हथेली पर बनी हैं, आपकी फ़ोटो पर नहीं। कुछ भी भेजा नहीं गया।',
+  },
+  // The report photo (like the app's): pick one line, or all.
+  allLines: { en: 'All lines', hi: 'सभी रेखाएं' },
+  linesOnPhoto: { en: 'Lines on the photo', hi: 'फ़ोटो पर रेखाएं' },
+  photoHint: {
+    en: 'Tap a line or its name to see it on its own. Dashed lines were harder to see.',
+    hi: 'किसी रेखा या उसके नाम पर टैप करें, वह अलग से दिखेगी। डैश वाली रेखाएं कम साफ़ दिखीं।',
   },
 
   // Lock sheet
@@ -142,8 +182,8 @@ export const COPY = {
     hi: 'ऐप में: रीडिंग के चारों हिस्से, फ़ोटो पर आपकी रेखाएं, दोनों हाथों की तुलना, छोटे पाठ और क्विज़, PDF या शेयर कार्ड, हिंदी और English, कोई विज्ञापन नहीं।',
   },
   continuity: {
-    en: "In the app you'll take a fresh photo — it takes about a minute. Your web readings stay in this browser.",
-    hi: 'ऐप में एक नई फ़ोटो लेनी होगी — करीब एक मिनट लगता है। वेबसाइट की रीडिंग इसी ब्राउज़र में रहेंगी।',
+    en: "In the app you'll take a fresh photo. It takes about a minute. Your web readings stay in this browser.",
+    hi: 'ऐप में एक नई फ़ोटो लेनी होगी। करीब एक मिनट लगता है। वेबसाइट की रीडिंग इसी ब्राउज़र में रहेंगी।',
   },
   sameEmail: { en: 'Use the same email in the app.', hi: 'ऐप में वही ईमेल इस्तेमाल करें।' },
   notNow: { en: 'Not now', hi: 'अभी नहीं' },
@@ -169,15 +209,15 @@ export const COPY = {
   sendCode: { en: 'Send my code', hi: 'मेरा कोड भेजें' },
   codeLabel: { en: 'The 6-digit code from the email', hi: 'ईमेल में आया 6 अंकों का कोड' },
   codeSent: {
-    en: 'We sent a 6-digit code to this email. It can take a minute to arrive — check Spam too.',
-    hi: 'इस ईमेल पर 6 अंकों का कोड भेजा गया है। आने में एक मिनट लग सकता है — Spam फ़ोल्डर भी देखें।',
+    en: 'We sent a 6-digit code to this email. It can take a minute to arrive, so check Spam too.',
+    hi: 'इस ईमेल पर 6 अंकों का कोड भेजा गया है। आने में एक मिनट लग सकता है, इसलिए Spam फ़ोल्डर भी देखें।',
   },
   verify: { en: 'Verify', hi: 'पुष्टि करें' },
   badEmail: { en: 'Type a full email address, like name@gmail.com.', hi: 'पूरा ईमेल पता लिखें, जैसे name@gmail.com.' },
   badCode: { en: 'Type the 6 digits from the email.', hi: 'ईमेल में आए 6 अंक लिखें।' },
   wrongCode: {
-    en: 'That code did not work. It may be mistyped or too old — check it, or send a new one.',
-    hi: 'यह कोड काम नहीं किया। शायद गलत लिखा गया या पुराना हो गया — जाँचें, या नया कोड भेजें।',
+    en: 'That code did not work. It may be mistyped or too old. Check it, or send a new one.',
+    hi: 'यह कोड काम नहीं किया। शायद गलत लिखा गया या पुराना हो गया। जाँचें, या नया कोड भेजें।',
   },
   emailTaken: {
     en: 'This email already has an account. Sign in with a code instead.',
@@ -200,14 +240,14 @@ export const COPY = {
   // Zero readings
   zeroTitle: { en: "You've used both free readings on this website", hi: 'आपने वेबसाइट की दोनों मुफ़्त रीडिंग इस्तेमाल कर लीं' },
   zeroLead: {
-    en: "Thank you for trying it. Your readings are saved in this browser — clearing browser data removes them.",
-    hi: 'आज़माने के लिए धन्यवाद। आपकी रीडिंग इसी ब्राउज़र में सेव हैं — ब्राउज़र का डेटा साफ़ करने पर ये हट जाएंगी।',
+    en: "Thank you for trying it. Your readings are saved in this browser. Clearing browser data removes them.",
+    hi: 'आज़माने के लिए धन्यवाद। आपकी रीडिंग इसी ब्राउज़र में सेव हैं। ब्राउज़र का डेटा साफ़ करने पर ये हट जाएंगी।',
   },
   wantFull: {
     en: 'Want the full reading? The Android app has all 4 parts.',
     hi: 'पूरी रीडिंग चाहिए? Android ऐप में चारों हिस्से हैं।',
   },
-  keepLearning: { en: 'Not now? Keep learning free — guides and tools.', hi: 'अभी नहीं? मुफ़्त में सीखते रहें — गाइड और टूल।' },
+  keepLearning: { en: 'Not now? Keep learning free with the guides and tools.', hi: 'अभी नहीं? गाइड और टूल से मुफ़्त में सीखते रहें।' },
   removeHere: { en: 'Remove from this browser', hi: 'इस ब्राउज़र से हटाएं' },
   yourReadings: { en: 'Your readings in this browser', hi: 'इस ब्राउज़र में आपकी रीडिंग' },
   open: { en: 'Open', hi: 'खोलें' },
@@ -237,6 +277,13 @@ export const COPY = {
     head: { en: 'Head line', hi: 'मस्तिष्क रेखा' },
     life: { en: 'Life line', hi: 'जीवन रेखा' },
     fate: { en: 'Fate line', hi: 'भाग्य रेखा' },
+  },
+  /** Short names for the labels on the photo (the app's short names). */
+  linesShort: {
+    heart: { en: 'Heart', hi: 'हृदय' },
+    head: { en: 'Head', hi: 'मस्तिष्क' },
+    life: { en: 'Life', hi: 'जीवन' },
+    fate: { en: 'Fate', hi: 'भाग्य' },
   },
 } as const;
 
@@ -268,8 +315,8 @@ export const ERROR_COPY: Record<ReadingErrorCode, { title: Text; body: Text }> =
   daily_capacity_reached: {
     title: { en: "Today's free readings are used up", hi: 'आज की मुफ़्त रीडिंग ख़त्म' },
     body: {
-      en: "Today's free readings on the website are used up. Please try again tomorrow — or continue in the app.",
-      hi: 'आज वेबसाइट की मुफ़्त रीडिंग ख़त्म हो गईं। कल फिर कोशिश करें — या ऐप में जारी रखें।',
+      en: "Today's free readings on the website are used up. Please try again tomorrow, or continue in the app.",
+      hi: 'आज वेबसाइट की मुफ़्त रीडिंग ख़त्म हो गईं। कल फिर कोशिश करें, या ऐप में जारी रखें।',
     },
   },
   too_many_attempts: {
@@ -293,8 +340,8 @@ export const ERROR_COPY: Record<ReadingErrorCode, { title: Text; body: Text }> =
   service_paused: {
     title: { en: "Today's free readings are used up", hi: 'आज की मुफ़्त रीडिंग ख़त्म' },
     body: {
-      en: "Today's free readings on the website are used up. Please try again tomorrow — or continue in the app.",
-      hi: 'आज वेबसाइट की मुफ़्त रीडिंग ख़त्म हो गईं। कल फिर कोशिश करें — या ऐप में जारी रखें।',
+      en: "Today's free readings on the website are used up. Please try again tomorrow, or continue in the app.",
+      hi: 'आज वेबसाइट की मुफ़्त रीडिंग ख़त्म हो गईं। कल फिर कोशिश करें, या ऐप में जारी रखें।',
     },
   },
   offline: {

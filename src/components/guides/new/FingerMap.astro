@@ -1,0 +1,92 @@
+---
+/**
+ * The fingers on the real guide photo (/palmistry-fingers/, WEB-DEC-054): a
+ * number above each fingertip and a dot on each finger joint, all placed from
+ * the scanner's 21 hand landmarks for this exact photo (never a drawn line),
+ * I, II and III on the middle finger's three sections, and a legend with the
+ * planet and Hindi names. Zero JS. The photo comes from the TracedPalm hero
+ * (#tpd-photo), so the page must use `find.show: animate`.
+ */
+import { cropAround, guideScan } from '../../../lib/guides/traced-palm';
+import type { Pt } from '../../../lib/reading/palm/features/lines/live-scan';
+import PhotoCrop from '../PhotoCrop.astro';
+import '../teach.css';
+
+const scan = guideScan();
+const lm = scan.landmarks;
+if (!lm) throw new Error('FingerMap: the guide scan has no hand landmarks');
+const at = (i: number): Pt => lm[i]!;
+
+// Fingertips and the joint below each (MediaPipe): thumb, index, middle, ring, little.
+const FINGERS = [
+  { tip: 4, below: 3, joints: [3, 2] },
+  { tip: 8, below: 7, joints: [7, 6] },
+  { tip: 12, below: 11, joints: [11, 10] },
+  { tip: 16, below: 15, joints: [15, 14] },
+  { tip: 20, below: 19, joints: [19, 18] },
+] as const;
+
+// Each number sits just beyond its fingertip, along the finger's own direction.
+const markers = FINGERS.map((finger, i) => {
+  const [tx, ty] = at(finger.tip);
+  const [bx, by] = at(finger.below);
+  const len = Math.hypot(tx - bx, ty - by) || 1;
+  return { n: i + 1, cx: Math.round(tx + ((tx - bx) / len) * 15), cy: Math.round(ty + ((ty - by) / len) * 15) };
+});
+const joints = FINGERS.flatMap((finger) => finger.joints.map((j) => at(j)));
+// The middle finger's three sections (phalanges), from the tip down: tip–11, 11–10, 10–9.
+const mid = (a: number, b: number): Pt => [Math.round((at(a)[0] + at(b)[0]) / 2), Math.round((at(a)[1] + at(b)[1]) / 2)];
+const sections = [
+  { text: 'I', p: mid(12, 11) },
+  { text: 'II', p: mid(11, 10) },
+  { text: 'III', p: mid(10, 9) },
+];
+const box = cropAround([...FINGERS.map((f) => at(f.tip)), at(1), at(5), at(17), ...markers.map((m): Pt => [m.cx, m.cy])], 16, 0.85, scan);
+
+const legend = [
+  { name: 'Thumb', hi: 'अंगूठा', text: 'will, logic and warmth, in its three parts' },
+  { name: 'Index', hi: 'तर्जनी', text: 'the finger of Jupiter' },
+  { name: 'Middle', hi: 'मध्यमा', text: 'the finger of Saturn' },
+  { name: 'Ring', hi: 'अनामिका', text: 'the finger of the Sun (Apollo)' },
+  { name: 'Little', hi: 'कनिष्ठा', text: 'the finger of Mercury' },
+];
+const alt =
+  'The real palm photo, fingers spread, with numbers 1 to 5 above the thumb and the four fingers, a dot on each finger joint, and I, II and III on the three sections of the middle finger.';
+---
+
+<figure class="tb tb-box glass-panel">
+  <div class="tb-mm-row">
+    <PhotoCrop box={box} alt={alt} class="tb-mount">
+      {joints.map(([x, y]) => <circle class="tb-start" cx={x} cy={y} r="3.2" />)}
+      {sections.map((s) => <text class="tb-lab" x={s.p[0]} y={s.p[1] + 5} font-size="14" text-anchor="middle">{s.text}</text>)}
+      {
+        markers.map((m) => (
+          <g>
+            <circle cx={m.cx} cy={m.cy} r="10" />
+            <text x={m.cx} y={m.cy + 4.5} font-size="13" text-anchor="middle">{m.n}</text>
+          </g>
+        ))
+      }
+    </PhotoCrop>
+    <ol class="tb-legend">
+      {
+        legend.map((item, i) => (
+          <li>
+            <span class="tb-n" aria-hidden="true">{i + 1}</span>
+            <span>
+              <strong>{item.name}</strong> <span lang="hi" class="script-system">{item.hi}</span>: {item.text}
+            </span>
+          </li>
+        ))
+      }
+      <li>
+        <span class="tb-n" aria-hidden="true">I</span>
+        <span>I, II, III: the three sections (phalanges) of a finger, from the tip down</span>
+      </li>
+    </ol>
+  </div>
+  <figcaption>
+    <span class="tb-tag">Real photo</span> The same real palm photo (Hanna Pad, Pexels). The numbers and dots are placed from the scanner’s hand points (fingertips and joints) for this photo. They mark places, not lines.
+  </figcaption>
+</figure>
+

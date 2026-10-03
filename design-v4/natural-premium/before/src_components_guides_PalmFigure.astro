@@ -1,0 +1,48 @@
+---
+/** A labelled drawing inside a guide's text (a <figure> with a caption). */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { isVariant, VARIANTS, type Variant } from '../../lib/guides/palm-geometry';
+import PalmDiagram from './PalmDiagram.astro';
+
+interface Props {
+  variant: string;
+  alt: string;
+  caption: string;
+  id?: string;
+}
+
+const { variant, alt, caption, id } = Astro.props;
+if (!isVariant(variant)) throw new Error(`PalmFigure: unknown drawing "${variant}"`);
+const s = guideStrings(localeFromPath(Astro.url.pathname));
+const anchor = id ?? `fig-${variant}`;
+const edge = (VARIANTS[variant] as Variant).view === 'edge';
+---
+
+<figure class="palm-fig guide-block" id={anchor}>
+  <div class:list={['palm-fig-art', { edge }]}>
+    <PalmDiagram variant={variant} id={`${anchor}-art`} label={alt} size="figure" />
+  </div>
+  <figcaption class="text-small text-fg-muted"><span class="fig-label text-caption">{s.figureLabel}</span> {caption}</figcaption>
+</figure>
+
+<style>
+  /* Showroom: the drawing sits in a rounded glass frame with a soft glow behind it. */
+  .palm-fig { margin: 2rem 0 2.5rem; max-width: 22rem; display: flex; flex-direction: column; gap: 0.875rem; }
+  .palm-fig-art {
+    position: relative; display: flex; justify-content: center; padding: 1.5rem; border-radius: var(--r-card); border: 1px solid transparent; overflow: hidden;
+    background:
+      radial-gradient(70% 60% at 50% 40%, rgba(124,96,236,0.28), transparent 75%) padding-box,
+      var(--glass-1) padding-box, var(--rim) border-box;
+    box-shadow: var(--shine), var(--e2);
+  }
+  :global([data-theme="day"]) .palm-fig-art {
+    background: radial-gradient(70% 60% at 50% 40%, rgba(120,92,230,0.10), transparent 75%) padding-box, var(--glass-1) padding-box, var(--rim) border-box;
+  }
+  .palm-fig-art.edge { padding: 0; max-width: 22rem; }
+  .fig-label {
+    display: inline-block; padding: 0 0.5rem; margin-inline-end: 0.25rem; border-radius: 9999px; color: var(--fg); font-weight: 700;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  figcaption { padding-inline: 0.25rem; }
+</style>

@@ -64,7 +64,7 @@ i{width:14px;height:14px;border-radius:50%;display:block}
   .map(([name, color]) => `<li><i style="background:${color}"></i>${name}</li>`)
   .join('')}</ul></div><div class="frame">${palm}</div></body></html>`;
 
-const icon = (size) => `<!doctype html><html><head><style>html,body{margin:0;width:${size}px;height:${size}px;overflow:hidden;background:#0B0A1F}
+const _icon = (size) => `<!doctype html><html><head><style>html,body{margin:0;width:${size}px;height:${size}px;overflow:hidden;background:#0B0A1F}
 img{width:${size}px;height:${size}px;display:block}</style></head><body><img src="data:image/svg+xml;base64,${Buffer.from(
   readFileSync(join(root, 'public', 'favicon.svg'), 'utf8').replace('rx="14"', 'rx="0"'),
 ).toString('base64')}"></body></html>`;
@@ -90,8 +90,9 @@ const jobs = [
       chips: [['हृदय रेखा', '#F27BB0'], ['मस्तिष्क रेखा', '#6EA8FF'], ['जीवन रेखा', '#F07A5A'], ['भाग्य रेखा', '#A993FF']],
     }),
   },
-  { out: 'logo-512.png', size: [512, 512], html: icon(512) },
-  { out: 'apple-touch-icon.png', size: [180, 180], html: icon(180) },
+  // WEB-DEC-044: logo-512.png and apple-touch-icon.png are now 3D renders (public/media/README.md); don't regenerate them here.
+  // { out: 'logo-512.png', size: [512, 512], html: _icon(512) },
+  // { out: 'apple-touch-icon.png', size: [180, 180], html: _icon(180) },
 ];
 
 const browser = await chromium.launch({ executablePath: CHROME, headless: true });

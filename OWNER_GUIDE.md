@@ -126,3 +126,104 @@ cd "D:\palm ai\palm-ai-website"
 git push origin main
 ```
 Push ke baad Cloudflare apne aap website update kar dega. Kuch galat ho to Claude purana version wapas laane ki command dega.
+
+(Abhi GitHub se auto-deploy set nahi hai. Pehli baar website live karne ke liye neeche §13 follow karo.)
+
+## 13. Launch day: palmsays.com live karna (web reading abhi OFF rahegi)
+
+> Ek baar ka kaam, ~1 ghanta. Har command se pehle project folder: `cd "D:\palm ai\palm-ai-website"`. Hamesha `npm.cmd` / `npx.cmd`.
+> Web palm reading abhi band hai (`webReadingEnabled=false`): gold buttons log ko app pe bhejte hain. Ye theek hai, launch ho sakta hai.
+
+**Shuru karne se pehle (Claude ke saath, ye 2 cheezein chahiye, warna build ruk jayega):**
+- Company / aapka legal naam + contact email (privacy aur terms page pe dikhenge). Claude ko bhejo, Claude `site.ts` mein daal dega.
+- 3 guides ke liye aapka "OK": `/life-line/`, `/marriage-line/`, `/simian-line/` (umar, shaadi, sehat wale topic). Padh ke Claude ko "OK" bolo; Claude unka status `owner-ok` kar dega.
+- Supabase URL + public key `.env.launch` file mein Claude ne pehle hi rakh di hai (ye public values hain, secret nahi).
+- **Launch ki date:** jis din deploy karoge, wo date Claude ko batao (jaise `2026-10-05`). Claude `site.ts` mein `launchDate` set karega, taaki har guide ki "published" date launch wala din ho, pehle ki nahi (WEB-DEC-049). Deploy se pehle ye zaroor karo.
+
+### Step 1: Domain khareedo (Cloudflare Registrar, sabse aasaan)
+1. https://dash.cloudflare.com → login.
+2. Left menu **Domain Registration → Register Domains**.
+3. `palmsays.com` search karo → **Purchase** → payment. **Auto-renew ON** rakho.
+4. Left menu **Account Home**: `palmsays.com` ke aage **Active** aana chahiye (kuch minute).
+
+Domain kahin aur se liya hai (GoDaddy, Hostinger…)? To §1 wale steps karo (Cloudflare mein "Add a domain" → 2 nameservers copy → registrar mein Custom nameservers). **Active** hone tak ruko (10 min – 24 ghante).
+
+### Step 2: Laptop ko Cloudflare se jodo (sirf pehli baar)
+```
+cd "D:\palm ai\palm-ai-website"
+npx.cmd wrangler login
+npx.cmd wrangler whoami
+```
+Browser khulega → **Allow**. `whoami` mein aapka email + account dikhe = ho gaya.
+
+### Step 3: SSL/TLS setting
+1. Cloudflare → `palmsays.com` → left menu **SSL/TLS → Overview** → **Configure** → **Full (strict)** → **Save**.
+2. **SSL/TLS → Edge Certificates**: **Always Use HTTPS = ON**, **Minimum TLS Version = TLS 1.2**.
+3. Isi page pe "HTTP Strict Transport Security (HSTS)" ko **mat chhedo** — website khud HSTS bhejti hai.
+
+### Step 4: Website upload (deploy)
+```
+cd "D:\palm ai\palm-ai-website"
+npm.cmd run build:prod
+npx.cmd wrangler deploy
+```
+- `build:prod` = asli (Google mein aane wala) build + saare checks. Aakhir mein "Production build for https://palmsays.com is ready" aana chahiye.
+- Agar "Production build stopped. Missing: …" aaye → wo line Claude ko bhejo.
+- `wrangler deploy` website upload karta hai aur **palmsays.com ko apne aap jod deta hai** (DNS + certificate). Pehli baar certificate mein 5–15 minute lag sakte hain.
+- Shortcut (dono ek saath): `npm.cmd run deploy`
+- **Kabhi bhi** sirf `npm.cmd run build` ke baad deploy mat karna: wo preview build hai (Google ko "index mat karo" bolta hai).
+
+Deploy mein "custom domain" ki error aaye (domain abhi Active nahi): Step 1 ka Active hone do, phir dobara `npx.cmd wrangler deploy`. Ya haath se: **Workers & Pages → palmsays-web → Settings → Domains & Routes → Add → Custom domain** → `palmsays.com` → Add.
+
+### Step 5: www.palmsays.com → palmsays.com (301 redirect)
+1. **DNS → Records → Add record**: Type `AAAA`, Name `www`, IPv6 address `100::`, Proxy status **Proxied** (orange cloud) → **Save**.
+2. Left menu **Rules → Overview → Create rule → Redirect Rule** (ya **Templates → "Redirect from WWW to Root"** chuno, wo sab bhar deta hai).
+   - Rule name: `www to apex`
+   - If incoming requests match: **Custom filter expression** → Field `Hostname`, Operator `equals`, Value `www.palmsays.com`
+   - Then: Type **Dynamic**, Expression: `concat("https://palmsays.com", http.request.uri.path)`, Status code **301**, **Preserve query string = ON**
+   - **Deploy**.
+
+### Step 6: Check karo ki live hai (PowerShell)
+```
+curl.exe -sI https://palmsays.com/
+curl.exe -sI https://www.palmsays.com/
+curl.exe -s https://palmsays.com/robots.txt
+curl.exe -s https://palmsays.com/ | Select-String 'name="robots"'
+```
+Sahi jawab:
+- Pehli line: `HTTP/1.1 200` (ya `HTTP/2 200`) aur `strict-transport-security` dikhe.
+- Doosri: `301` aur `location: https://palmsays.com/`.
+- robots.txt mein `Sitemap: https://palmsays.com/sitemap-index.xml`.
+- Chauthi: `index, follow` (agar `noindex` dikhe → galat build gaya, turant Claude ko batao).
+- Phone pe https://palmsays.com kholo: home, `/app/`, `/hi/`, ek guide, ek tool.
+
+Output ka screenshot Claude ko bhejo.
+
+### Step 7: Kuch galat ho gaya? Purana version wapas (rollback)
+```
+cd "D:\palm ai\palm-ai-website"
+npx.cmd wrangler deployments list
+npx.cmd wrangler rollback
+```
+`rollback` pichhla version wapas laata hai (poochega "sure?" → `y`). Saare pages + images bhi saath mein wapas aate hain.
+Ya dashboard: **Workers & Pages → palmsays-web → Deployments** → purana version → **⋯ → Rollback**. Phir Claude ko batao kya hua.
+
+### Step 8: Google Search Console
+1. https://search.google.com/search-console → **Add property** → **Domain** → `palmsays.com` → Continue.
+2. Google "Cloudflare" pehchaan lega → **Start verification** → Cloudflare login → **Authorize**. (Ya §4 wala tarika: TXT record `@` pe daalo → **Verify**.)
+3. Left menu **Sitemaps** → "Add a new sitemap" mein `sitemap-index.xml` → **Submit**. Phir ek-ek karke: `sitemap-core.xml`, `sitemap-guides.xml`, `sitemap-tools.xml`, `sitemap-hi.xml`.
+4. Upar search box mein `https://palmsays.com/` daalo → **Request indexing**.
+
+### Step 9: Bing Webmaster Tools
+1. https://www.bing.com/webmasters → Google account se sign in.
+2. **Import your sites from GSC** → **Import** → `palmsays.com` chuno → Import. (Sitemaps bhi saath aa jaate hain.)
+
+### Step 10: Cloudflare Web Analytics (bina cookie wala visitor count)
+1. Cloudflare → left menu **Analytics & Logs → Web Analytics → Add a site**.
+2. Hostname: `palmsays.com` → **Done**. Automatic setup mat chuno; "JS snippet" wala option.
+3. Snippet mein `"token": "…"` wali value copy karo → **Claude ko bhejo** (ye public hai). Claude website mein laga dega aur dobara deploy ke liye bolega.
+
+### Baad mein (Claude yaad dilayega)
+- ~4 hafte sab theek chale to HSTS "preload" (hstspreload.org pe submit) — Claude batayega.
+- Play SHA-256 (§8) aane pe Android App Links on honge.
+- Uptime monitor (palmsays.com down ho to email) — optional, free.

@@ -1,4 +1,4 @@
-// COPIED from palm-ai-new--feat-m1-foundation/src/features/observation/schema.ts at app commit 38389f51b74d (2026-09-26).
+// COPIED from palm-ai-new--feat-m1-foundation/src/features/observation/schema.ts at app commit fbc2232d837f (2026-09-30).
 // Do not edit by hand: change the app, then run `node scripts/sync-palm-lib.mjs` (ARCHITECTURE.md F7).
 // @ts-nocheck
 import { z } from 'zod';
@@ -250,6 +250,16 @@ export const lineScanInfoSchema = z.object({
   landmarks: z.array(evidencePointSchema).length(21).optional(),
   /** Palm width as a fraction of the image width, from the same landmarks. */
   palmWidthNormalized: z.number().min(0).optional(),
+  /**
+   * The size of the JPEG the landmarks are normalised on (the scanner's
+   * `image`), so the measured hand (features/hand) works in real pixels.
+   * Optional (2026-09-29+): older readings fall back to `imageQuality` width /
+   * height, which have the same aspect ratio (the photo is only downscaled).
+   */
+  image: z.object({ width: z.number().int().positive(), height: z.number().int().positive() }).optional(),
+  /** The landmark model's side guess ('Left' / 'Right') and its score. Display / audit only. */
+  handedness: z.string().max(12).optional(),
+  handednessScore: z.number().min(0).max(1).optional(),
   /**
    * Measurements the app derived from the traced lines and landmarks
    * (lines/derived.ts), kept as the audit trail for the classes rules read:

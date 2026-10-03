@@ -12,6 +12,11 @@
  * page's robots tag: then every page must be noindex and placeholder values
  * are warnings; in a production build they are errors.
  *
+ * Writing standard (owner, 2026-10-01; CONTENT_GUIDE.md §15, src/lib/writing-standard.ts): no em
+ * dash, en dash only in number ranges, no spaced hyphen as a dash, no AI-sounding phrase. Checked in
+ * the source of the guides, blog posts and UI strings (src/i18n/en.ts, hi.ts, guide strings; code
+ * comments skipped) and in the visible text of every built guide, blog post and the /blog/ index.
+ *
  * Exit 1 on any error. Warnings never fail the build.
  */
 
@@ -21,6 +26,9 @@ import { gzipSync } from 'node:zlib';
 
 import { PAGES, registryProblems } from '../src/config/pages.ts';
 import { SHA256_FINGERPRINT, site } from '../src/config/site.ts';
+import { ENTITIES, PAGE_ENTITIES, PAGES_WITHOUT_ENTITIES, TERMS_PATH } from '../src/lib/entities.ts';
+import { contextAt, isAllowed, sourceProblems, writingProblems } from '../src/lib/writing-standard.ts';
+import { h1Text } from './og-lib.mjs';
 
 const errors = [];
 const warnings = [];
@@ -52,7 +60,22 @@ const REQUIRED_FILES = [
   'og-default.png',
   'og-default-hi.png',
 ];
-const BANNED_SCHEMA = ['AggregateRating', 'Review', 'HowTo', 'Product'];
+/** Per-page share images written by scripts/make-og.mjs. */
+const OG_IMAGES = existsSync('src/config/og-images.json') ? JSON.parse(readFileSync('src/config/og-images.json', 'utf8')) : {};
+// FAQPage: Google retired the FAQ rich result (May 2026); owner decision D9, WEB-DEC-049. The visible FAQs stay.
+const BANNED_SCHEMA = ['AggregateRating', 'Review', 'HowTo', 'Product', 'FAQPage'];
+/** Registry terms' @ids (src/lib/entities.ts): https://palmsays.com/palmistry-terms/#<id>. */
+const TERM_ID_PREFIX = `${BASE}${TERMS_PATH}#`;
+/** Ids of the glossary page itself ({url}#webpage, #breadcrumb, #set, #img-…), not terms (WEB-DEC-053). */
+const PAGE_PARTS = new Set(['webpage', 'breadcrumb', 'primaryimage', 'article', 'collection', 'app', 'set']);
+const isTermId = (id) => id.startsWith(TERM_ID_PREFIX) && !PAGE_PARTS.has(id.slice(TERM_ID_PREFIX.length)) && !id.slice(TERM_ID_PREFIX.length).startsWith('img-');
+const ENTITY_BY_ID = new Map(ENTITIES.map((item) => [item.id, item]));
+/**
+ * Knowledge-based trust (SEMANTIC_SEO_PLAN.md §5.5 rule 3): the "free on this website" claim of the home FAQ,
+ * EN + HI. It may ship only while a visitor can really finish a scan on the site (src/lib/reading/open.ts).
+ */
+const WEB_FREE_CLAIMS = [/On this website you get \d+ free readings/i, /इस वेबसाइट पर \d+ रीडिंग मुफ़्त/];
+const WEB_SOON_MARKERS = [/opens soon/i, /जल्द शुरू होगा/];
 /** CONTENT_GUIDE.md §11, whole words, checked on visible text of our own pages (legal copies excluded). */
 const BANNED_WORDS = [
   /\bguaranteed\b/i,
@@ -74,7 +97,11 @@ const BUDGET = {
   // Tool pages: HTML ≤ 25 KB (QA_RELEASE.md §2.3); their JS stays under the 10 KB "other" budget (rule tools, DESIGN_SYSTEM.md §11).
   htmlGzip: { home: 30 * 1024, tool: 25 * 1024, other: 35 * 1024 },
   cssGzip: 25 * 1024,
-  jsGzip: { home: 60 * 1024, other: 10 * 1024 },
+  // Photo tool pages (data-tool-kind hand/device/ai): the 70 KB tool budget of QA_RELEASE.md §2.3; the heavy hand model loads only after a photo is picked and is not counted here.
+  // other: 11 KB since WEB-DEC-042 (the site-wide showroom motion script, ~0.7 KB, ships on every page).
+  // account: /account/ + /hi/account/ INCLUDING their React island (component + renderer + static imports; WEB-FEAT-029,
+  // measured 110.2 KB with the site scripts on 2026-09-27, React DOM alone ~64 KB). Supabase and Google's script load later by import() and are not counted.
+  jsGzip: { home: 60 * 1024, photoTool: 70 * 1024, other: 11 * 1024, account: 120 * 1024 },
 };
 
 const decode = (s) =>
@@ -158,12 +185,163 @@ function visibleText(html) {
     .trim();
 }
 
+/** Every JSON-LD node on a page (in @graph or not, nested ones too) and every bare {"@id": …} reference. */
+function jsonLdNodes(html) {
+  const nodes = [];
+  const refs = [];
+  const visit = (value, top) => {
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item, false);
+      return;
+    }
+    if (!value || typeof value !== 'object') return;
+    const keys = Object.keys(value);
+    if (keys.length === 1 && keys[0] === '@id') {
+      refs.push(value['@id']);
+      return;
+    }
+    if (value['@type'] || top) nodes.push(value);
+    for (const inner of Object.values(value)) visit(inner, false);
+  };
+  for (const [, block] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)) {
+    try {
+      const data = JSON.parse(block);
+      if (Array.isArray(data['@graph'])) for (const node of data['@graph']) visit(node, true);
+      else visit(data, true);
+    } catch {
+      // Reported by the parse check.
+    }
+  }
+  return { nodes, refs };
+}
+
+/**
+ * @id references resolve: ids of this page ({url}#…) on the page itself, site-wide ids (organization,
+ * website, person, app, tools collection) somewhere in the build, terms in src/lib/entities.ts.
+ * An @id is never defined with two different types.
+ */
+function checkGraph(page, definedIds) {
+  const { file, jsonLd, url } = page;
+  const local = new Set(jsonLd.nodes.map((node) => node['@id']).filter(Boolean));
+  const types = new Map();
+  for (const node of jsonLd.nodes) {
+    const id = node['@id'];
+    if (!id) continue;
+    const type = JSON.stringify(node['@type']);
+    if (types.has(id) && types.get(id) !== type) error(file, `JSON-LD @id ${id} is defined with two types`);
+    types.set(id, type);
+    if (isTermId(id) && !ENTITY_BY_ID.has(id.slice(TERM_ID_PREFIX.length))) {
+      error(file, `JSON-LD term ${id} is not in src/lib/entities.ts`);
+    }
+  }
+  for (const ref of jsonLd.refs) {
+    if (isTermId(ref)) {
+      if (!ENTITY_BY_ID.has(ref.slice(TERM_ID_PREFIX.length))) error(file, `JSON-LD points to ${ref}, which is not in src/lib/entities.ts`);
+      continue;
+    }
+    const own = ref.startsWith(`${url}#`);
+    if (own ? !local.has(ref) : !definedIds.has(ref)) error(file, `JSON-LD @id ${ref} is not defined ${own ? 'on this page' : 'anywhere in the build'}`);
+  }
+}
+
+/**
+ * Entities (plan §5.2): each content page's WebPage (or CollectionPage) carries the about terms of
+ * src/lib/entities.ts, and every term is named in the visible text (about: error; mentions: warning).
+ */
+function checkPageEntities(page) {
+  const { file, path, entry, jsonLd, html } = page;
+  const expected = PAGE_ENTITIES[path] ?? blogEntities(page);
+  if (!expected) {
+    if (entry?.indexable && !PAGES_WITHOUT_ENTITIES.includes(path)) error(file, 'indexable page has no about/mentions in src/lib/entities.ts (PAGE_ENTITIES)');
+    return;
+  }
+  const holder = jsonLd.nodes.find((node) => node['@id'] === `${page.url}#webpage` || node['@id'] === `${page.url}#collection`);
+  const aboutIds = [holder?.about ?? []].flat().map((node) => node?.['@id']);
+  for (const id of expected.about) {
+    if (!aboutIds.includes(`${TERM_ID_PREFIX}${id}`)) error(file, `JSON-LD WebPage has no about "${id}" (src/lib/entities.ts)`);
+  }
+  const text = visibleText(html).toLowerCase();
+  const named = (id) => {
+    const item = ENTITY_BY_ID.get(id);
+    return Boolean(item) && [item.name.en, item.name.hi, ...(item.alt ?? [])].some((name) => text.includes(name.toLowerCase()));
+  };
+  for (const id of expected.about) if (!named(id)) error(file, `about term "${id}" is not named in the page text`);
+  for (const id of expected.mentions ?? []) if (!named(id)) warn(file, `mentions term "${id}" is not named in the page text`);
+}
+
+/**
+ * Blog pages (WEB-DEC-057) set about/mentions in their front matter, not in src/lib/entities.ts: the
+ * expected terms are the ones their WebPage/CollectionPage declares (at least one about term).
+ */
+function blogEntities(page) {
+  if (!page.path.startsWith('/blog/')) return undefined;
+  const holder = page.jsonLd.nodes.find((node) => node['@id'] === `${page.url}#webpage`);
+  const ids = (value) =>
+    [value ?? []]
+      .flat()
+      .map((node) => node?.['@id'])
+      .filter((id) => id?.startsWith(TERM_ID_PREFIX))
+      .map((id) => id.slice(TERM_ID_PREFIX.length));
+  const about = ids(holder?.about);
+  if (!about.length) {
+    error(page.file, 'blog page has no about term in its JSON-LD WebPage (front matter `about`, src/lib/entities.ts ids)');
+    return undefined;
+  }
+  return { about, mentions: ids(holder?.mentions) };
+}
+
+/** Repo files whose copy follows the writing standard (CONTENT_GUIDE.md §15): the MDX content and the UI strings. */
+const WRITING_SOURCES = [
+  ...['src/content/guides', 'src/content/blog'].flatMap((dir) =>
+    existsSync(dir) ? readdirSync(dir).filter((name) => name.endsWith('.mdx')).map((name) => `${dir}/${name}`) : [],
+  ),
+  'src/i18n/en.ts',
+  'src/i18n/hi.ts',
+  'src/lib/guides/strings.ts',
+];
+
+/** Writing standard in the source copy (front matter included, code comments skipped), reported as file:line. */
+function checkWritingSources() {
+  for (const file of WRITING_SOURCES) {
+    if (!existsSync(file)) continue;
+    for (const problem of sourceProblems(file, readFileSync(file, 'utf8'), file.endsWith('.mdx') ? 'mdx' : 'ts')) {
+      error(`${file}:${problem.line}`, `${problem.message}: "…${problem.context}…" (CONTENT_GUIDE.md §15)`);
+    }
+  }
+}
+
+/** Writing standard in the visible text of a built guide, blog post or the /blog/ index (header, footer and end blocks included). */
+function checkWritingPage(page) {
+  const { file, html, path } = page;
+  if (!/<article class="(?:guide|blog-post)\b/.test(html) && path !== '/blog/') return;
+  const text = visibleText(html);
+  const seen = new Set();
+  for (const problem of writingProblems(text)) {
+    const context = contextAt(text, problem.index, 40);
+    if (isAllowed(path, problem, context)) continue;
+    const key = `${problem.rule}|${context}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    error(file, `${problem.message}: "…${context}…" (CONTENT_GUIDE.md §15)`);
+  }
+}
+
+/** Rule 3 (plan §5.5): no "free readings on this website" claim while the web reading is off, and never beside "opens soon". */
+function checkWebReadingClaims(page, preview) {
+  if (page.legal) return;
+  const text = visibleText(page.html);
+  if (!WEB_FREE_CLAIMS.some((pattern) => pattern.test(text))) return;
+  if (!preview && !site.webReadingEnabled) error(page.file, 'claims free readings on this website while site.webReadingEnabled is false (home FAQ: the "opens soon" answer)');
+  if (WEB_SOON_MARKERS.some((pattern) => pattern.test(text))) error(page.file, 'says both "free readings on this website" and "opens soon": the page contradicts itself');
+}
+
 function main() {
   if (!existsSync(DIR)) {
     console.error(`No built site at ${DIR}/. Run npm run build first.`);
     process.exit(1);
   }
   for (const problem of registryProblems()) error('src/config/pages.ts', problem);
+  checkWritingSources();
 
   const files = walk(DIR).map((full) => relative(DIR, full).replaceAll('\\', '/'));
   const fileSet = new Set(files);
@@ -194,8 +372,11 @@ function main() {
   for (const file of htmlFiles) {
     if (!PAGES.some((page) => page.path === pathForFile(file))) error(file, 'is built but not registered in src/config/pages.ts');
   }
+  // A missing App Link page is an error only once App Links are switched on (assetlinks.json built):
+  // until then the app opens none of these URLs, so the site can launch without the /hi/ guides.
+  const appLinksOn = site.assetlinksSha256.length > 0;
   for (const path of APP_LINK_PATHS) {
-    if (!fileForPath(path, fileSet)) problemOrWarn(path, 'frozen App Link page (F1) is not built yet (guides step)');
+    if (!fileForPath(path, fileSet)) (appLinksOn ? problemOrWarn : warn)(path, 'frozen App Link page (F1) is not built yet (guides step)');
   }
 
   // Pass 1: read every page.
@@ -219,9 +400,12 @@ function main() {
       lang: html.match(/<html[^>]*\blang="([^"]+)"/i)?.[1] ?? null,
       metas: tags(html, 'meta'),
       legal: LEGAL_FILES.includes(file),
+      jsonLd: jsonLdNodes(html),
     });
   }
   const byUrl = new Map([...pages.values()].map((page) => [page.url, page]));
+  // Every @id defined anywhere in the build (organization, website, person, app, the tools collection…).
+  const definedIds = new Set([...pages.values()].flatMap((page) => page.jsonLd.nodes.map((node) => node['@id']).filter(Boolean)));
 
   // Pass 2: per page.
   for (const page of pages.values()) {
@@ -253,6 +437,10 @@ function main() {
         }
         const ogImage = page.metas.find((m) => m.property === 'og:image')?.content;
         if (ogImage && !fileSet.has(ogImage.replace(`${BASE}/`, ''))) error(file, `og:image ${ogImage} is not in the build`);
+        // Per-page share images (scripts/make-og.mjs): warn when missing or when the page's H1 changed since.
+        const og = OG_IMAGES[page.path];
+        if (!og) warn(file, 'no per-page share image yet (npm run og after a build)');
+        else if (og.title !== h1Text(html)) warn(file, `share image text is stale ("${og.title}"): npm run og after a build`);
         if (page.metas.find((m) => m.property === 'og:url')?.content !== page.url) error(file, 'og:url is not the canonical URL');
         if (!/max-image-preview:large/.test(page.metas.find((m) => m.name === 'robots')?.content ?? '') && !preview) {
           error(file, 'indexable page without max-image-preview:large');
@@ -299,13 +487,26 @@ function main() {
             error(file, `JSON-LD contains banned ${type}`);
           }
         }
-        if (data['@type'] === 'FAQPage' && (html.match(/<details\b/gi) ?? []).length < 3) error(file, 'FAQPage with fewer than 3 visible FAQs');
       } catch (problem) {
         error(file, `JSON-LD does not parse: ${problem.message}`);
       }
     }
+    // One @graph per page (BaseLayout); Breadcrumbs.astro adds the BreadcrumbList as its own block.
+    const pageBlocks = blocks.filter((block) => !block.includes('"@type":"BreadcrumbList"'));
+    if (pageBlocks.length > 1 || pageBlocks.some((block) => !block.includes('"@graph"'))) error(file, 'JSON-LD must be one @graph block (BaseLayout joins the nodes)');
+    checkGraph(page, definedIds);
+    checkPageEntities(page);
+    checkWebReadingClaims(page, preview);
+    checkWritingPage(page);
 
     // Links: internal ones resolve (and their #fragment exists); Play ones carry the package + referrer.
+    // A Play listing of ANOTHER app cited in the Sources box (a comparison post, CONTENT_GUIDE.md §7) is a
+    // citation, not a store button: it is exempt, but only there, and never for our own package.
+    const citedPlay = new Set(
+      tags(html.match(/<ol class="sources-list[^"]*"[^>]*>[\s\S]*?<\/ol>/)?.[0] ?? '', 'a')
+        .map((link) => link.href)
+        .filter((href) => href?.startsWith('https://play.google.com/store/apps/details?') && new URL(href).searchParams.get('id') !== site.playPackage),
+    );
     let storeLinks = 0;
     for (const a of tags(html, 'a')) {
       const href = a.href;
@@ -318,6 +519,7 @@ function main() {
         continue;
       }
       if (target.host === 'play.google.com') {
+        if (citedPlay.has(href)) continue;
         if (target.searchParams.get('id') !== site.playPackage) error(file, `Play link without id=${site.playPackage}`);
         const referrer = new URLSearchParams(target.searchParams.get('referrer') ?? '');
         if (referrer.get('utm_source') !== 'web' || !referrer.get('utm_medium') || !referrer.get('utm_campaign')) {
@@ -355,6 +557,9 @@ function main() {
       if (denials > 2) error(file, `${denials} data-denial phrases (max 2 per page)`);
       // Every guide carries the limits box (CONTENT_GUIDE.md §4.11).
       if (/<article class="guide\b/.test(html) && !/\bdata-limits-box\b/.test(html)) error(file, 'guide without the "What palmistry can’t tell you" box');
+      // A YMYL blog post carries the limits box too (BlogLayout adds it from `ymyl`, WEB-DEC-057).
+      const ymyl = html.match(/<article class="blog-post\b[^>]*\bdata-ymyl="([a-z]+)"/)?.[1];
+      if (ymyl && ymyl !== 'none' && !/\bdata-limits-box\b/.test(html)) error(file, `YMYL (${ymyl}) blog post without the "What palmistry can’t tell you" box`);
       for (const word of BANNED_WORDS) {
         const hit = text.match(word);
         if (hit) error(file, `banned wording "${hit[0].trim()}" (CONTENT_GUIDE.md §11)`);
@@ -380,8 +585,14 @@ function main() {
         if (src?.startsWith('/')) moduleFiles(src.replace(/^\//, ''), fileSet, jsFiles);
         else if (body.trim()) js += gz(body);
       }
+      const isAccount = page.path === '/account/' || page.path === '/hi/account/';
+      if (isAccount) {
+        // The sign-in island is the page: count what it loads before it runs.
+        for (const [, src] of html.matchAll(/(?:component|renderer)-url="\/([^"]+)"/g)) moduleFiles(src, fileSet, jsFiles);
+      }
       for (const jsFile of jsFiles) js += gz(readFileSync(join(DIR, jsFile), 'utf8'));
-      const jsBudget = isHome ? BUDGET.jsGzip.home : BUDGET.jsGzip.other;
+      const photoTool = /data-tool-kind="(hand|device|ai)"/.test(html);
+      const jsBudget = isHome ? BUDGET.jsGzip.home : isAccount ? BUDGET.jsGzip.account : photoTool ? BUDGET.jsGzip.photoTool : BUDGET.jsGzip.other;
       if (js > jsBudget) error(file, `our JS is ${kb(js)} gzip (budget ${kb(jsBudget)})`);
       page.weights = { html: htmlGz, css, js };
 
@@ -391,6 +602,18 @@ function main() {
       if (page.lang === 'en' && preloads.some((l) => /devanagari/.test(l.href ?? ''))) error(file, 'English page preloads a Devanagari font');
     }
   }
+
+  // Blog (WEB-DEC-057): every post is a BlogPosting, sits in the 'blog' sitemap group and is listed on /blog/.
+  const blogIndex = pages.get('blog/index.html');
+  const blogPosts = [...pages.values()].filter((page) => page.path !== '/blog/' && page.path.startsWith('/blog/'));
+  for (const post of blogPosts) {
+    if (!post.jsonLd.nodes.some((node) => node['@id'] === `${post.url}#article` && node['@type'] === 'BlogPosting')) {
+      error(post.file, 'blog post without its BlogPosting JSON-LD ({url}#article)');
+    }
+    if (post.entry?.indexable && post.entry.sitemap !== 'blog') error(post.file, `blog post registered in sitemap group "${post.entry.sitemap}" (expected "blog")`);
+    if (blogIndex && !tags(blogIndex.html, 'a').some((a) => a.href === post.path)) error('blog/index.html', `does not list ${post.path}`);
+  }
+  if (blogIndex && blogPosts.length === 0) warn('blog/index.html', 'lists no posts yet (an empty index is thin: publish the first posts before launch)');
 
   // Sitemaps: index → group files → exactly the indexable registry pages, alternates = head tags.
   const indexableUrls = new Set(PAGES.filter((page) => page.indexable).map((page) => `${BASE}${page.path}`));
@@ -415,6 +638,12 @@ function main() {
         if (!page) error(groupFile, `lists ${loc}, which is not built`);
         const lastmod = body.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1];
         if (lastmod && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod)) error(groupFile, `bad lastmod ${lastmod}`);
+        // Image sitemap (SEMANTIC_SEO_PLAN.md §7.2): each <image:loc> is a built file that the page really shows.
+        for (const [, imageUrl] of body.matchAll(/<image:loc>([^<]+)<\/image:loc>/g)) {
+          const imagePath = decode(imageUrl).replace(BASE, '');
+          if (!fileSet.has(imagePath.slice(1))) error(groupFile, `${loc}: image ${imagePath} is not built`);
+          else if (page && !page.html.includes(imagePath)) error(groupFile, `${loc}: lists image ${imagePath}, which the page does not show`);
+        }
         const alternates = [...body.matchAll(/<xhtml:link rel="alternate" hreflang="([^"]+)" href="([^"]+)"\/>/g)]
           .map((m) => `${m[1]} ${decode(m[2])}`)
           .sort();
@@ -424,6 +653,12 @@ function main() {
     }
   }
   for (const url of indexableUrls) if (!seen.has(url)) error('sitemaps', `do not list ${url}`);
+
+  // llms.txt says the same about the web reading as the pages (knowledge-based trust, plan §5.5).
+  if (fileSet.has('llms.txt') && !preview && !site.webReadingEnabled) {
+    const llms = readFileSync(join(DIR, 'llms.txt'), 'utf8');
+    if (!/not open yet/.test(llms)) error('llms.txt', 'must say the free web reading is not open yet (site.webReadingEnabled is false)');
+  }
 
   // robots.txt (SEO_PLAYBOOK.md §10).
   if (fileSet.has('robots.txt')) {

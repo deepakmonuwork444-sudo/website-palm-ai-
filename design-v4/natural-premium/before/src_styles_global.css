@@ -1,0 +1,517 @@
+/*
+ * PalmSays design tokens — DESIGN_SYSTEM.md §6 is the source of truth.
+ * Change a token there and here in the same commit.
+ * Web fonts are imported by BaseLayout (Fontsource, split by unicode-range).
+ */
+@import "tailwindcss";
+
+@custom-variant day (&:where([data-theme="day"], [data-theme="day"] *));
+
+@theme inline {
+  --color-*: initial; --shadow-*: initial; --inset-shadow-*: initial; --drop-shadow-*: initial;
+  --blur-*: initial; --radius-*: initial; --text-*: initial; --tracking-*: initial; --font-*: initial;
+
+  --color-page: var(--page);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-control: var(--control-border);
+  --color-edge: var(--edge);
+  --color-hairline: var(--hairline);
+  --color-glass: var(--glass);
+  --color-glass-edge: var(--glass-edge);
+  --color-scrim: var(--scrim);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-focus: var(--focus);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-line-life: var(--line-life);
+  --color-line-head: var(--line-head);
+  --color-line-heart: var(--line-heart);
+  --color-line-fate: var(--line-fate);
+
+  --font-sans: var(--ff-sans);
+  --font-display: var(--ff-display);
+
+  --text-display: var(--fs-display);  --text-display--line-height: var(--lh-display);
+  --text-h1: var(--fs-h1);            --text-h1--line-height: var(--lh-h1);
+  --text-h2: var(--fs-h2);            --text-h2--line-height: var(--lh-h2);
+  --text-h3: var(--fs-h3);            --text-h3--line-height: var(--lh-h3);
+  --text-lead: var(--fs-lead);        --text-lead--line-height: var(--lh-lead);
+  --text-body: var(--fs-body);        --text-body--line-height: var(--lh-body);
+  --text-small: var(--fs-small);      --text-small--line-height: var(--lh-small);
+  --text-caption: var(--fs-caption);  --text-caption--line-height: var(--lh-caption);
+
+  --tracking-display-en: -0.01em;
+
+  --radius-tag: 0.5rem; --radius-input: 0.75rem; --radius-card: 1.25rem; --radius-hero: 1.75rem; --radius-pill: 9999px;
+
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section);
+  --container-text: 42.5rem; --container-content: 70rem; --container-wide: 80rem;
+
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/*
+ * Fixed colours (fills, traces, QR). `static` so the CSS variables always exist
+ * at runtime: component <style> blocks and SVG classes read them directly.
+ */
+@theme static {
+  --color-gold-bright: #F5D98B;
+  --color-gold: #E6B85C;
+  --color-gold-pressed: #CFA049;
+  --color-on-gold: #1F1300;
+  /* Website line colours: the classic set the owner chose (DESIGN_V4_BRIEF.md). The app keeps its own. */
+  --color-trace-life: #2FD06A;
+  --color-trace-head: #4C8DFF;
+  --color-trace-heart: #FF4D5E;
+  --color-trace-fate: #B26BFF;
+  --color-halo: #1A1440;
+  --color-palm-top: #3A3078;
+  --color-palm-bottom: #1D1850;
+  --color-qr-dark: #0B0A1F;
+  --color-qr-light: #F6F0E1;
+  /* Legacy logo line colours (the v2 hand mark); kept for old references only. */
+  --color-logo-heart: #FF7FA6;
+  --color-logo-head: #5FD4FF;
+  --color-logo-life: #6FE89A;
+  /* v3 brand mark: the indigo arch (DESIGN_SYSTEM.md §8.1). Same in both themes, so it holds on Day paper. */
+  --color-mark-fill: #1B1640;
+  /* Phone frame around real photos (home hero, /app/): a near-black bezel in both themes. */
+  --color-bezel: #07061A;
+  --color-photo-scrim: rgba(7,6,26,0.78);
+  /* Text on a photo scrim: ivory in both themes (the scrim is always dark). */
+  --color-on-photo: #F6F0E1;
+  /* Showroom palette (WEB-DEC-042): the fixed highlights, creams, golds and inks the glass components use. */
+  --color-white: #FFFFFF;
+  --color-day-page: #F4F1FB;
+  --color-black: #000;
+  --color-gold-deep: #C8963E;
+  --color-cream-1: #FFF8E6;
+  --color-gold-pale: #FBE7B0;
+  --color-gold-soft: #E9C878;
+  --color-gold-day: #B07A12;
+  --color-gold-day-deep: #8A5E00;
+  --color-cream-2: #FFF8E8;
+  --color-cream-3: #FBF6EA;
+  --color-cream-4: #F7ECCF;
+  --color-cream-5: #F7EBCB;
+  --color-cream-6: #F6EEDB;
+  --color-ink-3: #15123A;
+  --color-gold-top: #FBE6A6;
+  --color-cream-7: #F8EDD0;
+  --color-day-surface: #F7F5FC;
+  --color-day-page-2: #F4F0FB;
+  --color-day-info: #EEF3FF;
+  --color-gold-mid: #DDAE55;
+  --color-gold-ink: #7A5200;
+  --color-ink-4: #1E1A48;
+  --color-ink-5: #1A1644;
+  --color-ink-6: #0D0B28;
+  --color-ink-7: #0B0A22;
+  --color-ink-8: #0B0A1F;
+}
+
+:root, [data-theme="night"] {
+  color-scheme: dark;
+  --page: #0B0A1F; --surface-1: #15132F; --surface-2: #1E1B42; --surface-3: #2A2654;
+  --border: #2A2654; --border-strong: #3A3570; --control-border: #6F68A6;
+  --edge: rgba(246,240,225,0.08); --hairline: rgba(230,184,92,0.32);
+  --glass: rgba(21,19,47,0.88); --glass-edge: rgba(246,240,225,0.14); --scrim: rgba(6,5,18,0.72);
+  --fg: #F6F0E1; --fg-muted: #C3B9D8; --fg-faint: #8F88B5;
+  --accent: #E6B85C; --accent-soft: rgba(230,184,92,0.14); --focus: #F5D98B;
+  --success: #2BB3A3; --warning: #FFC857; --danger: #FF6B6B;
+  --line-life: #2FD06A; --line-head: #4C8DFF; --line-heart: #FF4D5E; --line-fate: #B26BFF;
+  --hero-gradient: linear-gradient(180deg, #221A4E, #15132F);
+  /* Glass cards (WEB-DEC-041): layered fill, top-edge shine, soft depth; gold edge + glow on hover. */
+  --gc-fill: linear-gradient(160deg, rgba(58,52,116,0.46) 0%, rgba(24,21,54,0.66) 55%, rgba(21,19,47,0.78) 100%);
+  --gc-edge: rgba(246,240,225,0.11); --gc-edge-hover: rgba(230,184,92,0.45);
+  --gc-depth: inset 0 1px 0 rgba(246,240,225,0.09), 0 1px 2px rgba(0,0,0,0.35), 0 18px 40px -22px rgba(0,0,0,0.75);
+  --gc-depth-hover: inset 0 1px 0 rgba(246,240,225,0.13), 0 1px 2px rgba(0,0,0,0.35), 0 26px 52px -24px rgba(0,0,0,0.8), 0 14px 44px -20px rgba(230,184,92,0.3);
+  --gc-well: linear-gradient(180deg, rgba(11,10,31,0.55), rgba(30,27,66,0.5));
+  --stage-glow: radial-gradient(44rem 24rem at 10% 12%, rgba(116,86,230,0.17), transparent 70%), radial-gradient(36rem 22rem at 92% 88%, rgba(230,184,92,0.07), transparent 70%);
+}
+[data-theme="day"] {
+  color-scheme: light;
+  --page: #F7F5FC; --surface-1: #FFFFFF; --surface-2: #ECE8F7; --surface-3: #DDD7EE;
+  --border: #E4DFF3; --border-strong: #C9C1E0; --control-border: #7A72A8;
+  --edge: rgba(23,19,61,0.08); --hairline: rgba(122,82,0,0.32);
+  --glass: rgba(247,245,252,0.92); --glass-edge: rgba(23,19,61,0.12); --scrim: rgba(23,19,61,0.45);
+  --fg: #17133D; --fg-muted: #4B4574; --fg-faint: #6A6492;
+  --accent: #7A5200; --accent-soft: rgba(122,82,0,0.10); --focus: #7A5200;
+  --success: #0F7A6E; --warning: #8A5A00; --danger: #B3261E;
+  --line-life: #137A3A; --line-head: #1F5BC4; --line-heart: #C8102E; --line-fate: #6440D0;
+  --hero-gradient: linear-gradient(180deg, #FFFFFF, #F7F5FC);
+  --gc-fill: linear-gradient(160deg, rgba(255,255,255,0.95) 0%, rgba(244,241,252,0.82) 100%);
+  --gc-edge: rgba(23,19,61,0.09); --gc-edge-hover: rgba(122,82,0,0.4);
+  --gc-depth: inset 0 1px 0 rgba(255,255,255,0.95), 0 1px 2px rgba(23,19,61,0.06), 0 16px 32px -20px rgba(23,19,61,0.24);
+  --gc-depth-hover: inset 0 1px 0 rgba(255,255,255,0.95), 0 1px 2px rgba(23,19,61,0.06), 0 24px 44px -22px rgba(23,19,61,0.3), 0 10px 30px -18px rgba(122,82,0,0.22);
+  --gc-well: linear-gradient(180deg, rgba(236,232,247,0.9), rgba(246,243,253,0.7));
+  --stage-glow: radial-gradient(44rem 24rem at 10% 12%, rgba(100,64,208,0.08), transparent 70%), radial-gradient(36rem 22rem at 92% 88%, rgba(122,82,0,0.05), transparent 70%);
+}
+/* Printing always uses the Day values (DESIGN_SYSTEM.md §2.2). */
+@media print {
+  :root, [data-theme] {
+    color-scheme: light;
+    --page: #FFFFFF; --surface-1: #FFFFFF; --surface-2: #ECE8F7; --surface-3: #DDD7EE;
+    --border: #E4DFF3; --border-strong: #C9C1E0; --control-border: #7A72A8;
+    --edge: rgba(23,19,61,0.08); --hairline: rgba(122,82,0,0.32);
+    --fg: #17133D; --fg-muted: #4B4574; --fg-faint: #6A6492;
+    --accent: #7A5200; --accent-soft: rgba(122,82,0,0.10); --focus: #7A5200;
+    --line-life: #137A3A; --line-head: #1F5BC4; --line-heart: #C8102E; --line-fate: #6440D0;
+    --hero-gradient: none;
+    --gc-fill: #FFFFFF; --gc-edge: #E4DFF3; --gc-edge-hover: #E4DFF3; --gc-depth: none; --gc-depth-hover: none;
+    --gc-well: #ECE8F7; --stage-glow: none;
+  }
+}
+
+/* Metric-matched fallbacks (capsize metrics of the Fontsource files vs Arial / Georgia) so the swap causes no layout shift. */
+@font-face {
+  font-family: "Mukta Fallback";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 95.15%; ascent-override: 118.76%; descent-override: 55.91%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Cormorant Fallback";
+  src: local("Georgia");
+  size-adjust: 89.28%; ascent-override: 103.5%; descent-override: 32.15%; line-gap-override: 0%;
+}
+
+:root {
+  --gold-gradient: linear-gradient(135deg, #F5D98B, #E6B85C 50%, #CFA049);
+  --ff-sans: "Mukta", "Mukta Fallback", "Noto Sans Devanagari", system-ui, sans-serif;
+  --ff-display: "Cormorant Garamond", "Cormorant Fallback", Georgia, serif;
+  --fs-display: clamp(2.5rem, 1.7174rem + 3.478vw, 4.5rem);   --lh-display: 1.08;
+  --fs-h1: clamp(2.25rem, 1.6630rem + 2.609vw, 3.75rem);       --lh-h1: 1.08;
+  /* v4: section titles are set in the display serif (as the home story), so they run larger. */
+  --fs-h2: clamp(2rem, 1.6087rem + 1.739vw, 3rem);             --lh-h2: 1.1;
+  --fs-h3: clamp(1.25rem, 1.1522rem + 0.435vw, 1.5rem);        --lh-h3: 1.3;
+  --fs-lead: clamp(1.1875rem, 1.1386rem + 0.217vw, 1.3125rem); --lh-lead: 1.55;
+  --fs-body: 1.0625rem; --lh-body: 1.6;
+  --fs-small: 0.9375rem; --lh-small: 1.5;
+  --fs-caption: 0.8125rem; --lh-caption: 1.45;
+  --gutter: 1.25rem; --section: 3.5rem;
+  --ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --dur-fast: 150ms; --dur-normal: 200ms; --dur-sheet: 240ms; --dur-beam: 1200ms; --dur-draw: 900ms; --stagger-line: 150ms;
+}
+@media (min-width: 48rem) { :root { --gutter: 2rem; } }
+@media (min-width: 64rem) { :root { --gutter: 3rem; --section: 5.5rem; } }
+
+:lang(hi) {
+  --ff-display: "Tiro Devanagari Hindi", "Cormorant Garamond", serif;
+  --fs-display: clamp(2.125rem, 1.4891rem + 2.826vw, 3.75rem); --lh-display: 1.45;
+  --fs-h1: clamp(1.75rem, 1.3587rem + 1.739vw, 2.75rem);        --lh-h1: 1.45;
+  --fs-h2: clamp(1.5rem, 1.3043rem + 0.870vw, 2rem);            --lh-h2: 1.5;
+  --lh-h3: 1.55;
+  --fs-lead: clamp(1.25rem, 1.2011rem + 0.217vw, 1.375rem);     --lh-lead: 1.7;
+  --fs-body: 1.125rem; --lh-body: 1.75;
+  --fs-small: 1rem; --lh-small: 1.6;
+  --fs-caption: 0.875rem; --lh-caption: 1.55;
+  letter-spacing: 0;
+}
+
+@layer base {
+  html { background: var(--page); color: var(--fg); font-family: var(--ff-sans); font-synthesis: none;
+         -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+  body { font-size: var(--fs-body); line-height: var(--lh-body); background: var(--page); color: var(--fg); }
+  /* Decorative glows (app hero stage, sample plinth) reach past the screen edge: clip them so phones never scroll sideways. clip, not hidden: sticky parts keep working. */
+  #main { overflow-x: clip; }
+  :lang(hi) .tracking-display-en { letter-spacing: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .script-system { font-family: "Noto Sans Devanagari", "Kohinoor Devanagari", "Nirmala UI", sans-serif; }
+  h1, h2, h3 { text-wrap: balance; }
+  /* v4 (DESIGN_V4_BRIEF.md): one voice from the home story down: section titles in the display serif.
+     Small h2s that sit inside cards (h3 size) stay in the sans. */
+  h2 { font-family: var(--ff-display); font-weight: 700; }
+  h2.text-h3 { font-family: var(--ff-sans); }
+  p, li { text-wrap: pretty; }
+  a { color: var(--accent); }
+  [id] { scroll-margin-top: 5rem; }
+}
+
+@utility gold-fill { background-image: var(--gold-gradient); color: #1F1300; }
+@utility hero-fill { background-image: var(--hero-gradient); }
+@utility glass { background-color: var(--glass); border: 1px solid var(--glass-edge); }
+@media (min-width: 64rem) and (hover: hover) {
+  @supports (backdrop-filter: blur(12px)) { .glass { backdrop-filter: blur(12px); } }
+}
+@media (prefers-reduced-transparency: reduce) { .glass { backdrop-filter: none; } }
+
+@layer components {
+  /* Readable text column (≤ 68ch English, ≈ 60ch Hindi). */
+  .measure { max-width: 68ch; }
+  :lang(hi) .measure { max-width: 60ch; }
+
+  .wrap { width: 100%; max-width: 70rem; margin-inline: auto; padding-inline: var(--gutter); }
+
+  /* Buttons (DESIGN_SYSTEM.md §7.1). One gold per viewport state. */
+  .btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 3rem; padding: 0.5rem 1.5rem; border-radius: 9999px; border: 1px solid transparent;
+    font-family: var(--ff-sans); font-weight: 700; font-size: var(--fs-body); line-height: 1.25;
+    text-align: center; text-decoration: none; cursor: pointer; user-select: none;
+    transition: transform var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease),
+      opacity var(--dur-fast) var(--ease);
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn[disabled], .btn[aria-disabled="true"] { opacity: 0.6; cursor: not-allowed; }
+  .btn-gold { min-height: 3.25rem; background-image: var(--gold-gradient); color: var(--color-on-gold); }
+  .btn-gold:active { background-image: none; background-color: var(--color-gold-pressed); }
+  [data-theme="day"] .btn-gold { border-color: var(--hairline); }
+  .btn-secondary { background-color: var(--surface-2); color: var(--fg); border-color: var(--edge); }
+  .btn-secondary:hover { background-color: var(--surface-3); }
+  /* Outline: 40px visual, 48px hit area. */
+  .btn-outline { min-height: 2.5rem; padding-block: 0.25rem; background: transparent; color: var(--accent); border-color: var(--accent); }
+  .btn-outline::after { content: ""; position: absolute; inset: -0.25rem 0; }
+  .btn-block { width: 100%; }
+
+  .text-link { color: var(--accent); text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+  .text-link:hover { text-decoration-thickness: 2px; }
+  .nav-link { color: var(--fg); text-decoration: none; }
+  .nav-link:hover, .nav-link:focus-visible { color: var(--accent); text-decoration: underline; text-underline-offset: 0.3em; }
+
+  /* The one big action (home hero, sticky bar): 56px tall, a leading icon allowed, never an arrow. */
+  .btn-lg { min-height: 3.5rem; padding-inline: 1.75rem; font-size: var(--fs-lead); }
+
+  .section { padding-block: var(--section); }
+  .card { background-color: var(--surface-1); border: 1px solid var(--edge); border-radius: 1.25rem; }
+
+  /* Section heads (v3): a heading and at most one short line under it. No eyebrows, no caps. */
+  .section-title { margin: 0; }
+  .section-sub { margin: 0.5rem 0 0; color: var(--fg-muted); max-width: 60ch; }
+
+  /* Horizontal scroll row on phones (cards snap, the next card peeks); a normal grid from 64rem. */
+  .hscroll {
+    display: grid; grid-auto-flow: column; grid-auto-columns: min(80%, 19rem); gap: 0.875rem;
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+    margin-inline: calc(var(--gutter) * -1); padding: 0.25rem var(--gutter) 1rem; scroll-padding-inline: var(--gutter);
+    scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent;
+  }
+  .hscroll > * { scroll-snap-align: start; min-width: 0; }
+
+  /* A full-bleed band: the one section per page that breaks the dark rhythm. */
+  .band-hero { background-image: var(--hero-gradient); border-block: 1px solid var(--edge); }
+
+  /* Device-aware blocks. <html data-os> is set by the inline head script. */
+  .only-ios { display: none; }
+  [data-os="ios"] .only-ios { display: block; }
+  [data-os="ios"] .not-ios { display: none; }
+  .only-desktop { display: none; }
+  @media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+    .only-desktop { display: block; }
+    .only-touch { display: none; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+                         transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* =====================================================================
+ * Showroom layer (WEB-DEC-042): the premium glass system for the whole site.
+ * Tokens first, then light, glass, buttons, type, devices and motion.
+ * Pages use these classes; nothing here changes layout or content.
+ * ===================================================================== */
+:root, [data-theme="night"] {
+  --page: #070619;
+  --ink-2: #0E0C29;
+  /* Rim light: a bright top-left edge fading to a warm gold bottom-right. */
+  --rim: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.05) 38%, rgba(255,255,255,0.03) 62%, rgba(230,184,92,0.26));
+  --rim-hover: linear-gradient(145deg, rgba(255,236,190,0.55), rgba(255,255,255,0.08) 40%, rgba(230,184,92,0.55));
+  --glass-1: linear-gradient(165deg, rgba(64,56,132,0.42) 0%, rgba(22,19,54,0.62) 48%, rgba(12,10,34,0.74) 100%);
+  --glass-2: rgba(13,11,36,0.72);
+  --glass-3: rgba(16,14,42,0.94);
+  --shine: inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.25);
+  --e1: 0 1px 1px rgba(0,0,0,0.3), 0 8px 16px -8px rgba(0,0,0,0.5), 0 30px 60px -30px rgba(0,0,0,0.8);
+  --e2: 0 2px 2px rgba(0,0,0,0.3), 0 16px 32px -12px rgba(0,0,0,0.6), 0 50px 90px -40px rgba(0,0,0,0.85), 0 20px 60px -30px rgba(230,184,92,0.30);
+  --e3: 0 -12px 40px -10px rgba(0,0,0,0.6), 0 30px 80px -20px rgba(0,0,0,0.8);
+  --spot: rgba(255,226,160,0.10);
+  --aurora:
+    radial-gradient(60rem 38rem at 8% -6%, rgba(98,72,214,0.30), transparent 62%),
+    radial-gradient(52rem 34rem at 100% 28%, rgba(60,44,160,0.26), transparent 60%),
+    radial-gradient(46rem 30rem at 18% 78%, rgba(128,62,190,0.16), transparent 62%),
+    radial-gradient(40rem 26rem at 88% 104%, rgba(230,184,92,0.10), transparent 60%);
+  --well: linear-gradient(180deg, rgba(5,4,18,0.62), rgba(26,22,62,0.5));
+  --foil: linear-gradient(100deg, #FBE7B0 0%, #E6B85C 38%, #FFF1CC 52%, #D9A74A 70%, #F5D98B 100%);
+  --gc-fill: var(--glass-1); --gc-edge: rgba(255,255,255,0.09); --gc-depth: var(--e1); --gc-depth-hover: var(--e2);
+  --gc-well: var(--well);
+  --glass-base: linear-gradient(rgba(9,8,28,0.86), rgba(9,8,28,0.86));
+}
+[data-theme="day"] {
+  --page: #F4F1FB;
+  --ink-2: #FFFFFF;
+  --rim: linear-gradient(145deg, rgba(255,255,255,1), rgba(23,19,61,0.08) 45%, rgba(122,82,0,0.22));
+  --rim-hover: linear-gradient(145deg, rgba(255,255,255,1), rgba(23,19,61,0.12) 45%, rgba(122,82,0,0.5));
+  --glass-1: linear-gradient(165deg, rgba(255,255,255,0.96) 0%, rgba(249,247,255,0.86) 55%, rgba(240,236,252,0.82) 100%);
+  --glass-2: rgba(255,255,255,0.78);
+  --glass-3: rgba(255,255,255,0.97);
+  --shine: inset 0 1px 0 rgba(255,255,255,1), inset 0 -1px 0 rgba(23,19,61,0.04);
+  --e1: 0 1px 1px rgba(23,19,61,0.05), 0 8px 16px -8px rgba(23,19,61,0.12), 0 30px 60px -32px rgba(23,19,61,0.28);
+  --e2: 0 2px 2px rgba(23,19,61,0.06), 0 16px 32px -12px rgba(23,19,61,0.16), 0 50px 90px -42px rgba(23,19,61,0.35), 0 20px 50px -30px rgba(122,82,0,0.22);
+  --e3: 0 -12px 40px -10px rgba(23,19,61,0.14), 0 30px 80px -20px rgba(23,19,61,0.24);
+  --spot: rgba(122,82,0,0.06);
+  --aurora:
+    radial-gradient(60rem 38rem at 8% -6%, rgba(120,92,230,0.16), transparent 62%),
+    radial-gradient(52rem 34rem at 100% 28%, rgba(90,120,230,0.10), transparent 60%),
+    radial-gradient(40rem 26rem at 88% 104%, rgba(214,170,80,0.14), transparent 60%);
+  --well: linear-gradient(180deg, rgba(234,229,248,0.95), rgba(248,246,255,0.8));
+  --foil: linear-gradient(100deg, #8A5E00 0%, #B07A12 45%, #6E4A00 100%);
+  --gc-fill: var(--glass-1); --gc-edge: rgba(23,19,61,0.08); --gc-depth: var(--e1); --gc-depth-hover: var(--e2);
+  --gc-well: var(--well);
+  --glass-base: linear-gradient(rgba(250,249,254,0.9), rgba(250,249,254,0.9));
+}
+@media print {
+  :root, [data-theme] { --aurora: none; --rim: none; --rim-hover: none; --glass-1: #FFFFFF; --e1: none; --e2: none; --foil: none; }
+}
+:root { --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1); --r-card: 1.5rem; --r-well: 1rem; --r-panel: 2rem; }
+
+@layer base {
+  body { background: transparent; position: relative; isolation: isolate; }
+  /* The room: soft coloured light pools, fixed behind everything, plus a fine film grain. */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none; background: var(--aurora);
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.05; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  [data-theme="day"] body::after { opacity: 0.035; mix-blend-mode: multiply; }
+  ::selection { background: rgba(230,184,92,0.35); color: var(--fg); }
+  h2 { font-weight: 600; letter-spacing: -0.012em; }
+  :lang(hi) h2 { letter-spacing: 0; }
+  /* Card titles join the display serif: the editorial voice runs through every level. */
+  h3:not(.keep-sans) { font-family: var(--ff-display); font-weight: 700; letter-spacing: -0.005em; }
+  :lang(en) h3:not(.keep-sans) { font-size: calc(var(--fs-h3) * 1.14); line-height: 1.2; }
+}
+
+@layer components {
+  /* ---- Gold foil text for the one key word in a heading. ---- */
+  .foil, .section-title em, h1 em, h2 em {
+    font-style: normal; background: var(--foil); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  /* ---- Section heads: a short gold rule above the title. ---- */
+  .section-head { position: relative; }
+  .section-head::before {
+    content: ""; display: block; width: 2.75rem; height: 2px; margin-bottom: 0.875rem; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent); box-shadow: 0 0 12px rgba(230,184,92,0.5);
+  }
+  .section-title { font-size: var(--fs-h2); }
+  .section-sub { font-size: var(--fs-lead); line-height: var(--lh-lead); margin-top: 0.75rem; }
+  .section-head + * { margin-top: 1.5rem; }
+
+  /* ---- Glass surfaces. Rim light via a gradient border (padding-box / border-box). ---- */
+  .glass-card, .card {
+    position: relative; border: 1px solid transparent; border-radius: var(--r-card);
+    background: var(--glass-1) padding-box, var(--glass-base) padding-box, var(--rim) border-box;
+    box-shadow: var(--shine), var(--e1);
+    transition: transform 420ms var(--ease-out), box-shadow 420ms var(--ease-out), background 200ms var(--ease);
+  }
+  /* Pointer spotlight (set by showroom.ts on desktop). */
+  .glass-card::after, .card::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+    background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 0%), var(--spot), transparent 60%);
+    transition: opacity 300ms var(--ease);
+  }
+  .glass-card:hover::after, .card:hover::after { opacity: 1; }
+  a.glass-card:hover, a.glass-card:focus-visible, a.card:hover, .glass-card:has(.stretch-link:hover), .glass-card:has(.stretch-link:focus-visible) {
+    background: var(--glass-1) padding-box, var(--glass-base) padding-box, var(--rim-hover) border-box; box-shadow: var(--shine), var(--e2);
+  }
+  a.glass-card:active, a.card:active, .glass-card:has(.stretch-link:active) { transform: scale(0.985); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    a.glass-card:hover, a.card:hover, .glass-card:has(.stretch-link:hover) { transform: translateY(-6px); }
+  }
+  /* Card link = the title only (WEB-DEC-051 R6); its ::before stretches over the card, so the whole card stays one tap target. */
+  .stretch-link { color: inherit; text-decoration: none; }
+  .stretch-link::before { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  .glass-well {
+    border: 1px solid transparent; border-radius: var(--r-well);
+    background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02)) border-box;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.35);
+  }
+  [data-theme="day"] .glass-well { background: var(--well) padding-box, linear-gradient(180deg, rgba(23,19,61,0.06), rgba(255,255,255,1)) border-box; box-shadow: inset 0 2px 8px rgba(23,19,61,0.06); }
+  .glass-panel {
+    border: 1px solid transparent; border-radius: var(--r-panel);
+    background: var(--glass-1) padding-box, var(--glass-base) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--e1);
+  }
+  .glass-stage { background-image: none; }
+  @media (min-width: 64rem) and (hover: hover) and (prefers-reduced-transparency: no-preference) {
+    @supports (backdrop-filter: blur(16px)) {
+      :root:not([data-lite]) .glass-card, :root:not([data-lite]) .glass-panel { backdrop-filter: blur(16px) saturate(1.2); }
+    }
+  }
+
+  /* Bands: sections that used to be solid blocks become lit glass strips over the room. */
+  .band, .band-hero {
+    background: linear-gradient(180deg, rgba(40,32,96,0.34), rgba(14,12,40,0.18)) !important;
+    border-block: 1px solid transparent !important;
+    border-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.12) 30%, rgba(230,184,92,0.3) 50%, rgba(255,255,255,0.12) 70%, transparent) 1 !important;
+  }
+  [data-theme="day"] .band, [data-theme="day"] .band-hero { background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3)) !important; }
+
+  /* ---- Buttons ---- */
+  .btn { font-weight: 700; letter-spacing: 0.005em; transition: transform 220ms var(--ease-out), box-shadow 320ms var(--ease-out), background 200ms var(--ease), color 200ms var(--ease), border-color 200ms var(--ease); }
+  /* Gold: a real 3D bar. Light top edge, shaded base, warm glow, a light sweep on hover. */
+  .btn-gold {
+    overflow: hidden; isolation: isolate; border: 1px solid rgba(255,226,160,0.55);
+    background: linear-gradient(180deg, #FBE6A6 0%, #EFC873 38%, #DDAE55 70%, #C8963E 100%);
+    color: #1F1300;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), inset 0 -3px 6px rgba(120,76,8,0.35),
+      0 1px 0 rgba(0,0,0,0.35), 0 10px 24px -10px rgba(230,184,92,0.75), 0 24px 60px -24px rgba(230,184,92,0.55);
+  }
+  .btn-gold::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.65) 48%, transparent 64%);
+    transform: translateX(-120%); transition: transform 900ms var(--ease-out);
+  }
+  .btn-gold:hover::before { transform: translateX(120%); }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 6px rgba(120,76,8,0.35), 0 1px 0 rgba(0,0,0,0.35), 0 16px 34px -12px rgba(230,184,92,0.9), 0 30px 80px -24px rgba(230,184,92,0.6); }
+  .btn-gold:active { transform: translateY(1px); background: linear-gradient(180deg, #E9C06A, #C8963E); box-shadow: inset 0 2px 6px rgba(90,56,0,0.45), 0 4px 12px -6px rgba(230,184,92,0.6); }
+  [data-theme="day"] .btn-gold { border-color: rgba(160,110,20,0.5); }
+  /* Secondary: a glass pill with rim light. */
+  .btn-secondary {
+    border: 1px solid transparent; color: var(--fg);
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03)) padding-box, var(--glass-base) padding-box, var(--rim) border-box;
+    box-shadow: var(--shine), 0 8px 24px -14px rgba(0,0,0,0.7);
+  }
+  .btn-secondary:hover { background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.05)) padding-box, var(--glass-base) padding-box, var(--rim-hover) border-box; transform: translateY(-1px); }
+  [data-theme="day"] .btn-secondary { background: linear-gradient(180deg, #FFFFFF, #F3F0FB) padding-box, var(--rim) border-box; }
+  .btn-outline {
+    color: var(--accent); border: 1px solid rgba(230,184,92,0.6);
+    background: linear-gradient(180deg, rgba(230,184,92,0.12), rgba(230,184,92,0.03));
+    box-shadow: inset 0 1px 0 rgba(255,236,190,0.18), 0 0 24px -8px rgba(230,184,92,0.35);
+  }
+  .btn-outline:hover { border-color: var(--accent); box-shadow: inset 0 1px 0 rgba(255,236,190,0.25), 0 0 30px -6px rgba(230,184,92,0.55); }
+  .text-link { text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent); transition: text-decoration-color 200ms var(--ease), color 200ms var(--ease); }
+  .text-link:hover { text-decoration-color: var(--accent); }
+
+  /* ---- Devices: a real-looking phone around real screenshots. ---- */
+  .device {
+    --tilt-x: 0deg; --tilt-y: 0deg;
+    border: 8px solid #06050F !important; outline: none !important; border-radius: 2.5rem !important;
+    box-shadow: 0 0 0 1.5px #5A5870, 0 0 0 3px #18171F, inset 0 0 0 1px rgba(255,255,255,0.06),
+      0 50px 100px -40px rgba(0,0,0,0.9), 0 30px 80px -40px rgba(98,72,214,0.55) !important;
+    transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    transition: transform 600ms var(--ease-out);
+  }
+  [data-theme="day"] .device { box-shadow: 0 0 0 1.5px #B9B6C8, 0 0 0 3px #2A2833, 0 50px 90px -40px rgba(23,19,61,0.45), 0 30px 70px -40px rgba(100,64,208,0.35) !important; }
+
+  /* ---- Chips ---- */
+  .chip-glass {
+    display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.75rem; border-radius: 9999px;
+    border: 1px solid transparent; background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--glass-base) padding-box, var(--rim) border-box;
+    color: var(--fg-muted); font-size: var(--fs-caption); font-weight: 600;
+  }
+
+  /* ---- Reveal (set up by showroom.ts; hidden only after the script has run). ---- */
+  [data-reveal] .rv { transition: opacity 900ms var(--ease-out) var(--rv-delay, 0ms), transform 900ms var(--ease-out) var(--rv-delay, 0ms), box-shadow 420ms var(--ease-out), background 200ms var(--ease); }
+  [data-reveal] .rv:not(.rv-in) { opacity: 0; transform: translateY(28px) scale(0.985); }
+}

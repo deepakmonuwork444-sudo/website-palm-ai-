@@ -1,0 +1,311 @@
+---
+/**
+ * `/tools/` hub (WEB-FEAT-012; SEO_PLAYBOOK.md §2–3, DESIGN_SYSTEM.md §7.7).
+ * v3 (2026-09-26, owner: "free tools must give something real"): the hub
+ * leads with the tools that work on the visitor's OWN palm photo, each card
+ * showing what its result looks like (a real result on a sample photo,
+ * drawn from the model's actual output, or the real check list). The
+ * meaning tools (finders, quizzes, map) come second, as a compact list.
+ * Title keeps "Scanner" out while the web scanner is not open.
+ */
+import '../../components/tools/tools.css';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icon from '../../components/Icon.astro';
+import StoreButton from '../../components/StoreButton.astro';
+import HandExample from '../../components/tools/HandExample.astro';
+import MediaIcon from '../../components/MediaIcon.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isLive } from '../../config/pages';
+import { t } from '../../i18n';
+import { TOOLS, toolById, type ToolGlyph } from '../../lib/tools/registry';
+import { TOOL_ICON } from '../../lib/tools/tool-icons';
+import { toolsHubSchema } from '../../lib/tools/schema';
+
+const title = 'Free Palm Reading Tools: Hand Type, Fingers & Palm Photo';
+const description =
+  'Free palmistry tools that work on a photo of your own palm: hand type, fingers and thumb, left vs right hands, measured on your phone. No sign-up.';
+const dict = t('en');
+const jsonLd = [toolsHubSchema({ name: 'Free palm reading tools', description, tools: TOOLS })];
+
+const handType = toolById('hand-type');
+const fingers = toolById('finger-reader');
+const compare = toolById('hand-compare');
+const checker = toolById('photo-checker');
+const lineFinder = toolById('line-finder');
+const learn = TOOLS.filter((tool) => !tool.photo);
+// 3D glass-and-gold icon per tool glyph (src/lib/tools/tool-icons.ts, shared with the tool pages).
+const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
+---
+
+<BaseLayout title={title} description={description} path="/tools/" locale="en" jsonLd={jsonLd}>
+  <div class="wrap t-page hub">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Tools', path: '/tools/' },
+      ]}
+      label={dict.a11y.breadcrumb}
+    />
+
+    <header class="t-head hub-head">
+      <h1 class="t-h1">Free <em>palm reading</em> tools</h1>
+      <p class="t-promise">
+        Start with a photo of your own palm. We measure your hand right on your phone and show what palmistry says about it, with the
+        book each meaning comes from.
+      </p>
+      <p class="t-label"><Icon name="shield" /><span>Every tool here is free, with no sign-up and no payment. Only the full reading in our Android app is paid.</span></p>
+    </header>
+
+    <section class="hub-group" aria-labelledby="group-photo">
+      <h2 id="group-photo" class="hub-group-title">From a photo of your palm</h2>
+      <p class="hub-group-intro">
+        These use your own photo. A hand model finds your wrist, knuckles and fingertips on your phone, so the photo never leaves it.
+      </p>
+
+      <ul class="hub-photo">
+        {
+          [handType, fingers].map((tool) => (
+            <li class="hub-pcard hub-pcard-wide glass-card">
+              <div class="hub-pcard-copy">
+                <span class="hub-card-top">
+                  <span class="t-tile"><MediaIcon name={icon3d(tool.glyph)} sizes="2.75rem" /></span>
+                  <a class="hub-card-name hub-stretch" href={tool.path}>{tool.name}</a>
+                </span>
+                <span class="hub-card-blurb">{tool.blurb}</span>
+                <span class="hub-card-label">{tool.label}</span>
+                <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
+              </div>
+              <div class="hub-pcard-demo">
+                <HandExample kind={tool.id === 'hand-type' ? 'shape' : 'fingers'} compact />
+              </div>
+            </li>
+          ))
+        }
+        <li class="hub-pcard glass-card">
+          <div class="hub-pcard-copy">
+            <span class="hub-card-top">
+              <span class="t-tile"><MediaIcon name={icon3d(compare.glyph)} sizes="2.75rem" /></span>
+              <a class="hub-card-name hub-stretch" href={compare.path}>{compare.name}</a>
+            </span>
+            <span class="hub-card-blurb">{compare.blurb}</span>
+            <span class="hub-card-label">{compare.label}</span>
+                <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
+          </div>
+          <div class="hub-pcard-demo hub-demo" aria-hidden="true">
+            <span class="hub-demo-title">What you’ll see</span>
+            <span class="hub-demo-row"><Icon name="check" />Both photos with the points we found</span>
+            <span class="hub-demo-row"><Icon name="check" />Hand type, fingers and thumb, side by side</span>
+            <span class="hub-demo-row"><Icon name="check" />Only real differences marked</span>
+          </div>
+        </li>
+        <li class="hub-pcard glass-card">
+          <div class="hub-pcard-copy">
+            <span class="hub-card-top">
+              <span class="t-tile"><MediaIcon name={icon3d(checker.glyph)} sizes="2.75rem" /></span>
+              <a class="hub-card-name hub-stretch" href={checker.path}>{checker.name}</a>
+            </span>
+            <span class="hub-card-blurb">{checker.blurb}</span>
+            <span class="hub-card-label">{checker.label}</span>
+                <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
+          </div>
+          <div class="hub-pcard-demo hub-demo" aria-hidden="true">
+            <span class="hub-demo-title">What you’ll see</span>
+            <span class="hub-demo-row"><Icon name="check" />Bright enough, not washed out</span>
+            <span class="hub-demo-row"><Icon name="check" />Sharp, not blurry</span>
+            <span class="hub-demo-row"><Icon name="check" />Whole palm in the frame</span>
+          </div>
+        </li>
+        <li class="hub-pcard hub-pcard-soon glass-card">
+          <div class="hub-pcard-copy">
+            <span class="hub-card-top">
+              <span class="t-tile"><MediaIcon name={icon3d(lineFinder.glyph)} sizes="2.75rem" /></span>
+              <a class="hub-card-name hub-stretch" href={lineFinder.path}>{lineFinder.name}</a>
+            </span>
+            <span class="hub-card-blurb">{lineFinder.blurb}</span>
+            <span class="hub-card-label">{lineFinder.label}</span>
+            {!lineFinder.live && <span class="hub-tag hub-tag-soon">Opens soon on this website</span>}
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="hub-group" aria-labelledby="group-learn">
+      <h2 id="group-learn" class="hub-group-title">Learn the meanings (no photo needed)</h2>
+      <p class="hub-group-intro">
+        Answer a few questions or tap a drawing, and see what the classical palmistry books say, with the source. No AI.
+      </p>
+      <ul class="hub-list">
+        {
+          learn.map((tool) => (
+            <li>
+              <div class="hub-row glass-card">
+                <span class="hub-row-tile"><MediaIcon name={icon3d(tool.glyph)} sizes="2.75rem" /></span>
+                <span class="hub-row-text">
+                  <a class="hub-row-name stretch-link" href={tool.path}>{tool.name}</a>
+                  <span class="hub-row-blurb">{tool.blurb}</span>
+                </span>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="t-section hub-text showroom-reveal" aria-labelledby="ai-title">
+      <h2 id="ai-title">Which tools use AI?</h2>
+      <p>
+        The photo tools use an AI hand model to find the points of your hand. It is Google’s open MediaPipe model, and it runs inside
+        your browser on your phone: your photo is never uploaded. The meanings come from classical palmistry books, never from AI.
+      </p>
+      <p>
+        The palm line finder and the free palm reading will use our AI line scanner on our server, which receives the photo; both say
+        so before you start. The photo checker is simple pixel maths, and the meaning tools are lookups in the books.
+      </p>
+    </section>
+
+    <section class="t-section hub-text showroom-reveal" aria-labelledby="limits-title">
+      <h2 id="limits-title">What these tools can’t tell you</h2>
+      <div class="t-limits">
+        <p>
+          <strong>What palmistry can’t tell you.</strong> Palm lines can’t tell dates, how long you’ll live, your health, whether or when
+          you’ll marry, how many children you’ll have, or how much money you’ll make. Palmistry is a tradition for reflection, not a
+          science.
+          {isLive('/is-palmistry-real/') && <>{' '}<a class="text-link" href="/is-palmistry-real/">Is palmistry real?</a></>}
+        </p>
+        <p>That is why we don’t make marriage-age, children-count, lifespan or compatibility tools.</p>
+      </div>
+    </section>
+
+    <section class="t-end hub-end showroom-reveal" aria-labelledby="end-title" data-placement="end_block">
+      <div class="t-prose">
+        <h2 id="end-title" class="text-h2 font-bold">Your whole palm, in our app</h2>
+        <p class="text-fg-muted">
+          In the app: all 4 parts of your reading, your lines traced on your photo, both hands compared, short lessons and a quiz, in Hindi
+          and English, with no ads.
+        </p>
+        <p class="text-small">{dict.appPage.continuity}</p>
+      </div>
+      <StoreButton locale="en" medium="tools_hub" campaign="end_block" showQr />
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { watchStoreClicks } from '../../lib/tools/dom';
+
+  watchStoreClicks('tools_hub');
+</script>
+
+<style>
+  /* Showroom hub (WEB-DEC-042): photo tools as lit glass showcase cards, meaning tools as glass tiles. */
+  .hub { display: flex; flex-direction: column; gap: 3.5rem; }
+  .hub-head { max-width: 48rem; }
+  .hub-group { display: flex; flex-direction: column; gap: 1.125rem; }
+  .hub-group-title { margin: 0; font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: 700; }
+  .hub-group-title::before {
+    content: ""; display: block; width: 2.75rem; height: 2px; margin-bottom: 1.125rem; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent); box-shadow: 0 0 12px rgba(230,184,92,0.5);
+  }
+  :global([data-theme="day"]) .hub-group-title::before { box-shadow: none; }
+  .hub-group-intro { margin: 0 0 0.5rem; color: var(--fg-muted); max-width: 42.5rem; font-size: var(--fs-lead); line-height: var(--lh-lead); }
+
+  .hub-photo { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.125rem; }
+  @media (min-width: 48rem) { .hub-photo { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } }
+  @media (min-width: 64rem) { .hub-photo { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1.5rem; } .hub-pcard { grid-column: span 2; } .hub-pcard-wide { grid-column: span 3; } }
+  .hub-pcard { display: flex; flex-direction: column; gap: 1.25rem; padding: 1.375rem; }
+  @media (min-width: 64rem) { .hub-pcard { padding: 1.75rem; } }
+  /* The two flagship tools get the gold-lit rim and a warm light in the glass. */
+  .hub-pcard-wide {
+    background: radial-gradient(28rem 14rem at 100% 0%, rgba(230,184,92,0.10), transparent 70%) padding-box, var(--glass-1) padding-box,
+      linear-gradient(150deg, rgba(255,240,200,0.5), rgba(255,255,255,0.06) 30%, rgba(255,255,255,0.03) 64%, rgba(230,184,92,0.55)) border-box;
+  }
+  :global([data-theme="day"]) .hub-pcard-wide {
+    background: radial-gradient(28rem 14rem at 100% 0%, rgba(214,170,80,0.12), transparent 70%) padding-box, var(--glass-1) padding-box,
+      linear-gradient(150deg, #FFFFFF, rgba(23,19,61,0.09) 38%, rgba(122,82,0,0.45)) border-box;
+  }
+  /* The whole card is one link: lift, brighter rim and deeper shadow on hover. */
+  .hub-pcard:hover, .hub-pcard:focus-within { background: var(--glass-1) padding-box, var(--rim-hover) border-box; box-shadow: var(--shine), var(--e2); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) { .hub-pcard:not(.hub-pcard-soon):hover { transform: translateY(-6px); } }
+  .hub-pcard:has(.hub-stretch:focus-visible) { outline: 2px solid var(--focus); outline-offset: 3px; }
+  .hub-pcard-copy { display: flex; flex-direction: column; gap: 0.625rem; align-items: flex-start; }
+  /* Side by side, cards share rows (subgrid): the "Open the tool" buttons and the demos line up across a row. */
+  @media (min-width: 48rem) {
+    @supports (grid-template-rows: subgrid) {
+      .hub-pcard { display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 1.25rem; align-content: start; }
+      .hub-pcard .hub-card-action { margin-top: auto; }
+      .hub-pcard .hub-pcard-demo { margin-top: 0; }
+    }
+  }
+  .hub-pcard-soon { border: 1.5px dashed var(--control-border); background: linear-gradient(170deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)); box-shadow: none; }
+  .hub-pcard-soon:hover, .hub-pcard-soon:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, var(--control-border)); background: linear-gradient(170deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); box-shadow: none; }
+  .hub-card-top { display: flex; align-items: center; gap: 0.875rem; }
+  .hub-card-name { font-family: var(--ff-display); font-weight: 700; font-size: calc(var(--fs-h3) * 1.14); line-height: 1.2; color: var(--fg); text-decoration: none; letter-spacing: -0.005em; }
+  .hub-card-name:focus-visible { outline: none; }
+  /* The whole card is the link's target area (one link per card, no nested links). */
+  .hub-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  .hub-card-blurb { color: var(--fg-muted); }
+  .hub-card-label {
+    font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--fg);
+    padding-left: 0.75rem; border-left: 2px solid color-mix(in srgb, var(--success) 70%, transparent);
+  }
+  .hub-card-action {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 0.375rem; min-height: 3rem; margin-top: 0.375rem; padding: 0 1.25rem;
+    border-radius: 9999px; color: var(--accent); font-weight: 700; font-size: var(--fs-small);
+    border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+    background: linear-gradient(180deg, rgba(230,184,92,0.12), rgba(230,184,92,0.03));
+    box-shadow: inset 0 1px 0 rgba(255,236,190,0.18), 0 0 24px -8px rgba(230,184,92,0.35);
+    transition: box-shadow 320ms var(--ease-out), border-color 200ms var(--ease);
+  }
+  :global([data-theme="day"]) .hub-card-action { background: linear-gradient(180deg, rgba(214,170,80,0.14), rgba(214,170,80,0.04)); box-shadow: inset 0 1px 0 #FFFFFF; }
+  .hub-card-action :global(.hub-go) { width: 1rem; height: 1rem; transition: transform 320ms var(--ease-out); }
+  .hub-pcard:hover .hub-card-action { border-color: var(--accent); box-shadow: inset 0 1px 0 rgba(255,236,190,0.25), 0 0 30px -6px rgba(230,184,92,0.55); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) { .hub-pcard:hover .hub-card-action :global(.hub-go) { transform: translateX(3px); } }
+  .hub-pcard-demo { margin-top: auto; }
+  .hub-pcard-wide .hub-pcard-demo {
+    padding: 1rem; border-radius: var(--r-well); border: 1px solid transparent;
+    background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02)) border-box; box-shadow: inset 0 2px 10px rgba(0,0,0,0.35);
+  }
+  :global([data-theme="day"]) .hub-pcard-wide .hub-pcard-demo { background: var(--well) padding-box, linear-gradient(180deg, rgba(23,19,61,0.06), #FFFFFF) border-box; box-shadow: inset 0 2px 8px rgba(23,19,61,0.06); }
+  .hub-demo {
+    display: flex; flex-direction: column; gap: 0.625rem; padding: 1.125rem; border-radius: var(--r-well); font-size: var(--fs-small);
+    border: 1px solid transparent; background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02)) border-box;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.35);
+  }
+  :global([data-theme="day"]) .hub-demo { background: var(--well) padding-box, linear-gradient(180deg, rgba(23,19,61,0.06), #FFFFFF) border-box; box-shadow: inset 0 2px 8px rgba(23,19,61,0.06); }
+  .hub-demo-title { font-weight: 700; color: var(--fg-muted); font-size: var(--fs-caption); letter-spacing: 0.02em; }
+  .hub-demo-row { display: flex; gap: 0.625rem; align-items: center; }
+  .hub-demo-row :global(svg) {
+    color: var(--success); flex: none; width: 1.375rem; height: 1.375rem; padding: 0.2rem; border-radius: 9999px;
+    background: color-mix(in srgb, var(--success) 16%, transparent);
+  }
+  .hub-tag {
+    align-self: flex-start; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: var(--fs-caption);
+    border: 1px solid var(--edge); color: var(--fg);
+  }
+  .hub-tag-soon { border-style: dashed; border-color: var(--fg-muted); background: transparent; }
+
+  /* Meaning tools: small glass tiles, the glyph in a lit well. */
+  .hub-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+  @media (min-width: 48rem) { .hub-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; } }
+  @media (min-width: 80rem) { .hub-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .hub-list > li { min-width: 0; }
+  .hub-row { display: flex; gap: 1rem; align-items: flex-start; height: 100%; min-height: 3rem; padding: 1rem 1.125rem; color: var(--fg); text-decoration: none; }
+  .hub-row-tile {
+    flex: none; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border-radius: 0.875rem; border: 1px solid transparent;
+    background: radial-gradient(70% 70% at 50% 35%, rgba(230,184,92,0.14), transparent 72%) padding-box, var(--well) padding-box, var(--rim) border-box;
+  }
+  /* 3D icons: the glass-and-gold object sits in the lit well, a little proud of it. */
+  .hub-card-top :global(.t-tile) { width: 4rem; height: 4rem; }
+  .hub-card-top :global(.media-icon) { width: 3.25rem; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.35)); transition: transform 600ms var(--ease-out); }
+  .hub-row-tile { width: 3.25rem; height: 3.25rem; }
+  .hub-row-tile :global(.media-icon) { width: 2.75rem; filter: drop-shadow(0 5px 6px rgba(0,0,0,0.3)); transition: transform 600ms var(--ease-out); }
+  :global([data-theme="day"]) .hub-card-top :global(.media-icon), :global([data-theme="day"]) .hub-row-tile :global(.media-icon) { filter: drop-shadow(0 6px 8px rgba(23,19,61,0.16)); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .hub-pcard:not(.hub-pcard-soon):hover .hub-card-top :global(.media-icon), .hub-row:hover .hub-row-tile :global(.media-icon) { transform: translateY(-3px) scale(1.06); }
+  }
+  .hub-row:hover .hub-row-name, .hub-row:has(.stretch-link:focus-visible) .hub-row-name { color: var(--accent); }
+  .hub-row-text { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
+  .hub-row-name { font-weight: 700; transition: color 200ms var(--ease); }
+  .hub-row-blurb { color: var(--fg-muted); font-size: var(--fs-small); }
+  .hub-text { max-width: 48rem; }
+</style>

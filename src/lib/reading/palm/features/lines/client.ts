@@ -1,4 +1,4 @@
-// COPIED from palm-ai-new--feat-m1-foundation/src/features/lines/client.ts at app commit 38389f51b74d (2026-09-26).
+// COPIED from palm-ai-new--feat-m1-foundation/src/features/lines/client.ts at app commit fbc2232d837f (2026-09-30).
 // Do not edit by hand: change the app, then run `node scripts/sync-palm-lib.mjs` (ARCHITECTURE.md F7).
 // @ts-nocheck
 import type { HandSide } from '../observation/taxonomy';

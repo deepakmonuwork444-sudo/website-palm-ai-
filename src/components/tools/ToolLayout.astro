@@ -4,7 +4,7 @@
  * skill): breadcrumb → icon tile + H1 → promise + honesty label → THE TOOL
  * (default slot) → "check it on your own palm" → how it works → what palmistry
  * says (sourced) → what this tool can't tell you → FAQ → links → end block,
- * with the other tools in a sticky aside on desktop.
+ * with the other tools (each with its 3D icon) in a sticky aside on desktop.
  *
  * Schema: WebApplication (price 0, no ratings) + BreadcrumbList. Links render
  * only to pages that are live (no broken links while guides are being built).
@@ -14,12 +14,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../Breadcrumbs.astro';
 import Icon from '../Icon.astro';
 import StoreButton from '../StoreButton.astro';
-import ToolGlyph from './ToolGlyph.astro';
+import MediaIcon from '../MediaIcon.astro';
 import { findPage, isLive } from '../../config/pages';
 import { site } from '../../config/site';
 import { t } from '../../i18n';
-import { webApplicationSchema } from '../../lib/schema';
+import { pageEntities } from '../../lib/entities';
+import { pageId, webApplicationSchema, webPageSchema } from '../../lib/schema';
 import { otherTools, toolMedium, type ToolInfo } from '../../lib/tools/registry';
+import { TOOL_ICON } from '../../lib/tools/tool-icons';
 
 export interface HowStep {
   title: string;
@@ -85,6 +87,10 @@ const {
   ownPalm = true,
 } = Astro.props;
 
+// Link words to /app/ rotate between its registered anchors (WEB-DEC-051, R1/R3), never "See what the app does".
+const APP_ANCHORS = ['PalmSays palm reading app', 'Palm reading app for Android', 'What the app reads'];
+const appAnchor = APP_ANCHORS[[...tool.path].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % APP_ANCHORS.length];
+
 if (!findPage(tool.path)) throw new Error(`ToolLayout: ${tool.path} is not in src/config/pages.ts`);
 
 const dict = t('en');
@@ -93,7 +99,11 @@ const crumbs = [
   { name: 'Tools', path: '/tools/' },
   { name: tool.name, path: tool.path },
 ];
-const jsonLd = [webApplicationSchema({ name: tool.name, path: tool.path, locale: 'en', description })];
+const entities = pageEntities(tool.path);
+const jsonLd = [
+  webPageSchema({ path: tool.path, name: title, locale: 'en', entities, breadcrumb: true, mainEntity: pageId(tool.path, 'app') }),
+  webApplicationSchema({ name: tool.name, path: tool.path, locale: 'en', description, entities, inToolsCollection: true }),
+];
 const liveLinks = links.filter((link) => isLive(link.href));
 const others = otherTools(tool.id).filter((other) => isLive(other.path));
 const readingLive = site.webReadingEnabled;
@@ -101,23 +111,14 @@ const medium = toolMedium(tool.id);
 ---
 
 <BaseLayout title={title} description={description} path={tool.path} locale="en" jsonLd={jsonLd}>
-  <svg width="0" height="0" class="t-sr" aria-hidden="true" focusable="false">
-    <defs>
-      <linearGradient id="t-skin" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" class="t-stop-top"></stop>
-        <stop offset="1" class="t-stop-bottom"></stop>
-      </linearGradient>
-    </defs>
-  </svg>
-
-  <div class="wrap t-page" data-tool-page={tool.id} data-reading-live={String(readingLive)}>
+  <div class="wrap t-page" data-tool-page={tool.id} data-tool-kind={tool.kind} data-reading-live={String(readingLive)}>
     <Breadcrumbs items={crumbs} label={dict.a11y.breadcrumb} />
 
     <div class="t-grid">
       <div class="t-main">
         <header class="t-head">
           <div class="t-title-row">
-            <span class="t-tile"><ToolGlyph glyph={tool.glyph} /></span>
+            <span class="t-tile"><MediaIcon name={TOOL_ICON[tool.glyph]} sizes="3rem" class="t-tile-icon" /></span>
             <h1 class="t-h1">{h1}</h1>
           </div>
           <p class="t-promise">{promise}</p>
@@ -128,7 +129,7 @@ const medium = toolMedium(tool.id);
 
         {
           ownPalm && (
-            <section class="t-next" aria-labelledby="own-palm-title">
+            <section class="t-next showroom-reveal" aria-labelledby="own-palm-title">
               <h2 id="own-palm-title" class="text-h3 font-bold">
                 Check it on your own palm
               </h2>
@@ -147,7 +148,7 @@ const medium = toolMedium(tool.id);
                   </a>
                 ) : (
                   <a class="text-link" href="/app/">
-                    See what the app does
+                    {appAnchor}
                   </a>
                 )}
               </p>
@@ -155,7 +156,7 @@ const medium = toolMedium(tool.id);
           )
         }
 
-        <section class="t-section" aria-labelledby="how-title">
+        <section class="t-section showroom-reveal" aria-labelledby="how-title">
           <h2 id="how-title">{howTitle}</h2>
           <ol class="t-steps">
             {
@@ -171,7 +172,7 @@ const medium = toolMedium(tool.id);
 
         {
           spot && (
-            <section class="t-section" aria-labelledby="spot-title">
+            <section class="t-section showroom-reveal" aria-labelledby="spot-title">
               <h2 id="spot-title">{spot.title}</h2>
               <div class="t-prose">
                 {spot.paras.map((para) => <p>{para}</p>)}
@@ -180,7 +181,7 @@ const medium = toolMedium(tool.id);
           )
         }
 
-        <section class="t-section" aria-labelledby="says-title">
+        <section class="t-section showroom-reveal" aria-labelledby="says-title">
           <h2 id="says-title">{saysTitle}</h2>
           {saysIntro && <p class="t-prose">{saysIntro}</p>}
           {
@@ -199,14 +200,14 @@ const medium = toolMedium(tool.id);
           <slot name="says" />
         </section>
 
-        <section class="t-section" aria-labelledby="limits-title">
+        <section class="t-section showroom-reveal" aria-labelledby="limits-title">
           <h2 id="limits-title">What this tool can’t tell you</h2>
           <div class="t-limits">
             <p>
               <strong>What palmistry can’t tell you.</strong> Palm lines can’t tell dates, how long you’ll live, your health, whether
               or when you’ll marry, how many children you’ll have, or how much money you’ll make.{limitsTopic ? ` ${limitsTopic}` : ''}
               Palmistry is a tradition for reflection, not a science.
-              {isLive('/is-palmistry-real/') && <a class="text-link" href="/is-palmistry-real/">Is palmistry real?</a>}
+              {isLive('/is-palmistry-real/') && <>{' '}<a class="text-link" href="/is-palmistry-real/">Is palmistry real?</a></>}
             </p>
             <ul>
               {limits.map((line) => <li>{line}</li>)}
@@ -221,7 +222,7 @@ const medium = toolMedium(tool.id);
           </div>
         </section>
 
-        <section class="t-section" aria-labelledby="faq-title">
+        <section class="t-section showroom-reveal" aria-labelledby="faq-title">
           <h2 id="faq-title">Questions about this tool</h2>
           <div class="t-faq">
             {
@@ -237,7 +238,7 @@ const medium = toolMedium(tool.id);
 
         {
           liveLinks.length > 0 && (
-            <section class="t-section" aria-labelledby="links-title">
+            <section class="t-section showroom-reveal" aria-labelledby="links-title">
               <h2 id="links-title">Keep going</h2>
               <ul class="t-links">
                 {liveLinks.map((link) => (
@@ -252,7 +253,7 @@ const medium = toolMedium(tool.id);
           )
         }
 
-        <section class="t-end" aria-labelledby="end-title" data-placement="end_block">
+        <section class="t-end showroom-reveal" aria-labelledby="end-title" data-placement="end_block">
           <div class="t-prose">
             <h2 id="end-title" class="text-h2 font-bold">Your whole palm, in our app</h2>
             <p class="text-fg-muted">
@@ -272,7 +273,7 @@ const medium = toolMedium(tool.id);
             others.map((other) => (
               <li>
                 <a href={other.path}>
-                  <ToolGlyph glyph={other.glyph} />
+                  <span class="t-other-icon"><MediaIcon name={TOOL_ICON[other.glyph]} sizes="2.25rem" /></span>
                   <span>{other.name}</span>
                   {!other.live && <span class="t-other-soon">opens soon</span>}
                 </a>

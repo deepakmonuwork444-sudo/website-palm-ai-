@@ -1,0 +1,282 @@
+---
+/**
+ * /privacy/ (WEB-FEAT-013, WEB-DEC-029). The app's privacy policy (app repo web/privacy.html,
+ * effective 25 September 2026) in the site layout, plus the "On the website" section that
+ * SECURITY_PRIVACY.md §2 requires before the web reading opens. Every sentence must match
+ * SECURITY_PRIVACY.md §1 and the backend; the photo panel rows are the SAME strings the
+ * reading shows (COPY.privacyRows), so the two can never drift. /privacy.html 301s here.
+ * Company details: owner item 9 (placeholders on a preview build; production refuses to build).
+ */
+import Icon from '../../components/Icon.astro';
+import DocPage from '../../components/trust/DocPage.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../config/site';
+import { companyForBuild } from '../../lib/legal-page';
+import { COPY } from '../../lib/reading/copy';
+
+const company = companyForBuild();
+const path = '/privacy/';
+const brand = site.brand;
+const updated = '28 September 2026';
+const readingOpen = site.webReadingEnabled;
+
+const toc = [
+  { id: 'short', label: 'The short version' },
+  { id: 'collect', label: 'What we collect and why' },
+  { id: 'website', label: 'On the website' },
+  { id: 'processors', label: 'Who processes data for us' },
+  { id: 'rights', label: 'Your consent and your rights' },
+  { id: 'age', label: 'Age' },
+  { id: 'security', label: 'Security' },
+  { id: 'contact', label: 'Grievances and contact' },
+  { id: 'changes', label: 'Changes' },
+];
+
+const webpage = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${site.baseUrl}${path}#webpage`,
+  name: `${brand} privacy policy`,
+  url: `${site.baseUrl}${path}`,
+  inLanguage: 'en',
+  dateModified: '2026-09-28',
+  publisher: { '@id': `${site.baseUrl}/#organization` },
+};
+---
+
+<BaseLayout
+  title={`Privacy policy | ${brand}`}
+  description={`What ${brand} collects in the app and on the website, why, where it goes, how long it is kept and how you delete it. No ads, no cookies, no selling.`}
+  path={path}
+  locale="en"
+  jsonLd={[webpage]}
+>
+  <DocPage
+    crumb="Privacy policy"
+    path={path}
+    icon="shield"
+    kicker="Privacy"
+    title="Privacy policy"
+    lead={`What personal data the ${brand} app and website use, why, where it goes, and how you remove it. Written to meet India's Digital Personal Data Protection Act, 2023 and Google Play's User Data policy.`}
+    meta={`${brand} is operated by ${company.name}. Effective ${updated}.`}
+    toc={toc}
+  >
+    <p>
+      {brand} gives traditional Indian palmistry interpretations of a photograph of your palm, for reflection and entertainment. This
+      page explains, item by item, what personal data the app and this website use, why, where it goes, and how you remove it. The
+      rules for using {brand} and buying readings are in the <a class="text-link" href="/terms/">terms of use</a>.
+    </p>
+
+    <h2 id="short">The short version</h2>
+    <ul class="doc-points">
+      <li class="doc-point"><Icon name="shield" class="doc-point-icon" /><span><strong>No server keeps your palm photo.</strong> It is analysed by Cloudflare Workers AI and by our line scanner on Modal (USA), through our own server. A copy stays only on your device (inside the app, or in this browser for a website reading) so your report can show the lines on your own palm, until you delete it.</span></li>
+      <li class="doc-point"><Icon name="lines" class="doc-point-icon" /><span>We keep the traced line points, the written observations and the reading they produced, so your history works.</span></li>
+      <li class="doc-point"><Icon name="phone" class="doc-point-icon" /><span>In the app, your name, age, city and birth time stay only on your phone.</span></li>
+      <li class="doc-point"><Icon name="lock" class="doc-point-icon" /><span>No advertising, no selling of data, no tracking across other apps or sites, and no cookies on this website.</span></li>
+      <li class="doc-point"><Icon name="check" class="doc-point-icon" /><span>You can delete your readings, or your whole account, at any time: in the app or on the <a class="text-link" href="/delete-account/">delete-account page</a>.</span></li>
+    </ul>
+
+    <h2 id="collect">What we collect and why</h2>
+    <p>This table covers your account and readings, in the app and on the website (one account works in both).</p>
+    <div class="doc-table">
+      <table>
+        <thead>
+          <tr><th scope="col">Data</th><th scope="col">Why</th><th scope="col">Where it is kept</th><th scope="col">How long</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Data">Email address, checked with a one-time 6-digit code we email you, and a password if you set one in the app (stored only as a secure hash)</td>
+            <td data-label="Why">Your account, so your readings and free-reading count survive a new phone</td>
+            <td data-label="Where it is kept">Supabase (our database provider)</td>
+            <td data-label="How long">Until you delete your account</td>
+          </tr>
+          <tr>
+            <td data-label="Data">If you sign in with Google: your name, email address and the link to your Google profile photo, from Google's sign-in</td>
+            <td data-label="Why">To sign you in. The website shows only your initial and never loads the photo</td>
+            <td data-label="Where it is kept">Supabase, with your account</td>
+            <td data-label="How long">Until you delete your account</td>
+          </tr>
+          <tr>
+            <td data-label="Data">A random guest account id (no name or email), made when you start without signing up</td>
+            <td data-label="Why">So your first free reading and its history work before you add an email</td>
+            <td data-label="Where it is kept">Supabase</td>
+            <td data-label="How long">Until you delete your account</td>
+          </tr>
+          <tr>
+            <td data-label="Data">Palm photograph</td>
+            <td data-label="Why">To see the lines of your palm for one reading</td>
+            <td data-label="Where it is kept">Sent over an encrypted connection to our server functions, which pass it to Cloudflare Workers AI (describes the palm) and to our palm-line scanner on Modal in the USA (traces the lines). Neither keeps it, and it is not written to any server storage. A smaller copy is kept on your device (inside the app, or in this browser) to draw the lines on your report.</td>
+            <td data-label="How long">Never stored by any server. The copy on your device is deleted when you delete that reading (in the app: all readings, your account, or uninstalling; on the website: removing it or clearing this site's browser data)</td>
+          </tr>
+          <tr>
+            <td data-label="Data">What the scan found: the traced line points (at most 100 per line), 21 points that mark your hand's shape, and written observations (for example "heart line: long, curved"), with the reading text</td>
+            <td data-label="Why">To show your reading and your history</td>
+            <td data-label="Where it is kept">Supabase, linked to your account</td>
+            <td data-label="How long">Until you delete them or your account</td>
+          </tr>
+          <tr>
+            <td data-label="Data">Which hand, and whether it is the hand you write with</td>
+            <td data-label="Why">Palmistry reads the two hands differently</td>
+            <td data-label="Where it is kept">Supabase and your device</td>
+            <td data-label="How long">Until you delete them or your account</td>
+          </tr>
+          <tr>
+            <td data-label="Data">In the app: your name, age, city and birth time (asked before your free readings), language, streaks, lessons and readings saved for family members</td>
+            <td data-label="Why">Personalisation and learning features</td>
+            <td data-label="Where it is kept">Only on your phone</td>
+            <td data-label="How long">Until you delete them in the app, delete your account, or uninstall</td>
+          </tr>
+          <tr>
+            <td data-label="Data">A count of the free readings used on this phone</td>
+            <td data-label="Why">So each phone gets its free readings once</td>
+            <td data-label="Where it is kept">Only on your phone</td>
+            <td data-label="How long">Until you uninstall the app. It stays when you sign out or delete your account</td>
+          </tr>
+          <tr>
+            <td data-label="Data">A one-way code (hash) of your email address, made after removing dots and "+" tags, and how many free readings it has used. The code cannot be turned back into your email</td>
+            <td data-label="Why">Only to stop the same email getting the free readings again after an account is deleted</td>
+            <td data-label="Where it is kept">Supabase</td>
+            <td data-label="How long">Kept after you delete your account, for this purpose only</td>
+          </tr>
+          <tr>
+            <td data-label="Data">A salted one-way code (hash) of your internet (IP) address. It cannot be turned back into the address</td>
+            <td data-label="Why">Only to limit how many free guest readings, and crash reports without an account, one network can send</td>
+            <td data-label="Where it is kept">Supabase</td>
+            <td data-label="How long">At most 2 days</td>
+          </tr>
+          <tr>
+            <td data-label="Data">A cost record for each AI step of a reading: which model ran and how much processing it used. No photo and no reading text</td>
+            <td data-label="Why">To keep the service within its budget and spot abuse</td>
+            <td data-label="Where it is kept">Supabase, not readable by any user</td>
+            <td data-label="How long">180 days. When you delete your account, the link to you is removed and only the numbers stay</td>
+          </tr>
+          <tr>
+            <td data-label="Data">Purchase records (product, order id, purchase token)</td>
+            <td data-label="Why">To add paid readings you bought and to prevent duplicate charges</td>
+            <td data-label="Where it is kept">Supabase; payment itself is handled entirely by Google Play</td>
+            <td data-label="How long">Until you delete your account, unless the law requires longer</td>
+          </tr>
+          <tr>
+            <td data-label="Data">Usage counts: daily totals of a few steps (for example a scan started or a report opened), with the app version. Only totals per day: no account, name, email, photo, device or install ID is attached, so a count cannot be linked to you</td>
+            <td data-label="Why">To see where people get stuck and improve {brand}. In the app you can turn it off: Profile, then Anonymous usage counts</td>
+            <td data-label="Where it is kept">Supabase</td>
+            <td data-label="How long">Up to 400 days, as daily totals only</td>
+          </tr>
+          <tr>
+            <td data-label="Data">App crash reports: the error message, the screen it happened on, app version, Android version. Email addresses and tokens are removed; no photo, reading or name is included</td>
+            <td data-label="Why">To find and fix crashes</td>
+            <td data-label="Where it is kept">Supabase, linked to your account if you are signed in</td>
+            <td data-label="How long">14 days, or until you delete your account</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">
+      We never receive your card or UPI details, and this website never asks for them. We do not infer health, ethnicity or any other
+      sensitive trait from your hand, and readings never give medical, financial or legal advice.
+    </p>
+
+    <h2 id="website">On the website</h2>
+    <p>
+      You can read the guides and use the tools on {site.domain} without an account. There are no cookies, no ad trackers and no
+      advertising. We may count page visits with Cloudflare Web Analytics, which sets no cookies and does not identify you.
+    </p>
+
+    <h3>The photo tools</h3>
+    <p>
+      The tools under <a class="text-link" href="/tools/">Tools</a> that use your photo (hand type, fingers, left and right hand,
+      photo check, palm signs) run on your phone or computer: the photo never leaves your device and nothing is uploaded or saved.
+      If you carry a photo on to the next tool, it waits in this browser tab only until that page reads it.
+    </p>
+
+    <h3>The website reading</h3>
+    <p>
+      {
+        readingOpen
+          ? 'This is what happens to your photo when you take a reading on the website:'
+          : 'The palm reading on this website is not open yet; today readings happen in the Android app. When it opens, this is what will happen to your photo:'
+      }
+    </p>
+    <ol>
+      {COPY.privacyRows.en.map((row) => <li>{row}</li>)}
+    </ol>
+    <p>
+      A website reading is saved in this browser's own storage (IndexedDB): the smaller photo, the observation and the report, so you
+      can open it again. It stays until you remove it or clear this site's data in your browser. If you are signed in, the reading
+      (without the photo) is also saved to your account, so you can see it on the <a class="text-link" href="/account/">Account page</a>
+      and in the app's History.
+    </p>
+
+    <h3>Signing in on the website</h3>
+    <p>
+      You can sign in with Google or with a 6-digit code sent to your email. It is the same account as in the {brand} app. Signing
+      out on the website signs out this browser only.
+    </p>
+
+    <h3>What this website keeps in your browser</h3>
+    <p>Only in this browser (its local storage), never sent to us unless stated:</p>
+    <ul>
+      <li>Your Day or Night choice and the language you picked for a reading.</li>
+      <li>When you are signed in: your sign-in session, until you sign out or clear browser data.</li>
+      <li>A name you type on the Account page, and any details you type for a reading (name, how to address you, birth date or age, birth time). These stay in this browser and are not sent; only the hand in the photo and whether you write with it go to the reading.</li>
+      <li>A small note that this browser has signed in before, so we can offer the right sign-in button. It is not personal data.</li>
+    </ul>
+    <p>Clearing this site's data in your browser removes all of it.</p>
+
+    <h2 id="processors">Who processes data for us</h2>
+    <ul>
+      <li><strong>Supabase</strong>: database, sign-in, the one-time email code, and server functions.</li>
+      <li><strong>Cloudflare</strong>: hosts this website; Workers AI analyses the palm photo and returns written observations, then writes the report text from those observations (no photo is sent for that) and keeps nothing; Turnstile (a quick bot check on the website reading); Web Analytics (page counts without cookies).</li>
+      <li><strong>Modal</strong> (USA): runs our palm-line scanner. It receives the palm photo from our server, returns the traced lines, and keeps nothing.</li>
+      <li><strong>Google</strong>: Google Play (app distribution and payments) and, if you choose it, Google sign-in.</li>
+    </ul>
+    <p>
+      They act on our instructions, only for the purposes above. Some of this processing happens outside India, for example the line
+      scanner in the USA.
+    </p>
+
+    <h2 id="rights">Your consent and your rights</h2>
+    <p>
+      Before your first reading we ask for your explicit consent to analyse the photo. You may withdraw consent at any time by deleting
+      your data or your account, which is as easy as giving it. You have the right to access, correct and erase your personal data,
+      and to nominate another person to exercise these rights.
+    </p>
+    <ul>
+      <li><strong>See your readings:</strong> in the app's History, or on the website's <a class="text-link" href="/account/">Account page</a>. For a copy of everything we hold about you, write to us (below).</li>
+      <li><strong>Delete readings:</strong> in the app, Profile, then Delete account readings.</li>
+      <li><strong>Delete your account:</strong> in the app, Profile, then Delete my account; or on the web at <a class="text-link" href="/delete-account/">{site.domain}/delete-account/</a>, without installing the app.</li>
+    </ul>
+    <p>
+      Deleting your account removes it and everything linked to it on our side. Done in the app, it also removes from that phone your
+      readings, profile, the saved descriptions of recent palm photos and any report files you shared. We keep only the one-way email
+      code and, for up to 2 days, the one-way internet-address code described above. If our server cannot be reached, the app finishes
+      the deletion the next time you open it with internet.
+    </p>
+
+    <h2 id="age">Age</h2>
+    <p>
+      {brand} is intended for people aged {site.ageRule} and over. We do not knowingly process the personal data of children. If you
+      believe a child has used {brand}, contact us and we will delete the data.
+    </p>
+
+    <h2 id="security">Security</h2>
+    <p>
+      Data travels over encrypted connections. Each account can only ever read its own readings, enforced by the database itself.
+      Secret keys never ship inside the app or this website.
+    </p>
+
+    <h2 id="contact">Grievances and contact</h2>
+    <p>
+      For any question, correction, deletion request or complaint, write to <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>.
+      We respond within 30 days. If you are not satisfied, you may complain to the Data Protection Board of India.
+    </p>
+    <p><strong>Grievance contact:</strong> {company.grievanceContact}</p>
+    <p><strong>Operator:</strong> {company.name}</p>
+
+    <h2 id="changes">Changes</h2>
+    <p>
+      If this policy changes in a way that matters, the app will tell you, and this page will say so, before the change applies. The
+      date at the top shows when this text last changed.
+    </p>
+  </DocPage>
+</BaseLayout>

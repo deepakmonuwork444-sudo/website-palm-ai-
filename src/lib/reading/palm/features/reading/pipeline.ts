@@ -1,4 +1,4 @@
-// COPIED from palm-ai-new--feat-m1-foundation/src/features/reading/pipeline.ts at app commit 38389f51b74d (2026-09-26).
+// COPIED from palm-ai-new--feat-m1-foundation/src/features/reading/pipeline.ts at app commit fbc2232d837f (2026-09-30).
 // Do not edit by hand: change the app, then run `node scripts/sync-palm-lib.mjs` (ARCHITECTURE.md F7).
 // @ts-nocheck
 import { scanQuality, type DeepStatus } from '../deep-report/normalise';
@@ -9,6 +9,7 @@ import { KNOWLEDGE_RULES } from '../knowledge/rules';
 import { synthesise } from '../knowledge/synthesis';
 import type { KbRule } from '../knowledge/types';
 import { mergeVisionWithScan, rejectionMessages } from '../lines/merge';
+import { gateObservation } from '../lines/truth';
 import type { LineScanOutcome } from '../lines/types';
 import { dominanceOf } from '../observation/dominance';
 import {
@@ -57,9 +58,9 @@ export interface ReadingInput {
   onPartial?: (text: string) => void;
   /**
    * The palm line scanner's result, run BEFORE the server session started.
-   * When given, heart/head/life geometry comes only from it; fate/sun/mercury
-   * come from the vision model's description (never drawn), or are "not
-   * analysed" when it did not describe them (see lines/merge.ts). Omitted only
+   * When given, heart/head/life (and, with palm4, fate) geometry comes only
+   * from it; an untraced fate/sun/mercury line is "not analysed" (truth gate,
+   * lines/truth.ts). Omitted only
    * by callers that predate the scanner (older tests).
    */
   lineScan?: LineScanOutcome;
@@ -354,7 +355,9 @@ export async function runReading(input: ReadingInput): Promise<ReadingOutcome> {
     );
   }
 
-  const observation = parsed.data;
+  // Truth gate (lines/truth.ts): the model's hand shape, mounts, crossings and
+  // untraced fate / sun / mercury lines never reach a rule or the report.
+  const observation = gateObservation(parsed.data);
 
   // Palm side only. Two independent signals, because neither alone is enough:
   // the model is asked to flag a back of hand, and a palm with not one visible

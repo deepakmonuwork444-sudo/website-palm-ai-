@@ -1,15 +1,19 @@
+import { readingConfig } from '../../reading/config';
+import type { PreparedPhoto } from '../../reading/image';
 import { trackPhotoCheck, trackToolUse, trackUploadStart } from '../analytics';
 import { focusHeading, h, svg, watchStoreClicks, whenVisible } from '../dom';
-import {
-  analysisSize,
-  checklist,
-  computeMetrics,
-  evaluateQuality,
-  fileProblem,
-  FIX_MESSAGES,
-  type CheckRow,
-} from '../photo-check';
+import { OPEN_TEXT, PhotoOpenError, handOffPhoto, openPhoto } from '../hand/photo';
+import { lineMode } from '../line-scan';
+import { checklist, computeMetrics, evaluateQuality, FIX_MESSAGES, type CheckRow } from '../photo-check';
+import { actionButton } from './result-bits';
 import { readingLive } from './render';
+
+/**
+ * Tool 3 — palm photo checker. The app's pixel checks on a 96 px copy, in
+ * this browser; the photo is never uploaded. v3: a passing photo gets a
+ * "ready" verdict and goes straight into the photo tools (kept in this tab
+ * only, see hand/photo.ts), so the check is a first step, not a dead end.
+ */
 
 const TOOL = 'photo-checker' as const;
 
@@ -31,20 +35,10 @@ function row(item: CheckRow): HTMLElement {
       'span',
       {},
       h('span', { class: 't-check-label', text: item.label }),
-      h('span', { class: 't-check-state', text: ` — ${STATE_WORD[item.state]}` }),
+      h('span', { class: 't-check-state', text: `: ${STATE_WORD[item.state]}` }),
       item.note ? h('span', { class: 't-check-note', text: item.note }) : null,
     ),
   );
-}
-
-/** Decodes the picked file on this device. Throws on formats the browser can't open (often HEIC). */
-async function decode(url: string): Promise<HTMLImageElement> {
-  const img = new Image();
-  img.decoding = 'async';
-  img.src = url;
-  await img.decode();
-  if (!img.naturalWidth || !img.naturalHeight) throw new Error('empty image');
-  return img;
 }
 
 export function mountPhotoChecker(): void {
@@ -99,73 +93,68 @@ export function mountPhotoChecker(): void {
       focusHeading(title);
     };
 
+    const go = (prepared: PreparedPhoto, target: string) => {
+      if (handOffPhoto(prepared, TOOL)) window.location.assign(`${target}#photo`);
+      else window.location.assign(target);
+    };
+
+    const readyBlock = (prepared: PreparedPhoto): HTMLElement => {
+      const lines = lineMode(readingConfig().mode) !== 'off';
+      const live = readingLive();
+      return h(
+        'div',
+        { class: 't-next' },
+        h('p', { class: 'font-bold', text: 'Use this photo now' }),
+        h('p', { text: 'It moves to the next tool on this device only: nothing is uploaded.' }),
+        h(
+          'div',
+          { class: 't-actions' },
+          actionButton('Find my hand type', true, () => go(prepared, '/tools/hand-type-quiz/')),
+          actionButton('Read my fingers', false, () => go(prepared, '/tools/finger-reader/')),
+          lines ? actionButton('Trace my lines', false, () => go(prepared, '/tools/palm-line-finder/')) : null,
+        ),
+        lines
+          ? null
+          : h('p', {
+              class: 't-caveat',
+              text: live
+                ? 'For your lines and their meanings, take this photo to the free reading on our home page.'
+                : 'Tracing your lines on this website opens soon; our Android app traces them today.',
+            }),
+      );
+    };
+
     const check = async (file: File) => {
       trackToolUse(TOOL);
       trackUploadStart(TOOL);
       release();
-      const problem = fileProblem(file.type, file.name);
-      if (problem === 'not-image') {
-        showError('That file isn’t a photo. Please choose a JPG or PNG picture of your palm.');
-        return;
-      }
-      objectUrl = URL.createObjectURL(file);
       review.hidden = false;
-      preview.hidden = false;
-      preview.src = objectUrl;
+      preview.hidden = true;
       title.textContent = 'Checking your photo';
       text.textContent = '';
       checks.replaceChildren();
       after.replaceChildren();
       if (status) status.textContent = 'Checking your photo on this device.';
 
-      let img: HTMLImageElement;
+      let prepared: PreparedPhoto;
       try {
-        img = await decode(objectUrl);
-      } catch {
-        showError(
-          problem === 'heic'
-            ? 'This photo is in HEIC format, which this browser can’t open. Please choose a JPG — on an iPhone, set Camera, Formats to Most Compatible.'
-            : 'This browser couldn’t read that photo. Please choose a JPG or PNG.',
-        );
+        prepared = await openPhoto(file);
+      } catch (caught) {
+        showError(OPEN_TEXT[caught instanceof PhotoOpenError ? caught.problem : 'decode']);
         return;
       }
+      objectUrl = URL.createObjectURL(prepared.blob);
+      preview.src = objectUrl;
+      preview.hidden = false;
 
-      const size = analysisSize(img.naturalWidth, img.naturalHeight);
-      const canvas = document.createElement('canvas');
-      canvas.width = size.width;
-      canvas.height = size.height;
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      if (!ctx) {
-        showError('This browser can’t check photos. Please try Chrome.');
-        return;
-      }
-      ctx.drawImage(img, 0, 0, size.width, size.height);
-      const pixels = ctx.getImageData(0, 0, size.width, size.height);
-      const verdict = evaluateQuality(
-        computeMetrics({ data: pixels.data, width: size.width, height: size.height }),
-        img.naturalWidth,
-        img.naturalHeight,
-      );
+      const verdict = evaluateQuality(computeMetrics(prepared.check), prepared.sourceWidth, prepared.sourceHeight);
       trackPhotoCheck(TOOL, verdict.passed, verdict.primaryIssue);
 
       checks.replaceChildren(...checklist(verdict).map(row));
       if (verdict.passed) {
-        title.textContent = 'This photo looks clear enough to read';
-        text.textContent = 'Bright, sharp, and your palm fills the frame. These are quick pixel checks: the real test is whether your lines can be traced.';
-        const live = readingLive();
-        after.replaceChildren(
-          h(
-            'div',
-            { class: 't-next' },
-            h('p', { class: 'font-bold', text: live ? 'Ready for your reading' : 'Next: your reading' }),
-            h('p', {
-              text: live
-                ? 'Take this photo to the free reading on our home page.'
-                : 'The free web reading on this site opens soon. You can read your palm today in our Android app, which runs the same checks.',
-            }),
-            h('p', {}, h('a', { class: 'text-link', href: live ? '/#read' : '/app/', text: live ? 'Go to the free reading' : 'See what the app does' })),
-          ),
-        );
+        title.textContent = 'Ready: this photo is clear enough to read';
+        text.textContent = 'Bright, sharp, and your palm fills the frame. These are quick pixel checks; the photo tools check your hand itself.';
+        after.replaceChildren(readyBlock(prepared));
         setPickers(false);
       } else {
         const issue = verdict.primaryIssue;

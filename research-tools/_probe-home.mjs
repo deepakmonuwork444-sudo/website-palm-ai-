@@ -1,0 +1,12 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+const ctx = await b.newContext({ viewport: { width: 390, height: 780 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+const p = await ctx.newPage();
+await p.addInitScript(() => { try { localStorage.setItem('palmsays-theme', 'night'); } catch {} });
+await p.goto('http://localhost:4321/', { waitUntil: 'networkidle' });
+const H = await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 300) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); } window.scrollTo(0,0); return document.body.scrollHeight; });
+await p.waitForTimeout(800);
+const hs = await p.evaluate(() => [...document.querySelectorAll('h1,h2,section[id]')].map(e => `${Math.round(e.getBoundingClientRect().top + scrollY)} ${e.tagName} ${e.id||''} ${(e.textContent||'').trim().slice(0,70)}`));
+console.log(H); console.log(hs.join('\n'));
+await p.screenshot({ path: process.argv[2], fullPage: true });
+await b.close();

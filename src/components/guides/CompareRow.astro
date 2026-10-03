@@ -1,0 +1,55 @@
+---
+/**
+ * Three forms of one line side by side at the same scale (guide v4,
+ * WEB-DEC-047): the guides' existing drawings (palm-geometry VARIANTS, the
+ * PalmDiagram look), clearly drawings, never on a photo. Light HTML: the
+ * drawn palm is a <use> of the #pgd-palm shape the TracedPalm hero defines;
+ * the lines are <use>s of the cached sprite /img/guides/palm-sprite.svg
+ * (WEB-DEC-052), styled here and inherited by the paths.
+ * `framed` (the line guides' type groups): its own glass box with the
+ * "drawings, not real palms" caption; 2 to 5 forms, wrapping on a phone.
+ */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { EDGE_VIEWBOX, isVariant, PALM_VIEWBOX, VARIANTS, type Variant } from '../../lib/guides/palm-geometry';
+import { contextRefs, focusId, spriteHref } from '../../lib/guides/palm-sprite';
+import './teach.css';
+
+interface Props {
+  /** Default: "Side by side, at one scale". */
+  title?: string;
+  /** [drawing name, the form's short name]: 3 in a line lesson, 2 to 5 in a type group. */
+  forms: [string, string][];
+  framed?: boolean;
+}
+
+const { forms, framed = false } = Astro.props;
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+const title = Astro.props.title ?? t.sideBySide;
+const drawings = forms.map(([variant, name]) => {
+  if (!isVariant(variant)) throw new Error(`CompareRow: unknown drawing "${variant}"`);
+  const spec: Variant = VARIANTS[variant];
+  const focus = focusId(variant);
+  return { name, spec, focus, context: contextRefs(variant), style: spec.style ?? 'normal', viewBox: spec.view === 'edge' ? EDGE_VIEWBOX : PALM_VIEWBOX };
+});
+---
+
+<div class:list={['tb-forms', { 'tb tb-box glass-panel tb-cmp': framed }]}>
+  <p>{title}</p>
+  <ul>
+    {
+      drawings.map(({ name, spec, focus, context, style, viewBox }) => (
+        <li>
+          <svg class="tb-pd" viewBox={viewBox} role="img" aria-label={name}>
+            <use class="tb-pd-palm" href="#pgd-palm" />
+            {context.map((item) => <use class:list={['tb-pd-ctx', `tp-${item.line}`]} href={spriteHref(item.id)} />)}
+            {focus && <use class:list={['tb-pd-halo', `tb-pd-${style}`]} href={spriteHref(focus)} />}
+            {focus && <use class:list={['tb-pd-f', spec.kind === 'minor' ? 'tp-gold' : `tp-${spec.kind}`, `tb-pd-${style}`]} href={spriteHref(focus)} />}
+          </svg>
+          {name}
+        </li>
+      ))
+    }
+  </ul>
+  {framed && <p class="tb-cap">{t.drawingsCaption}</p>}
+</div>

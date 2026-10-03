@@ -1,6 +1,13 @@
 import { PAGES, SITEMAP_GROUPS, type PageEntry, type SitemapGroup } from '../config/pages';
 import { absoluteUrl, site } from '../config/site';
+import { diagramUrl, diagramsOnPage } from './diagrams';
 import { hreflangLinks } from './seo';
+
+/**
+ * Our diagram files a page shows (src/lib/diagrams.ts) as site paths: the page's <image:image>
+ * entries in its group sitemap (SEMANTIC_SEO_PLAN.md §7.2, WEB-DEC-053). Photos are not listed.
+ */
+export const pageImages = (path: string): string[] => diagramsOnPage(path).map(diagramUrl);
 
 /** Indexable pages of one sitemap group, sorted by path. noindex pages never appear (F8). */
 export function sitemapPages(group: SitemapGroup, pages: readonly PageEntry[] = PAGES): PageEntry[] {
@@ -21,17 +28,24 @@ export function sitemapXml(
   group: SitemapGroup,
   pages: readonly PageEntry[] = PAGES,
   baseUrl: string = site.baseUrl,
+  imagesFor: (path: string) => readonly string[] = pageImages,
 ): string {
+  let hasImages = false;
   const urls = sitemapPages(group, pages).map((page) => {
     const alternates = hreflangLinks(page.path, pages, baseUrl)
       .map((link) => `\n    <xhtml:link rel="alternate" hreflang="${link.hreflang}" href="${escapeXml(link.href)}"/>`)
       .join('');
     const lastmod = page.lastmod ? `\n    <lastmod>${page.lastmod}</lastmod>` : '';
-    return `  <url>\n    <loc>${escapeXml(absoluteUrl(page.path, baseUrl))}</loc>${lastmod}${alternates}\n  </url>`;
+    const images = imagesFor(page.path)
+      .map((image) => `\n    <image:image>\n      <image:loc>${escapeXml(absoluteUrl(image, baseUrl))}</image:loc>\n    </image:image>`)
+      .join('');
+    if (images) hasImages = true;
+    return `  <url>\n    <loc>${escapeXml(absoluteUrl(page.path, baseUrl))}</loc>${lastmod}${alternates}${images}\n  </url>`;
   });
+  const imageNs = hasImages ? ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' : '';
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">',
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"${imageNs}>`,
     ...urls,
     '</urlset>',
     '',

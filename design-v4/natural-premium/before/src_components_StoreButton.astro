@@ -1,0 +1,102 @@
+---
+/**
+ * Store button + price line (DESIGN_SYSTEM.md §7.9, UX_PSYCHOLOGY.md §8).
+ * - Android / default: the official Google Play badge (unmodified), a direct
+ *   Play link with utm referrer, and the price line directly under it.
+ * - iPhone (<html data-os="ios">, set before paint): no badge, the honest note.
+ * - Desktop (`showQr`): also the QR tile and the remote-install line.
+ * Never an APK link, never an App Store badge. Prices come from site.ts.
+ */
+import { playStoreUrl, site, type Locale } from '../config/site';
+import { t } from '../i18n';
+import Icon from './Icon.astro';
+import QrCode from './QrCode.astro';
+
+interface Props {
+  locale: Locale;
+  /** utm_medium: the page, e.g. `home`, `app_page`, `footer`. */
+  medium: string;
+  /** utm_campaign: the placement, e.g. `app_section`. */
+  campaign: string;
+  showQr?: boolean;
+  class?: string;
+}
+
+const { locale, medium, campaign, showQr = false, class: className } = Astro.props;
+const dict = t(locale);
+const href = playStoreUrl({ medium, campaign, locale });
+const qrHref = playStoreUrl({ medium, campaign: `${campaign}_qr` });
+const badge = locale === 'hi' ? '/badges/google-play-hi.png' : '/badges/google-play-en.png';
+const prices = [
+  dict.store.freeToInstall,
+  dict.store.plansFrom(site.appPrices.planFromPerMonth),
+  dict.store.packsFrom(site.appPrices.packFrom),
+  ...(site.appSizeMb ? [dict.store.size(site.appSizeMb)] : []),
+  dict.store.noAds,
+];
+---
+
+<div class:list={['store', { 'store-with-qr': showQr }, className]}>
+  <div class="store-main">
+    <div class="not-ios">
+      <a class="store-badge" href={href} data-store-link>
+        <img src={badge} alt={dict.store.badgeAlt} width="646" height="250" loading="lazy" decoding="async" />
+      </a>
+      <ul class="price-line text-small" aria-label={dict.store.priceLabel}>
+        {prices.map((item) => <li>{item}</li>)}
+      </ul>
+      <p class="text-small text-fg-muted store-only">{dict.store.onlyPlay}</p>
+    </div>
+    <p class="only-ios store-ios text-small">
+      <Icon name="phone" class="store-ios-icon" />
+      <span>{dict.store.iphoneNote}</span>
+    </p>
+  </div>
+  {
+    showQr && (
+      <div class="only-desktop store-qr">
+        <QrCode text={qrHref} caption={dict.store.qrCaption} label={dict.store.badgeAlt} />
+        <p class="text-small text-fg-muted store-remote">{dict.store.remoteInstall}</p>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .store { display: flex; flex-direction: column; gap: 1.5rem; }
+  /* The official badge PNG has transparent padding; the negative margins line its visible edge up with the text. */
+  .store-badge {
+    position: relative; isolation: isolate; display: inline-block; border-radius: 0.75rem; line-height: 0; margin: -0.875rem 0 -0.875rem -0.875rem;
+    transition: transform 320ms var(--ease-out);
+  }
+  /* A soft glow and hairline behind the badge's visible plate; the badge itself is unchanged. */
+  .store-badge::before {
+    content: ""; position: absolute; inset: 0.875rem; z-index: -1; border-radius: 0.625rem; pointer-events: none;
+    box-shadow: 0 0 0 1px rgba(255,236,190,0.35), 0 14px 32px -12px rgba(230,184,92,0.55), 0 0 44px -12px rgba(98,72,214,0.7);
+    transition: box-shadow 320ms var(--ease-out);
+  }
+  :global([data-theme="day"]) .store-badge::before { box-shadow: 0 0 0 1px rgba(122,82,0,0.25), 0 14px 30px -12px rgba(23,19,61,0.4), 0 10px 30px -14px rgba(122,82,0,0.35); }
+  .store-badge:hover::before { box-shadow: 0 0 0 1px rgba(255,236,190,0.6), 0 18px 40px -12px rgba(230,184,92,0.75), 0 0 56px -10px rgba(98,72,214,0.8); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) { .store-badge:hover { transform: translateY(-2px); } }
+  .store-badge img { height: 5rem; width: auto; }
+  .price-line { list-style: none; margin: 1rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.375rem 1.25rem; color: var(--fg-muted); }
+  /* Each fact gets a small lit gold diamond. */
+  .price-line li { position: relative; padding-inline-start: 0.875rem; }
+  .price-line li::before {
+    content: ""; position: absolute; left: 0; top: 0.62em; width: 0.3125rem; height: 0.3125rem; rotate: 45deg; border-radius: 1px;
+    background: var(--accent); box-shadow: 0 0 6px rgba(230,184,92,0.7);
+  }
+  .price-line li:first-child { color: var(--fg); font-weight: 700; }
+  :global([data-theme="day"]) .price-line li::before { box-shadow: none; }
+  .store-only { margin-top: 0.75rem; }
+  .store-ios { display: none; gap: 0.625rem; align-items: flex-start; padding: 0.875rem 1rem; border-radius: var(--r-well, 1rem);
+    border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--shine); color: var(--fg); max-width: 36rem; }
+  :global([data-os="ios"]) .store-ios { display: flex; }
+  .store-ios :global(.store-ios-icon) { color: var(--accent); margin-top: 0.15rem; }
+  .store-qr { max-width: 13rem; }
+  .store-remote { margin-top: 0.75rem; }
+  @media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+    .store-with-qr { flex-direction: row; align-items: flex-start; gap: 2.5rem; }
+    .store-qr { display: flex; flex-direction: column; align-items: flex-start; }
+  }
+</style>

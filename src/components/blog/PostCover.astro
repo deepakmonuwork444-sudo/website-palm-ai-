@@ -1,0 +1,34 @@
+---
+/**
+ * A post's cover thumbnail on the /blog/ cards and "Keep reading": its first infographic, the wide
+ * file (900 px, AVIF/WebP). Decorative there (the card's title names the post), so alt="".
+ * Width and height reserve the space before it loads. Styles in src/styles/blog.css.
+ */
+import { diagram, DIAGRAM_DIR } from '../../lib/diagrams';
+
+interface Props {
+  id: string;
+  /** The `sizes` of the slot it fills. */
+  sizes: string;
+  eager?: boolean;
+}
+
+const { id, sizes, eager = false } = Astro.props;
+const item = diagram(id);
+const base = `${DIAGRAM_DIR}${item.id}`;
+---
+
+<picture>
+  <source type="image/avif" srcset={`${base}-900.avif 900w, ${base}.avif ${item.width}w`} sizes={sizes} />
+  <img
+    class="bp-thumb-img"
+    src={`${base}-900.webp`}
+    srcset={`${base}-900.webp 900w, ${base}.webp ${item.width}w`}
+    sizes={sizes}
+    width={item.width}
+    height={item.height}
+    alt=""
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+</picture>

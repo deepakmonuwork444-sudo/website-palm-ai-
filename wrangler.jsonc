@@ -1,6 +1,7 @@
 // Cloudflare Workers with static assets only (ARCHITECTURE.md §10): no `main`,
-// no server code. Not deployed by Claude: the owner runs the deploy after the
-// release gate passes (QA_RELEASE.md §6).
+// no server code. Not deployed by Claude: the owner runs `npm.cmd run deploy`
+// (production build + check-web + wrangler deploy) after the release gate
+// passes (QA_RELEASE.md §6, OWNER_GUIDE.md §13 "Launch day").
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "palmsays-web",
@@ -10,6 +11,12 @@
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
   },
+  // palmsays.com (apex) is the one host. `wrangler deploy` creates its DNS record and certificate;
+  // the zone must already be active in the same Cloudflare account. www.palmsays.com is NOT a Worker
+  // route: a Cloudflare Redirect Rule sends it to the apex with a 301 (OWNER_GUIDE.md §13).
+  "routes": [{ "pattern": "palmsays.com", "custom_domain": true }],
+  // Kept on for preview versions (`wrangler versions upload --preview-alias …`); every workers.dev
+  // host answers `X-Robots-Tag: noindex` (public/_headers), so only palmsays.com is indexed.
   "workers_dev": true,
   "preview_urls": true
 }

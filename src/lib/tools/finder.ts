@@ -57,20 +57,12 @@ export interface BookNote {
   cites: readonly Cite[];
 }
 
-/** A small drawing of the option on the stylised palm. */
-export interface ThumbPath {
-  d: string;
-  line: LineName;
-  style?: 'thick' | 'thin' | 'chain';
-}
-
 export interface FinderOption {
   value: string;
   label: string;
   /** How the result names it: "Ends under the index finger". */
   evidence: string;
   set: Observation;
-  thumb?: readonly ThumbPath[];
 }
 
 export interface FinderQuestion {

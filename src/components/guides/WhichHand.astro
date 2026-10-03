@@ -1,0 +1,35 @@
+---
+/**
+ * Which hand (guide v4, WEB-DEC-047): two AI-made 3D renders (2026-09-28,
+ * public/images/guides/hand-*): the writing hand with a pen, and the other
+ * hand resting open. Labelled as AI images. Zero JS.
+ */
+import { localeFromPath } from '../../i18n';
+import { tile } from '../../lib/guides/images';
+import { guideStrings } from '../../lib/guides/strings';
+import './teach.css';
+
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+const sizes = '(min-width: 40rem) 10rem, 40vw';
+const hands = [
+  { img: tile('hand-writing'), alt: t.hands.writingAlt, title: t.hands.writing, text: t.hands.writingText },
+  { img: tile('hand-other'), alt: t.hands.otherAlt, title: t.hands.other, text: t.hands.otherText },
+];
+---
+
+<figure class="tb tb-box glass-panel">
+  <div class="tb-hands">
+    {
+      hands.map((hand) => (
+        <div>
+          <picture>
+            <source type="image/avif" srcset={hand.img.avif} sizes={sizes} />
+            <img class="tb-render" src={hand.img.src} srcset={hand.img.webp} sizes={sizes} width={hand.img.width} height={hand.img.height} alt={hand.alt} loading="lazy" decoding="async" />
+          </picture>
+          <strong>{hand.title}</strong><br />{hand.text}
+        </div>
+      ))
+    }
+  </div>
+  <figcaption><span class="tb-tag">{t.aiImage}</span> {t.hands.caption}</figcaption>
+</figure>

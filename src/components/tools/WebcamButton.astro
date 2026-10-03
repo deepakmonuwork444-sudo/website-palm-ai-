@@ -1,0 +1,25 @@
+---
+/**
+ * "Use laptop camera" (WEB-DEC-059): hidden until src/lib/webcam/wire.ts finds
+ * a desktop with a camera API; it then sits where a phone shows "Take a palm
+ * photo", with the same weight (it follows that button's gold/secondary).
+ * The capture goes into the gallery input named by `forInput`, so the tool
+ * handles it like a picked photo.
+ */
+import Icon from '../Icon.astro';
+
+interface Props {
+  /** id of the tool's gallery <input type="file">. */
+  forInput: string;
+}
+
+const { forInput } = Astro.props;
+---
+
+<button type="button" class="btn btn-gold t-file-label" data-webcam={forInput} hidden>
+  <Icon name="camera" /><span>Use laptop camera</span>
+</button>
+
+<script>
+  import '../../lib/webcam/wire';
+</script>

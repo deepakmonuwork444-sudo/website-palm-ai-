@@ -1,0 +1,24 @@
+---
+/** "4 lines, 4 questions" (guide v4, WEB-DEC-047): the cheat sheet; each line's dot AND its name. Zero JS. */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { GUIDE_LINES } from '../../lib/guides/traced-palm';
+import './teach.css';
+
+const s = guideStrings(localeFromPath(Astro.url.pathname));
+const t = s.teach;
+---
+
+<section class="tb tb-q4" aria-labelledby="q4-title">
+  <p id="q4-title" class="tb-title">{t.questionsTitle}</p>
+  <ul>
+    {
+      GUIDE_LINES.map((line) => (
+        <li class="tb-well">
+          <span class:list={['tp-dot', `tp-${line}`]} aria-hidden="true" />
+          <span><strong>{s.zoneName[line]}</strong> {t.questions[line]}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

@@ -1,0 +1,68 @@
+---
+/**
+ * Small drawn hands at one scale (WEB-DEC-054), from the same silhouette
+ * maker as the seven hand types (palm-geometry handShapePath): the four
+ * element hands of the modern system (/hand-types/) or index vs ring finger
+ * length (/palmistry-fingers/). Labelled drawings, never someone's hand.
+ * Little finger on the left, thumb on the right, like the guides' drawn palm.
+ */
+import { HAND_SHAPE_VIEWBOX, handShapePath } from '../../../lib/guides/palm-geometry';
+import '../teach.css';
+
+type Spec = Parameters<typeof handShapePath>[0];
+interface Item {
+  name: string;
+  note: string;
+  spec: Spec;
+}
+
+const SQUARE = { w: 32, h: 30, r: 3 };
+const LONG = { w: 27, h: 38, r: 6 };
+const SETS: Record<'elements' | 'fingers', { title: string; caption: string; items: Item[] }> = {
+  elements: {
+    title: 'The four element hands, side by side',
+    caption: 'Drawings of the modern four-element system, at one scale. Not real hands, and not a system the classical books use.',
+    items: [
+      { name: 'Earth', note: 'Square palm, short fingers', spec: { palm: SQUARE, fingers: [13, 17, 19, 17], width: 6.6, tips: 'square', thumb: 15 } },
+      { name: 'Air', note: 'Square palm, long fingers', spec: { palm: SQUARE, fingers: [19, 24, 27, 24], width: 6, tips: 'square', thumb: 19 } },
+      { name: 'Fire', note: 'Long palm, short fingers', spec: { palm: LONG, fingers: [13, 17, 19, 17], width: 5.8, tips: 'round', thumb: 16 } },
+      { name: 'Water', note: 'Long palm, long fingers', spec: { palm: LONG, fingers: [19, 24, 27, 24], width: 5.2, tips: 'round', thumb: 20 } },
+    ],
+  },
+  fingers: {
+    title: 'Index and ring finger, side by side',
+    caption: 'Drawings at one scale, not real hands. Compare the tips of the index finger (next to the thumb) and the ring finger against the middle finger.',
+    items: [
+      { name: 'Index longer', note: 'Index tip above the ring tip', spec: { palm: { w: 30, h: 33, r: 4 }, fingers: [16, 18, 24, 21.5], width: 6, tips: 'round', thumb: 18 } },
+      { name: 'Ring longer', note: 'Ring tip above the index tip', spec: { palm: { w: 30, h: 33, r: 4 }, fingers: [16, 21.5, 24, 18], width: 6, tips: 'round', thumb: 18 } },
+      { name: 'About equal', note: 'Both tips level', spec: { palm: { w: 30, h: 33, r: 4 }, fingers: [16, 20, 24, 20], width: 6, tips: 'round', thumb: 18 } },
+    ],
+  },
+};
+
+interface Props {
+  set: keyof typeof SETS;
+}
+
+const { set } = Astro.props;
+const { title, caption, items } = SETS[set];
+---
+
+<figure class="tb tb-box glass-panel tb-hd">
+  <p class="tb-title">{title}</p>
+  <ul data-n={String(items.length)}>
+    {
+      items.map((item) => (
+        <li>
+          <svg viewBox={HAND_SHAPE_VIEWBOX} role="img" aria-label={`${item.name}: ${item.note.toLowerCase()}`}>
+            <path d={handShapePath(item.spec)} />
+          </svg>
+          <strong>{item.name}</strong>
+          <span>{item.note}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <figcaption><span class="tb-tag">Drawing</span> {caption}</figcaption>
+</figure>
+

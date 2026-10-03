@@ -1,0 +1,134 @@
+---
+/**
+ * The real sample palm photo with a "where to look" region (guide template v3).
+ * One SVG whose viewBox is the crop of the photo: the photo (<image>), the
+ * dimmed surround, the zone outlines and their labels all live in the photo's
+ * own pixels, so a zone always sits on the same spot of the hand at any size
+ * (DESIGN_SYSTEM.md §7.5), and no inline style is needed (the hashed CSP
+ * allows none). A zone is an area, never a drawn line; the caption says which
+ * kind it is (the anatomical guide, or real scanner output for this photo).
+ */
+import { localeFromPath } from '../../i18n';
+import { regionView, SAMPLE, type RegionKey } from '../../lib/guides/sample-palm';
+import { guideStrings } from '../../lib/guides/strings';
+
+interface Props {
+  region: RegionKey;
+  id?: string;
+}
+
+const { region, id = 'find-photo' } = Astro.props;
+const s = guideStrings(localeFromPath(Astro.url.pathname));
+const view = regionView(region);
+const { width: W, height: H, crop } = SAMPLE;
+const single = view.zones.length === 1;
+const label = (line: keyof typeof s.zoneName) => (single ? `${s.lookHere}: ${s.zoneName[line]}` : s.zoneName[line]);
+const names = view.zones.map((zone) => s.zoneName[zone.line]).join(', ');
+const alt = view.zones.length ? `${SAMPLE.alt} ${view.source === 'scan' ? s.altScan(names) : s.altGuide(names)}` : SAMPLE.alt;
+// The 960 px WebP: sharp on a 2x phone and beside the text on desktop (≈ 32 KB).
+const photo = SAMPLE.webp.at(-1)!.src;
+// Label type in photo pixels: ≈ 13.5 px on a 390 px phone, ≈ 18 px on desktop.
+const FONT = 44;
+// Pill width from the text length (Mukta 700 averages about 0.55 em per character).
+const pill = (text: string) => Math.round(text.length * FONT * 0.55 + FONT * 0.9);
+const PILL_H = Math.round(FONT * 1.4);
+---
+
+<figure class="rp" id={id}>
+  <div class="rp-frame" data-tilt>
+    <svg class="rp-svg" viewBox={`${crop.x} ${crop.y} ${crop.w} ${crop.h}`} width={crop.w} height={crop.h} role="img" aria-labelledby={`${id}-alt`}>
+      <title id={`${id}-alt`}>{alt}</title>
+      <image href={photo} x="0" y="0" width={W} height={H} preserveAspectRatio="none" />
+      {
+        view.mode === 'area' && view.zones.length > 0 && (
+          <>
+            <defs>
+              <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width={W} height={H}>
+                <rect width={W} height={H} fill="white" />
+                {view.zones.map((z) => (
+                  <ellipse cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry} transform={`rotate(${z.rotate} ${z.cx} ${z.cy})`} fill="black" />
+                ))}
+              </mask>
+            </defs>
+            <rect class="rp-dim" width={W} height={H} mask={`url(#${id}-mask)`} />
+            {view.zones.map((z) => (
+              <g transform={`rotate(${z.rotate} ${z.cx} ${z.cy})`}>
+                <ellipse class="rp-halo" cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry} />
+                <ellipse class:list={['rp-edge', `rp-${z.line}`]} cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry} />
+              </g>
+            ))}
+            {view.zones.map((z) => (
+              <g class="rp-label" aria-hidden="true">
+                <rect class="rp-pill" x={z.labelX} y={z.labelY} width={pill(label(z.line)) + FONT * 0.7} height={PILL_H} rx={PILL_H / 2} />
+                <circle class:list={['rp-dot', `rp-${z.line}`]} cx={z.labelX + FONT * 0.7} cy={z.labelY + PILL_H / 2} r={FONT * 0.24} />
+                <text x={z.labelX + FONT * 1.15} y={z.labelY + PILL_H / 2 + FONT * 0.36} font-size={FONT}>
+                  {label(z.line)}
+                </text>
+              </g>
+            ))}
+          </>
+        )
+      }
+      {
+        view.mode === 'pins' &&
+          view.zones.map((z) => (
+            <g class="rp-label" aria-hidden="true">
+              <rect class="rp-pill" x={z.pinX + FONT * 0.6} y={z.pinY - PILL_H / 2} width={pill(s.zoneName[z.line])} height={PILL_H} rx={PILL_H / 2} />
+              <circle class:list={['rp-pin', `rp-${z.line}`]} cx={z.pinX} cy={z.pinY} r={FONT * 0.42} />
+              <text x={z.pinX + FONT * 1.05} y={z.pinY + FONT * 0.36} font-size={FONT}>
+                {s.zoneName[z.line]}
+              </text>
+            </g>
+          ))
+      }
+    </svg>
+  </div>
+  <figcaption class="text-caption text-fg-muted rp-caption">
+    {view.zones.length > 0 && <span>{view.source === 'scan' ? s.photoScan : view.mode === 'pins' ? s.photoPins : s.photoGuide}</span>}
+    <span>
+      {s.photoCredit}: <a class="text-link" href={SAMPLE.credit.url} rel="noopener">{s.photoOn(SAMPLE.credit.author, SAMPLE.credit.site)}</a> ({SAMPLE.credit.licence})
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .rp { margin: 0; display: flex; flex-direction: column; gap: 0.875rem; position: relative; }
+  /* Showroom: the photo sits in a rounded glass frame (a lit mat around it), lifted off the room with a soft glow. */
+
+  .rp-frame {
+    --tilt-x: 0deg; --tilt-y: 0deg;
+    position: relative; padding: 0.5rem; border-radius: var(--r-panel); border: 1px solid transparent;
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--e2);
+    transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    transition: transform 600ms var(--ease-out);
+  }
+  .rp-svg { display: block; width: 100%; height: auto; overflow: hidden; border-radius: calc(var(--r-panel) - 0.5rem); background-color: var(--surface-2); }
+  /* A soft top-edge sheen over the photo, like light on glass. */
+  .rp-frame::after {
+    content: ""; position: absolute; inset: 0.5rem; border-radius: calc(var(--r-panel) - 0.5rem); pointer-events: none;
+    background: linear-gradient(160deg, rgba(255,255,255,0.14), transparent 28%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  .rp-dim { fill: var(--color-halo); opacity: 0.5; }
+  .rp-halo { fill: none; stroke: var(--color-halo); stroke-width: 6; vector-effect: non-scaling-stroke; opacity: 0.7; }
+  .rp-edge { fill: none; stroke-width: 2.5; stroke-dasharray: 7 6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .rp-heart { stroke: var(--color-trace-heart); }
+  .rp-head { stroke: var(--color-trace-head); }
+  .rp-life { stroke: var(--color-trace-life); }
+  .rp-fate { stroke: var(--color-trace-fate); }
+  .rp-marriage, .rp-simian { stroke: var(--color-gold); }
+  .rp-dot { stroke: var(--color-halo); stroke-width: 6; }
+  .rp-pin { stroke: var(--color-qr-light); stroke-width: 7; }
+  .rp-pin.rp-heart { fill: var(--color-trace-heart); }
+  .rp-pin.rp-head { fill: var(--color-trace-head); }
+  .rp-pin.rp-life { fill: var(--color-trace-life); }
+  .rp-pin.rp-fate { fill: var(--color-trace-fate); }
+  .rp-dot.rp-heart { fill: var(--color-trace-heart); }
+  .rp-dot.rp-head { fill: var(--color-trace-head); }
+  .rp-dot.rp-life { fill: var(--color-trace-life); }
+  .rp-dot.rp-fate { fill: var(--color-trace-fate); }
+  .rp-dot.rp-marriage, .rp-dot.rp-simian { fill: var(--color-gold); }
+  .rp-pill { fill: var(--color-halo); opacity: 0.88; }
+  .rp-label text { font-family: var(--ff-sans); font-weight: 700; fill: var(--color-qr-light); }
+  .rp-caption { display: flex; flex-direction: column; gap: 0.125rem; padding-inline: 0.75rem; }
+</style>

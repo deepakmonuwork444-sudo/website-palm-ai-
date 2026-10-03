@@ -1,0 +1,120 @@
+---
+/**
+ * Tool 13 — Finger reader from your photo (v3, 2026-09-26; KEYWORD_MAP.md §3).
+ * Index vs ring finger, thumb opening and length, finger gaps, little finger
+ * and finger length, measured on the visitor's own photo by the on-device
+ * hand model, read from the classical books with sources (src/lib/tools/hand/fingers.ts).
+ * The guide /palmistry-fingers/ keeps "palmistry fingers"; this page owns the
+ * tool wording (finger reader, index vs ring finger, thumb angle).
+ */
+import HandExample from '../../components/tools/HandExample.astro';
+import PhotoTool from '../../components/tools/PhotoTool.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import { CALIBRATION, CUT } from '../../lib/tools/hand/cutoffs';
+import { allowHandModel } from '../../lib/tools/hand/csp';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+
+allowHandModel(Astro);
+
+const tool = toolById('finger-reader');
+const fingers = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part II, ch. III: The Fingers' } as const;
+const thumb = { book: 'cheiro-language-of-the-hand-1900', locator: 'Part I, ch. IX: The Thumb' } as const;
+const fingers1900 = { book: 'cheiro-language-of-the-hand-1900', locator: 'Part I, ch. XI: The Fingers' } as const;
+---
+
+<ToolLayout
+  tool={tool}
+  title="Palmistry Finger Reader: Index vs Ring Finger From a Photo"
+  description="Photograph your hand: see index vs ring finger, thumb angle and finger gaps measured on your own photo, with what palmistry books say. Runs on your phone."
+  h1="Palmistry finger reader: your fingers and thumb, measured from a photo"
+  promise="Is your index finger longer than your ring finger? How wide does your thumb open? Take one photo and see it measured on your own hand, with what the classical books say."
+  ownPalm={false}
+  spot={{
+    title: 'How to hold your hand for the photo',
+    paras: [
+      'Hold your hand up, palm to the camera, open and relaxed. Don’t force the fingers apart or press them together: palmists read the way your hand opens naturally, and the gaps between the fingers are part of the reading.',
+      'Keep all five fingertips and your wrist in the frame, with the phone held flat above your palm. Keep your fingers straight; a bent finger looks shorter.',
+      'Take the photo in good light. If you get a surprising result, take a second photo: a small tilt can move the numbers by a few percent.',
+    ],
+  }}
+  howTitle="How it works"
+  how={[
+    { title: 'You take or choose a photo', body: 'It opens only in this browser tab. Nothing is uploaded.' },
+    {
+      title: 'A hand model finds 21 points on your hand',
+      body: 'Google’s open MediaPipe hand model runs inside your browser and marks each knuckle, joint and fingertip.',
+    },
+    {
+      title: 'We measure, then look it up in the books',
+      body: 'Finger lengths, the thumb’s angle and the spaces between the fingers are measured on your photo and matched to what Cheiro and other classical palmists wrote, with the source for each.',
+    },
+  ]}
+  saysTitle="What palmistry reads in the fingers"
+  says={[
+    {
+      term: 'The finger names',
+      text: 'The index finger is Jupiter, the middle Saturn, the ring the Sun (Apollo) and the little finger Mercury; each takes on the qualities of the mount at its base.',
+      source: citeText(fingers),
+    },
+    {
+      term: 'Index longer than ring',
+      text: 'Read as a drive to lead and take charge. A ring finger longer than the index is read as a love of beauty and a wish for recognition.',
+      source: citeText(fingers),
+    },
+    {
+      term: 'The thumb',
+      text: 'It should neither stand at a right angle nor lie close to the hand: the wider it opens, the more independence of will it is read as.',
+      source: citeText(thumb),
+    },
+    {
+      term: 'Gaps between the fingers',
+      text: 'With the fingers open, a wide gap between the index and middle finger is read as independence of thought; between the ring and little finger, independence in action.',
+      source: citeText(fingers1900),
+    },
+  ]}
+  limits={[
+    'These are readings from a tradition, not facts about you. No finger length predicts success, love, money or health.',
+    `Our model marks joints, not skin creases, so the numbers are not ruler numbers. Index and ring within ${Math.round((CUT.indexRing.indexLonger - 1) * 100)}% of each other count as equal.`,
+    'How low or high the thumb is set is not measured: on a photo, the thumb’s base point moves as the thumb opens, so we can’t separate the two.',
+    'The books disagree in places (for example on fingers of equal length, and on gaps between the fingers). Where they do, the result says so.',
+  ]}
+  faq={[
+    {
+      q: 'Is my photo uploaded?',
+      a: 'No. The photo opens in this browser tab and the hand model runs on your phone. Only the model itself is downloaded from our site, once.',
+    },
+    {
+      q: 'How do you decide long, short and wide?',
+      a: `Angles are measured directly: a thumb under ${CUT.thumbAngle.close}° from the index finger is held close, from ${CUT.thumbAngle.wide}° wide open. For lengths and gaps we measured ${CALIBRATION.photos} open-palm photos from a public hand-photo set the same way and set the bands from them; the exact numbers are in the result.`,
+    },
+    {
+      q: 'Is this the finger ratio from science news (2D:4D)?',
+      a: 'It is a similar measure of the index and ring fingers, but this tool gives the palmistry reading, not a scientific or medical one. Research on finger ratios is about large groups and says nothing reliable about one person.',
+    },
+    {
+      q: 'Which hand should I photograph?',
+      a: 'Palmists usually read the hand you write with. You can compare both with the left vs right tool.',
+    },
+  ]}
+  links={[
+    { href: '/palmistry-fingers/', label: 'Guide: what palmistry reads in your fingers' },
+    { href: '/tools/hand-type-quiz/', label: 'Hand type from your photo' },
+    { href: '/tools/left-vs-right-palm/', label: 'Compare your left and right hands' },
+    { href: '/tools/which-hand-quiz/', label: 'Which-hand quiz' },
+  ]}
+>
+  <PhotoTool
+    id="finger-reader"
+    tips={['Hand open and relaxed', 'All five fingertips in the frame', 'Phone flat above the palm']}
+    hold="Hold your fingers the way they fall naturally: the gaps between them are part of the reading."
+  />
+
+  <HandExample kind="fingers" />
+</ToolLayout>
+
+<script>
+  import { mountFingerReader } from '../../lib/tools/client/finger-reader-ui';
+
+  mountFingerReader();
+</script>

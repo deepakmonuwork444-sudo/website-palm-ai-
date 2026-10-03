@@ -1,0 +1,814 @@
+/*
+ * Tool pages (DESIGN_SYSTEM.md §7.7, §7.2, §12; showroom look WEB-DEC-042).
+ * Global on purpose: the tool scripts build result cards in the browser, and
+ * Astro's scoped styles don't reach elements created by JS. Every class is
+ * prefixed `t-`. Tokens only. The tool itself sits in a rim-lit glass panel
+ * like an instrument on display; everything inside is glass, wells and gold.
+ * No backdrop-filter on phones; motion only when the visitor allows it.
+ */
+
+/* ---------- tool-page tokens (Night, then Day) ---------- */
+.t-page {
+  /* An opaque base under translucent fills, so the rim gradient (border-box) doesn't bleed through the glass. */
+  --t-base: linear-gradient(#1A1742, #1A1742);
+  --t-tile:linear-gradient(170deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018));
+  --t-tile-hover: linear-gradient(170deg, rgba(255,255,255,0.11), rgba(255,255,255,0.03));
+  --t-gold-rim: linear-gradient(145deg, rgba(255,238,196,0.95), rgba(230,184,92,0.38) 45%, rgba(230,184,92,0.85));
+  --t-gold-fill: linear-gradient(170deg, rgba(230,184,92,0.22), rgba(230,184,92,0.06));
+  --t-gold-glow: 0 0 0 1px rgba(230,184,92,0.06), 0 12px 32px -14px rgba(230,184,92,0.6);
+  --t-panel-rim: linear-gradient(150deg, rgba(255,240,200,0.46), rgba(255,255,255,0.07) 28%, rgba(255,255,255,0.03) 64%, rgba(230,184,92,0.52));
+  --t-panel-light: radial-gradient(46rem 22rem at 0% 0%, rgba(124,98,246,0.16), transparent 62%), radial-gradient(30rem 18rem at 100% 100%, rgba(230,184,92,0.07), transparent 60%);
+  --t-hair: linear-gradient(90deg, transparent, rgba(255,255,255,0.13) 18%, rgba(255,255,255,0.13) 82%, transparent);
+  --t-calm-fill: linear-gradient(170deg, rgba(150,128,255,0.15), rgba(150,128,255,0.04));
+  --t-mint-fill: linear-gradient(170deg, rgba(43,179,163,0.16), rgba(43,179,163,0.04));
+  --t-mint-rim: linear-gradient(145deg, rgba(140,236,222,0.45), rgba(43,179,163,0.10) 50%, rgba(43,179,163,0.32));
+  --t-inset: inset 0 2px 12px rgba(0,0,0,0.38);
+  --t-lift: 0 1px 1px rgba(0,0,0,0.25), 0 10px 24px -14px rgba(0,0,0,0.7);
+}
+[data-theme="day"] .t-page {
+  --t-base: linear-gradient(#FFFFFF, #FFFFFF);
+  --t-tile:linear-gradient(180deg, #FFFFFF, #F6F3FD);
+  --t-tile-hover: linear-gradient(180deg, #FFFFFF, #EFEAFB);
+  --t-gold-rim: linear-gradient(145deg, rgba(176,122,18,0.95), rgba(122,82,0,0.35) 45%, rgba(122,82,0,0.9));
+  --t-gold-fill: linear-gradient(170deg, rgba(232,196,120,0.26), rgba(232,196,120,0.08));
+  --t-gold-glow: 0 12px 28px -16px rgba(122,82,0,0.5);
+  --t-panel-rim: linear-gradient(150deg, #FFFFFF, rgba(23,19,61,0.09) 38%, rgba(122,82,0,0.42));
+  --t-panel-light: radial-gradient(46rem 22rem at 0% 0%, rgba(120,92,230,0.07), transparent 62%), radial-gradient(30rem 18rem at 100% 100%, rgba(214,170,80,0.10), transparent 60%);
+  --t-hair: linear-gradient(90deg, transparent, rgba(23,19,61,0.12) 18%, rgba(23,19,61,0.12) 82%, transparent);
+  --t-calm-fill: linear-gradient(170deg, rgba(120,92,230,0.09), rgba(120,92,230,0.03));
+  --t-mint-fill: linear-gradient(170deg, rgba(15,122,110,0.09), rgba(15,122,110,0.03));
+  --t-mint-rim: linear-gradient(145deg, rgba(15,122,110,0.42), rgba(15,122,110,0.08) 50%, rgba(15,122,110,0.3));
+  --t-inset: inset 0 2px 8px rgba(23,19,61,0.07);
+  --t-lift: 0 1px 1px rgba(23,19,61,0.05), 0 10px 22px -14px rgba(23,19,61,0.22);
+}
+
+/* ---------- page frame ---------- */
+.t-page { padding-block: 0.5rem var(--section); }
+.t-grid { display: grid; gap: 3.5rem; }
+@media (min-width: 64rem) {
+  .t-grid { grid-template-columns: minmax(0, 1fr) 18rem; gap: 4rem; align-items: start; }
+  .t-aside { position: sticky; top: 5.5rem; }
+}
+.t-main { min-width: 0; display: flex; flex-direction: column; gap: 3.5rem; }
+.t-head { display: flex; flex-direction: column; gap: 1rem; }
+.t-title-row { display: flex; align-items: center; gap: 1.125rem; }
+/* The tool's glyph in a lit glass well. */
+.t-tile {
+  position: relative; flex: none; width: 3.5rem; height: 3.5rem; border-radius: 1.125rem; display: grid; place-items: center;
+  border: 1px solid transparent;
+  background: radial-gradient(70% 70% at 50% 35%, rgba(230,184,92,0.16), transparent 72%) padding-box, var(--well) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine), var(--t-lift);
+}
+/* The tool's 3D glass-and-gold icon (MediaIcon), a little proud of the well. */
+.t-tile .t-tile-icon { width: 2.75rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); }
+@media (min-width: 64rem) { .t-head .t-tile { width: 4.25rem; height: 4.25rem; border-radius: 1.375rem; } .t-head .t-tile .t-tile-icon { width: 3.25rem; } }
+[data-theme="day"] .t-tile .t-tile-icon { filter: drop-shadow(0 3px 6px rgba(23,19,61,0.18)); }
+.t-h1 { margin: 0; font-family: var(--ff-display); font-weight: 700; font-size: var(--fs-h1); line-height: var(--lh-h1); letter-spacing: -0.012em; }
+:lang(hi) .t-h1 { letter-spacing: 0; }
+.t-promise { margin: 0; font-size: var(--fs-lead); line-height: var(--lh-lead); color: var(--fg-muted); max-width: 40rem; }
+/* The honesty label: a calm tinted glass callout. */
+.t-label {
+  display: inline-flex; align-items: flex-start; gap: 0.625rem; margin: 0; padding: 0.625rem 1rem; border-radius: 1rem;
+  border: 1px solid transparent; background: var(--t-calm-fill) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine);
+  color: var(--fg); font-size: var(--fs-small); line-height: var(--lh-small); align-self: flex-start;
+}
+.t-label svg { width: 1.125rem; height: 1.125rem; flex: none; margin-top: 0.15rem; color: var(--accent); }
+
+/* ---------- the tool: an instrument on display (the page's one lit panel) ---------- */
+.t-card {
+  position: relative; isolation: isolate; border: 1px solid transparent; border-radius: 1.75rem;
+  background: var(--t-panel-light) padding-box, var(--glass-1) padding-box, var(--t-panel-rim) border-box;
+  box-shadow: var(--shine), var(--e2);
+  padding: 1.25rem; display: flex; flex-direction: column; gap: 1.5rem;
+}
+/* A line of light along the top edge, and its soft spill into the glass. */
+.t-card::before {
+  content: ""; position: absolute; z-index: -1; top: -1px; left: 14%; right: 14%; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,236,190,0.9), transparent);
+}
+.t-card::after {
+  content: ""; position: absolute; z-index: -1; top: 0; left: 8%; right: 8%; height: 7rem; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(50% 100% at 50% 0%, rgba(230,184,92,0.13), transparent 75%);
+}
+[data-theme="day"] .t-card::before { background: linear-gradient(90deg, transparent, rgba(176,122,18,0.55), transparent); }
+[data-theme="day"] .t-card::after { background: radial-gradient(50% 100% at 50% 0%, rgba(214,170,80,0.10), transparent 75%); }
+@media (min-width: 48rem) { .t-card { padding: 2.25rem; border-radius: var(--r-panel); } }
+@media (min-width: 64rem) { .t-card { padding: 2.5rem; } }
+.t-card-note { margin: 0; font-size: var(--fs-small); color: var(--fg-muted); }
+.t-noscript { margin: 0; padding: 0.75rem 1rem; border-radius: var(--r-well); background: var(--well); box-shadow: var(--t-inset); font-size: var(--fs-small); }
+
+/* ---------- pickers: real radio groups with visible labels ---------- */
+.t-form { display: flex; flex-direction: column; gap: 1.75rem; }
+/* The legend floats so it sits inside the fieldset, below the divider, not on it. */
+.t-q { border: 0; margin: 0; padding: 0; min-width: 0; }
+.t-q + .t-q { padding-top: 1.75rem; background: var(--t-hair) top / 100% 1px no-repeat; }
+.t-q-legend { float: left; width: 100%; padding: 0; margin: 0 0 0.875rem; font-family: var(--ff-display); font-weight: 700; font-size: calc(var(--fs-h3) * 1.12); line-height: 1.25; letter-spacing: -0.005em; }
+:lang(hi) .t-q-legend { font-size: var(--fs-h3); line-height: var(--lh-h3); letter-spacing: 0; }
+.t-q-legend + * { clear: both; }
+.t-q-help { margin: 0 0 0.875rem; color: var(--fg-muted); font-size: var(--fs-small); }
+.t-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.t-opts-text { display: flex; flex-wrap: wrap; gap: 0.625rem; }
+@media (min-width: 48rem) { .t-opts { grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.875rem; } }
+.t-opt { position: relative; display: flex; cursor: pointer; }
+.t-opt-input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+/* Each choice: a glass tile with rim light; chosen = a gold rim, a warm fill and a soft glow. */
+.t-opt-box {
+  flex: 1; display: flex; flex-direction: column; gap: 0.625rem; min-height: 3rem; padding: 0.625rem 0.75rem 0.75rem; border-radius: 1.125rem;
+  border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--t-lift);
+  color: var(--fg); font-size: var(--fs-small); line-height: 1.35;
+  transition: transform 320ms var(--ease-out), box-shadow 320ms var(--ease-out), background 200ms var(--ease);
+}
+.t-opts-text .t-opt-box { flex-direction: row; align-items: center; border-radius: 9999px; padding: 0.5rem 1.125rem; font-weight: 600; }
+.t-opt:hover .t-opt-box { background: var(--t-tile-hover) padding-box, var(--t-base) padding-box, var(--rim-hover) border-box; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .t-opt:hover .t-opt-box { transform: translateY(-2px); box-shadow: var(--shine), var(--e1); }
+}
+.t-opt:active .t-opt-box { transform: scale(0.985); }
+.t-opt-input:focus-visible + .t-opt-box { outline: 2px solid var(--focus); outline-offset: 3px; }
+.t-opt-input:checked + .t-opt-box {
+  background: var(--t-gold-fill) padding-box, var(--t-base) padding-box, var(--t-gold-rim) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,236,190,0.22), var(--t-gold-glow);
+}
+[data-theme="day"] .t-opt-input:checked + .t-opt-box { box-shadow: inset 0 1px 0 #FFFFFF, var(--t-gold-glow); }
+.t-opt-text { display: flex; align-items: flex-start; gap: 0.375rem; }
+.t-opt-check { width: 1rem; height: 1rem; flex: none; margin-top: 0.125rem; color: var(--accent); visibility: hidden; transform: scale(0.4); transition: transform 380ms var(--ease-spring); }
+.t-opt-input:checked + .t-opt-box .t-opt-check { visibility: visible; transform: scale(1); }
+.t-opt-input:disabled + .t-opt-box { opacity: 0.5; cursor: not-allowed; }
+/* The thumbnail: the porcelain 3D hand in its own small lit studio well (MiniPalm.astro). */
+.t-thumb {
+  display: block; width: 100%; height: auto; border-radius: 0.875rem; overflow: hidden;
+  background: radial-gradient(70% 65% at 50% 45%, rgba(124,98,246,0.28), transparent 75%), var(--well);
+  box-shadow: var(--t-inset);
+}
+/* Day: the hand keeps a deep studio plate, so the porcelain and the line colours read as clearly as at night. */
+[data-theme="day"] .t-thumb { background: radial-gradient(70% 65% at 50% 45%, rgba(150,124,255,0.34), transparent 78%), linear-gradient(180deg, rgba(44,37,100,0.96), rgba(27,22,70,0.96)); box-shadow: inset 0 2px 10px rgba(10,8,30,0.35); }
+.t-opt-input:checked + .t-opt-box .t-thumb { background: radial-gradient(70% 65% at 50% 45%, rgba(230,184,92,0.24), transparent 75%), var(--well); }
+[data-theme="day"] .t-opt-input:checked + .t-opt-box .t-thumb { background: radial-gradient(70% 65% at 50% 45%, rgba(230,184,92,0.34), transparent 78%), linear-gradient(180deg, rgba(44,37,100,0.96), rgba(27,22,70,0.96)); }
+.t-thumb-photo { position: relative; aspect-ratio: 1000 / 1300; }
+.t-thumb-photo picture, .t-thumb-img { display: block; width: 100%; height: 100%; }
+.t-thumb-ov { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ---------- lines on the 3D hand (thumbnails, map, quiz): widths in screen px at any zoom ---------- */
+.t-fig .t-halo, .t-fig .t-line, .t-fig .t-bar-line, .t-fig .t-sign-line, .t-fig .t-mark, .t-fig .t-mark-halo, .t-fig .t-mount, .t-fig .t-quiz-mount { vector-effect: non-scaling-stroke; }
+.t-halo, .t-line, .t-bar-line, .t-sign-line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.t-halo { stroke: var(--color-halo); stroke-width: 6.5; stroke-opacity: 0.72; }
+.t-line { stroke-width: 3.4; }
+.t-thick .t-halo { stroke-width: 10; }
+.t-thick .t-line { stroke-width: 6.2; }
+.t-thin .t-halo { stroke-width: 3.6; }
+.t-thin .t-line { stroke-width: 1.5; }
+.t-chain .t-line { stroke-dasharray: 4.5 3; }
+.t-ref { opacity: 0.5; }
+/* The point an option is about (where the line ends, starts, breaks or forks). */
+.t-mark { fill: none; stroke: var(--color-gold-bright); stroke-width: 2.4; }
+.t-mark-halo { fill: rgba(245,217,139,0.16); stroke: var(--color-halo); stroke-width: 5.5; stroke-opacity: 0.6; }
+.t-guide { fill: none; stroke: var(--color-gold-bright); stroke-width: 2.2; stroke-dasharray: 1 5; stroke-linecap: round; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 1.5px rgba(26,20,64,0.9)); }
+/* Palm signs in gold; hand-type measuring bars (gold = the part asked about). */
+.t-sign-line { stroke: var(--color-gold); stroke-width: 3.2; }
+.t-bar-line { stroke-width: 2.6; }
+.t-bar .t-halo { stroke-width: 5; }
+.t-bar-gold .t-bar-line { stroke: var(--color-gold-bright); }
+.t-bar-soft .t-bar-line { stroke: rgba(236,232,255,0.95); }
+.t-l-life { stroke: var(--color-trace-life); }
+.t-l-head { stroke: var(--color-trace-head); }
+.t-l-heart { stroke: var(--color-trace-heart); }
+.t-l-fate { stroke: var(--color-trace-fate); }
+.t-l-quiz { stroke: var(--color-qr-light); }
+
+/* ---------- buttons inside tools ---------- */
+.t-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.t-actions .btn { flex: 1 1 14rem; }
+.t-file-label { cursor: pointer; }
+.t-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; clip-path: inset(50%); }
+.t-file-input:focus-visible + .t-file-label, .t-file-label:focus-within { outline: 2px solid var(--focus); outline-offset: 3px; }
+/* Privacy: a calm mint glass callout with the shield in a small lit disc. */
+.t-privacy {
+  display: flex; gap: 0.75rem; align-items: flex-start; margin: 0; padding: 0.75rem 1rem; border-radius: 1rem;
+  border: 1px solid transparent; background: var(--t-mint-fill) padding-box, var(--t-base) padding-box, var(--t-mint-rim) border-box; box-shadow: var(--shine);
+  font-size: var(--fs-small); color: var(--fg);
+}
+.t-privacy svg, .t-privacy svg.icon {
+  width: 1.75rem; height: 1.75rem; flex: none; margin-top: -0.125rem; padding: 0.3rem; border-radius: 9999px; color: color-mix(in srgb, var(--success) 65%, white);
+  background: color-mix(in srgb, var(--success) 20%, transparent); box-shadow: 0 0 16px -4px color-mix(in srgb, var(--success) 60%, transparent);
+}
+[data-theme="day"] .t-privacy svg { color: var(--success); box-shadow: none; }
+
+/* ---------- results ---------- */
+.t-result { display: flex; flex-direction: column; gap: 1.25rem; }
+.t-result:empty { display: none; }
+.t-result-title, .t-map-panel-title { scroll-margin-top: 5.5rem; }
+.t-result-title { margin: 0; font-family: var(--ff-display); font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: 700; letter-spacing: -0.01em; outline: none; }
+:lang(hi) .t-result-title { letter-spacing: 0; }
+.t-result-lead { margin: 0; color: var(--fg-muted); }
+/* Result cards float on the panel with their own depth. */
+.t-group {
+  position: relative; display: flex; flex-direction: column; gap: 0.75rem; padding: 1.125rem 1.25rem; border-radius: var(--r-card);
+  border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--e1);
+}
+@media (min-width: 48rem) { .t-group { padding: 1.375rem 1.5rem; } }
+.t-group-title { margin: 0; font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 700; }
+.t-differ { margin: 0; font-size: var(--fs-small); color: var(--fg-muted); display: flex; gap: 0.5rem; align-items: flex-start; }
+.t-differ svg { width: 1rem; height: 1rem; flex: none; margin-top: 0.2rem; color: var(--accent); }
+.t-reading { display: flex; flex-direction: column; gap: 0.375rem; padding-top: 0.875rem; background: var(--t-hair) top / 100% 1px no-repeat; }
+.t-reading:first-of-type { background: none; padding-top: 0; }
+.t-reading-text { margin: 0; }
+.t-caveat { margin: 0; font-size: var(--fs-small); color: var(--fg-muted); }
+.t-trad {
+  align-self: flex-start; padding: 0.125rem 0.625rem; border-radius: 9999px; font-size: var(--fs-caption); line-height: var(--lh-caption); font-weight: 700; color: var(--fg-muted);
+  border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box;
+}
+.t-sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.t-source { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--fg-muted); display: flex; gap: 0.375rem; }
+.t-source svg { width: 0.875rem; height: 0.875rem; flex: none; margin-top: 0.15rem; color: var(--accent); }
+.t-more { font-size: var(--fs-caption); color: var(--fg-muted); }
+.t-empty { margin: 0; padding: 1rem 1.125rem; border-radius: var(--r-well); background: var(--well); box-shadow: var(--t-inset); }
+/* "Next step" blocks: warm gold-tinted glass. */
+.t-next {
+  position: relative; display: flex; flex-direction: column; gap: 0.75rem; padding: 1.375rem 1.5rem; border-radius: var(--r-card);
+  border: 1px solid transparent; background: radial-gradient(30rem 12rem at 100% 0%, rgba(230,184,92,0.12), transparent 70%) padding-box, var(--glass-1) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine), var(--e1);
+}
+.t-next p { margin: 0; }
+
+/* ---------- content sections under the tool ---------- */
+.t-section { display: flex; flex-direction: column; gap: 1.125rem; }
+.t-section h2 { margin: 0; font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: 700; }
+/* A short gold rule above each section title (the site's section-head mark). */
+.t-section > h2::before {
+  content: ""; display: block; width: 2.75rem; height: 2px; margin-bottom: 1.125rem; border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent); box-shadow: 0 0 12px rgba(230,184,92,0.5);
+}
+[data-theme="day"] .t-section > h2::before { box-shadow: none; }
+.t-section h3 { margin: 0; font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 700; }
+.t-section p { margin: 0; }
+.t-prose { display: flex; flex-direction: column; gap: 1rem; max-width: 42.5rem; }
+/* How it works: numbered gold orbs joined by a thread of light. */
+.t-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.5rem; counter-reset: step; }
+.t-step { position: relative; display: grid; grid-template-columns: 2.75rem 1fr; gap: 0.25rem 1.125rem; align-items: start; }
+.t-step::before {
+  counter-increment: step; content: counter(step); grid-row: span 2; width: 2.75rem; height: 2.75rem; border-radius: 9999px;
+  display: grid; place-items: center; border: 1px solid transparent;
+  background: radial-gradient(circle at 35% 25%, rgba(255,236,190,0.22), transparent 60%) padding-box, var(--t-base) padding-box, var(--t-gold-rim) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,236,190,0.25), var(--t-gold-glow);
+  color: var(--color-gold-bright); font-family: var(--ff-sans); font-weight: 700; font-size: 1.0625rem; line-height: 1;
+}
+[data-theme="day"] .t-step::before { color: var(--accent); background: radial-gradient(circle at 35% 25%, rgba(232,196,120,0.3), transparent 65%) padding-box, var(--t-base) padding-box, var(--t-gold-rim) border-box; }
+.t-step:not(:last-child)::after {
+  content: ""; position: absolute; left: calc(1.375rem - 0.5px); top: 3.25rem; bottom: -1rem; width: 1px; pointer-events: none;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 55%, transparent), transparent);
+}
+.t-step-title { font-weight: 700; padding-top: 0.5rem; }
+.t-step-body { color: var(--fg-muted); }
+/* What palmistry says: one glass panel, entries split by fine light. */
+.t-says {
+  list-style: none; margin: 0; padding: 0.5rem 1.25rem; display: grid; gap: 0; border-radius: var(--r-card);
+  border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--e1);
+}
+@media (min-width: 48rem) { .t-says { padding: 0.75rem 1.75rem; } }
+.t-say { display: flex; flex-direction: column; gap: 0.25rem; padding-block: 1rem; background: var(--t-hair) bottom / 100% 1px no-repeat; }
+.t-say:last-child { background: none; }
+.t-say-term { font-weight: 700; color: var(--accent); }
+[data-theme="day"] .t-say-term { color: var(--fg); }
+/* Limits: a calm tinted glass callout, never alarming. */
+.t-limits {
+  padding: 1.375rem 1.5rem; border-radius: var(--r-card); display: flex; flex-direction: column; gap: 0.875rem;
+  border: 1px solid transparent; background: var(--t-calm-fill) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--t-lift);
+}
+.t-limits ul { margin: 0; padding-left: 1.25rem; list-style: disc; display: flex; flex-direction: column; gap: 0.5rem; }
+.t-limits li::marker { color: var(--accent); }
+.t-care { font-size: var(--fs-small); color: var(--fg-muted); }
+/* FAQ: glass rows that open like drawers. */
+.t-faq { display: flex; flex-direction: column; gap: 0.75rem; }
+.t-faq details {
+  border-radius: 1.25rem; border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--t-lift);
+  transition: background 200ms var(--ease), box-shadow 320ms var(--ease-out);
+}
+.t-faq details:hover, .t-faq details[open] { background: var(--glass-1) padding-box, var(--rim-hover) border-box; }
+.t-faq details[open] { box-shadow: var(--shine), var(--e1); }
+.t-faq summary {
+  cursor: pointer; list-style: none; min-height: 3rem; padding: 1rem 3.5rem 1rem 1.25rem; position: relative; font-weight: 700; border-radius: inherit;
+}
+.t-faq summary::-webkit-details-marker { display: none; }
+.t-faq summary::before {
+  content: ""; position: absolute; right: 0.875rem; top: 50%; width: 2rem; height: 2rem; margin-top: -1rem; border-radius: 9999px;
+  border: 1px solid transparent; background: var(--t-gold-fill) padding-box, var(--t-base) padding-box, var(--rim) border-box;
+}
+.t-faq summary::after {
+  content: ""; position: absolute; right: 1.625rem; top: 50%; width: 0.5rem; height: 0.5rem; margin-top: -0.375rem;
+  border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(45deg);
+  transition: transform 320ms var(--ease-out), margin-top 320ms var(--ease-out);
+}
+.t-faq details[open] summary::after { transform: rotate(225deg); margin-top: -0.125rem; }
+.t-faq-a { margin: 0; padding: 0 1.25rem 1.25rem; color: var(--fg-muted); max-width: 42.5rem; }
+.t-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.t-links li { background: var(--t-hair) bottom / 100% 1px no-repeat; }
+.t-links a { display: inline-flex; align-items: center; min-height: 3rem; }
+
+/* ---------- end block + other tools ---------- */
+.t-end {
+  position: relative; display: grid; gap: 1.5rem; padding: 1.75rem 1.5rem; border-radius: var(--r-panel);
+  border: 1px solid transparent;
+  background: radial-gradient(34rem 20rem at 100% 0%, rgba(124,98,246,0.24), transparent 65%) padding-box,
+    radial-gradient(28rem 16rem at 0% 100%, rgba(230,184,92,0.10), transparent 65%) padding-box, var(--glass-1) padding-box, var(--t-panel-rim) border-box;
+  box-shadow: var(--shine), var(--e2);
+}
+[data-theme="day"] .t-end {
+  background: radial-gradient(34rem 20rem at 100% 0%, rgba(120,92,230,0.10), transparent 65%) padding-box,
+    radial-gradient(28rem 16rem at 0% 100%, rgba(214,170,80,0.12), transparent 65%) padding-box, var(--glass-1) padding-box, var(--t-panel-rim) border-box;
+}
+@media (min-width: 48rem) { .t-end { padding: 2.5rem; } }
+.t-end ul.t-promise-list { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.25rem; color: var(--fg-muted); }
+/* Other tools: a glass rail; each row lights up on hover. */
+.t-other {
+  padding: 1.375rem 0.875rem 1rem; border-radius: var(--r-card);
+  border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--e1);
+}
+.t-other h2 { margin: 0 0 0.625rem; padding-inline: 0.5rem; font-family: var(--ff-display); font-size: calc(var(--fs-h3) * 1.1); line-height: var(--lh-h3); font-weight: 700; }
+.t-other ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.125rem; }
+.t-other a {
+  display: flex; align-items: center; gap: 0.75rem; min-height: 3rem; padding: 0.375rem 0.5rem; border-radius: 0.875rem;
+  color: var(--fg); text-decoration: none; border: 1px solid transparent;
+  transition: background 200ms var(--ease), color 200ms var(--ease);
+}
+.t-other a:hover, .t-other a:focus-visible { color: var(--accent); background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; }
+.t-other-icon {
+  width: 2.375rem; height: 2.375rem; flex: none; display: grid; place-items: center; border-radius: 0.75rem;
+  background: radial-gradient(70% 70% at 50% 35%, rgba(230,184,92,0.12), transparent 72%), var(--well); box-shadow: var(--t-inset);
+}
+.t-other-icon .media-icon { width: 2rem; }
+.t-other > p { margin: 0.5rem 0 0; padding-inline: 0.5rem; }
+.t-other > p a { display: inline; min-height: 0; padding: 0; border: 0; background: none; color: var(--accent); }
+.t-other > p a:hover { background: none; }
+.t-other-soon { font-size: var(--fs-caption); color: var(--fg-muted); margin-left: auto; white-space: nowrap; }
+.t-glyph-accent { color: var(--accent); }
+.t-glyph-heart { color: var(--color-trace-heart); }
+.t-glyph-head { color: var(--color-trace-head); }
+.t-glyph-life { color: var(--color-trace-life); }
+.t-glyph-fate { color: var(--color-trace-fate); }
+[data-theme="day"] .t-glyph-heart { color: var(--line-heart); }
+[data-theme="day"] .t-glyph-head { color: var(--line-head); }
+[data-theme="day"] .t-glyph-life { color: var(--line-life); }
+[data-theme="day"] .t-glyph-fate { color: var(--line-fate); }
+
+.t-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* ---------- choice cards (quizzes, signs) ---------- */
+.t-choice-glyph { width: 1.75rem; height: 1.75rem; color: var(--accent); filter: drop-shadow(0 0 6px rgba(230,184,92,0.35)); }
+[data-theme="day"] .t-choice-glyph { filter: none; }
+.t-choice-label { display: block; font-weight: 700; }
+.t-choice-hint { display: block; color: var(--fg-muted); font-size: var(--fs-caption); line-height: var(--lh-caption); margin-top: 0.125rem; }
+.t-q[hidden] { display: none; }
+
+/* ---------- measure panel (hand type) ---------- */
+.t-measure { padding-top: 1rem; background: var(--t-hair) top / 100% 1px no-repeat; }
+.t-measure summary { cursor: pointer; min-height: 3rem; display: flex; align-items: center; font-weight: 700; color: var(--accent); }
+.t-measure-body { display: grid; gap: 1rem; padding-top: 0.5rem; max-width: 26rem; }
+.t-field { display: flex; flex-direction: column; gap: 0.375rem; font-size: var(--fs-small); }
+.t-field input {
+  min-height: 3rem; padding: 0.5rem 0.875rem; border-radius: 0.875rem; border: 1px solid var(--control-border);
+  background: var(--well); box-shadow: var(--t-inset); color: var(--fg); font: inherit; font-size: var(--fs-body);
+  transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
+}
+.t-field input:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--control-border)); }
+.t-field input:focus { border-color: var(--accent); box-shadow: var(--t-inset), 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.t-field input::placeholder { color: var(--fg-faint); }
+
+/* ---------- palm map (tool 11) ---------- */
+.t-map { display: grid; gap: 1.5rem; }
+@media (min-width: 48rem) { .t-map { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 2rem; } }
+.t-map-figure { position: relative; isolation: isolate; width: 100%; max-width: 24rem; margin-inline: auto; aspect-ratio: 800 / 970; }
+/* A pool of light under the palm, like a piece on a plinth. */
+.t-map-figure::before, .t-quiz-figure::before {
+  content: ""; position: absolute; z-index: -1; inset: 4% -6% -4%; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 55%, rgba(124,98,246,0.30), transparent 72%), radial-gradient(40% 18% at 50% 96%, rgba(230,184,92,0.18), transparent 80%);
+}
+[data-theme="day"] .t-map-figure::before, [data-theme="day"] .t-quiz-figure::before {
+  background: radial-gradient(50% 50% at 50% 55%, rgba(120,92,230,0.14), transparent 72%), radial-gradient(40% 18% at 50% 96%, rgba(214,170,80,0.18), transparent 80%);
+}
+.t-map-svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 18px 28px rgba(0,0,0,0.45)); }
+[data-theme="day"] .t-map-svg { filter: drop-shadow(0 16px 24px rgba(23,19,61,0.22)); }
+.t-mount { fill: rgba(230,184,92,0.12); stroke: color-mix(in srgb, var(--color-gold) 70%, transparent); stroke-width: 1.4; stroke-dasharray: 4 4; }
+.t-map-line .t-halo { stroke-width: 7.5; }
+.t-map-line .t-line { stroke-width: 4; }
+.t-map-line, .t-mount { transition: opacity 320ms var(--ease); }
+.t-map-svg[data-active] .t-map-line:not(.is-active), .t-map-svg[data-active] .t-mount:not(.is-active) { opacity: 0.3; }
+.t-mount.is-active { fill: color-mix(in srgb, var(--color-gold) 38%, transparent); stroke-dasharray: none; stroke-width: 2.2; }
+.t-pin {
+  position: absolute; width: 3rem; height: 3rem; margin: -1.5rem 0 0 -1.5rem; padding: 0; border: 0; border-radius: 9999px;
+  background: transparent; display: grid; place-items: center; cursor: pointer; color: var(--color-gold);
+}
+.t-pin-heart { color: var(--color-trace-heart); }
+.t-pin-head { color: var(--color-trace-head); }
+.t-pin-life { color: var(--color-trace-life); }
+.t-pin-fate { color: var(--color-trace-fate); }
+/* Each pin: a lit bead with a soft halo of its own colour. */
+.t-pin-dot {
+  width: 1.25rem; height: 1.25rem; border-radius: 9999px; border: 2px solid var(--color-qr-light); background-color: currentColor;
+  box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 22%, transparent), 0 0 14px 1px color-mix(in srgb, currentColor 70%, transparent), 0 3px 6px rgba(0,0,0,0.45);
+  transition: transform 380ms var(--ease-spring), box-shadow 320ms var(--ease-out);
+}
+.t-pin-mount .t-pin-dot { width: 1rem; height: 1rem; border-color: var(--color-gold); background-color: var(--color-halo); }
+.t-pin:hover .t-pin-dot, .t-pin[aria-pressed="true"] .t-pin-dot { transform: scale(1.3); }
+.t-pin[aria-pressed="true"] .t-pin-dot {
+  box-sizing: content-box; outline: 3px solid var(--color-gold-bright); outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 25%, transparent), 0 0 22px 4px rgba(245,217,139,0.6);
+}
+.t-map-side { display: flex; flex-direction: column; gap: 1.25rem; }
+/* The meaning panel: an inset glass well the answer appears in. */
+.t-map-panel {
+  display: flex; flex-direction: column; gap: 0.625rem; padding: 1.25rem 1.375rem; min-height: 10rem; border-radius: var(--r-card);
+  border: 1px solid transparent; background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.10), rgba(230,184,92,0.18)) border-box;
+  box-shadow: var(--t-inset);
+}
+[data-theme="day"] .t-map-panel { background: var(--well) padding-box, linear-gradient(180deg, rgba(23,19,61,0.08), rgba(122,82,0,0.25)) border-box; }
+.t-map-panel p { margin: 0; }
+.t-map-panel-title { margin: 0; font-family: var(--ff-display); font-size: calc(var(--fs-h3) * 1.12); line-height: 1.25; font-weight: 700; }
+:lang(hi) .t-map-panel-title { font-size: var(--fs-h3); }
+.t-map-hi { color: var(--fg-muted); font-weight: 400; font-size: var(--fs-small); font-family: var(--ff-sans); }
+.t-map-list-title { margin: 0 0 0.5rem; font-weight: 700; font-size: var(--fs-small); color: var(--fg-muted); }
+.t-map-chips { list-style: none; margin: 0 0 0.875rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.t-map-chip {
+  display: inline-flex; align-items: center; gap: 0.5rem; min-height: 3rem; padding: 0.375rem 1rem; border-radius: 9999px;
+  border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--t-lift);
+  color: var(--fg); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer;
+  transition: transform 320ms var(--ease-out), background 200ms var(--ease), box-shadow 320ms var(--ease-out);
+}
+.t-map-chip:hover { background: var(--t-tile-hover) padding-box, var(--t-base) padding-box, var(--rim-hover) border-box; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .t-map-chip:hover { transform: translateY(-1px); } }
+.t-map-chip:active { transform: scale(0.97); }
+.t-map-chip[aria-pressed="true"] { background: var(--t-gold-fill) padding-box, var(--t-base) padding-box, var(--t-gold-rim) border-box; box-shadow: inset 0 1px 0 rgba(255,236,190,0.22), var(--t-gold-glow); }
+.t-chip-dot { width: 0.625rem; height: 0.625rem; border-radius: 9999px; flex: none; }
+.t-chip-heart { background-color: var(--color-trace-heart); box-shadow: 0 0 8px var(--color-trace-heart); }
+.t-chip-head { background-color: var(--color-trace-head); box-shadow: 0 0 8px var(--color-trace-head); }
+.t-chip-life { background-color: var(--color-trace-life); box-shadow: 0 0 8px var(--color-trace-life); }
+.t-chip-fate { background-color: var(--color-trace-fate); box-shadow: 0 0 8px var(--color-trace-fate); }
+.t-chip-mount { border: 1.5px solid var(--accent); }
+
+/* ---------- palm reading quiz (tool 12) ---------- */
+.t-quiz-progress {
+  align-self: flex-start; margin: 0; padding: 0.25rem 0.875rem; border-radius: 9999px; font-size: var(--fs-small); color: var(--fg-muted); font-weight: 700;
+  border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine);
+}
+.t-quiz-body { display: grid; gap: 1.5rem; }
+@media (min-width: 48rem) { .t-quiz-body { grid-template-columns: minmax(0, 16rem) minmax(0, 1fr); align-items: start; gap: 2rem; } }
+.t-quiz-figure { position: relative; isolation: isolate; width: 100%; max-width: 15rem; margin-inline: auto; aspect-ratio: 800 / 970; }
+.t-quiz-figure[hidden] { display: none; }
+.t-quiz-line { opacity: 0.18; transition: opacity 320ms var(--ease); }
+.t-quiz-line.is-on { opacity: 1; }
+.t-quiz-line.is-on .t-line { stroke-width: 4.4; }
+.t-quiz-line.is-on .t-halo { stroke-width: 8.5; }
+.t-fig .t-l-quiz { stroke: var(--color-gold); }
+.t-quiz-mount { fill: transparent; stroke: none; }
+.t-quiz-mount.is-on { fill: color-mix(in srgb, var(--color-gold) 45%, transparent); stroke: var(--color-halo); stroke-width: 2; }
+.t-quiz-q { display: flex; flex-direction: column; gap: 1rem; }
+.t-quiz-options { display: flex; flex-direction: column; gap: 0.625rem; }
+.t-quiz-option {
+  min-height: 3rem; padding: 0.75rem 1.125rem; border-radius: 1.125rem; text-align: left; font: inherit; font-weight: 600; cursor: pointer; color: var(--fg);
+  border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--t-lift);
+  transition: transform 320ms var(--ease-out), background 200ms var(--ease), box-shadow 320ms var(--ease-out), opacity 200ms var(--ease);
+}
+.t-quiz-option:hover:not(:disabled) { background: var(--t-tile-hover) padding-box, var(--t-base) padding-box, var(--rim-hover) border-box; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .t-quiz-option:hover:not(:disabled) { transform: translateX(3px); } }
+.t-quiz-option:active:not(:disabled) { transform: scale(0.99); }
+.t-quiz-option:disabled { cursor: default; opacity: 0.7; }
+.t-quiz-option.is-right {
+  opacity: 1;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--success) 24%, transparent), color-mix(in srgb, var(--success) 8%, transparent)) padding-box, var(--t-base) padding-box,
+    linear-gradient(145deg, color-mix(in srgb, var(--success) 95%, white), color-mix(in srgb, var(--success) 40%, transparent)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 12px 30px -14px color-mix(in srgb, var(--success) 70%, transparent);
+}
+.t-quiz-option.is-wrong { opacity: 1; background: transparent; border: 1px dashed var(--control-border); box-shadow: none; }
+.t-quiz-feedback { margin: 0; display: flex; gap: 0.5rem; align-items: flex-start; }
+.t-quiz-feedback:empty { display: none; }
+.t-quiz-mark { width: 1.25rem; height: 1.25rem; flex: none; margin-top: 0.2rem; color: var(--accent); }
+.t-quiz-score { display: flex; flex-direction: column; gap: 1rem; }
+.t-quiz-score p { margin: 0; }
+
+/* ---------- photo checker (tool 3) ---------- */
+.t-pc-start { display: flex; flex-direction: column; gap: 1rem; }
+.t-pc-tips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.t-pc-tips li {
+  display: inline-flex; align-items: center; gap: 0.375rem; min-height: 2rem; padding: 0.25rem 0.875rem; border-radius: 9999px;
+  border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; font-size: var(--fs-small);
+}
+.t-pc-tips svg { width: 1rem; height: 1rem; color: var(--accent); }
+/* On a desktop without a webcam button ([data-cam], WEB-DEC-059) the gallery picker is the one gold action (same 3D bar as .btn-gold). */
+@media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+  :not([data-cam]) > .t-pc-gallery, :not([data-cam]) > .t-pc-gallery.btn-secondary {
+    overflow: hidden; isolation: isolate; min-height: 3.25rem; border: 1px solid rgba(255,226,160,0.55);
+    background: linear-gradient(180deg, #FBE6A6 0%, #EFC873 38%, #DDAE55 70%, #C8963E 100%); color: var(--color-on-gold);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), inset 0 -3px 6px rgba(120,76,8,0.35),
+      0 1px 0 rgba(0,0,0,0.35), 0 10px 24px -10px rgba(230,184,92,0.75), 0 24px 60px -24px rgba(230,184,92,0.55);
+  }
+  :not([data-cam]) > .t-pc-gallery::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.65) 48%, transparent 64%);
+    transform: translateX(-120%); transition: transform 900ms var(--ease-out);
+  }
+  :not([data-cam]) > .t-pc-gallery:hover::before { transform: translateX(120%); }
+  :not([data-cam]) > .t-pc-gallery:hover, :not([data-cam]) > .t-pc-gallery.btn-secondary:hover {
+    transform: translateY(-2px); background: linear-gradient(180deg, #FBE6A6 0%, #EFC873 38%, #DDAE55 70%, #C8963E 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 6px rgba(120,76,8,0.35), 0 1px 0 rgba(0,0,0,0.35), 0 16px 34px -12px rgba(230,184,92,0.9), 0 30px 80px -24px rgba(230,184,92,0.6);
+  }
+  [data-theme="day"] :not([data-cam]) > .t-pc-gallery { border-color: rgba(160,110,20,0.5); }
+}
+.t-pc-review { display: grid; gap: 1.5rem; }
+@media (min-width: 48rem) { .t-pc-review { grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); align-items: start; gap: 2rem; } }
+.t-pc-photo { margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.t-pc-photo img {
+  display: block; width: 100%; max-height: 45vh; object-fit: contain; border-radius: 1.25rem; background: var(--well);
+  border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 0 0 5px rgba(255,255,255,0.03), var(--e1);
+}
+[data-theme="day"] .t-pc-photo img { border-color: #FFFFFF; box-shadow: 0 0 0 5px rgba(23,19,61,0.04), var(--e1); }
+.t-pc-photo img[hidden] { display: none; }
+.t-pc-results { display: flex; flex-direction: column; gap: 1rem; }
+.t-pc-after { display: flex; flex-direction: column; gap: 1rem; }
+.t-pc-after:empty { display: none; }
+.t-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.625rem; }
+.t-check {
+  display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.75rem 1rem; border-radius: 1rem;
+  border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine);
+}
+.t-check svg { width: 1.625rem; height: 1.625rem; flex: none; margin-top: -0.05rem; border-radius: 9999px; padding: 0.25rem; background: color-mix(in srgb, currentColor 16%, transparent); }
+.t-check-pass svg { color: var(--success); box-shadow: 0 0 14px -3px color-mix(in srgb, var(--success) 70%, transparent); }
+.t-check-fail svg { color: var(--warning); box-shadow: 0 0 14px -3px color-mix(in srgb, var(--warning) 70%, transparent); }
+.t-check-unknown svg { color: var(--fg-muted); }
+.t-check-label { font-weight: 700; }
+.t-check-state { color: var(--fg-muted); }
+.t-check-note { display: block; color: var(--fg-muted); font-size: var(--fs-small); }
+.t-opt-row { flex-direction: row; align-items: center; gap: 0.375rem; }
+.t-opt-row .t-opt-check { margin-top: 0; }
+
+/* ---------- the photo drop well (photo checker, photo tools, line finder) ---------- */
+/* Before the first photo: a glowing inset well with a gold dashed rim that brightens when you reach for it. */
+.t-drop {
+  position: relative; isolation: isolate; padding: 1.5rem 1rem 1.25rem; border-radius: 1.5rem;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 40%, transparent);
+  background: radial-gradient(70% 60% at 50% 0%, rgba(230,184,92,0.13), transparent 72%), radial-gradient(60% 60% at 50% 100%, rgba(124,98,246,0.14), transparent 72%), var(--well);
+  box-shadow: var(--t-inset);
+  transition: border-color 320ms var(--ease), box-shadow 420ms var(--ease-out);
+}
+[data-theme="day"] .t-drop {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: radial-gradient(70% 60% at 50% 0%, rgba(214,170,80,0.14), transparent 72%), radial-gradient(60% 60% at 50% 100%, rgba(120,92,230,0.07), transparent 72%), var(--well);
+}
+@media (min-width: 48rem) { .t-drop { padding: 2rem 2rem 1.5rem; } }
+.t-drop:hover, .t-drop:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 80%, transparent);
+  box-shadow: var(--t-inset), 0 0 0 4px rgba(230,184,92,0.07), 0 0 44px -12px rgba(230,184,92,0.45);
+}
+.t-drop > .t-actions { justify-content: center; }
+.t-drop > .t-actions .btn { max-width: 21rem; }
+.t-drop > .t-pc-tips { justify-content: center; }
+.t-drop > .t-caveat { text-align: center; }
+/* The palm plate: a luminous palm outline with a slow scan light across it. */
+.t-drop-orb {
+  position: relative; overflow: hidden; display: grid; place-items: center; width: 6rem; height: 7rem; margin: -0.25rem auto 0.25rem; border-radius: 1.5rem;
+  border: 1px solid transparent; background: radial-gradient(60% 55% at 50% 45%, rgba(230,184,92,0.16), transparent 75%) padding-box, var(--glass-1) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine), var(--e1);
+}
+.t-drop-palm { display: block; width: 4.4rem; height: auto; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4)); }
+[data-theme="day"] .t-drop-palm { filter: drop-shadow(0 5px 10px rgba(23,19,61,0.22)); }
+.t-drop-orb::after {
+  content: ""; position: absolute; left: 12%; right: 12%; top: 14%; height: 2px; border-radius: 2px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--color-gold-bright), transparent); box-shadow: 0 0 12px 2px rgba(245,217,139,0.55);
+  animation: t-scan 3.4s var(--ease) infinite alternate;
+}
+[data-theme="day"] .t-drop-orb::after { background: linear-gradient(90deg, transparent, var(--accent), transparent); box-shadow: 0 0 10px 1px rgba(122,82,0,0.3); }
+@keyframes t-scan { to { transform: translateY(4.75rem); } }
+@media (prefers-reduced-motion: reduce) { .t-drop-orb::after { display: none; } }
+/* After the first photo the well steps back: the pickers become plain "another photo" buttons. */
+[data-photo-check]:has([data-review]:not([hidden])) .t-drop,
+[data-photo-tool]:has(.t-result:not(:empty)) .t-drop,
+[data-line-finder]:has(.t-result:not(:empty)) .t-drop {
+  padding: 0; border: 0; background: none; box-shadow: none;
+}
+[data-photo-check]:has([data-review]:not([hidden])) .t-drop-orb,
+[data-photo-tool]:has(.t-result:not(:empty)) .t-drop-orb,
+[data-line-finder]:has(.t-result:not(:empty)) .t-drop-orb { display: none; }
+[data-photo-check]:has([data-review]:not([hidden])) .t-drop > *,
+[data-photo-tool]:has(.t-result:not(:empty)) .t-drop > * { justify-content: flex-start; text-align: left; }
+
+/* ---------- photo tools (v3): the visitor's own photo, measured on the device ---------- */
+.t-photo-tool { display: flex; flex-direction: column; gap: 1.25rem; }
+.t-photo-tool .t-result { gap: 1.5rem; }
+.t-work {
+  display: flex; gap: 1rem; align-items: flex-start; padding: 1.125rem 1.25rem; border-radius: var(--r-card);
+  border: 1px solid transparent; background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.10), rgba(230,184,92,0.2)) border-box;
+  box-shadow: var(--t-inset);
+}
+[data-theme="day"] .t-work { background: var(--well) padding-box, linear-gradient(180deg, rgba(23,19,61,0.08), rgba(122,82,0,0.25)) border-box; }
+.t-work[hidden] { display: none; }
+.t-work-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+.t-work-text { margin: 0; }
+.t-work-spin {
+  flex: none; width: 1.625rem; height: 1.625rem; margin-top: 0.0625rem; border-radius: 9999px;
+  background: conic-gradient(from 0deg, transparent 0 25%, var(--color-gold) 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  filter: drop-shadow(0 0 6px rgba(230,184,92,0.6)); animation: t-spin 0.9s linear infinite;
+}
+[data-theme="day"] .t-work-spin { background: conic-gradient(from 0deg, transparent 0 25%, var(--accent) 100%); filter: none; }
+@keyframes t-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .t-work-spin { animation: none; background: var(--accent); } }
+/* The progress bar: a gold bar in a well, with a light sweeping along it. */
+.t-work-bar { width: 100%; height: 0.5rem; appearance: none; border: 0; border-radius: 9999px; overflow: hidden; background-color: var(--surface-3); accent-color: var(--color-gold); box-shadow: var(--t-inset); }
+.t-work-bar[hidden] { display: none; }
+.t-work-bar::-webkit-progress-bar { background: var(--well); border-radius: 9999px; box-shadow: var(--t-inset); }
+.t-work-bar::-webkit-progress-value {
+  border-radius: 9999px; box-shadow: 0 0 10px rgba(230,184,92,0.6);
+  background: linear-gradient(100deg, transparent 35%, rgba(255,255,255,0.75) 50%, transparent 65%) no-repeat, var(--gold-gradient);
+  background-size: 50% 100%, 100% 100%; animation: t-sweep 1.6s linear infinite;
+}
+.t-work-bar::-moz-progress-bar { background-image: var(--gold-gradient); border-radius: 9999px; box-shadow: 0 0 10px rgba(230,184,92,0.6); }
+@keyframes t-sweep { from { background-position: -100% 0, 0 0; } to { background-position: 250% 0, 0 0; } }
+.t-file-label .icon, .t-soon .btn .icon { width: 1.25rem; height: 1.25rem; flex: none; }
+
+/* The photo with what the model found (hand-figure.ts, HandExample.astro, lines-figure.ts): a lit frame. */
+.t-ov-figure { margin: 0; display: flex; flex-direction: column; gap: 0.875rem; min-width: 0; }
+.t-ov-frame {
+  position: relative; width: 100%; margin-inline: auto; border-radius: 1.25rem; overflow: hidden;
+  background-color: var(--page); border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 0 0 5px rgba(255,255,255,0.03), var(--e1);
+}
+[data-theme="day"] .t-ov-frame { border-color: #FFFFFF; box-shadow: 0 0 0 5px rgba(23,19,61,0.04), var(--e1); }
+/* The <img> sets the size from its width/height attributes (no inline style: the CSP forbids it); the drawing covers it exactly. */
+.t-ov-frame img { display: block; width: 100%; height: auto; }
+.t-ov-frame .t-ov { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.t-ov { pointer-events: none; }
+.t-ov-photo { display: block; width: 100%; height: auto; }
+.t-ov path, .t-ov-photo path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.t-ov-halo { stroke: var(--color-halo); opacity: 0.85; }
+.t-ov-bone { stroke: var(--color-qr-light); opacity: 0.75; }
+.t-ov-dots circle { fill: var(--color-gold-bright); stroke: var(--color-halo); stroke-width: 1.5; }
+.t-ov-life .t-ov-line { stroke: var(--color-trace-life); }
+.t-ov-head .t-ov-line { stroke: var(--color-trace-head); }
+.t-ov-heart .t-ov-line { stroke: var(--color-trace-heart); }
+.t-ov-fate .t-ov-line { stroke: var(--color-trace-fate); }
+.t-ov-gold .t-ov-line { stroke: var(--color-gold-bright); }
+.t-ov-label rect { fill: var(--color-halo); opacity: 0.92; stroke-width: 2; }
+.t-ov-label text { fill: var(--color-qr-light); font-family: var(--ff-sans); font-weight: 700; }
+.t-ov-life.t-ov-label rect { stroke: var(--color-trace-life); }
+.t-ov-head.t-ov-label rect { stroke: var(--color-trace-head); }
+.t-ov-heart.t-ov-label rect { stroke: var(--color-trace-heart); }
+.t-ov-fate.t-ov-label rect { stroke: var(--color-trace-fate); }
+.t-ov-gold.t-ov-label rect { stroke: var(--color-gold-bright); }
+.t-ov-caption { display: flex; flex-direction: column; gap: 0.5rem; }
+.t-ov-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.375rem; font-size: var(--fs-small); }
+.t-ov-legend li { display: flex; gap: 0.625rem; align-items: flex-start; }
+.t-ov-key { flex: none; width: 1.25rem; height: 0.3125rem; margin-top: 0.6rem; border-radius: 9999px; }
+.t-ov-key.t-ov-life { background-color: var(--color-trace-life); box-shadow: 0 0 8px var(--color-trace-life); }
+.t-ov-key.t-ov-head { background-color: var(--color-trace-head); box-shadow: 0 0 8px var(--color-trace-head); }
+.t-ov-key.t-ov-heart { background-color: var(--color-trace-heart); box-shadow: 0 0 8px var(--color-trace-heart); }
+.t-ov-key.t-ov-fate { background-color: var(--color-trace-fate); box-shadow: 0 0 8px var(--color-trace-fate); }
+.t-ov-key.t-ov-gold { background-color: var(--color-gold); box-shadow: 0 0 8px var(--color-gold); }
+
+/* Result layout: the photo beside the key numbers on wide screens. */
+.t-result-head { display: flex; flex-direction: column; gap: 0.5rem; }
+.t-result-grid { display: grid; gap: 1.5rem; }
+@media (min-width: 48rem) { .t-result-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); align-items: start; gap: 2rem; } }
+.t-result-grid .t-ov-frame { max-width: 26rem; }
+.t-result-side, .t-result-cards { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.t-result-cards > * { max-width: 42.5rem; }
+.t-problem { display: grid; gap: 1.25rem; }
+@media (min-width: 48rem) { .t-problem { grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); align-items: start; } }
+.t-problem-text { display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+.t-problem-text p { margin: 0; }
+.t-problem .t-ov-frame { max-width: 14rem; }
+
+/* A measured number and where it sits on its scale. */
+.t-measured { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.875rem; background: var(--t-hair) top / 100% 1px no-repeat; }
+.t-group-title + .t-measured { background: none; padding-top: 0; }
+.t-measured-head { margin: 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; }
+.t-measured-title { color: var(--fg-muted); font-size: var(--fs-small); }
+.t-measured-value { font-weight: 700; }
+.t-scale { display: flex; flex-direction: column; gap: 0.375rem; padding-top: 0.25rem; }
+.t-scale-track { position: relative; height: 0.75rem; border-radius: 9999px; background: var(--well); box-shadow: var(--t-inset); }
+.t-scale-zone { position: absolute; top: 0; bottom: 0; }
+.t-scale-zone-0 { border-radius: 9999px 0 0 9999px; background-color: rgba(255,255,255,0.03); }
+.t-scale-zone-1 { background: linear-gradient(180deg, rgba(230,184,92,0.30), rgba(230,184,92,0.12)); border-inline: 1px solid var(--hairline); }
+.t-scale-zone-2 { border-radius: 0 9999px 9999px 0; background-color: rgba(255,255,255,0.03); }
+[data-theme="day"] .t-scale-zone-0, [data-theme="day"] .t-scale-zone-2 { background-color: rgba(23,19,61,0.03); }
+[data-theme="day"] .t-scale-zone-1 { background: linear-gradient(180deg, rgba(214,170,80,0.34), rgba(214,170,80,0.14)); }
+/* The marker: a gold bead with a soft glow. */
+.t-scale-marker {
+  position: absolute; top: 50%; width: 1.375rem; height: 1.375rem; margin: -0.6875rem 0 0 -0.6875rem; border-radius: 9999px;
+  background: radial-gradient(circle at 35% 30%, #FFF4D2, var(--color-gold-bright) 40%, var(--color-gold) 75%); border: 3px solid var(--color-halo);
+  box-shadow: 0 0 0 1px rgba(245,217,139,0.4), 0 0 16px rgba(245,217,139,0.6), 0 2px 5px rgba(0,0,0,0.45);
+}
+.t-scale-names { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--fg-muted); }
+.t-scale-names span:nth-child(2) { text-align: center; }
+.t-scale-names span:nth-child(3) { text-align: right; }
+
+/* Reading cards (finger reader): a coloured edge of light on the left. */
+.t-read { gap: 0.625rem; }
+.t-read-finding { margin: 0; font-weight: 700; }
+.t-read-head { box-shadow: inset 3px 0 0 var(--color-trace-head), var(--shine), var(--e1); }
+.t-read-fate { box-shadow: inset 3px 0 0 var(--color-trace-fate), var(--shine), var(--e1); }
+[data-theme="day"] .t-read-head { box-shadow: inset 3px 0 0 var(--line-head), var(--shine), var(--e1); }
+[data-theme="day"] .t-read-fate { box-shadow: inset 3px 0 0 var(--line-fate), var(--shine), var(--e1); }
+
+/* "What you get": a real result on a sample photo, framed as a showcase card. */
+.t-example {
+  margin: 0; display: grid; gap: 1.25rem; padding: 1.25rem; border-radius: var(--r-card);
+  border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--e1);
+}
+@media (min-width: 40rem) { .t-example { grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); align-items: center; gap: 1.5rem; padding: 1.5rem; } }
+.t-example-photo { width: 100%; max-width: 11rem; margin-inline: auto; }
+.t-example-text { display: flex; flex-direction: column; gap: 0.375rem; }
+.t-example-kicker { align-self: flex-start; font-size: var(--fs-caption); font-weight: 700; color: var(--accent); letter-spacing: 0.02em; }
+.t-example-summary { font-family: var(--ff-display); font-weight: 700; font-size: calc(var(--fs-h3) * 1.12); line-height: 1.25; }
+:lang(hi) .t-example-summary { font-size: var(--fs-h3); line-height: var(--lh-h3); }
+.t-example-facts { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.125rem; font-size: var(--fs-small); }
+.t-example-credit { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--fg-muted); }
+.t-example-compact { padding: 0; border: 0; background: transparent; box-shadow: none; grid-template-columns: minmax(0, 6.5rem) minmax(0, 1fr); gap: 0.875rem; }
+@media (min-width: 40rem) { .t-example-compact { padding: 0; gap: 1rem; } }
+.t-example-compact .t-example-photo { max-width: 6.5rem; }
+.t-example-compact .t-example-summary { font-family: var(--ff-sans); font-size: var(--fs-body); line-height: var(--lh-body); }
+
+/* The no-photo way, second: a glass drawer. */
+.t-alt {
+  border-radius: 1.25rem; border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--t-lift);
+  transition: background 200ms var(--ease);
+}
+.t-alt:hover, .t-alt[open] { background: var(--glass-1) padding-box, var(--rim-hover) border-box; }
+.t-alt > summary { cursor: pointer; list-style: none; min-height: 3rem; padding: 1rem 3.5rem 1rem 1.25rem; position: relative; font-weight: 700; border-radius: inherit; }
+.t-alt > summary::-webkit-details-marker { display: none; }
+/* The summary's heading (SEO: "hand type quiz") looks exactly like the plain summary text. */
+.t-alt-h { display: inline; margin: 0; font: inherit; letter-spacing: inherit; }
+.t-alt > summary::before {
+  content: ""; position: absolute; right: 0.875rem; top: 50%; width: 2rem; height: 2rem; margin-top: -1rem; border-radius: 9999px;
+  border: 1px solid transparent; background: var(--t-gold-fill) padding-box, var(--t-base) padding-box, var(--rim) border-box;
+}
+.t-alt > summary::after {
+  content: ""; position: absolute; right: 1.625rem; top: 50%; width: 0.5rem; height: 0.5rem; margin-top: -0.375rem;
+  border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(45deg);
+  transition: transform 320ms var(--ease-out), margin-top 320ms var(--ease-out);
+}
+.t-alt[open] > summary::after { transform: rotate(225deg); margin-top: -0.125rem; }
+.t-alt-body { padding: 0.25rem 1.25rem 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* Line finder. */
+.t-soon { display: flex; flex-direction: column; gap: 0.875rem; }
+.t-soon p { margin: 0; }
+.t-soon[hidden], [data-on][hidden] { display: none; }
+.t-soon-title { font-family: var(--ff-display); font-weight: 700; font-size: calc(var(--fs-h3) * 1.15); line-height: 1.25; }
+:lang(hi) .t-soon-title { font-size: var(--fs-h3); }
+.t-hand-pick .t-q-legend { font-family: var(--ff-sans); font-size: var(--fs-body); letter-spacing: 0; }
+.t-line-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.t-line-chip {
+  display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.25rem; padding: 0.25rem 0.875rem; border-radius: 9999px;
+  border: 1px solid transparent; background: var(--t-tile) padding-box, var(--t-base) padding-box, var(--rim) border-box; box-shadow: var(--shine); font-size: var(--fs-small);
+}
+.t-line-chip-missing { background: transparent; border: 1px dashed var(--control-border); box-shadow: none; color: var(--fg-muted); }
+.t-preview-note {
+  margin: 0; padding: 0.625rem 0.875rem; border-radius: 0.875rem; font-size: var(--fs-small); font-weight: 700;
+  border: 1px solid transparent; background: var(--t-gold-fill) padding-box, var(--t-base) padding-box, var(--t-gold-rim) border-box;
+}
+
+/* Left vs right: two photo wells side by side. */
+.t-compare-slots { display: grid; gap: 1rem; }
+@media (min-width: 48rem) { .t-compare-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } }
+.t-slot {
+  display: flex; flex-direction: column; gap: 0.875rem; padding: 1.25rem; border-radius: var(--r-card); min-width: 0;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 34%, transparent);
+  background: radial-gradient(70% 60% at 50% 0%, rgba(230,184,92,0.10), transparent 72%), var(--well); box-shadow: var(--t-inset);
+  transition: border-color 320ms var(--ease), box-shadow 420ms var(--ease-out);
+}
+.t-slot:hover, .t-slot:focus-within { border-color: color-mix(in srgb, var(--accent) 75%, transparent); box-shadow: var(--t-inset), 0 0 40px -14px rgba(230,184,92,0.45); }
+.t-slot:has(.t-ov-frame) { border-style: solid; border-color: color-mix(in srgb, var(--accent) 22%, transparent); }
+/* A small porcelain hand on each empty slot (the second one mirrored: the other hand). */
+.t-slot-hand { display: block; width: 3.25rem; align-self: center; }
+.t-slot-hand img { display: block; width: 100%; height: auto; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.35)); }
+.t-slot:has(.t-ov-frame) .t-slot-hand { display: none; }
+.t-slot-title { margin: 0; font-family: var(--ff-display); font-size: calc(var(--fs-h3) * 1.12); line-height: 1.25; font-weight: 700; letter-spacing: -0.012em; }
+:lang(hi) .t-slot-title { font-size: var(--fs-h3); letter-spacing: 0; }
+.t-slot-body { display: flex; flex-direction: column; gap: 0.625rem; min-height: 3rem; }
+.t-slot-body p { margin: 0; }
+.t-slot-body .t-ov-frame { max-width: 18rem; }
+.t-slot-problem { margin: 0; font-size: var(--fs-body); font-weight: 700; outline: none; }
+.t-slot .t-actions .btn { flex: 1 1 10rem; }
+.t-compare-table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+.t-compare-table th, .t-compare-table td { text-align: left; padding: 0.75rem 0.5rem; vertical-align: top; background: var(--t-hair) bottom / 100% 1px no-repeat; }
+.t-compare-table thead th { color: var(--fg-muted); font-weight: 700; }
+.t-compare-table tbody th { font-weight: 400; }
+.t-compare-table tr.is-diff td { font-weight: 700; }
+.t-compare-table tr.is-diff th, .t-compare-table tr.is-diff td { background: var(--t-hair) bottom / 100% 1px no-repeat, linear-gradient(90deg, rgba(230,184,92,0.08), transparent); }
+.t-diff-tag {
+  display: inline-block; margin-left: 0.5rem; font-size: var(--fs-caption); line-height: var(--lh-caption); padding: 0 0.5rem; border-radius: 9999px; color: var(--fg);
+  border: 1px solid transparent; background: var(--t-gold-fill) padding-box, var(--t-base) padding-box, var(--t-gold-rim) border-box;
+}
+.t-compare-lines { display: grid; gap: 1rem; }
+@media (min-width: 48rem) { .t-compare-lines { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+[data-first-only][hidden], .t-pc-tips[hidden] { display: none; }
+
+/* ---------- desktop glass: blur only on big screens with a real pointer ---------- */
+@media (min-width: 64rem) and (hover: hover) and (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(16px)) {
+    :root:not([data-lite]) .t-card, :root:not([data-lite]) .t-other, :root:not([data-lite]) .t-end { backdrop-filter: blur(16px) saturate(1.2); }
+  }
+}
+@media print {
+  .t-card, .t-group, .t-next, .t-says, .t-limits, .t-end, .t-other, .t-example, .t-faq details { box-shadow: none; background: #FFFFFF; border: 1px solid #E4DFF3; }
+  .t-card::before, .t-card::after, .t-drop-orb { display: none; }
+}

@@ -10,24 +10,18 @@
  * weighs on the first paint.
  */
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { googleUserOf } from '../auth/live';
+import { sharedSupabase } from '../supabase-client';
 import type { HandSide } from './palm/features/observation/taxonomy';
 import type { ReadingOutcome } from './palm/features/reading/pipeline';
-import {
-  parseBalance,
-  parseExtraction,
-  parseScan,
-  type Balance,
-  type CodeResult,
-  type EventRow,
-  type ReadingApi,
-  type ScanHint,
-  type VerifyResult,
-  type WebSession,
-  type WebUser,
-} from './api';
+import { parseBalance, parseExtraction, parseScan, type Balance, type EventRow, type ReadingApi, type ScanHint, type WebSession, type WebUser } from './api';
+import { codeResultOf, verifyResultOf } from '../auth/codes';
 import { ReadingError, errorFromFunction, errorFromRpc } from './errors';
+
+// Moved to lib/auth/codes.ts (the account page shares them); kept exported here for existing callers.
+export { codeResultOf, verifyResultOf } from '../auth/codes';
 
 /** Per request, as the app: a cold scanner answers inside 65 s, the reading inside 100 s. */
 const SCAN_MS = 65_000;
@@ -43,26 +37,6 @@ interface AuthErrorLike {
 function userOf(user: { id: string; email?: string | null; is_anonymous?: boolean } | null | undefined): WebUser | null {
   if (!user) return null;
   return { id: user.id, email: user.email || null, isGuest: user.is_anonymous === true };
-}
-
-/** Supabase Auth error → the sheet's outcome (never Supabase's raw text). */
-export function codeResultOf(error: AuthErrorLike): CodeResult {
-  const text = String(error.message ?? '').toLowerCase();
-  const code = String(error.code ?? '');
-  if (code === 'email_exists' || text.includes('already been registered') || text.includes('already registered')) return 'taken';
-  if (code === 'otp_disabled' || code === 'email_provider_disabled' || code === 'signup_disabled' || text.includes('disabled')) return 'unavailable';
-  if (code === 'user_not_found' || text.includes('signups not allowed')) return 'invalid';
-  if (code.startsWith('over_') || text.includes('rate limit') || text.includes('security purposes') || error.status === 429) return 'wait';
-  if (code === 'email_address_invalid' || text.includes('invalid')) return 'invalid';
-  throw new ReadingError(/fetch|network/i.test(text) ? 'offline' : 'server', code || 'auth');
-}
-
-export function verifyResultOf(error: AuthErrorLike): VerifyResult {
-  const text = String(error.message ?? '').toLowerCase();
-  const code = String(error.code ?? '');
-  if (code.startsWith('over_') || text.includes('rate limit') || error.status === 429) return 'wait';
-  if (/fetch|network/.test(text)) throw new ReadingError('offline', 'verify');
-  return 'wrong';
 }
 
 /**
@@ -96,10 +70,8 @@ function postWithUpload(url: string, headers: Record<string, string>, body: stri
 export function createLiveApi(options: { apiUrl: string; publishableKey: string; fetchImpl?: typeof fetch }): ReadingApi {
   const { apiUrl, publishableKey } = options;
   const doFetch = options.fetchImpl ?? ((input: RequestInfo | URL, init?: RequestInit) => fetch(input, init));
-  const supabase: SupabaseClient = createClient(apiUrl, publishableKey, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'palmsays-auth' },
-    global: { fetch: doFetch },
-  });
+  // The page's one shared client (same storage key as the account page; a test's fetch gets its own).
+  const supabase: SupabaseClient = sharedSupabase({ apiUrl, publishableKey, fetchImpl: options.fetchImpl });
 
   async function accessToken(): Promise<string> {
     const { data } = await supabase.auth.getSession();
@@ -244,6 +216,11 @@ export function createLiveApi(options: { apiUrl: string; publishableKey: string;
     async verifyCode(email, code, kind) {
       const { error } = await supabase.auth.verifyOtp({ email, token: code, type: kind });
       return error ? verifyResultOf(error) : 'ok';
+    },
+
+    async googleSignIn(idToken, nonce) {
+      const { data } = await supabase.auth.getSession();
+      return googleUserOf(supabase, { token: idToken, nonce, isGuest: data.session?.user.is_anonymous === true });
     },
 
     async logEvents(rows: EventRow[], keepalive = false) {

@@ -38,7 +38,7 @@ export interface WhichHandResult {
   otherView: string;
 }
 
-export const CHEIRO_HANDS: Cite = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. XVII — Right and Left Hands' };
+export const CHEIRO_HANDS: Cite = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. XVII: Right and Left Hands' };
 export const DALE_HAND: Cite = { book: 'dale-indian-palmistry-1895', locator: 'The Hand to Examine' };
 
 const other = (hand: 'right' | 'left'): 'right' | 'left' => (hand === 'right' ? 'left' : 'right');
@@ -102,7 +102,7 @@ export function whichHand(answers: WhichHandAnswers): WhichHandResult | null {
   if (answers.writing === 'both') {
     return {
       hand: 'either',
-      headline: 'Read either hand — start with the clearer one',
+      headline: 'Read either hand: start with the clearer one',
       why: [
         'You use both hands, so the tradition of one writing hand and one other hand is not applied.',
         'Cheiro’s advice is to look at both hands together and see whether they agree.',
@@ -117,7 +117,7 @@ export function whichHand(answers: WhichHandAnswers): WhichHandResult | null {
       hand: other(writing),
       headline: `Read your ${other(writing)} hand`,
       why: [
-        `It is not your writing hand. Tradition reads it as your natural tendencies — what you started with.`,
+        `It is not your writing hand. Tradition reads it as your natural tendencies: what you started with.`,
         'Cheiro reads the right hand as what a person has developed and the left as what they were born with; in palmistry tradition that is taken to mean the writing hand and the other one.',
       ],
       cites,
@@ -127,7 +127,7 @@ export function whichHand(answers: WhichHandAnswers): WhichHandResult | null {
   if (answers.goal === 'both') {
     return {
       hand: 'both',
-      headline: `Read both hands — start with your ${writing}`,
+      headline: `Read both hands: start with your ${writing}`,
       why: [
         `Your ${writing} hand is your writing hand: tradition reads it as the life you are making now.`,
         `Your ${other(writing)} hand is read as what you started with. Cheiro says to compare the two: where they agree, the sign is read more firmly.`,

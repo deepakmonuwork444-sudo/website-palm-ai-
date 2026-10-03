@@ -1,0 +1,59 @@
+---
+/**
+ * "Check yourself" (guide v4, WEB-DEC-047): three questions, one right answer
+ * each (a line guide passes `line` for its own set), and a short answer for EVERY option, shown when it is picked (radios +
+ * :has(), no JS; without :has() every answer shows). "Yes, that's right." /
+ * "Not quite." say it in words. The first question's line is the scanner's
+ * own, traced in neutral gold so its colour gives nothing away.
+ */
+import { isLive } from '../../config/pages';
+import { localeFromPath, localizePath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { guideScan, lineCrop, type GuideLine } from '../../lib/guides/traced-palm';
+import PhotoCrop from './PhotoCrop.astro';
+import './teach.css';
+
+interface Props {
+  /** A line guide's own questions (strings teach.lineQuiz); default: the /palm-reading/ set. */
+  line?: GuideLine;
+}
+
+const { line } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const t = guideStrings(locale).teach;
+const scan = guideScan();
+const items = line ? t.lineQuiz[line] : t.quiz;
+const quizHref = localizePath('/tools/palm-reading-quiz/', locale);
+---
+
+<div class="tb tb-quiz">
+  {
+    items.map((item, qi) => {
+      const box = item.crop ? lineCrop(scan, item.crop) : null;
+      return (
+        <fieldset class="tb-qz tb-well">
+          <legend>
+            {qi + 1}. {item.q}
+          </legend>
+          {box && item.crop && <PhotoCrop box={box} lines={[item.crop]} gold alt={t.quizCropAlt} />}
+          <div class="tb-opts">
+            {item.options.map((option, oi) => (
+              <label class="tb-opt">
+                <input type="radio" name={`quiz-${qi + 1}`} value={String(oi)} />
+                {option.text}
+              </label>
+            ))}
+          </div>
+          <div aria-live="polite">
+            {item.options.map((option, oi) => (
+              <p class="tb-fb" data-i={String(oi)}>
+                <strong>{option.ok ? t.right : t.wrong}</strong> {option.fb}
+              </p>
+            ))}
+          </div>
+        </fieldset>
+      );
+    })
+  }
+  {isLive(quizHref) && <p class="tb-more"><a class="text-link" href={quizHref}>{t.quizMore}</a></p>}
+</div>

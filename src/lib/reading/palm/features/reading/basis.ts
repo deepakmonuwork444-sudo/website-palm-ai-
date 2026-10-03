@@ -1,4 +1,4 @@
-// COPIED from palm-ai-new--feat-m1-foundation/src/features/reading/basis.ts at app commit 38389f51b74d (2026-09-26).
+// COPIED from palm-ai-new--feat-m1-foundation/src/features/reading/basis.ts at app commit fbc2232d837f (2026-09-30).
 // Do not edit by hand: change the app, then run `node scripts/sync-palm-lib.mjs` (ARCHITECTURE.md F7).
 // @ts-nocheck
 import type { LineObservation, PalmObservation } from '../observation/schema';
@@ -36,7 +36,7 @@ export const REPORT_LINE_NAMES: Record<ReportLine, Bi> = {
 export const BASIS_LABELS: Record<LineBasis, Bi> = {
   traced: { en: 'Traced on your photo', hi: 'आपकी फोटो पर ट्रेस की गई' },
   ai_photo: { en: 'Seen by AI in your photo, not traced', hi: 'AI ने फोटो में देखी, ट्रेस नहीं की गई' },
-  not_read: { en: 'Not read — not seen clearly', hi: 'नहीं पढ़ी गई — साफ़ नहीं दिखी' },
+  not_read: { en: 'Not read — not traced or not clear', hi: 'नहीं पढ़ी गई — ट्रेस नहीं हुई या साफ़ नहीं दिखी' },
 };
 
 const LEVEL_WORDS: Record<ConfidenceLevel, Bi> = {
@@ -113,8 +113,8 @@ export function readingBasis(observation: PalmObservation): ReadingBasis {
   };
   const notReadText: Bi = notRead.length
     ? {
-        en: ` Not read, because they were not seen clearly: ${joinNames(notRead, 'en')} ${notRead.length === 1 ? 'line' : 'lines'} — nothing in this report is based on ${notRead.length === 1 ? 'it' : 'them'}.`,
-        hi: ` साफ़ न दिखने के कारण नहीं पढ़ी गईं: ${joinNames(notRead, 'hi')} रेखा — इस रिपोर्ट में कुछ भी इन पर आधारित नहीं है।`,
+        en: ` Not read (not traced on this photo, or not clear enough): ${joinNames(notRead, 'en')} ${notRead.length === 1 ? 'line' : 'lines'} — nothing in this report is based on ${notRead.length === 1 ? 'it' : 'them'}.`,
+        hi: ` नहीं पढ़ी गईं (इस फोटो पर ट्रेस नहीं हुईं, या साफ़ नहीं दिखीं): ${joinNames(notRead, 'hi')} रेखा — इस रिपोर्ट में कुछ भी इन पर आधारित नहीं है।`,
       }
     : { en: '', hi: '' };
 

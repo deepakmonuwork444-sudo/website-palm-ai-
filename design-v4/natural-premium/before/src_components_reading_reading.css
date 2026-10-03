@@ -1,0 +1,649 @@
+/*
+ * The reading island (DESIGN_SYSTEM.md §7.3–7.6, §7.12). Tokens only (global.css).
+ * One gold action per state; the at-a-glance card is the page's one gold frame.
+ */
+
+.rd-app { display: flex; flex-direction: column; gap: 1rem; }
+.rd-app :where(p, h2, h3, h4, ul, ol) { margin: 0; }
+.rd-topbar { display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; min-height: 2.75rem; }
+.rd-badge { padding: 0.25rem 0.625rem; border-radius: 0.5rem; background: var(--surface-2); border: 1px solid var(--edge); color: var(--fg-muted); }
+.rd-lang {
+  min-height: 2.75rem; padding: 0.25rem 1rem; border-radius: 9999px; border: 1px solid var(--control-border);
+  background: transparent; color: var(--fg); font: inherit; cursor: pointer;
+}
+.rd-lang:hover { border-color: var(--accent); }
+
+.rd-card {
+  display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem; border-radius: 1.75rem;
+  background-color: var(--surface-1); border: 1px solid var(--edge);
+}
+.rd-pick { border-color: var(--hairline); }
+.rd-center { align-items: center; text-align: center; padding-block: 2.5rem; }
+.rd-muted { color: var(--fg-muted); }
+.rd-strong { font-weight: 700; }
+.rd-note { padding: 0.75rem 1rem; border-radius: 0.75rem; background: var(--surface-2); border: 1px solid var(--edge); }
+.rd-icon { width: 1.25rem; height: 1.25rem; flex: none; }
+
+.rd-tips { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.rd-tips li {
+  display: inline-flex; align-items: center; gap: 0.375rem; min-height: 2.25rem; padding: 0.25rem 0.75rem;
+  border-radius: 9999px; border: 1px solid var(--edge); background: var(--surface-2); font-size: var(--fs-small);
+}
+.rd-tips .rd-icon { width: 1rem; height: 1rem; color: var(--success); }
+.rd-file-buttons { display: flex; flex-direction: column; gap: 0.5rem; align-items: stretch; }
+.rd-link-button {
+  align-self: center; min-height: 3rem; background: none; border: 0; padding: 0.5rem; font: inherit; cursor: pointer;
+}
+.rd-free { padding: 0.75rem 1rem; border-radius: 0.75rem; background: var(--accent-soft); color: var(--fg); }
+
+.rd-privacy { border-top: 1px solid var(--edge); padding-top: 0.75rem; }
+.rd-privacy summary { display: flex; gap: 0.5rem; align-items: flex-start; cursor: pointer; list-style: none; color: var(--fg-muted); min-height: 2.75rem; }
+.rd-privacy summary::-webkit-details-marker { display: none; }
+.rd-privacy summary .rd-icon { color: var(--accent); margin-top: 0.1rem; }
+.rd-privacy ol { margin: 0.75rem 0 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; color: var(--fg); }
+
+.rd-notice {
+  display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.875rem 1rem; border-radius: 0.75rem;
+  background: var(--surface-2); border: 1px solid var(--edge);
+}
+.rd-notice > .rd-icon { color: var(--accent); margin-top: 0.15rem; }
+.rd-notice > div { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+.rd-notice-line { color: var(--warning); font-weight: 700; }
+
+/* Photo + traced lines (§7.5): wrapper = the photo's aspect ratio; img + svg fill it. */
+.rd-photo-figure { margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+.rd-photo {
+  position: relative; width: min(100%, calc(45vh * var(--rd-aspect, 0.75))); margin-inline: auto; overflow: hidden;
+  border-radius: 1.25rem; background: var(--surface-2); border: 1px solid var(--edge);
+}
+.rd-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; display: block; }
+
+/*
+ * Traced lines on a photo, the app's look (WEB-DEC-043): a colour glow, a fine
+ * core and a white sheen, no dark halo; dashed when faint. Widths are screen
+ * px (the SVG is drawn in the photo box's own pixels). Colours: the website's
+ * classic trace colours. The overlay ink is fixed (it sits on a photo, in any theme).
+ */
+.rd-live, .rd-rphoto { --ov-bg: #0B0A1F; --ov-text: #F6F0E1; --ov-gold: var(--color-gold-bright); --ov-accent: var(--color-gold); }
+.rd-lc-life { --lc: var(--color-trace-life); }
+.rd-lc-head { --lc: var(--color-trace-head); }
+.rd-lc-heart { --lc: var(--color-trace-heart); }
+.rd-lc-fate { --lc: var(--color-trace-fate); }
+.rd-st path, .rd-live-draw { fill: none; stroke: var(--lc); stroke-linecap: round; stroke-linejoin: round; }
+.rd-st .rd-l-glow, .rd-live-draw.rd-l-glow { stroke-opacity: 0.22; stroke-width: 3.5; }
+.rd-st .rd-l-core, .rd-live-draw.rd-l-core { stroke-width: 1; }
+.rd-st .rd-l-sheen { stroke: var(--ov-text); stroke-opacity: 0.55; stroke-width: 0.4; }
+.rd-st { transition: opacity var(--dur-normal) var(--ease); }
+
+/* The live scan (LiveScan.tsx): one camera view holds the photo and every mark. */
+.rd-live-cam { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.rd-live-overlay, .rd-live-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.rd-live-svg { overflow: visible; }
+/* Own layers: the mask paints once; the drawing lines repaint only their own layer (low-end phones). */
+.rd-live-mask, .rd-live-marks { will-change: opacity; }
+.rd-live-dim { fill: var(--ov-bg); }
+.rd-live-outline-glow { fill: none; stroke: var(--ov-gold); stroke-opacity: 0.14; stroke-width: 4; stroke-linejoin: round; }
+.rd-live-outline { fill: none; stroke: var(--ov-text); stroke-opacity: 0.45; stroke-width: 1; stroke-linejoin: round; }
+.rd-live-bones line { stroke: var(--ov-text); stroke-opacity: 0.75; stroke-width: 2; stroke-linecap: round; }
+.rd-live-bones-dim { opacity: 0.45; }
+.rd-live-dot { fill: var(--ov-gold); stroke: var(--ov-bg); stroke-width: 1; transform-box: fill-box; transform-origin: center; }
+.rd-live-draw { stroke-dasharray: 1 1; }
+.rd-live-flash { opacity: 0; }
+.rd-live-draw.rd-l-flash { stroke-opacity: 0.5; stroke-width: 8; }
+.rd-live-draw.rd-l-core-faint { stroke-opacity: 0.75; }
+.rd-live-tip { opacity: 0; }
+.rd-tip-halo { fill: var(--lc); opacity: 0.35; }
+.rd-run-halo { fill: var(--lc); opacity: 0.4; }
+.rd-tip-dot { fill: var(--ov-text); }
+.rd-st-on .rd-l-halo { stroke-opacity: 0.3; stroke-width: 9; }
+.rd-st.rd-st-on .rd-l-glow { stroke-opacity: 0.45; stroke-width: 4.5; }
+.rd-st.rd-st-on .rd-l-core { stroke-width: 1.4; }
+.rd-st.rd-st-on .rd-l-sheen { stroke-opacity: 0.75; }
+.rd-st-off { opacity: 0.4; }
+.rd-live-leader { transition: opacity var(--dur-normal) var(--ease); }
+.rd-live-leader line { stroke: var(--lc); stroke-opacity: 0.7; stroke-width: 1; stroke-linecap: round; }
+.rd-live-leader circle { fill: var(--lc); }
+.rd-live-lab-at { position: absolute; }
+.rd-live-lab {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap;
+  border-radius: 0.5rem; border: 1px solid var(--lc); background: rgba(11, 10, 31, 0.85); color: var(--ov-text);
+  font-size: 12px; line-height: 18px; font-weight: 600; transition: opacity var(--dur-normal) var(--ease);
+}
+.rd-live .rd-dim { opacity: 0.5; }
+.rd-live-glow {
+  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(70% 70% at 50% 50%, rgba(230, 184, 92, 0) 55%, rgba(230, 184, 92, 0.4) 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(245, 217, 139, 0.5);
+}
+.rd-live-beam-track { position: absolute; left: 0; right: 0; top: 0; bottom: 4px; pointer-events: none; }
+.rd-live-soft { opacity: 0.7; }
+.rd-live-beam { position: absolute; inset: 0; }
+.rd-live-beam-line { position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--ov-gold); }
+.rd-live-beam-glow { position: absolute; left: 0; right: 0; top: -28px; height: 32px; background: rgba(230, 184, 92, 0.14); }
+.rd-live-tag {
+  position: absolute; top: 0.5rem; left: 0.5rem; padding: 0.125rem 0.625rem; border-radius: 9999px; pointer-events: none;
+  background: rgba(11, 10, 31, 0.72); border: 1px solid rgba(230, 184, 92, 0.35); color: var(--ov-accent);
+  font-size: 12px; line-height: 18px; font-weight: 600;
+}
+.rd-live-word { position: absolute; left: 0.75rem; right: 0.75rem; bottom: 0.5rem; display: flex; justify-content: center; pointer-events: none; }
+.rd-live-word span {
+  max-width: 100%; padding: 0.25rem 0.75rem; border-radius: 9999px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  background: rgba(11, 10, 31, 0.72); border: 1px solid rgba(230, 184, 92, 0.35); color: var(--ov-text);
+  font-size: 12px; line-height: 18px; animation: rd-word-in 220ms var(--ease);
+}
+@keyframes rd-word-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .rd-live-word span { animation: none; } }
+
+/* The report photo (ReportPhoto.tsx): pick a line by tapping it, its name or its chip. */
+.rd-rphoto-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.rd-st .rd-l-hit { stroke: var(--lc); stroke-opacity: 0.01; pointer-events: stroke; cursor: pointer; }
+.rd-rl.rd-rl-on .rd-l-glow { stroke-opacity: 0.35; stroke-width: 5; }
+.rd-rl.rd-rl-on .rd-l-core { stroke-width: 1.3; }
+.rd-rl-off { opacity: 0.35; }
+.rd-rlab { pointer-events: auto; cursor: pointer; transition: opacity var(--dur-normal) var(--ease); }
+.rd-rlab-off { opacity: 0.45; }
+.rd-rlab-leader { fill: none; stroke: var(--lc); stroke-opacity: 0.7; stroke-width: 1; }
+.rd-rlab-on .rd-rlab-leader { stroke-opacity: 1; stroke-width: 1.5; }
+.rd-rlab-dot { fill: var(--lc); }
+.rd-rlab-box { fill: rgba(11, 10, 31, 0.85); stroke: var(--lc); stroke-width: 1; }
+.rd-rlab-on .rd-rlab-box { stroke-width: 1.5; }
+.rd-rlab-text { fill: var(--ov-text); font-size: 12px; font-weight: 600; }
+.rd-rlab-on .rd-rlab-text { font-weight: 700; }
+.rd-rphoto-caption { display: flex; flex-direction: column; gap: 0.5rem; align-items: center; text-align: center; }
+.rd-chip-btn { min-height: 2.75rem; font: inherit; font-size: var(--fs-small); color: var(--fg); cursor: pointer; }
+.rd-chip-btn:hover { border-color: var(--hairline); }
+.rd-chip-btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--hairline); font-weight: 700; }
+.rd-chip-btn .rd-icon { width: 1rem; height: 1rem; color: var(--accent); }
+
+.rd-chips { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.rd-chip {
+  display: inline-flex; align-items: center; gap: 0.375rem; min-height: 2rem; padding: 0.125rem 0.75rem;
+  border-radius: 9999px; border: 1px solid var(--edge); background: var(--surface-2); font-size: var(--fs-small);
+}
+.rd-chip-missing { border-style: dashed; border-color: var(--control-border); background: transparent; color: var(--fg-muted); }
+.rd-chip-note { color: var(--fg-muted); }
+.rd-dot { width: 0.625rem; height: 0.625rem; border-radius: 9999px; }
+.rd-dot-life { background: var(--line-life); }
+.rd-dot-head { background: var(--line-head); }
+.rd-dot-heart { background: var(--line-heart); }
+.rd-dot-fate { background: var(--line-fate); }
+.rd-chip-missing .rd-dot { background: transparent; border: 1.5px solid currentColor; }
+
+/* Review */
+.rd-check-ok { display: flex; gap: 0.5rem; align-items: center; color: var(--fg); font-weight: 700; }
+.rd-check-ok .rd-icon { color: var(--success); }
+.rd-check-fail { display: flex; flex-direction: column; gap: 0.375rem; padding: 0.875rem 1rem; border-radius: 0.75rem; border: 1px solid var(--warning); background: var(--surface-2); }
+.rd-choice { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+.rd-choice legend { font-weight: 700; padding: 0; margin-bottom: 0.25rem; }
+.rd-segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; padding: 0.25rem; border-radius: 9999px; background: var(--surface-2); border: 1px solid var(--edge); }
+.rd-seg { min-height: 2.75rem; border-radius: 9999px; border: 1px solid transparent; background: transparent; color: var(--fg); font: inherit; font-weight: 700; cursor: pointer; }
+.rd-seg-on { background: var(--surface-3); border-color: var(--control-border); }
+
+/* Working: one status block, one bar, real stages only (§7.4). */
+.rd-status { display: flex; flex-direction: column; gap: 0.5rem; }
+.rd-bar { height: 0.375rem; border-radius: 9999px; background: var(--surface-3); overflow: hidden; }
+.rd-bar span { display: block; height: 100%; border-radius: inherit; background-image: var(--gold-gradient); transition: width var(--dur-normal) var(--ease); }
+.rd-spinner { width: 2.5rem; height: 2.5rem; border-radius: 9999px; border: 3px solid var(--surface-3); border-top-color: var(--accent); animation: rd-spin 900ms linear infinite; }
+@keyframes rd-spin { to { transform: rotate(360deg); } }
+
+/* Report */
+.rd-report { display: flex; flex-direction: column; gap: 1.25rem; }
+.rd-report-head { display: flex; flex-direction: column; gap: 0.25rem; }
+.rd-preview { padding: 0.5rem 0.875rem; border-radius: 0.75rem; border: 1px dashed var(--control-border); color: var(--fg-muted); }
+.rd-glance { padding: 1.25rem; border-radius: 1.25rem; background: var(--surface-1); border: 1px solid var(--hairline); display: flex; flex-direction: column; gap: 0.75rem; }
+.rd-glance ul, .rd-bullets { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.625rem; }
+.rd-glance li, .rd-bullets li { display: flex; flex-direction: column; gap: 0.125rem; }
+.rd-label { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--accent); font-weight: 700; text-transform: none; }
+.rd-section { padding: 1.25rem; border-radius: 1.25rem; background: var(--surface-1); border: 1px solid var(--edge); display: flex; flex-direction: column; gap: 0.875rem; }
+.rd-section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; }
+.rd-state { font-size: var(--fs-caption); padding: 0.125rem 0.625rem; border-radius: 9999px; border: 1px solid var(--edge); color: var(--fg-muted); white-space: nowrap; }
+.rd-state-strong { color: var(--success); border-color: var(--success); }
+.rd-state-supported { color: var(--accent); border-color: var(--hairline); }
+.rd-part { display: flex; flex-direction: column; gap: 0.625rem; }
+.rd-subtitle { font-weight: 700; color: var(--fg-muted); font-size: var(--fs-small); }
+.rd-summary { font-size: var(--fs-lead); line-height: var(--lh-lead); }
+.rd-question { font-style: italic; color: var(--fg-muted); }
+.rd-parts-read { text-align: center; font-weight: 700; }
+.rd-locked-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.rd-locked {
+  display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem; border-radius: 1.25rem; text-align: left;
+  background-color: var(--surface-1); border: 1px solid var(--edge); color: var(--fg); font: inherit; cursor: pointer;
+  background-image: linear-gradient(180deg, transparent 55%, var(--accent-soft));
+  transition: transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.rd-locked:hover { border-color: var(--hairline); }
+.rd-locked:active { transform: scale(0.98); }
+.rd-locked-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+.rd-locked-tag { display: inline-flex; align-items: center; gap: 0.375rem; color: var(--fg-muted); white-space: nowrap; }
+.rd-locked-tag .rd-icon { width: 1rem; height: 1rem; }
+.rd-locked-pill {
+  align-self: flex-start; display: inline-flex; align-items: center; min-height: 2.25rem; padding: 0.25rem 0.875rem;
+  border-radius: 9999px; background-color: var(--surface-2); border: 1px solid var(--control-border); color: var(--fg); font-weight: 700;
+}
+.rd-honesty { padding: 1rem; border-radius: 1rem; background: var(--surface-2); border: 1px solid var(--edge); display: flex; flex-direction: column; gap: 0.5rem; color: var(--fg-muted); }
+.rd-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+.rd-more summary { list-style: none; }
+.rd-more summary::-webkit-details-marker { display: none; }
+.rd-more-body { padding-top: 1rem; }
+
+/* Store (React twin of StoreButton.astro) */
+.rd-store { display: flex; flex-direction: column; gap: 1rem; }
+.rd-store-badge { display: inline-block; line-height: 0; margin: -0.875rem 0 -0.875rem -0.875rem; border-radius: 0.75rem; }
+.rd-store-badge img { height: 5rem; width: auto; }
+.rd-price-line { list-style: none; margin: 0.75rem 0 0.25rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; color: var(--fg-muted); }
+.rd-ios { padding: 0.875rem 1rem; border-radius: 0.75rem; background: var(--surface-2); border: 1px solid var(--edge); }
+.rd-qr { margin: 0; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+.rd-qr svg { width: 11rem; height: 11rem; display: block; }
+.rd-qr-light { fill: var(--color-qr-light); }
+.rd-qr-dark { fill: var(--color-qr-dark); }
+.rd-phone { display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-radius: 1rem; border: 1px solid var(--edge); }
+.rd-phone svg { width: 5.5rem; height: 5.5rem; flex: none; }
+.rd-phone p { margin: 0; }
+@media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+  .rd-qr.only-desktop { display: flex; }
+  .rd-file-buttons .btn.only-desktop { display: inline-flex; }
+}
+
+/* Zero + saved readings */
+.rd-saved-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+.rd-saved { display: flex; gap: 1rem; align-items: flex-start; padding: 0.875rem; border-radius: 1rem; background: var(--surface-2); border: 1px solid var(--edge); }
+.rd-saved img { border-radius: 0.75rem; object-fit: cover; flex: none; }
+.rd-saved > div { display: flex; flex-direction: column; gap: 0.25rem; }
+.rd-saved-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.25rem; }
+.rd-app-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem; border-radius: 1.25rem; background: var(--hero-gradient); border: 1px solid var(--edge); }
+
+/* Sheets (§7.12): bottom sheet on phones, dialog on desktop. */
+.rd-sheet {
+  width: 100%; max-width: 100%; max-height: 92vh; margin: auto 0 0; padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+  border: 1px solid var(--glass-edge); border-radius: 1.75rem 1.75rem 0 0; background: var(--surface-1); color: var(--fg);
+  display: none; flex-direction: column; gap: 1rem; overflow-y: auto;
+}
+.rd-sheet[open] { display: flex; animation: rd-rise var(--dur-sheet) var(--ease); }
+.rd-sheet::backdrop { background: var(--scrim); }
+@keyframes rd-rise { from { transform: translateY(24px); opacity: 0; } }
+.rd-sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.rd-sheet-body { display: flex; flex-direction: column; gap: 1rem; }
+.rd-x { width: 3rem; height: 3rem; flex: none; border-radius: 9999px; border: 1px solid var(--edge); background: var(--surface-2); color: var(--fg); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.rd-lock-hero { padding: 1rem; border-radius: 1rem; background: var(--hero-gradient); display: flex; flex-direction: column; gap: 0.5rem; }
+.rd-lock-sentence { font-size: var(--fs-lead); line-height: var(--lh-lead); }
+.rd-form { display: flex; flex-direction: column; gap: 0.625rem; }
+.rd-form label { font-weight: 700; }
+.rd-input {
+  min-height: 3rem; padding: 0.5rem 0.875rem; border-radius: 0.75rem; border: 1px solid var(--control-border);
+  background: var(--surface-2); color: var(--fg); font: inherit; font-size: 1.0625rem;
+}
+.rd-code { letter-spacing: 0.3em; font-size: 1.25rem; }
+.rd-field-error { color: var(--danger); }
+.rd-field-note { color: var(--fg-muted); }
+.rd-small-list { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.rd-turnstile:empty { display: none; }
+.rd-turnstile { display: flex; justify-content: center; }
+
+@media (min-width: 48rem) {
+  .rd-card { padding: 1.75rem; }
+  .rd-sheet { max-width: 34rem; margin: auto; border-radius: 1.75rem; }
+}
+
+/* =====================================================================
+ * Showroom layer for the reading (WEB-DEC-042). Visual only: glass panels
+ * with rim light, a glowing upload well, a calm lit wait panel, glass report
+ * sections, frosted locks and glass bottom sheets. Overrides the base rules
+ * above; the photo overlays (live scan, traced lines) are untouched.
+ * ===================================================================== */
+.rd-app { gap: 1.25rem; }
+.rd-lang {
+  min-height: 3rem; padding: 0.25rem 1.125rem; border: 1px solid transparent; font-weight: 600;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine); transition: background 200ms var(--ease);
+}
+.rd-lang:hover { border-color: transparent; background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)) padding-box, var(--rim-hover) border-box; }
+[data-theme="day"] .rd-lang { background: linear-gradient(180deg, #FFFFFF, #F3F0FB) padding-box, var(--rim) border-box; }
+.rd-badge { border-radius: 9999px; padding: 0.25rem 0.75rem; border: 1px solid transparent; background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01)) padding-box, var(--rim) border-box; }
+
+/* Glass panels: every screen sits on one rim-lit panel. */
+.rd-card, .rd-section, .rd-saved, .rd-app-card {
+  border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine), var(--e1);
+}
+.rd-card { position: relative; gap: 1.125rem; padding: 1.5rem 1.25rem; border-radius: var(--r-panel); }
+/* A soft light along the top edge of each panel. */
+.rd-card::before {
+  content: ""; position: absolute; left: 14%; right: 14%; top: -1px; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,236,190,0.7), transparent);
+}
+[data-theme="day"] .rd-card::before { background: linear-gradient(90deg, transparent, rgba(160,110,20,0.45), transparent); }
+.rd-pick h2 { text-wrap: balance; }
+
+/* Tips as glass chips. */
+.rd-tips li {
+  min-height: 2.25rem; border: 1px solid transparent; font-weight: 600;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--rim) border-box;
+}
+[data-theme="day"] .rd-tips li { background: linear-gradient(180deg, #FFFFFF, #F5F2FC) padding-box, var(--rim) border-box; }
+
+/* The upload area: a glowing glass well holding the one gold action. */
+.rd-pick .rd-file-buttons {
+  position: relative; gap: 0.75rem; padding: 1.25rem 1rem 0.75rem; border-radius: 1.5rem; border: 1px solid transparent;
+  background: radial-gradient(120% 90% at 50% 0%, rgba(230,184,92,0.12), transparent 60%) padding-box, var(--well) padding-box,
+    linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
+    linear-gradient(180deg, rgba(245,217,139,0.45), rgba(255,255,255,0.06) 45%, rgba(230,184,92,0.22)) border-box;
+  box-shadow: inset 0 2px 14px rgba(0,0,0,0.38), 0 0 40px -14px rgba(230,184,92,0.45);
+}
+[data-theme="day"] .rd-pick .rd-file-buttons {
+  background: radial-gradient(120% 90% at 50% 0%, rgba(214,170,80,0.12), transparent 60%) padding-box, var(--well) padding-box,
+    linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
+    linear-gradient(180deg, rgba(160,110,20,0.4), rgba(23,19,61,0.06) 45%, rgba(160,110,20,0.25)) border-box;
+  box-shadow: inset 0 2px 8px rgba(23,19,61,0.06), 0 12px 30px -18px rgba(122,82,0,0.35);
+}
+.rd-pick .rd-file-buttons .btn-gold { min-height: 3.5rem; font-size: 1.0625rem; }
+@media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+  .rd-pick .rd-file-buttons { padding-bottom: 1.25rem; }
+}
+.rd-link-button { min-height: 3rem; }
+
+/* Notes and wells. */
+.rd-note, .rd-notice, .rd-honesty, .rd-ios, .rd-check-fail {
+  border: 1px solid transparent;
+  background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02)) border-box;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.3); border-radius: var(--r-well);
+}
+[data-theme="day"] :is(.rd-note, .rd-notice, .rd-honesty, .rd-ios, .rd-check-fail) {
+  background: var(--well) padding-box, linear-gradient(180deg, rgba(23,19,61,0.07), #FFFFFF) border-box; box-shadow: inset 0 2px 6px rgba(23,19,61,0.05);
+}
+.rd-check-fail, [data-theme="day"] .rd-check-fail { background: var(--well) padding-box, linear-gradient(180deg, var(--warning), rgba(255,255,255,0.04)) border-box; }
+/* The free promise: warm glass with a gold edge light on the left. */
+.rd-free {
+  position: relative; overflow: hidden; border-radius: var(--r-well); padding: 0.875rem 1rem 0.875rem 1.25rem; border: 1px solid transparent;
+  background: linear-gradient(100deg, rgba(230,184,92,0.13), rgba(230,184,92,0.03)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(100deg, rgba(245,217,139,0.5), rgba(230,184,92,0.1)) border-box;
+}
+.rd-free::before { content: ""; position: absolute; left: 0; top: 18%; bottom: 18%; width: 3px; border-radius: 3px; background: linear-gradient(180deg, #FBE6A6, #C8963E); box-shadow: 0 0 10px rgba(230,184,92,0.7); }
+[data-theme="day"] .rd-free { background: linear-gradient(100deg, rgba(214,170,80,0.09), rgba(255,255,255,0.6)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(100deg, rgba(160,110,20,0.4), rgba(160,110,20,0.1)) border-box; }
+.rd-privacy { border-top-color: var(--edge); }
+.rd-privacy summary { min-height: 3rem; }
+.rd-preview { border-radius: var(--r-well); background: rgba(255,255,255,0.02); }
+
+/* Photo frames: rim light and depth. */
+.rd-photo {
+  border-radius: var(--r-card); border: 1px solid transparent;
+  background: var(--surface-2) padding-box, var(--rim) border-box;
+  box-shadow: var(--e2);
+}
+.rd-chip, .rd-chip-btn { border: 1px solid transparent; background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--rim) border-box; }
+[data-theme="day"] :is(.rd-chip, .rd-chip-btn) { background: linear-gradient(180deg, #FFFFFF, #F5F2FC) padding-box, var(--rim) border-box; }
+.rd-chip-btn { min-height: 3rem; padding-inline: 0.875rem; transition: background 200ms var(--ease), box-shadow 200ms var(--ease); }
+.rd-chip-btn:hover { background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)) padding-box, var(--rim-hover) border-box; }
+.rd-chip-btn[aria-pressed="true"] {
+  background: linear-gradient(180deg, rgba(230,184,92,0.22), rgba(230,184,92,0.08)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(145deg, rgba(255,236,190,0.9), rgba(230,184,92,0.4)) border-box;
+  box-shadow: 0 0 18px -6px rgba(230,184,92,0.6);
+}
+[data-theme="day"] .rd-chip-btn[aria-pressed="true"] { background: linear-gradient(180deg, rgba(214,170,80,0.18), rgba(214,170,80,0.06)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(145deg, #C8963E, rgba(160,110,20,0.35)) border-box; box-shadow: none; }
+.rd-chip-missing, [data-theme="day"] .rd-chip-missing { border: 1px dashed var(--control-border); background: transparent; }
+
+/* Review: segmented choices as a well with a raised glass thumb. */
+.rd-segmented {
+  border: 1px solid transparent; background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02)) border-box;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+}
+[data-theme="day"] .rd-segmented { background: var(--well) padding-box, linear-gradient(180deg, rgba(23,19,61,0.07), #FFFFFF) border-box; box-shadow: inset 0 2px 6px rgba(23,19,61,0.05); }
+.rd-seg { min-height: 3rem; transition: background 220ms var(--ease), box-shadow 220ms var(--ease), color 200ms var(--ease); }
+.rd-seg-on {
+  border-color: transparent; background: var(--glass-1) padding-box, var(--rim-hover) border-box;
+  box-shadow: var(--shine), 0 6px 16px -8px rgba(0,0,0,0.6);
+}
+[data-theme="day"] .rd-seg-on { box-shadow: var(--shine), 0 6px 14px -8px rgba(23,19,61,0.3); }
+
+/* Wait: a calm lit panel. A slow light breathes under the status. */
+.rd-working, .rd-center { overflow: hidden; isolation: isolate; }
+.rd-working::after, .rd-center::after {
+  content: ""; position: absolute; z-index: -1; left: 50%; bottom: -30%; width: 120%; height: 70%; transform: translateX(-50%); pointer-events: none;
+  background: radial-gradient(closest-side, rgba(230,184,92,0.14), transparent); animation: rd-breathe 5s ease-in-out infinite;
+}
+[data-theme="day"] :is(.rd-working, .rd-center)::after { background: radial-gradient(closest-side, rgba(214,170,80,0.12), transparent); }
+@keyframes rd-breathe { 50% { opacity: 0.55; } }
+.rd-bar {
+  height: 0.5rem; border: 1px solid transparent;
+  background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) border-box;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+}
+.rd-bar span { background-image: linear-gradient(90deg, #C8963E, #EFC873 70%, #FFF1CC); box-shadow: 0 0 12px rgba(230,184,92,0.65); }
+.rd-spinner { width: 3rem; height: 3rem; border-width: 2px; border-color: rgba(230,184,92,0.15); border-top-color: var(--accent); box-shadow: 0 0 24px -4px rgba(230,184,92,0.45); }
+@media (prefers-reduced-motion: reduce) { .rd-working::after, .rd-center::after { animation: none; } }
+
+/* Report */
+.rd-report { gap: 1.5rem; }
+.rd-report-head { gap: 0.375rem; }
+.rd-glance, .rd-section { position: relative; border-radius: var(--r-card); padding: 1.5rem 1.25rem; }
+/* The at-a-glance card: the report's one gold frame (a gold rim, not a gold fill). */
+.rd-glance {
+  border: 1px solid transparent;
+  background: radial-gradient(28rem 10rem at 15% 0%, rgba(245,217,139,0.12), transparent 70%) padding-box, var(--glass-1) padding-box,
+    linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
+    linear-gradient(150deg, rgba(255,236,190,0.9), rgba(230,184,92,0.3) 35%, rgba(230,184,92,0.15) 65%, rgba(245,217,139,0.8)) border-box;
+  box-shadow: var(--shine), var(--e1), 0 24px 60px -30px rgba(230,184,92,0.5);
+}
+[data-theme="day"] .rd-glance {
+  background: radial-gradient(28rem 10rem at 15% 0%, rgba(214,170,80,0.10), transparent 70%) padding-box, var(--glass-1) padding-box,
+    linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
+    linear-gradient(150deg, #C8963E, rgba(160,110,20,0.3) 40%, rgba(160,110,20,0.2) 60%, #B07A12) border-box;
+  box-shadow: var(--shine), var(--e1), 0 24px 50px -30px rgba(122,82,0,0.3);
+}
+.rd-glance h3, .rd-section h3 { font-family: var(--ff-display); }
+.rd-section-head { padding-bottom: 0.875rem; border-bottom: 1px solid var(--edge); align-items: center; }
+.rd-state { padding: 0.25rem 0.75rem; border: 1px solid transparent; background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.01)) padding-box, var(--rim) border-box; }
+.rd-state-strong { border: 1px solid var(--success); background: color-mix(in srgb, var(--success) 10%, transparent); }
+.rd-state-supported { border: 1px solid var(--hairline); background: var(--accent-soft); }
+.rd-part + .rd-part { padding-top: 0.875rem; border-top: 1px solid var(--edge); }
+.rd-question { padding-left: 0.875rem; border-left: 2px solid var(--hairline); }
+.rd-parts-read { font-family: var(--ff-display); font-size: 1.25rem; padding-top: 0.5rem; }
+
+/* Locked parts: frosted glass with a soft lock glow. */
+.rd-locked {
+  position: relative; overflow: hidden; isolation: isolate; border-radius: var(--r-card); padding: 1.5rem 1.25rem; border: 1px solid transparent;
+  background: var(--glass-1) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine), var(--e1);
+  transition: transform 420ms var(--ease-out), box-shadow 420ms var(--ease-out), background 200ms var(--ease);
+}
+.rd-locked::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background:
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, transparent 30%, rgba(230,184,92,0.10));
+}
+[data-theme="day"] .rd-locked::before { background: repeating-linear-gradient(115deg, rgba(23,19,61,0.025) 0 2px, transparent 2px 7px), linear-gradient(180deg, transparent 30%, rgba(214,170,80,0.10)); }
+.rd-locked:hover { border-color: transparent; background: var(--glass-1) padding-box, var(--rim-hover) border-box; box-shadow: var(--shine), var(--e2); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .rd-locked:hover { transform: translateY(-3px); } }
+.rd-locked-tag { padding: 0.25rem 0.625rem; border-radius: 9999px; background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--hairline); color: var(--fg); }
+.rd-locked-tag .rd-icon { color: var(--accent); }
+.rd-locked-pill {
+  min-height: 2.5rem; padding: 0.375rem 1rem; border: 1px solid transparent; color: var(--fg);
+  background: linear-gradient(180deg, rgba(230,184,92,0.18), rgba(230,184,92,0.06)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(145deg, rgba(255,236,190,0.7), rgba(230,184,92,0.3)) border-box;
+  box-shadow: 0 0 18px -8px rgba(230,184,92,0.6);
+}
+[data-theme="day"] .rd-locked-pill { background: linear-gradient(180deg, rgba(214,170,80,0.16), rgba(214,170,80,0.05)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(145deg, #C8963E, rgba(160,110,20,0.3)) border-box; box-shadow: none; }
+.rd-honesty { padding: 1.125rem 1.25rem; }
+.rd-actions { gap: 0.875rem; padding-top: 0.25rem; }
+
+/* Store twin + QR tile. */
+.rd-store-badge { margin-left: -0.5rem; }
+.rd-qr svg { border-radius: 1rem; box-shadow: 0 0 0 1px var(--hairline), 0 18px 40px -18px rgba(0,0,0,0.7); }
+
+/* Saved readings + app card. */
+.rd-saved { border-radius: var(--r-card); padding: 1rem; }
+.rd-saved img { box-shadow: 0 0 0 1px var(--edge), 0 10px 20px -12px rgba(0,0,0,0.6); }
+.rd-app-card {
+  border-radius: var(--r-card); padding: 1.5rem 1.25rem;
+  background: radial-gradient(26rem 10rem at 15% 0%, rgba(124,96,236,0.18), transparent 70%) padding-box, var(--glass-1) padding-box, var(--rim) border-box;
+}
+
+/* Sheets: glass bottom sheets with rim light. */
+.rd-sheet {
+  border: 1px solid transparent; border-bottom: 0; border-radius: var(--r-panel) var(--r-panel) 0 0;
+  background: linear-gradient(180deg, rgba(40,34,92,0.35), transparent 30%) padding-box, linear-gradient(var(--glass-3), var(--glass-3)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine), var(--e3); padding-top: 1.5rem;
+}
+[data-theme="day"] .rd-sheet { background: linear-gradient(180deg, rgba(240,236,252,0.8), transparent 30%) padding-box, linear-gradient(var(--glass-3), var(--glass-3)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, var(--rim) border-box; }
+/* A grabber: signals a bottom sheet on phones. */
+.rd-sheet::before { content: ""; align-self: center; flex: none; width: 2.75rem; height: 0.3rem; margin: -0.625rem 0 0.125rem; border-radius: 9999px; background: var(--control-border); }
+.rd-sheet-head { align-items: center; }
+.rd-sheet-head h2 { font-family: var(--ff-display); font-size: 1.5rem; line-height: 1.2; }
+:lang(hi) .rd-sheet-head h2 { font-size: 1.375rem; }
+.rd-x {
+  border: 1px solid transparent; background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine); transition: background 200ms var(--ease);
+}
+.rd-x:hover { background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04)) padding-box, var(--rim-hover) border-box; }
+[data-theme="day"] .rd-x { background: linear-gradient(180deg, #FFFFFF, #F3F0FB) padding-box, var(--rim) border-box; }
+.rd-lock-hero {
+  position: relative; border-radius: var(--r-card); padding: 1.25rem; border: 1px solid transparent;
+  background: radial-gradient(24rem 9rem at 15% 0%, rgba(245,217,139,0.12), transparent 70%) padding-box, var(--glass-1) padding-box,
+    linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
+    linear-gradient(150deg, rgba(255,236,190,0.85), rgba(230,184,92,0.25) 40%, rgba(230,184,92,0.15) 65%, rgba(245,217,139,0.7)) border-box;
+  box-shadow: var(--shine), 0 20px 50px -30px rgba(230,184,92,0.5);
+}
+[data-theme="day"] .rd-lock-hero { background: var(--glass-1) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(150deg, #C8963E, rgba(160,110,20,0.25) 45%, #B07A12) border-box; box-shadow: var(--shine); }
+.rd-lock-sentence { font-family: var(--ff-display); font-size: 1.3125rem; line-height: 1.4; }
+:lang(hi) .rd-lock-sentence { font-family: inherit; font-size: var(--fs-lead); }
+.rd-input {
+  min-height: 3.25rem; border: 1px solid transparent; border-radius: var(--r-well);
+  background: var(--well) padding-box, linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06)) border-box;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.35); transition: box-shadow 200ms var(--ease), background 200ms var(--ease);
+}
+[data-theme="day"] .rd-input { background: linear-gradient(#FFFFFF, #FFFFFF) padding-box, linear-gradient(180deg, rgba(23,19,61,0.3), rgba(23,19,61,0.16)) border-box; box-shadow: inset 0 2px 5px rgba(23,19,61,0.06); }
+.rd-input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.35), 0 0 0 5px rgba(230,184,92,0.16); }
+
+@media (min-width: 48rem) {
+  .rd-card { padding: 2.25rem 2.25rem 2rem; }
+  .rd-glance, .rd-section, .rd-locked { padding: 1.75rem 1.875rem; }
+  .rd-sheet { border: 1px solid transparent; border-radius: var(--r-panel); padding: 1.75rem; }
+  .rd-sheet::before { display: none; }
+}
+@media (min-width: 64rem) and (hover: hover) and (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(8px)) {
+    :root:not([data-lite]) .rd-card { backdrop-filter: blur(16px) saturate(1.2); }
+    :root:not([data-lite]) .rd-sheet::backdrop { backdrop-filter: blur(6px); }
+  }
+}
+
+/* =====================================================================
+ * Personal layer (owner 2026-09-27): the questions before the scan
+ * (Intake.tsx), the personal report heading, and "Keep and share"
+ * (KeepShare.tsx). Glass, rim light and gold from the showroom tokens.
+ * ===================================================================== */
+.rd-live-soft { opacity: 0.4; transition: opacity 1.2s var(--ease); }
+
+.rd-intake { gap: 1.25rem; }
+.rd-intake-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.rd-dots { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 0.5rem; }
+.rd-dot-step {
+  width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: var(--control-border);
+  transition: width 420ms var(--ease-out), background 320ms var(--ease);
+}
+.rd-dot-done { background: var(--accent); opacity: 0.6; }
+.rd-dot-now { width: 1.75rem; background-image: var(--gold-gradient); box-shadow: 0 0 12px rgba(230,184,92,0.55); }
+[data-theme="day"] .rd-dot-now { box-shadow: none; }
+.rd-skip {
+  min-height: 3rem; padding: 0.5rem 1rem; margin-right: -0.5rem; border: 0; border-radius: 9999px; background: none;
+  color: var(--fg-muted); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 0.25em; text-decoration-color: var(--control-border);
+}
+.rd-skip:hover { color: var(--fg); }
+.rd-intake-photo { display: flex; align-items: center; gap: 0.625rem; color: var(--fg); font-weight: 600; }
+.rd-intake-photo img { width: 2.75rem; height: 2.75rem; border-radius: 9999px; object-fit: cover; box-shadow: 0 0 0 2px var(--hairline), 0 6px 14px -6px rgba(0,0,0,0.6); }
+.rd-intake-photo .rd-icon { width: 1rem; height: 1rem; color: var(--success); }
+.rd-intake-step { display: flex; flex-direction: column; gap: 1.125rem; }
+.rd-intake-step h2 { text-wrap: balance; outline: none; }
+.rd-intake-step h2:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 0.25rem; }
+.rd-intake-eyebrow { color: var(--accent); font-weight: 700; }
+.rd-intake-lead { color: var(--fg-muted); }
+.rd-field { display: flex; flex-direction: column; gap: 0.5rem; }
+.rd-field label { font-weight: 700; }
+.rd-opt { font-weight: 400; color: var(--fg-muted); }
+.rd-input { width: 100%; }
+.rd-input-short { max-width: 16rem; }
+.rd-input::placeholder { color: var(--fg-muted); opacity: 0.7; }
+.rd-intake-actions { display: flex; flex-direction: column; gap: 0.75rem; padding-top: 0.25rem; }
+.rd-link-left { align-self: flex-start; padding-left: 0; }
+.rd-intake-private { display: flex; gap: 0.5rem; align-items: flex-start; color: var(--fg-muted); padding-top: 0.875rem; border-top: 1px solid var(--edge); }
+.rd-intake-private .rd-icon { width: 1.125rem; height: 1.125rem; color: var(--accent); margin-top: 0.15rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .rd-intake-step { animation: rd-step-in 380ms var(--ease-out); }
+}
+@keyframes rd-step-in { from { opacity: 0; transform: translateX(14px); } }
+
+/* Gender: glass pills that wrap (long answers never squeeze). */
+.rd-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.rd-pill {
+  display: inline-flex; align-items: center; gap: 0.375rem; min-height: 3rem; padding: 0.5rem 1.125rem; border-radius: 9999px;
+  border: 1px solid transparent; color: var(--fg); font: inherit; font-weight: 600; cursor: pointer;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine); transition: background 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+[data-theme="day"] .rd-pill { background: linear-gradient(180deg, rgba(255,255,255,1), rgba(245,242,252,1)) padding-box, var(--rim) border-box; }
+.rd-pill:hover { background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)) padding-box, var(--rim-hover) border-box; }
+.rd-pill[aria-checked="true"] {
+  background: linear-gradient(180deg, rgba(230,184,92,0.24), rgba(230,184,92,0.08)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(145deg, rgba(255,236,190,0.9), rgba(230,184,92,0.4)) border-box;
+  box-shadow: 0 0 18px -6px rgba(230,184,92,0.6);
+}
+[data-theme="day"] .rd-pill[aria-checked="true"] { background: linear-gradient(180deg, rgba(214,170,80,0.2), rgba(214,170,80,0.06)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(145deg, rgba(160,110,20,0.9), rgba(160,110,20,0.35)) border-box; box-shadow: none; }
+.rd-pill .rd-icon { width: 1rem; height: 1rem; color: var(--accent); }
+
+/* The personal heading. */
+.rd-opening { font-size: var(--fs-lead); line-height: var(--lh-lead); color: var(--fg); text-wrap: pretty; }
+:lang(en) .rd-opening { font-family: var(--ff-display); font-size: 1.3125rem; line-height: 1.45; font-style: italic; }
+.rd-edit-details { display: inline-flex; align-items: center; gap: 0.375rem; font-size: var(--fs-small); }
+.rd-edit-details .rd-icon { width: 1rem; height: 1rem; }
+.rd-details-form { gap: 1rem; }
+
+/* Keep and share: one glass panel; the PDF first, then the share chips. */
+.rd-keep {
+  position: relative; display: flex; flex-direction: column; gap: 0.875rem; border-radius: var(--r-card); padding: 1.5rem 1.25rem;
+  border: 1px solid transparent; background: radial-gradient(26rem 10rem at 85% 0%, rgba(124,96,236,0.16), transparent 70%) padding-box, var(--glass-1) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine), var(--e1);
+}
+.rd-keep h3 { font-family: var(--ff-display); }
+.rd-pdf { min-height: 3.5rem; }
+.rd-pdf.btn-secondary {
+  border: 1px solid transparent;
+  background: linear-gradient(180deg, rgba(230,184,92,0.16), rgba(230,184,92,0.05)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(145deg, rgba(255,236,190,0.85), rgba(230,184,92,0.35)) border-box;
+  box-shadow: var(--shine), 0 0 22px -10px rgba(230,184,92,0.6);
+}
+[data-theme="day"] .rd-pdf.btn-secondary { background: linear-gradient(180deg, rgba(214,170,80,0.14), rgba(214,170,80,0.04)) padding-box, linear-gradient(var(--surface-1), var(--surface-1)) padding-box, linear-gradient(145deg, rgba(160,110,20,0.85), rgba(160,110,20,0.3)) border-box; box-shadow: var(--shine); }
+.rd-pdf .rd-icon { color: var(--accent); }
+.rd-pdf.btn-gold .rd-icon { color: currentColor; }
+.rd-pdf[disabled] { cursor: progress; opacity: 0.85; }
+.rd-mini-spin { width: 1.125rem; height: 1.125rem; border-radius: 9999px; border: 2px solid var(--accent-soft); border-top-color: var(--accent); animation: rd-spin 900ms linear infinite; }
+@media (prefers-reduced-motion: reduce) { .rd-mini-spin { animation-duration: 2.4s; } }
+.rd-share-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+.rd-share-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rd-share-btn {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; min-height: 4rem; padding: 0.5rem 0.25rem;
+  border-radius: var(--r-well); border: 1px solid transparent; color: var(--fg); font: inherit; font-size: var(--fs-small); font-weight: 600;
+  text-decoration: none; text-align: center; cursor: pointer;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box, var(--rim) border-box;
+  box-shadow: var(--shine); transition: background 200ms var(--ease), transform 220ms var(--ease-out);
+}
+[data-theme="day"] .rd-share-btn { background: linear-gradient(180deg, rgba(255,255,255,1), rgba(245,242,252,1)) padding-box, var(--rim) border-box; }
+.rd-share-btn:hover { background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)) padding-box, var(--rim-hover) border-box; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .rd-share-btn:hover { transform: translateY(-2px); } }
+.rd-share-btn .rd-icon { width: 1.375rem; height: 1.375rem; color: var(--accent); }
+.rd-keep-status { color: var(--fg-muted); }
+/* Kept in the page (a live region must exist before it speaks); empty, it takes no room. */
+.rd-keep-status:empty { margin-top: -0.875rem; }
+@media (min-width: 48rem) {
+  .rd-keep { padding: 1.75rem 1.875rem; }
+  .rd-share-btn { flex-direction: row; min-height: 3.25rem; gap: 0.5rem; }
+}
+
+/* "Continue with Google" (WEB-DEC-045): Google's own button in live mode; a look-alike in previews. */
+.auth-block { display: flex; flex-direction: column; gap: 0.75rem; }
+.auth-google { display: flex; flex-direction: column; gap: 0.625rem; }
+/* color-scheme light: Google's button iframe otherwise paints a white box behind the pill on dark pages. */
+.auth-google-slot { min-height: 2.75rem; display: flex; justify-content: center; color-scheme: light; }
+.auth-google-mock {
+  min-height: 3rem; gap: 0.625rem; border-radius: 9999px; border: 1px solid var(--control-border);
+  background: var(--color-white); color: var(--color-ink-6); font-weight: 700;
+}
+.auth-google-mock:hover { background: var(--color-day-page); }
+.auth-google-mock img { flex: none; }
+.auth-or { display: flex; align-items: center; gap: 0.75rem; color: var(--fg-muted); }
+.auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--edge); }

@@ -1,0 +1,129 @@
+---
+/**
+ * /delete-account/ (WEB-FEAT-013, ARCHITECTURE.md §11 F3: must always work; Play requires it).
+ * noindex (F8). /delete-account.html 301s here. The steps for the app, the website and a
+ * working form (src/scripts/delete-account.ts, the app's flow with the bundled supabase-js).
+ * The form talks to the public Supabase URL, the same as the old page; only this page's CSP
+ * allows that origin. Public values only: the publishable key (legal.ts refuses a secret one).
+ */
+import Icon from '../../components/Icon.astro';
+import DocPage from '../../components/trust/DocPage.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../config/site';
+import { companyForBuild, legalValuesForBuild } from '../../lib/legal-page';
+
+const company = companyForBuild();
+const legal = legalValuesForBuild();
+// The form's only outside connection: the Supabase project (auth + the delete-account function).
+Astro.csp?.insertDirective(`connect-src ${new URL(legal.supabaseUrl).origin}`);
+
+const path = '/delete-account/';
+const brand = site.brand;
+const toc = [
+  { id: 'app', label: 'In the app' },
+  { id: 'web', label: 'On this page' },
+  { id: 'deleted', label: 'What gets deleted' },
+  { id: 'help', label: 'If something goes wrong' },
+];
+---
+
+<BaseLayout
+  title={`Delete your ${brand} account`}
+  description={`Delete your ${brand} account and every reading, in the app or on this page, without installing the app. What is deleted and what is kept.`}
+  path={path}
+  locale="en"
+>
+  <DocPage
+    crumb="Delete your account"
+    path={path}
+    icon="shield"
+    kicker="Your data"
+    title="Delete your account and data"
+    lead={`Delete your ${brand} account and every reading at any time: in the app, or on this page without installing or reinstalling the app. One account works in the app and on the website, so either way removes it everywhere.`}
+    toc={toc}
+  >
+    <h2 id="app">In the app</h2>
+    <ol>
+      <li>Open the {brand} app (on Google Play it may still be called {site.appNameOnPlay}).</li>
+      <li>Go to <strong>Profile</strong>.</li>
+      <li>Tap <strong>Delete my account</strong> and confirm.</li>
+    </ol>
+    <p class="muted">To delete only your readings and keep the account: Profile, then Delete account readings.</p>
+
+    <h2 id="web">On this page</h2>
+    <p id="da-how">Sign in with the email and password you use in the app.</p>
+    <form id="da-form" class="da-form" data-supabase-url={legal.supabaseUrl} data-supabase-key={legal.supabaseKey} novalidate>
+      <label class="da-label" for="da-email">Email</label>
+      <input class="da-input" id="da-email" type="email" autocomplete="email" required />
+      <div id="da-password-block">
+        <label class="da-label" for="da-password">Password</label>
+        <input class="da-input" id="da-password" type="password" autocomplete="current-password" required />
+      </div>
+      <div id="da-code-block" hidden>
+        <button id="da-send-code" type="button" class="btn btn-secondary da-send">Email me a 6-digit code</button>
+        <label class="da-label" for="da-code">6-digit code from the email</label>
+        <input class="da-input" id="da-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" />
+      </div>
+      <button id="da-switch" type="button" class="da-switch text-link">Signed in with Google or an email code? Use an email code instead</button>
+      <label class="da-check" for="da-confirm">
+        <input id="da-confirm" type="checkbox" required />
+        <span>I understand that my account and every reading will be deleted forever. This cannot be undone.</span>
+      </label>
+      <button id="da-submit" type="submit" class="btn btn-gold btn-block" disabled>Delete my account and data</button>
+    </form>
+    <p id="da-status" class="da-status" role="status" aria-live="polite"></p>
+    <noscript><p class="doc-note">This form needs JavaScript. You can also delete your account in the app, or email us (below).</p></noscript>
+
+    <h2 id="deleted">What gets deleted</h2>
+    <ul class="doc-points">
+      <li class="doc-point"><Icon name="check" class="doc-point-icon" /><span>Every reading you have completed, in the app and on the website.</span></li>
+      <li class="doc-point"><Icon name="check" class="doc-point-icon" /><span>Every palm observation stored with your account: the traced line points, hand points and written observations.</span></li>
+      <li class="doc-point"><Icon name="check" class="doc-point-icon" /><span>Your profile and your account itself. Unused pack readings are lost.</span></li>
+    </ul>
+    <p>
+      No server stores your palm photos, so there are no photos on our side to remove. Copies on your own devices are yours to remove:
+      in the app they go when you delete the account there or uninstall; a reading made on this website stays in that browser until you
+      remove it or clear this site's data.
+    </p>
+    <p>Deletion is permanent and cannot be undone. Readings cannot be recovered afterwards.</p>
+    <p class="muted">
+      What we keep: a one-way code (hash) of your email address, only so the free readings cannot be claimed again. It cannot be turned
+      back into your email. For up to 2 days, a one-way code of your internet address used for abuse limits. Details are in the <a class="text-link" href="/privacy/#rights">privacy policy</a>.
+    </p>
+    <p class="doc-note">
+      Deleting your account does <strong>not</strong> cancel a Google Play subscription. Cancel it in the Play Store app: Profile, then
+      Payments and subscriptions, then Subscriptions.
+    </p>
+
+    <h2 id="help">If something goes wrong</h2>
+    <p>
+      Email <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a> from the address of your account, and we will
+      delete it by hand within 30 days.
+    </p>
+  </DocPage>
+</BaseLayout>
+
+<script>
+  import '../../scripts/delete-account';
+</script>
+
+<style>
+  .da-form { display: grid; gap: 0.5rem; max-width: 30rem; margin: 0.5rem 0 1rem; }
+  .da-form > div { display: grid; gap: 0.5rem; }
+  .da-form > div[hidden] { display: none; }
+  .da-label { margin-top: 0.5rem; font-size: var(--fs-small); font-weight: 700; color: var(--fg); }
+  .da-input {
+    min-height: 3rem; width: 100%; padding: 0.625rem 0.875rem; border-radius: var(--radius-input); border: 1px solid var(--gc-edge);
+    background: var(--well); color: var(--fg); font: inherit; box-shadow: var(--shine);
+  }
+  .da-input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .da-send { justify-self: start; margin-top: 0.5rem; }
+  .da-switch {
+    justify-self: start; min-height: 3rem; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; font-size: var(--fs-small); text-align: left;
+  }
+  .da-check { display: flex; gap: 0.75rem; align-items: flex-start; margin: 0.5rem 0 0.75rem; font-size: var(--fs-small); line-height: 1.5; cursor: pointer; }
+  .da-check input { width: 1.25rem; height: 1.25rem; flex: none; margin-top: 0.15rem; accent-color: var(--accent); }
+  .da-status { max-width: 30rem; min-height: 1.5rem; font-size: var(--fs-small); }
+  .da-status[data-state="ok"] { color: var(--success); }
+  .da-status[data-state="error"] { color: var(--color-danger); }
+</style>

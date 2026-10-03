@@ -1,5 +1,5 @@
 ---
-/** The list that holds <Variation> cards: one column on phones, two on wide screens. */
+/** The grid that holds <Variation> cards: one column on phones, two from 40rem. */
 ---
 
 <ul class="variations">
@@ -7,5 +7,8 @@
 </ul>
 
 <style>
-  .variations { list-style: none; margin: 1.5rem 0 2rem; padding: 0; display: grid; gap: 1rem; }
+  .variations { list-style: none; margin: 1.5rem 0 2rem; padding: 0; display: grid; gap: 1rem; align-items: stretch; }
+  @media (min-width: 40rem) {
+    .variations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
 </style>

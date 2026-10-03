@@ -1,0 +1,29 @@
+---
+/**
+ * A pull-quote of the page's own key sentence (guide template v3): it breaks
+ * a long section and says the one thing a skimming reader should keep. Our
+ * words only, never a book quote (those need a locator, CONTENT_GUIDE.md §9.3).
+ * At most one or two per guide.
+ */
+---
+
+<p class="kp guide-block"><slot /></p>
+
+<style>
+  /* Showroom: an editorial pull-quote on tinted glass, a slim gold rim on its leading edge. */
+  .kp {
+    position: relative; margin: 2.5rem 0; padding: 1.5rem 1.5rem 1.5rem 1.75rem; max-width: none;
+    font-family: var(--ff-display); font-size: calc(var(--fs-h3) * 1.2); line-height: 1.3; font-weight: 600; color: var(--fg);
+    border-radius: var(--r-card); border: 1px solid transparent;
+    background: linear-gradient(135deg, rgba(230,184,92,0.14), transparent 55%) padding-box, var(--glass-1) padding-box, var(--rim) border-box;
+    box-shadow: var(--shine), var(--e1);
+  }
+  :global([data-theme="day"]) .kp { background: linear-gradient(135deg, var(--color-cream-2), var(--color-white) 60%) padding-box, var(--rim) border-box; }
+  :global(:lang(hi)) .kp { font-size: var(--fs-h3); line-height: 1.6; }
+  .kp::before {
+    content: ""; position: absolute; inset: 1.125rem auto 1.125rem 0; width: 3px; border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, var(--color-gold-bright), var(--color-gold) 55%, rgba(230,184,92,0.25)); box-shadow: 0 0 14px rgba(230,184,92,0.5);
+  }
+  :global([data-theme="day"]) .kp::before { background: linear-gradient(180deg, var(--color-gold-day), var(--color-gold-ink)); box-shadow: none; }
+  @media (min-width: 40rem) { .kp { padding: 1.75rem 2rem 1.75rem 2.25rem; } }
+</style>

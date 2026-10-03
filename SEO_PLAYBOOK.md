@@ -149,22 +149,22 @@ Tool 2's "no free reading used" wording waits for decision D19. Tool 9's element
 
 ## 6. Structured data (JSON-LD)
 
-Built from `site.ts` in one `SeoHead` component. Stable IDs: `https://palmsays.com/#organization`, `https://palmsays.com/#website`, `https://palmsays.com/about/deepak-chauhan/#person`.
+Built from `site.ts` and `src/lib/schema.ts`; BaseLayout joins each page's nodes into **one `@graph`** (the BreadcrumbList stays Breadcrumbs.astro's own block). Stable IDs: `https://palmsays.com/#organization`, `/#website`, `/about/deepak-chauhan/#person`, `/app/#app`, `/tools/#collection`, `{url}#webpage`, `{url}#article`, `{url}#primaryimage`, `{url}#breadcrumb`, `{url}#app` (tools), and the terms `/palmistry-terms/#<id>`. **Entities** (`about` 1–2, `mentions` ≤ 8) come only from `src/lib/entities.ts` (`PAGE_ENTITIES`), whose Wikidata `sameAs` values were each verified live; never add a guessed item (WEB-DEC-049, SEMANTIC_SEO_PLAN.md §5).
 
 | Page | Types | Must include | Must not include |
 |---|---|---|---|
-| Home (`/`, `/hi/`) | `WebSite`, `Organization`, `WebApplication` | `WebSite` name "PalmSays", url. `Organization` logo, `sameAs` = the Play listing + real socials. `WebApplication`: `applicationCategory: "LifestyleApplication"`, `operatingSystem: "Any"`, `offers` price `"0"` in INR and USD, `isAccessibleForFree: true` | Ratings of any kind |
-| Guides | `Article`, `BreadcrumbList`, `ImageObject` | headline, image (≥ 1,200 px raster), `datePublished` / `dateModified` (ISO, +05:30), `author` → `Person` with `url`, `publisher` → Organization, `inLanguage`. Diagrams: `contentUrl`, `creator`, `creditText: "PalmSays"`, `license`, `acquireLicensePage`, `copyrightNotice` | `author` as an Organization pretending to be a person |
+| Home (`/`, `/hi/`) | `WebSite`, `Organization`, `WebApplication` | `WebSite` name "PalmSays", url. `Organization` logo, `founder`, `publishingPrinciples` (/editorial-policy/), `knowsAbout` (Wikidata palmistry), `sameAs` = real social profiles only (none yet; the Play listing is the app's `sameAs`, not the company's). `WebPage` `about` palmistry. `WebApplication`: `applicationCategory: "LifestyleApplication"`, `operatingSystem: "Any"`, `offers` price `"0"` in INR and USD, `isAccessibleForFree: true` | Ratings of any kind |
+| Guides | `Article`, `BreadcrumbList`, `ImageObject` | headline, image (≥ 1,200 px raster), `datePublished` / `dateModified` (ISO, +05:30), `author` → `Person` with `url`, `publisher` → Organization, `inLanguage`, `about`/`mentions` (entities.ts), `publishingPrinciples`, `citation` = every cited book (`Book`, author `sameAs` only when verified), `image` = the page's own share image. Dates: `site.launchDate` once set (D10). Diagrams (CC BY 4.0, `site.diagramLicence`, WEB-DEC-050): `contentUrl`, `creator`, `creditText: "PalmSays"`, `license`, `acquireLicensePage`, `copyrightNotice` | `author` as an Organization pretending to be a person |
 | `/is-palmistry-real/` | `Article` + `citation[]`, `BreadcrumbList` | every cited study | — |
 | Tool pages | `WebApplication`, `BreadcrumbList` | name, url, `applicationCategory: "LifestyleApplication"`, `operatingSystem: "Any"`, `offers` price `"0"`, `isAccessibleForFree: true` | Ratings |
 | `/tools/` | `CollectionPage`, `ItemList` (12 items, tool 1 = `/`), `BreadcrumbList` | — | — |
 | `/app/`, `/hi/app/` | `MobileApplication`, `BreadcrumbList` | `operatingSystem: "ANDROID"`, `applicationCategory` = the Play Console category [verify], `offers` price `"0"`, `installUrl` = the Play link with `referrer=utm_source%3Dweb%26utm_medium%3Dapp_page` | **No `aggregateRating`** (the Play rating was not collected on our site). Google's app rich result needs a rating, so this page shows as a normal result. That is fine. |
 | Blog | `BlogPosting`, `BreadcrumbList` | as `Article` | — |
 | Author page | `ProfilePage` with `mainEntity: Person` | name, `jobTitle`, `worksFor`, `image`, `sameAs` (only real profiles) | Credentials the person doesn't have |
-| FAQ | `FAQPage` only on pages with ≥ 3 visible FAQs | the exact visible text | Expecting a rich result: since 2023 Google shows FAQ rich results only for well-known government and health sites |
+| FAQ | **No `FAQPage` JSON-LD** (owner decision D9, WEB-DEC-049): Google retired the FAQ rich result on 7 May 2026. Keep the visible `<details>` FAQ | — | `FAQPage` anywhere (check-web fails the build) |
 | Hindi pages | Same types as the twin | `inLanguage: "hi"`, Hindi headline and description | English JSON-LD on a Hindi page (palmly's bug, R05) |
 
-**Never, anywhere:** `AggregateRating` or `Review` (until we collect reviews on our own site under Google's rules); the Play rating copied into schema; `HowTo` (retired 2023); `Product`/`Offer` for app packs or plans (no web payments). `check-site` fails the build if any of these appear.
+**Never, anywhere:** `FAQPage` (retired, D9); `AggregateRating` or `Review` (until we collect reviews on our own site under Google's rules); the Play rating copied into schema; `HowTo` (retired 2023); `Product`/`Offer` for app packs or plans (no web payments). `check-site` fails the build if any of these appear.
 
 **Validate** each template once in Google's Rich Results Test and validator.schema.org before launch, and again after any `SeoHead` change.
 
@@ -223,7 +223,7 @@ Minimal tool example:
 
 - Only URLs that return 200, are self-canonical and indexable. `check-site` fails if the sitemap and the set of indexable pages differ.
 - `lastmod` = the content's `updated` field. No `changefreq` or `priority` (Google ignores them).
-- Optional [rec]: `<image:image>` entries for the diagrams in `sitemap-guides.xml`.
+- **Image entries (built 2026-09-28, WEB-DEC-053):** each page's `<url>` in its own group sitemap carries one `<image:image><image:loc>` per diagram FILE it shows (the 1800 px WebP its `<img src>` uses), from `src/lib/diagrams.ts` (`pages`). No separate image sitemap file. Only our own diagrams (CC BY 4.0), never photos. `check-web` fails if a listed image isn't built or the page doesn't show it; a guide that starts showing a diagram adds its path to that diagram's `pages` in the same change.
 
 ---
 
@@ -240,7 +240,7 @@ Sitemap: https://palmsays.com/sitemap-index.xml
 - **[verify] on the Cloudflare zone:** Cloudflare's AI-crawler blocking and managed robots.txt settings can add `Disallow` rules for AI bots without touching our file. Confirm they are off and that the live `/robots.txt` matches the block above.
 - If the owner later blocks a bot: give it its own `User-agent` group and repeat every rule inside each named group (palmmitra's file fails at this, R02 §7). Blocking Google-Extended does not affect Google Search.
 
-**`/llms.txt`** (built from `site.ts`, so it cannot drift). Skeleton:
+**`/llms.txt`** (built from `site.ts`, the page registry, each guide's answer-first sentence and the 40 terms of `src/lib/entities.ts`, so it cannot drift; WEB-DEC-049). Skeleton:
 
 ```
 # PalmSays
@@ -314,7 +314,7 @@ No search engine has said it uses `llms.txt`; it is cheap, so we ship it without
 - **Photos** (real, consented traced palms only; never user uploads): AVIF + WebP in `<picture>`, `srcset` 480 / 768 / 1,200 / 1,600 w, explicit width and height. The LCP image is never lazy and gets `fetchpriority="high"`. Hero ≤ 80 KB; other images ≤ 60 KB.
 - **File names** describe the picture (`short-life-line.svg`). **Alt text** describes what is shown, in the page's language, not a keyword list. Decorative icons get `alt=""`.
 - **Discover and OG:** every guide has one raster ≥ 1,200 px wide used as `og:image` and `Article.image`. OG images are 1,200 × 630, one per page and language, built at build time; they must pass the Hindi conjunct test (हस्तरेखा, ज्ञान) on day 1.
-- **Licensing:** diagrams carry `ImageObject` licence fields for the "Licensable" badge and attribution links. Licence choice is the owner's [rec: CC BY 4.0 with attribution to palmsays.com].
+- **Licensing:** diagrams carry `ImageObject` licence fields for the "Licensable" badge and attribution links. **Decided 2026-09-28: CC BY 4.0, credit "PalmSays (palmsays.com)"** (WEB-DEC-050, `site.diagramLicence`, explained at /editorial-policy/#diagram-licence). Photos are not covered.
 - **Set to draw (≈ 40 SVGs, days 0–30):** the master palm chart; heart (12 types), head (10), life (10), fate (≈ 8) variation sets; signs sheet; 4 hand shapes; mounts chart; marriage-line location. Search terms they serve: "palm reading chart", "palmistry images", "हस्त रेखा चित्र सहित", "भाग्य रेखा फोटो", "विवाह रेखा की फोटो".
 - **Discover candidates:** M on palm, lucky signs, simian line, hand-type result. Honest titles only.
 
@@ -468,7 +468,7 @@ Run for every new or changed page. `check-site` covers the items marked (auto).
 
 1. Apex vs `www` (rec: apex) and the Cloudflare AI-crawler settings check (§10).
 2. Author bio and photo for `/about/deepak-chauhan/`; a named Hindi reviewer (and an English reviewer, if any).
-3. Diagram licence (rec: CC BY 4.0).
+3. ~~Diagram licence~~ Decided: CC BY 4.0 (WEB-DEC-050).
 4. D19 (does the line finder use a free reading) before tool 2's copy is final.
 5. A citable source for the element hand types before tool 9 and `/hand-types/` publish (CONTENT_GUIDE §9.4).
 6. `WEBSITE_MASTER_PLAN.md` §6.1, §9, §10.1–10.3 and §10.10 need the 12-tool layout and the changes flagged in this file and in KEYWORD_MAP §10.

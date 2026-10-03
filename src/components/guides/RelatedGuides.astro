@@ -7,9 +7,11 @@ type Line = 'heart' | 'head' | 'life' | 'fate';
 
 interface Props {
   items: { path: string; name: string; line?: Line | undefined }[];
+  /** A heading with the entity ("Related palm lines" on the line guides, WEB-DEC-051). */
+  title?: string | undefined;
 }
 
-const { items } = Astro.props;
+const { items, title } = Astro.props;
 const s = guideStrings(localeFromPath(Astro.url.pathname));
 ---
 
@@ -17,17 +19,20 @@ const s = guideStrings(localeFromPath(Astro.url.pathname));
   items.length > 0 && (
     <nav class="related" aria-labelledby="related-title">
       <h2 id="related-title" class="text-h3 font-bold">
-        {s.relatedTitle}
+        {title ?? s.relatedTitle}
       </h2>
       <ul>
         {items.map((item) => (
           <li>
-            <a class="related-link" href={item.path}>
-              <svg class:list={['related-glyph', item.line ? `glyph-${item.line}` : 'glyph-minor']} viewBox="0 0 48 24" aria-hidden="true">
-                <path class="glyph-halo" d="M4 18 C 16 6, 30 6, 44 12" />
-                <path class="glyph-line" d="M4 18 C 16 6, 30 6, 44 12" />
-              </svg>
-              <span>{item.name}</span>
+            <a class="related-link glass-card" href={item.path}>
+              <span class="related-mark glass-well" aria-hidden="true">
+                <svg class:list={['related-glyph', item.line ? `glyph-${item.line}` : 'glyph-minor']} viewBox="0 0 48 24" aria-hidden="true">
+                  <path class="glyph-halo" d="M4 18 C 16 6, 30 6, 44 12" />
+                  <path class="glyph-line" d="M4 18 C 16 6, 30 6, 44 12" />
+                </svg>
+              </span>
+              <span class="related-name">{item.name}</span>
+              <span class="related-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg></span>
             </a>
           </li>
         ))}
@@ -37,15 +42,23 @@ const s = guideStrings(localeFromPath(Astro.url.pathname));
 }
 
 <style>
-  .related { margin-top: 2.5rem; }
-  .related h2 { margin: 0 0 0.75rem; }
-  .related ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+  /* Showroom: glass cards that match the home guide cards (glyph in a well, serif name, lift on hover). */
+  .related { margin-top: 3rem; }
+  .related h2 { margin: 0 0 1rem; }
+  .related ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+  .related li { min-width: 0; }
   .related-link {
-    display: flex; align-items: center; gap: 0.875rem; min-height: 3rem; padding: 0.5rem 1rem; border-radius: 0.75rem;
-    background-color: var(--surface-1); border: 1px solid var(--edge); color: var(--fg); text-decoration: none; font-weight: 700;
+    display: flex; align-items: center; gap: 1rem; min-height: 3.5rem; padding: 0.75rem 1rem 0.75rem 0.75rem; border-radius: var(--r-card);
+    color: var(--fg); text-decoration: none;
   }
-  .related-link:hover { border-color: var(--accent); color: var(--accent); }
-  .related-glyph { width: 2.5rem; height: 1.25rem; flex: none; }
+  .related-mark { display: grid; place-items: center; flex: none; width: 3rem; height: 3rem; border-radius: 0.875rem; }
+  .related-glyph { width: 2.25rem; height: 1.125rem; }
+  .related-name { flex: 1; min-width: 0; font-family: var(--ff-display); font-weight: 700; font-size: calc(var(--fs-h3) * 1.02); line-height: 1.2; }
+  :global(:lang(hi)) .related-name { font-family: var(--ff-sans); font-size: var(--fs-body); }
+  .related-go { display: grid; place-items: center; flex: none; width: 2rem; height: 2rem; color: var(--accent); transition: transform 360ms var(--ease-out); }
+  .related-go svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .related-link:hover .related-go, .related-link:focus-visible .related-go { transform: translateX(3px); }
+  .related-link:hover .related-name { color: var(--accent); }
   .glyph-halo { fill: none; stroke: var(--color-halo); stroke-width: 6; stroke-linecap: round; }
   .glyph-line { fill: none; stroke-width: 3.5; stroke-linecap: round; }
   .glyph-heart .glyph-line { stroke: var(--line-heart); }
@@ -54,5 +67,5 @@ const s = guideStrings(localeFromPath(Astro.url.pathname));
   .glyph-fate .glyph-line { stroke: var(--line-fate); }
   .glyph-minor .glyph-line { stroke: var(--accent); }
   :global([data-theme="day"]) .glyph-halo { display: none; }
-  @media (min-width: 48rem) { .related ul { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 48rem) { .related ul { grid-template-columns: 1fr 1fr; gap: 0.875rem; } }
 </style>

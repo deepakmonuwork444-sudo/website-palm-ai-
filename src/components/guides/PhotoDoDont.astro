@@ -1,0 +1,43 @@
+---
+/**
+ * Photo do and don't (guide v4, WEB-DEC-047): AI-made HD example photos
+ * (2026-09-28, public/images/guides/, labelled as AI-made in the caption).
+ * The "Do" is the guide palm itself. One "Do" and four "Don't"s, each labelled
+ * in words and saying what to do instead (never a colour or a tick alone). Zero JS.
+ */
+import { localeFromPath } from '../../i18n';
+import { examplePhoto } from '../../lib/guides/images';
+import { guideStrings } from '../../lib/guides/strings';
+import { GUIDE_PHOTO } from '../../lib/guides/traced-palm';
+import './teach.css';
+
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+const sizes = '(min-width: 40rem) 8rem, 30vw';
+---
+
+<figure class="tb tb-dd">
+  <ul class="tb-grid">
+    <li>
+      <picture>
+        <source type="image/avif" srcset={GUIDE_PHOTO.avif} sizes={sizes} />
+        <img src="/images/guides/palm-hero-600.webp" srcset={GUIDE_PHOTO.webp} sizes={sizes} width={GUIDE_PHOTO.file.width} height={GUIDE_PHOTO.file.height} alt={t.photoDo.alt} loading="lazy" decoding="async" />
+      </picture>
+      <p><span class="tb-tag">{t.doLabel}</span> {t.photoDo.text}</p>
+    </li>
+    {
+      t.photoDonts.map((item) => {
+        const img = examplePhoto(item.key);
+        return (
+          <li>
+            <picture>
+              <source type="image/avif" srcset={img.avif} sizes={sizes} />
+              <img src={img.src} srcset={img.webp} sizes={sizes} width={img.width} height={img.height} alt={item.alt} loading="lazy" decoding="async" />
+            </picture>
+            <p><span class="tb-tag tb-no">{t.dontLabel}</span> {item.text}</p>
+          </li>
+        );
+      })
+    }
+  </ul>
+  <figcaption>{t.photoCaption}</figcaption>
+</figure>

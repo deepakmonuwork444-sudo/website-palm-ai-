@@ -53,7 +53,9 @@ describe('structured data', () => {
 
   it('uses schema.org and the Play listing', () => {
     for (const data of all) expect(data['@context']).toBe('https://schema.org');
-    expect(organizationSchema().sameAs).toEqual(['https://play.google.com/store/apps/details?id=com.palmreadai.app']);
+    // The Play listing is the app's identity, not the company's (WEB-DEC-049): no Organization sameAs until real profiles exist.
+    expect(organizationSchema().sameAs).toBeUndefined();
+    expect(mobileApplicationSchema({ locale: 'en', description: 'z' }).sameAs).toEqual(['https://play.google.com/store/apps/details?id=com.palmreadai.app']);
     expect(String(mobileApplicationSchema({ locale: 'en', description: 'z' }).installUrl)).toContain('utm_medium%3Dapp_page');
   });
 

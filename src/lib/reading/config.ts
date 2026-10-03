@@ -84,11 +84,27 @@ export interface ReadingConfig {
   turnstileSiteKey: string | null;
 }
 
+const PREVIEW_MODE_KEY = 'palmsays-preview-reading';
+
+/**
+ * Previews only: `?reading=live|mock|off` is remembered in this browser, so moving
+ * between pages (header menu → /account/) keeps the chosen mode. Production never reads it.
+ */
+function previewQuery(preview: boolean, query: string | null): string | null {
+  if (!preview || typeof localStorage === 'undefined') return query;
+  try {
+    if (asMode(query)) localStorage.setItem(PREVIEW_MODE_KEY, query as string);
+    return query ?? localStorage.getItem(PREVIEW_MODE_KEY);
+  } catch {
+    return query;
+  }
+}
+
 /** The live config, read in the browser. */
 export function readingConfig(search: string = typeof location === 'undefined' ? '' : location.search): ReadingConfig {
   const env = import.meta.env;
   const preview = env.PUBLIC_ENV?.trim() !== 'production';
-  const query = new URLSearchParams(search).get('reading');
+  const query = previewQuery(preview, new URLSearchParams(search).get('reading'));
   return {
     mode: resolveReadingMode({ flag: site.webReadingEnabled, preview, query, env: env.PUBLIC_READING_MODE }),
     preview,

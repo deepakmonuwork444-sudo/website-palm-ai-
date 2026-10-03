@@ -7,12 +7,14 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
 import type { Locale } from '../../config/site';
+import { AUTH_COPY } from '../../lib/auth/copy';
 import { COPY } from '../../lib/reading/copy';
+import GoogleButton, { type GoogleSetup } from '../auth/GoogleButton';
 import type { ReadingFlow, Sheet as SheetState } from '../../lib/reading/machine';
 import type { ReportView } from '../../lib/reading/report';
 import Store from './Store';
 
-function Sheet({ title, locale, onClose, children }: { title: string; locale: Locale; onClose: () => void; children: ReactNode }) {
+export function Sheet({ title, locale, onClose, children }: { title: string; locale: Locale; onClose: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   const closeRef = useRef(onClose);
   const titleId = useId();
@@ -61,12 +63,15 @@ export function LockSheet({
   view,
   section,
   canSignUp,
+  google,
 }: {
   flow: ReadingFlow;
   locale: Locale;
   view: ReportView;
   section: string;
   canSignUp: boolean;
+  /** Google sign-in on top of the email sign-up (null: not available here). */
+  google: GoogleSetup | null;
 }) {
   const part = view.locked.find((p) => p.key === section);
   return (
@@ -80,15 +85,26 @@ export function LockSheet({
       <p className="text-small rd-muted">{COPY.continuity[locale]}</p>
       <p className="text-small rd-muted">{COPY.sameEmail[locale]}</p>
       {canSignUp && (
-        <button type="button" className="btn btn-secondary btn-block" onClick={() => flow.openSignup()}>
-          {COPY.signupCta[locale]}
-        </button>
+        <div className="auth-block">
+          {google && <GoogleButton setup={google} locale={locale} onCredential={(c) => void flow.google(c.token, c.nonce)} />}
+          <button type="button" className="btn btn-secondary btn-block" onClick={() => flow.openSignup()}>
+            {COPY.signupCta[locale]}
+          </button>
+        </div>
       )}
     </Sheet>
   );
 }
 
+const GOOGLE_MESSAGES = {
+  googleOff: AUTH_COPY.googleOff,
+  googleOffline: AUTH_COPY.googleOffline,
+  googleWait: AUTH_COPY.googleWait,
+  googleFailed: AUTH_COPY.googleFailed,
+} as const;
+
 const MESSAGES = {
+  ...GOOGLE_MESSAGES,
   codeSent: COPY.codeSent,
   emailTaken: COPY.emailTaken,
   waitCode: COPY.waitCode,
@@ -98,17 +114,38 @@ const MESSAGES = {
   wrongCode: COPY.wrongCode,
 } as const;
 
-export function SignupSheet({ flow, locale, sheet }: { flow: ReadingFlow; locale: Locale; sheet: Extract<SheetState, { kind: 'signup' }> }) {
+export function SignupSheet({
+  flow,
+  locale,
+  sheet,
+  google,
+}: {
+  flow: ReadingFlow;
+  locale: Locale;
+  sheet: Extract<SheetState, { kind: 'signup' }>;
+  /** Google sign-in on top (null: not available here); the email code below always works. */
+  google: GoogleSetup | null;
+}) {
   const [email, setEmail] = useState(sheet.email);
   const [code, setCode] = useState('');
   const errorId = useId();
-  const message = sheet.message ? MESSAGES[sheet.message][locale] : null;
-  const isError = sheet.message !== null && sheet.message !== 'codeSent';
+  const googleMessage = sheet.message && sheet.message in GOOGLE_MESSAGES ? GOOGLE_MESSAGES[sheet.message as keyof typeof GOOGLE_MESSAGES][locale] : null;
+  const message = sheet.message && !googleMessage ? MESSAGES[sheet.message][locale] : null;
+  const isError = message !== null && sheet.message !== 'codeSent';
+  const signIn = sheet.reason === 'signIn';
 
   return (
-    <Sheet title={COPY.signupTitle[locale]} locale={locale} onClose={() => flow.closeSheet()}>
+    <Sheet title={signIn ? AUTH_COPY.signInToReadTitle[locale] : COPY.signupTitle[locale]} locale={locale} onClose={() => flow.closeSheet()}>
+      {signIn ? <p className="rd-note">{AUTH_COPY.signInToReadLead[locale]}</p> : <p className="rd-note">{COPY.signupNotUnlock[locale]}</p>}
+      {google && sheet.step === 'email' && (
+        <GoogleButton setup={google} locale={locale} busy={sheet.busy} message={googleMessage} onCredential={(c) => void flow.google(c.token, c.nonce)} />
+      )}
+      {!google && googleMessage && (
+        <p className="rd-field-error" role="alert">
+          {googleMessage}
+        </p>
+      )}
       <p>{COPY.signupLead[locale]}</p>
-      <p className="rd-note">{COPY.signupNotUnlock[locale]}</p>
       {sheet.step === 'email' ? (
         <form
           className="rd-form"
@@ -186,6 +223,7 @@ export function SignupSheet({ flow, locale, sheet }: { flow: ReadingFlow; locale
         </form>
       )}
       <ul className="rd-small-list text-small rd-muted">
+        <li>{AUTH_COPY.sameAccount[locale]}</li>
         <li>{COPY.emailsWeSend[locale]}</li>
         <li>{COPY.deleteAnytime[locale]}</li>
         <li>{COPY.adults[locale]}</li>

@@ -1,0 +1,35 @@
+---
+/**
+ * "The 7 steps at a glance" (guide v4, WEB-DEC-047): numbered tiles that jump
+ * to each step's heading on the page; the 4 line steps carry the line's dot
+ * (the word is always there too). Zero JS. tests/unit/guide-visuals.test.ts
+ * checks every link lands on a heading.
+ */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import './teach.css';
+
+interface Props {
+  items: { href: string; label: string; line?: 'heart' | 'head' | 'life' | 'fate' }[];
+}
+
+const { items } = Astro.props;
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+---
+
+<nav class="tb tb-map" aria-labelledby="stepmap-title">
+  <p id="stepmap-title" class="tb-title">{t.stepMapTitle}</p>
+  <ol>
+    {
+      items.map((item, i) => (
+        <li>
+          <a class="tb-well" href={item.href}>
+            <span class="tb-n" aria-hidden="true">{i + 1}</span>
+            <span>{item.label}</span>
+            {item.line && <span class:list={['tp-dot', `tp-${item.line}`]} aria-hidden="true" />}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>

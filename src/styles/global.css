@@ -51,7 +51,7 @@
 
   --tracking-display-en: -0.01em;
 
-  --radius-tag: 0.5rem; --radius-input: 0.75rem; --radius-card: 1.25rem; --radius-hero: 1.75rem; --radius-pill: 9999px;
+  --radius-tag: 0.375rem; --radius-input: 0.5rem; --radius-card: 0.75rem; --radius-hero: 1rem; --radius-pill: 9999px;
 
   --spacing-gutter: var(--gutter);
   --spacing-section: var(--section);
@@ -69,19 +69,55 @@
   --color-gold: #E6B85C;
   --color-gold-pressed: #CFA049;
   --color-on-gold: #1F1300;
-  --color-trace-life: #F07A5A;
-  --color-trace-head: #6EA8FF;
-  --color-trace-heart: #F27BB0;
-  --color-trace-fate: #A993FF;
+  /* Website line colours: the classic set the owner chose (DESIGN_V4_BRIEF.md). The app keeps its own. */
+  --color-trace-life: #2FD06A;
+  --color-trace-head: #4C8DFF;
+  --color-trace-heart: #FF4D5E;
+  --color-trace-fate: #B26BFF;
   --color-halo: #1A1440;
   --color-palm-top: #3A3078;
   --color-palm-bottom: #1D1850;
   --color-qr-dark: #0B0A1F;
   --color-qr-light: #F6F0E1;
-  /* The logo keeps its own colours, inside the logo only (DESIGN_SYSTEM.md §2.3). */
+  /* Legacy logo line colours (the v2 hand mark); kept for old references only. */
   --color-logo-heart: #FF7FA6;
   --color-logo-head: #5FD4FF;
   --color-logo-life: #6FE89A;
+  /* v3 brand mark: the indigo arch (DESIGN_SYSTEM.md §8.1). Same in both themes, so it holds on Day paper. */
+  --color-mark-fill: #1B1640;
+  /* Phone frame around real photos (home hero, /app/): a near-black bezel in both themes. */
+  --color-bezel: #07061A;
+  --color-photo-scrim: rgba(7,6,26,0.78);
+  /* Text on a photo scrim: ivory in both themes (the scrim is always dark). */
+  --color-on-photo: #F6F0E1;
+  /* Showroom palette (WEB-DEC-042): the fixed highlights, creams, golds and inks the glass components use. */
+  --color-white: #FFFFFF;
+  --color-day-page: #F4F1FB;
+  --color-black: #000;
+  --color-gold-deep: #C8963E;
+  --color-cream-1: #FFF8E6;
+  --color-gold-pale: #FBE7B0;
+  --color-gold-soft: #E9C878;
+  --color-gold-day: #B07A12;
+  --color-gold-day-deep: #8A5E00;
+  --color-cream-2: #FFF8E8;
+  --color-cream-3: #FBF6EA;
+  --color-cream-4: #F7ECCF;
+  --color-cream-5: #F7EBCB;
+  --color-cream-6: #F6EEDB;
+  --color-ink-3: #15123A;
+  --color-gold-top: #FBE6A6;
+  --color-cream-7: #F8EDD0;
+  --color-day-surface: #F7F5FC;
+  --color-day-page-2: #F4F0FB;
+  --color-day-info: #EEF3FF;
+  --color-gold-mid: #DDAE55;
+  --color-gold-ink: #7A5200;
+  --color-ink-4: #1E1A48;
+  --color-ink-5: #1A1644;
+  --color-ink-6: #0D0B28;
+  --color-ink-7: #0B0A22;
+  --color-ink-8: #0B0A1F;
 }
 
 :root, [data-theme="night"] {
@@ -89,24 +125,26 @@
   --page: #0B0A1F; --surface-1: #15132F; --surface-2: #1E1B42; --surface-3: #2A2654;
   --border: #2A2654; --border-strong: #3A3570; --control-border: #6F68A6;
   --edge: rgba(246,240,225,0.08); --hairline: rgba(230,184,92,0.32);
-  --glass: rgba(21,19,47,0.88); --glass-edge: rgba(246,240,225,0.14); --scrim: rgba(6,5,18,0.72);
-  --fg: #F6F0E1; --fg-muted: #C3B9D8; --fg-faint: #8F88B5;
+  --glass: rgba(21,19,47,0.97); --glass-edge: rgba(246,240,225,0.14); --scrim: rgba(6,5,18,0.72);
+  --fg: #F6F0E1; --fg-muted: #D4CCE6; --fg-faint: #A49DC8;
   --accent: #E6B85C; --accent-soft: rgba(230,184,92,0.14); --focus: #F5D98B;
   --success: #2BB3A3; --warning: #FFC857; --danger: #FF6B6B;
-  --line-life: #F07A5A; --line-head: #6EA8FF; --line-heart: #F27BB0; --line-fate: #A993FF;
-  --hero-gradient: linear-gradient(180deg, #221A4E, #15132F);
+  --line-life: #2FD06A; --line-head: #4C8DFF; --line-heart: #FF4D5E; --line-fate: #B26BFF;
+  --hero-gradient: linear-gradient(#15132F, #15132F);
+  --stage-glow: none;
 }
 [data-theme="day"] {
   color-scheme: light;
   --page: #F7F5FC; --surface-1: #FFFFFF; --surface-2: #ECE8F7; --surface-3: #DDD7EE;
   --border: #E4DFF3; --border-strong: #C9C1E0; --control-border: #7A72A8;
   --edge: rgba(23,19,61,0.08); --hairline: rgba(122,82,0,0.32);
-  --glass: rgba(247,245,252,0.92); --glass-edge: rgba(23,19,61,0.12); --scrim: rgba(23,19,61,0.45);
-  --fg: #17133D; --fg-muted: #4B4574; --fg-faint: #6A6492;
+  --glass: rgba(247,245,252,0.98); --glass-edge: rgba(23,19,61,0.12); --scrim: rgba(23,19,61,0.45);
+  --fg: #17133D; --fg-muted: #3D3766; --fg-faint: #57517F;
   --accent: #7A5200; --accent-soft: rgba(122,82,0,0.10); --focus: #7A5200;
   --success: #0F7A6E; --warning: #8A5A00; --danger: #B3261E;
-  --line-life: #B5391A; --line-head: #1F5BC4; --line-heart: #B02A6E; --line-fate: #6440D0;
-  --hero-gradient: linear-gradient(180deg, #FFFFFF, #F7F5FC);
+  --line-life: #137A3A; --line-head: #1F5BC4; --line-heart: #C8102E; --line-fate: #6440D0;
+  --hero-gradient: linear-gradient(#FFFFFF, #FFFFFF);
+  --stage-glow: none;
 }
 /* Printing always uses the Day values (DESIGN_SYSTEM.md §2.2). */
 @media print {
@@ -117,8 +155,10 @@
     --edge: rgba(23,19,61,0.08); --hairline: rgba(122,82,0,0.32);
     --fg: #17133D; --fg-muted: #4B4574; --fg-faint: #6A6492;
     --accent: #7A5200; --accent-soft: rgba(122,82,0,0.10); --focus: #7A5200;
-    --line-life: #B5391A; --line-head: #1F5BC4; --line-heart: #B02A6E; --line-fate: #6440D0;
+    --line-life: #137A3A; --line-head: #1F5BC4; --line-heart: #C8102E; --line-fate: #6440D0;
     --hero-gradient: none;
+    --gc-fill: #FFFFFF; --gc-edge: #E4DFF3; --gc-edge-hover: #E4DFF3; --gc-depth: none; --gc-depth-hover: none;
+    --gc-well: #ECE8F7; --stage-glow: none;
   }
 }
 
@@ -135,23 +175,25 @@
 }
 
 :root {
-  --gold-gradient: linear-gradient(135deg, #F5D98B, #E6B85C 50%, #CFA049);
+  /* The one brand gradient (natural premium, 2026-10-02): a quiet two-stop gold on the main button. */
+  --gold-gradient: linear-gradient(180deg, #EDC673, #E2B255);
   --ff-sans: "Mukta", "Mukta Fallback", "Noto Sans Devanagari", system-ui, sans-serif;
   --ff-display: "Cormorant Garamond", "Cormorant Fallback", Georgia, serif;
   --fs-display: clamp(2.5rem, 1.7174rem + 3.478vw, 4.5rem);   --lh-display: 1.08;
-  --fs-h1: clamp(2rem, 1.5109rem + 2.174vw, 3.25rem);          --lh-h1: 1.15;
-  --fs-h2: clamp(1.625rem, 1.3804rem + 1.087vw, 2.25rem);      --lh-h2: 1.2;
+  --fs-h1: clamp(2.25rem, 1.6630rem + 2.609vw, 3.75rem);       --lh-h1: 1.08;
+  /* v4: section titles are set in the display serif (as the home story), so they run larger. */
+  --fs-h2: clamp(2rem, 1.6087rem + 1.739vw, 3rem);             --lh-h2: 1.1;
   --fs-h3: clamp(1.25rem, 1.1522rem + 0.435vw, 1.5rem);        --lh-h3: 1.3;
   --fs-lead: clamp(1.1875rem, 1.1386rem + 0.217vw, 1.3125rem); --lh-lead: 1.55;
   --fs-body: 1.0625rem; --lh-body: 1.6;
   --fs-small: 0.9375rem; --lh-small: 1.5;
   --fs-caption: 0.8125rem; --lh-caption: 1.45;
-  --gutter: 1.25rem; --section: 4rem;
+  --gutter: 1.25rem; --section: 3.5rem;
   --ease: cubic-bezier(0.215, 0.61, 0.355, 1);
   --dur-fast: 150ms; --dur-normal: 200ms; --dur-sheet: 240ms; --dur-beam: 1200ms; --dur-draw: 900ms; --stagger-line: 150ms;
 }
 @media (min-width: 48rem) { :root { --gutter: 2rem; } }
-@media (min-width: 64rem) { :root { --gutter: 3rem; --section: 7rem; } }
+@media (min-width: 64rem) { :root { --gutter: 3rem; --section: 5.5rem; } }
 
 :lang(hi) {
   --ff-display: "Tiro Devanagari Hindi", "Cormorant Garamond", serif;
@@ -170,10 +212,16 @@
   html { background: var(--page); color: var(--fg); font-family: var(--ff-sans); font-synthesis: none;
          -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
   body { font-size: var(--fs-body); line-height: var(--lh-body); background: var(--page); color: var(--fg); }
+  /* Wide decorations reach past the screen edge: clip them so phones never scroll sideways. clip, not hidden: sticky parts keep working. */
+  #main { overflow-x: clip; }
   :lang(hi) .tracking-display-en { letter-spacing: 0; }
   :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   .script-system { font-family: "Noto Sans Devanagari", "Kohinoor Devanagari", "Nirmala UI", sans-serif; }
   h1, h2, h3 { text-wrap: balance; }
+  /* v4 (DESIGN_V4_BRIEF.md): one voice from the home story down: section titles in the display serif.
+     Small h2s that sit inside cards (h3 size) stay in the sans. */
+  h2 { font-family: var(--ff-display); font-weight: 700; }
+  h2.text-h3 { font-family: var(--ff-sans); }
   p, li { text-wrap: pretty; }
   a { color: var(--accent); }
   [id] { scroll-margin-top: 5rem; }
@@ -182,10 +230,6 @@
 @utility gold-fill { background-image: var(--gold-gradient); color: #1F1300; }
 @utility hero-fill { background-image: var(--hero-gradient); }
 @utility glass { background-color: var(--glass); border: 1px solid var(--glass-edge); }
-@media (min-width: 64rem) and (hover: hover) {
-  @supports (backdrop-filter: blur(12px)) { .glass { backdrop-filter: blur(12px); } }
-}
-@media (prefers-reduced-transparency: reduce) { .glass { backdrop-filter: none; } }
 
 @layer components {
   /* Readable text column (≤ 68ch English, ≈ 60ch Hindi). */
@@ -197,7 +241,7 @@
   /* Buttons (DESIGN_SYSTEM.md §7.1). One gold per viewport state. */
   .btn {
     position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    min-height: 3rem; padding: 0.5rem 1.5rem; border-radius: 9999px; border: 1px solid transparent;
+    min-height: 3rem; padding: 0.5rem 1.5rem; border-radius: 0.625rem; border: 1px solid transparent;
     font-family: var(--ff-sans); font-weight: 700; font-size: var(--fs-body); line-height: 1.25;
     text-align: center; text-decoration: none; cursor: pointer; user-select: none;
     transition: transform var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease),
@@ -220,8 +264,26 @@
   .nav-link { color: var(--fg); text-decoration: none; }
   .nav-link:hover, .nav-link:focus-visible { color: var(--accent); text-decoration: underline; text-underline-offset: 0.3em; }
 
+  /* The one big action (home hero, sticky bar): 56px tall, a leading icon allowed, never an arrow. */
+  .btn-lg { min-height: 3.5rem; padding-inline: 1.75rem; font-size: var(--fs-lead); }
+
   .section { padding-block: var(--section); }
-  .card { background-color: var(--surface-1); border: 1px solid var(--edge); border-radius: 1.25rem; }
+
+  /* Section heads (v3): a heading and at most one short line under it. No eyebrows, no caps. */
+  .section-title { margin: 0; }
+  .section-sub { margin: 0.5rem 0 0; color: var(--fg-muted); max-width: 60ch; }
+
+  /* Horizontal scroll row on phones (cards snap, the next card peeks); a normal grid from 64rem. */
+  .hscroll {
+    display: grid; grid-auto-flow: column; grid-auto-columns: min(80%, 19rem); gap: 0.875rem;
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+    margin-inline: calc(var(--gutter) * -1); padding: 0.25rem var(--gutter) 1rem; scroll-padding-inline: var(--gutter);
+    scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent;
+  }
+  .hscroll > * { scroll-snap-align: start; min-width: 0; }
+
+  /* A full-bleed band: the one section per page that breaks the dark rhythm. */
+  .band-hero { background-image: var(--hero-gradient); border-block: 1px solid var(--edge); }
 
   /* Device-aware blocks. <html data-os> is set by the inline head script. */
   .only-ios { display: none; }
@@ -237,4 +299,127 @@
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
                          transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* =====================================================================
+ * Natural premium layer (WEB-DEC-060, owner 2026-10-02; replaces the WEB-DEC-042 glass showroom):
+ * solid surfaces, crisp 1px borders, small directional shadows, tight radii, no glow, blur or grain.
+ * The token names are the old ones, so every page and component picks the new look up unchanged.
+ * The glass version: design-v4/natural-premium/before/src_styles_global.css.
+ * ===================================================================== */
+:root, [data-theme="night"] {
+  --ink-2: #121030;
+  /* Borders are a flat border-box layer (cards keep their padding-box / border-box structure). */
+  --rim: linear-gradient(#2E2A5C, #2E2A5C);
+  --rim-hover: linear-gradient(#8A6B33, #8A6B33);
+  --glass-1: linear-gradient(#15132F, #15132F);
+  --glass-2: #121030;
+  --glass-3: #15132F;
+  --glass-base: linear-gradient(#15132F, #15132F);
+  --shine: 0 0 #0000;
+  --e1: 0 1px 2px rgba(0,0,0,0.45);
+  --e2: 0 1px 2px rgba(0,0,0,0.45), 0 6px 14px -6px rgba(0,0,0,0.6);
+  --e3: 0 -1px 0 #2E2A5C, 0 -6px 16px -10px rgba(0,0,0,0.6);
+  --spot: transparent;
+  --aurora: none;
+  --well: linear-gradient(#0F0D27, #0F0D27);
+  --foil: linear-gradient(#E6B85C, #E6B85C);
+  --gc-fill: var(--glass-1); --gc-edge: #2E2A5C; --gc-depth: var(--e1); --gc-depth-hover: var(--e2); --gc-well: var(--well);
+}
+[data-theme="day"] {
+  --ink-2: #FFFFFF;
+  --rim: linear-gradient(#DAD4EC, #DAD4EC);
+  --rim-hover: linear-gradient(#B08A3C, #B08A3C);
+  --glass-1: linear-gradient(#FFFFFF, #FFFFFF);
+  --glass-2: #FFFFFF;
+  --glass-3: #FFFFFF;
+  --glass-base: linear-gradient(#FFFFFF, #FFFFFF);
+  --shine: 0 0 #0000;
+  --e1: 0 1px 2px rgba(23,19,61,0.08);
+  --e2: 0 1px 2px rgba(23,19,61,0.08), 0 6px 14px -6px rgba(23,19,61,0.18);
+  --e3: 0 -1px 0 #DAD4EC, 0 -6px 16px -10px rgba(23,19,61,0.18);
+  --spot: transparent;
+  --aurora: none;
+  --well: linear-gradient(#F1EEF9, #F1EEF9);
+  --foil: linear-gradient(#7A5200, #7A5200);
+  --gc-fill: var(--glass-1); --gc-edge: #DAD4EC; --gc-depth: var(--e1); --gc-depth-hover: var(--e2); --gc-well: var(--well);
+}
+@media print {
+  :root, [data-theme] { --rim: none; --rim-hover: none; --glass-1: #FFFFFF; --e1: none; --e2: none; --foil: none; }
+}
+:root { --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1); --r-card: 0.75rem; --r-well: 0.5rem; --r-panel: 1rem; }
+
+@layer base {
+  ::selection { background: rgba(230,184,92,0.35); color: var(--fg); }
+  h2 { font-weight: 600; letter-spacing: -0.012em; }
+  :lang(hi) h2 { letter-spacing: 0; }
+  h3:not(.keep-sans) { font-family: var(--ff-display); font-weight: 700; letter-spacing: -0.005em; }
+  :lang(en) h3:not(.keep-sans) { font-size: calc(var(--fs-h3) * 1.14); line-height: 1.2; }
+}
+
+@layer components {
+  /* The one key word in a heading: solid gold, no shimmer. */
+  .foil, .section-title em, h1 em, h2 em { font-style: normal; color: var(--accent); }
+  /* Section heads: a short solid gold rule above the title. */
+  .section-head { position: relative; }
+  .section-head::before { content: ""; display: block; width: 2.5rem; height: 2px; margin-bottom: 0.875rem; background: var(--accent); }
+  .section-title { font-size: var(--fs-h2); }
+  .section-sub { font-size: var(--fs-lead); line-height: var(--lh-lead); margin-top: 0.75rem; }
+  .section-head + * { margin-top: 1.5rem; }
+
+  /* Surfaces: solid fill, 1px border, a small shadow. */
+  .glass-card, .card, .glass-panel {
+    position: relative; border: 1px solid transparent; border-radius: var(--r-card);
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--e1);
+    transition: transform 200ms var(--ease), box-shadow 200ms var(--ease), background 200ms var(--ease);
+  }
+  .glass-panel { border-radius: var(--r-panel); }
+  a.glass-card:hover, a.glass-card:focus-visible, a.card:hover, .glass-card:has(.stretch-link:hover), .glass-card:has(.stretch-link:focus-visible) {
+    background: var(--glass-1) padding-box, var(--rim-hover) border-box; box-shadow: var(--e2);
+  }
+  a.glass-card:active, a.card:active, .glass-card:has(.stretch-link:active) { transform: translateY(1px); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    a.glass-card:hover, a.card:hover, .glass-card:has(.stretch-link:hover) { transform: translateY(-2px); }
+  }
+  /* Card link = the title only (WEB-DEC-051 R6); its ::before stretches over the card, so the whole card stays one tap target. */
+  .stretch-link { color: inherit; text-decoration: none; }
+  .stretch-link::before { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  .glass-well { border: 1px solid transparent; border-radius: var(--r-well); background: var(--well) padding-box, var(--rim) border-box; }
+  .glass-stage { background-image: none; }
+
+  /* Bands: a solid strip between hairlines. */
+  .band, .band-hero { background: var(--ink-2) !important; border-block: 1px solid var(--border) !important; border-image: none !important; }
+
+  /* Buttons: tight radius, flat fills, no glow or light sweep. */
+  .btn { border-radius: 0.625rem; font-weight: 700; letter-spacing: 0.005em; transition: transform 150ms var(--ease), background 150ms var(--ease), color 150ms var(--ease), border-color 150ms var(--ease); }
+  .btn-gold { border: 1px solid #C8963E; background: var(--gold-gradient); color: #1F1300; box-shadow: 0 1px 0 rgba(0,0,0,0.35); }
+  .btn-gold:hover { background: #EDC673; transform: translateY(-1px); }
+  .btn-gold:active { transform: translateY(1px); background: var(--color-gold-pressed); }
+  [data-theme="day"] .btn-gold { border-color: #A8771C; box-shadow: 0 1px 0 rgba(23,19,61,0.15); }
+  .btn-secondary { border: 1px solid var(--border-strong); color: var(--fg); background: var(--surface-2); box-shadow: none; }
+  .btn-secondary:hover { background: var(--surface-3); border-color: var(--control-border); }
+  [data-theme="day"] .btn-secondary { background: var(--surface-1); }
+  .btn-outline { color: var(--accent); border: 1px solid var(--accent); background: transparent; box-shadow: none; }
+  .btn-outline:hover { background: var(--accent-soft); }
+  .text-link { text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+  .text-link:hover { text-decoration-color: var(--accent); }
+
+  /* A phone frame around real screenshots: a plain bezel and one small shadow. */
+  .device {
+    --tilt-x: 0deg; --tilt-y: 0deg;
+    border: 8px solid #06050F !important; outline: none !important; border-radius: 2.25rem !important;
+    box-shadow: 0 0 0 1px #3A3850, 0 14px 28px -14px rgba(0,0,0,0.7) !important;
+    transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    transition: transform 600ms var(--ease-out);
+  }
+  [data-theme="day"] .device { box-shadow: 0 0 0 1px #B9B6C8, 0 14px 28px -14px rgba(23,19,61,0.35) !important; }
+
+  .chip-glass {
+    display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.75rem; border-radius: 0.375rem;
+    border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--fg-muted); font-size: var(--fs-caption); font-weight: 600;
+  }
+
+  /* Reveal (set up by showroom.ts; hidden only after the script has run): a short, plain fade-up. */
+  [data-reveal] .rv { transition: opacity 500ms var(--ease-out) var(--rv-delay, 0ms), transform 500ms var(--ease-out) var(--rv-delay, 0ms), box-shadow 200ms var(--ease), background 200ms var(--ease); }
+  [data-reveal] .rv:not(.rv-in) { opacity: 0; transform: translateY(12px); }
 }

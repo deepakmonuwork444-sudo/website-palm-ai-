@@ -12,30 +12,18 @@ import type { ReadingOutcome } from './palm/features/reading/pipeline';
 import { normaliseVisionPayload } from './palm/features/vision/normalise';
 import { VisionError, visionErrorFromCode, type PalmVisionProvider, type VisionResult } from './palm/features/vision/provider';
 import { ReadingError } from './errors';
+import type { GoogleOutcome } from '../auth/google';
+import type { Balance, CodeResult, VerifyResult, WebUser } from './balance';
 
-export interface Balance {
-  /** Free readings usable right now. */
-  freeNow: number;
-  /** Free readings still to come, including the one a guest gets by signing up. */
-  freeRemaining: number;
-  /** The next free reading needs an email code first. */
-  emailNeeded: boolean;
-}
-
-export interface WebUser {
-  id: string;
-  email: string | null;
-  isGuest: boolean;
-}
+// The light account types live in balance.ts (the account page uses them without the palm engine).
+export { parseBalance, type Balance, type CodeResult, type VerifyResult, type WebUser } from './balance';
+export type { GoogleOutcome } from '../auth/google';
 
 export interface WebSession {
   id: string;
   /** How the server charged it (free_guest / free_email); null before the model call. */
   chargedAs: string | null;
 }
-
-export type CodeResult = 'sent' | 'taken' | 'wait' | 'unavailable' | 'invalid';
-export type VerifyResult = 'ok' | 'wrong' | 'wait';
 
 export interface EventRow {
   event: string;
@@ -72,14 +60,12 @@ export interface ReadingApi {
   /** The email already has an account: sign in to it with a code (never creates one). */
   sendSignInCode(email: string): Promise<CodeResult>;
   verifyCode(email: string, code: string, kind: 'email_change' | 'email'): Promise<VerifyResult>;
+  /**
+   * Google's ID token (WEB-DEC-045): a guest links it to the SAME account; when that Google
+   * account already exists it signs in to it instead (the guest reading stays in this browser).
+   */
+  googleSignIn(idToken: string, nonce: string): Promise<GoogleOutcome>;
   logEvents(rows: EventRow[], keepalive?: boolean): Promise<void>;
-}
-
-/** `reading_balance()` → the three numbers the website uses (packs and plans are the app's). */
-export function parseBalance(data: unknown): Balance {
-  const row = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
-  const num = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0);
-  return { freeNow: num(row.free_now), freeRemaining: num(row.free_remaining), emailNeeded: row.email_needed === true };
 }
 
 /** scan-palm's 200 body → the pipeline's LineScanOutcome, validated like the app does. */

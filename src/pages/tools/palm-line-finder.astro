@@ -1,21 +1,25 @@
 ---
 /**
  * Tool 2 — Palm line finder (KEYWORD_MAP.md §3: "palm line finder"; never
- * "scanner" in the title or H1, C7). It needs the scanning server
- * (WEB-SRV-004 lines-only mode), so while site.webReadingEnabled is false the
- * page is honest: "opens soon", a labelled drawn sample, no upload, and it is
- * noindex (src/config/pages.ts) so a page without its tool is never indexed.
- * Flipping the flag without building the live finder fails the build instead
- * of shipping a dead button (the same guard as the home UploadCard).
+ * "scanner" in the title or H1, C7). Wired to the reading API's scan step
+ * (src/lib/tools/line-scan.ts): lines only, no report, no reading used.
+ * - Off (production today): the lines-only server mode (WEB-SRV-004) does
+ *   not exist, so the page says "opens soon", uploads nothing and is noindex
+ *   (src/config/pages.ts). No drawn sample: v3 rule, no fake lines ever.
+ * - Mock (preview builds, ?reading=mock): the full flow on the reading API's
+ *   stored sample scan, labelled "Preview" in words.
+ * Turning LINES_ONLY_SERVER on without building the live call fails the build.
  */
-import PalmTrace from '../../components/PalmTrace.astro';
+import Icon from '../../components/Icon.astro';
+import ContinueOnPhone from '../../components/tools/ContinueOnPhone.astro';
+import DropPalm from '../../components/tools/DropPalm.astro';
 import ToolLayout from '../../components/tools/ToolLayout.astro';
-import { site } from '../../config/site';
+import WebcamButton from '../../components/tools/WebcamButton.astro';
+import { LINES_ONLY_SERVER, toolById } from '../../lib/tools/registry';
 import { MAP_SPOTS } from '../../lib/tools/palm-map';
-import { toolById } from '../../lib/tools/registry';
 
-if (site.webReadingEnabled) {
-  throw new Error('palm-line-finder: webReadingEnabled is true, but the live line finder (WEB-FEAT-047) is not built yet.');
+if (LINES_ONLY_SERVER) {
+  throw new Error('palm-line-finder: LINES_ONLY_SERVER is true, but the live lines-only call in src/lib/tools/line-scan.ts is not built yet.');
 }
 
 const tool = toolById('line-finder');
@@ -27,28 +31,32 @@ const lineSays = MAP_SPOTS.filter((spot) => spot.kind === 'line').map((spot) => 
   title="Palm Line Finder: See Your Palm Lines Traced on Your Photo"
   description="Upload a palm photo and see your heart, head, life and fate lines traced and named. Lines only, no meanings. Uses AI; unclear lines are marked as unclear."
   h1="Palm line finder: see your palm lines traced"
-  promise="Your heart, head, life and fate lines, traced and named on your own photo. Lines only — no meanings."
+  promise="Your heart, head, life and fate lines, traced and named on your own photo. Lines only, no meanings."
   ownPalm={false}
-  howTitle="How it will work"
+  howTitle="How it works"
   how={[
-    { title: 'Take a photo of your palm', body: 'Open palm, good light, the whole palm in the frame. The photo checker helps you get it right first.' },
+    { title: 'Take a photo of your palm', body: 'Open palm, good light, the whole palm in the frame. A quick check on your phone stops a photo that is too dark or blurry.' },
     {
       title: 'Our AI traces the lines',
       body: 'The photo goes to our scanning server, which finds the heart, head, life and fate lines. A line it can’t see clearly is marked “not clearly seen”, never guessed.',
     },
     { title: 'See your lines named', body: 'Lines only, no meanings. For meanings, use the line finders or the full reading.' },
   ]}
-  saysTitle="The lines it will look for"
+  saysTitle="The lines it looks for"
   says={lineSays}
   limits={[
-    'It will show lines only, with no meanings.',
-    'Small marks — islands, stars, crosses — are too small for phone photos and are not traced.',
-    'It is not open yet: nothing on this page uploads a photo.',
+    'It shows lines only, with no meanings.',
+    'Small marks (islands, stars, crosses) are too small for phone photos and are not traced.',
+    'It is not open on this website yet: nothing on this page uploads a photo.',
   ]}
   faq={[
     {
       q: 'When will the line finder open?',
-      a: 'When the scanning server for the website is switched on. We won’t give a date we can’t keep.',
+      a: 'When the line scanner for the website is switched on. We won’t give a date we can’t keep.',
+    },
+    {
+      q: 'What can I do with my photo today?',
+      a: 'Two photo tools work now, on your phone: hand type from your photo, and the finger reader. Neither uploads your photo.',
     },
     {
       q: 'Can I see my lines traced today?',
@@ -58,34 +66,65 @@ const lineSays = MAP_SPOTS.filter((spot) => spot.kind === 'line').map((spot) => 
       q: 'Where will my photo go?',
       a: 'Before the finder opens, this page will say exactly where the photo is sent and what is kept. Nothing is sent from this page today.',
     },
-    {
-      q: 'Is there anything I can do now?',
-      a: 'Check your photo with the palm photo checker so it is ready. It runs on your phone and uploads nothing.',
-    },
   ]}
   links={[
     { href: '/hand-lines/', label: 'Lines on your palm and what they mean' },
+    { href: '/tools/hand-type-quiz/', label: 'Hand type from your photo' },
+    { href: '/tools/finger-reader/', label: 'Finger reader' },
     { href: '/tools/palm-photo-checker/', label: 'Palm photo checker' },
-    { href: '/tools/palm-map/', label: 'Interactive palm map' },
     { href: '/app/', label: 'The PalmSays app' },
   ]}
 >
-  <div class="t-card" data-line-finder-soon>
-    <div class="t-next">
-      <p class="font-bold">The line finder opens soon on this website</p>
+  <div class="t-card" data-line-finder>
+    <div class="t-soon" data-off>
+      <p class="t-soon-title">The line finder opens soon on this website</p>
       <p>
-        It needs our scanning server, which isn’t switched on for the website yet, so nothing here uploads a photo. Below is a sample of
-        what it will show.
+        It needs our line scanner, which isn’t switched on for the website yet, so nothing here uploads a photo. When it opens, you’ll
+        see your own photo with each main line traced in its colour, and any line we can’t see clearly listed as “not clearly seen”.
       </p>
-      <p><a class="text-link" href="/tools/palm-photo-checker/">Get your photo ready with the photo checker</a></p>
+      <p class="font-bold">Works on your photo today, on your phone:</p>
+      <div class="t-actions">
+        <a class="btn btn-gold" href="/tools/hand-type-quiz/"><Icon name="hand" />Find my hand type from a photo</a>
+        <a class="btn btn-secondary" href="/tools/finger-reader/"><Icon name="fingers" />Read my fingers from a photo</a>
+      </div>
     </div>
-    <PalmTrace
-      locale="en"
-      id="line-finder-sample"
-      size="compact"
-      missing={['fate']}
-      alt="Sample: a drawn palm with the life, head and heart lines traced. The fate line is not clearly seen, so it is not drawn."
-      caption="Sample on a drawn palm, not a real photo. A line that isn’t clear is listed as “not clearly seen” and never drawn."
-    />
+
+    <div class="t-photo-tool" data-on hidden>
+      <div class="t-result" data-result></div>
+      <div class="t-work" data-work hidden>
+        <span class="t-work-spin" aria-hidden="true"></span>
+        <div class="t-work-body"><p class="t-work-text" data-work-text></p></div>
+      </div>
+      <div class="t-pc-start t-drop" data-start>
+        <DropPalm />
+        <fieldset class="t-q t-hand-pick">
+          <legend class="t-q-legend">Which hand is in the photo?</legend>
+          <div class="t-opts-text">
+            <label class="t-opt"><input class="t-opt-input" type="radio" name="lf-hand" value="left" /><span class="t-opt-box">Left hand</span></label>
+            <label class="t-opt"><input class="t-opt-input" type="radio" name="lf-hand" value="right" checked /><span class="t-opt-box">Right hand</span></label>
+          </div>
+        </fieldset>
+        <div class="t-actions">
+          <input id="lf-camera" class="t-file-input" type="file" accept="image/*" capture="environment" data-file />
+          <label for="lf-camera" class="btn btn-gold t-file-label only-touch" data-camera-label><Icon name="camera" /><span>Take a palm photo</span></label>
+          <WebcamButton forInput="lf-gallery" />
+          <input id="lf-gallery" class="t-file-input" type="file" accept="image/*" data-file />
+          <label for="lf-gallery" class="btn btn-secondary t-file-label t-pc-gallery" data-gallery-label><Icon name="image" /><span>Choose a photo</span></label>
+        </div>
+        <p class="t-privacy">
+          <Icon name="shield" />
+          <span>Preview mode: nothing is uploaded. The lines you’ll see come from a stored sample scan, not from your photo.</span>
+        </p>
+        <p class="t-caveat" data-inapp hidden>If choosing a photo doesn’t work in this app’s browser, open this page in Chrome.</p>
+        <ContinueOnPhone />
+      </div>
+      <p class="t-sr" role="status" aria-live="polite" data-status></p>
+    </div>
   </div>
 </ToolLayout>
+
+<script>
+  import { mountLineFinder } from '../../lib/tools/client/line-finder-ui';
+
+  mountLineFinder();
+</script>

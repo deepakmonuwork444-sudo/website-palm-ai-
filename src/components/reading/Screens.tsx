@@ -4,14 +4,21 @@
  * it, and whether a reading was used (only when the server says so).
  */
 
+import { useState } from 'react';
+
 import type { Locale } from '../../config/site';
+import { AUTH_COPY } from '../../lib/auth/copy';
+import { browserStorage, displayName, signedInUser } from '../../lib/auth/state';
 import { ERROR_COPY, COPY } from '../../lib/reading/copy';
 import { planFor, type ReadingErrorCode } from '../../lib/reading/errors';
 import type { FlowState, ReadingFlow, Stage } from '../../lib/reading/machine';
+import { EMPTY_DETAILS, cleanName, deviceStorage, isPersonal, linkDetails, loadLast, saveLast, writesWithShown, type PersonalDetails } from '../../lib/reading/personal';
 import { retakeText } from '../../lib/reading/quality';
 import type { SavedReading } from '../../lib/reading/store';
 import { usePhotoUrl } from './hooks';
 import { CheckIcon, InfoIcon } from './Icons';
+import { Intake } from './Intake';
+import LiveScan from './LiveScan';
 import PalmPhoto from './PalmPhoto';
 import Store from './Store';
 
@@ -24,17 +31,42 @@ export function CheckingScreen({ locale }: { locale: Locale }) {
   );
 }
 
-export function ReviewScreen({ flow, state, locale }: { flow: ReadingFlow; state: FlowState; locale: Locale }) {
+/**
+ * The checked photo, then (on "Use this photo") the short questions before
+ * the scan (Intake.tsx). The questions set the hands for the reading; the
+ * personal details go to `onDetails` and stay on this device.
+ */
+export function ReviewScreen({ flow, state, locale, onDetails }: { flow: ReadingFlow; state: FlowState; locale: Locale; onDetails: (details: PersonalDetails | null) => void }) {
+  const [asking, setAsking] = useState(false);
   const photo = state.photo;
   if (!photo) return null;
   const passed = photo.gate.passed;
   const problem = retakeText(photo.gate.primaryIssue, locale);
+  const begin = (details: PersonalDetails) => {
+    const hand = details.hand ?? state.hand;
+    flow.setHand(hand);
+    const writes = writesWithShown(details, hand);
+    if (writes !== null) flow.setWrites(writes);
+    saveLast(deviceStorage(), details);
+    onDetails(isPersonal(details) || details.writeHand ? details : null);
+    void flow.use();
+  };
+  if (asking && passed) {
+    const last = loadLast(deviceStorage());
+    const initial: PersonalDetails = { ...EMPTY_DETAILS, ...(last ?? {}), hand: state.hand };
+    // Signed in: the account's name (typed on /account/, else Google's given name) fills an empty name. Still editable, still this device only.
+    if (!initial.name) {
+      const store = browserStorage();
+      initial.name = cleanName(displayName(store, signedInUser(store)));
+    }
+    return <Intake locale={locale} initial={initial} shownHand={state.hand} photoUrl={photo.url} onDone={begin} onSkip={begin} onExit={() => setAsking(false)} />;
+  }
   return (
     <section className="rd-card rd-review" aria-labelledby="rd-review-title">
       <h2 id="rd-review-title" className="sr-only">
         {COPY.usePhoto[locale]}
       </h2>
-      <PalmPhoto src={photo.url} width={photo.prepared.scan.width} height={photo.prepared.scan.height} lines={null} locale={locale} alt={COPY.yourPalm[locale]} />
+      <PalmPhoto src={photo.url} width={photo.prepared.scan.width} height={photo.prepared.scan.height} alt={COPY.yourPalm[locale]} />
       {passed ? (
         <p className="rd-check-ok" role="status">
           <CheckIcon />
@@ -49,29 +81,8 @@ export function ReviewScreen({ flow, state, locale }: { flow: ReadingFlow; state
       {passed && (
         <>
           {state.lastNotice && <p className="rd-notice-line text-small">{COPY.lastFree[locale]}</p>}
-          <fieldset className="rd-choice">
-            <legend>{COPY.whichHand[locale]}</legend>
-            <p className="text-small rd-muted">{COPY.whichHandTip[locale]}</p>
-            <div className="rd-segmented" role="radiogroup" aria-label={COPY.whichHand[locale]}>
-              {(['left', 'right'] as const).map((side) => (
-                <button key={side} type="button" role="radio" aria-checked={state.hand === side} className={state.hand === side ? 'rd-seg rd-seg-on' : 'rd-seg'} onClick={() => flow.setHand(side)}>
-                  {COPY[side][locale]}
-                </button>
-              ))}
-            </div>
-          </fieldset>
-          <fieldset className="rd-choice">
-            <legend>{COPY.writeHand[locale]}</legend>
-            <div className="rd-segmented" role="radiogroup" aria-label={COPY.writeHand[locale]}>
-              {([true, false] as const).map((value) => (
-                <button key={String(value)} type="button" role="radio" aria-checked={state.writes === value} className={state.writes === value ? 'rd-seg rd-seg-on' : 'rd-seg'} onClick={() => flow.setWrites(value)}>
-                  {value ? COPY.yes[locale] : COPY.no[locale]}
-                </button>
-              ))}
-            </div>
-          </fieldset>
           <p className="rd-free text-small">{COPY.freePromise[locale]}</p>
-          <button type="button" className="btn btn-gold btn-block" onClick={() => void flow.use()}>
+          <button type="button" className="btn btn-gold btn-block" onClick={() => setAsking(true)}>
             {COPY.usePhoto[locale]}
           </button>
         </>
@@ -91,44 +102,71 @@ const STAGE_LABEL: Record<Stage, keyof typeof COPY.stages> = {
   found: 'found',
   reading: 'reading',
   writing: 'writing',
+  done: 'ready',
 };
 
+/**
+ * The reading being made: the live scan on the photo (WEB-DEC-043), the one
+ * status block with the real stage, and "Skip to my reading" the whole time.
+ * The report opens when the show ends (or on Skip) once the reading is saved.
+ */
 export function WorkingScreen({ flow, state, locale }: { flow: ReadingFlow; state: FlowState; locale: Locale }) {
+  const [skipped, setSkipped] = useState(false);
+  /** "Try again" restarts the scan, and the show with it. */
+  const [attempt, setAttempt] = useState(0);
   const photo = state.photo;
   const screen = state.screen;
   if (screen.name !== 'working') return null;
   const index = STAGE_ORDER.indexOf(screen.stage);
-  const percent = Math.round(((index + 1) / (STAGE_ORDER.length + 1)) * 100);
+  const percent = screen.stage === 'done' ? 100 : Math.round(((index + 1) / (STAGE_ORDER.length + 1)) * 100);
+  const skip = () => {
+    setSkipped(true);
+    flow.endShow();
+  };
+  const retry = () => {
+    setSkipped(false);
+    setAttempt((n) => n + 1);
+    void flow.retry();
+  };
   return (
     <section className="rd-card rd-working" aria-labelledby="rd-working-title">
       <h2 id="rd-working-title" className="sr-only">
         {COPY.stages[STAGE_LABEL[screen.stage]][locale]}
       </h2>
       {photo && (
-        <PalmPhoto
-          src={photo.url}
-          width={photo.prepared.scan.width}
-          height={photo.prepared.scan.height}
+        <LiveScan
+          key={`${photo.key}-${attempt}`}
+          src={photo.shown.url}
+          width={photo.shown.width}
+          height={photo.shown.height}
+          sample={photo.shown.sample}
           lines={screen.lines}
+          hand={screen.hand}
+          side={screen.side}
+          ready={screen.stage === 'done'}
+          skipped={skipped}
           locale={locale}
-          scanning={screen.stage === 'sending' || screen.stage === 'tracing'}
-          animate
-          chips={screen.lines !== null}
-          alt={COPY.yourPalm[locale]}
+          onEnd={() => flow.endShow()}
         />
       )}
+      {photo?.shown.sample && <p className="rd-preview text-small">{COPY.previewLabel[locale]}</p>}
       <div className="rd-status" aria-live="polite">
         <p className="rd-strong">{COPY.stages[STAGE_LABEL[screen.stage]][locale]}</p>
         <div className="rd-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label={COPY.stages[STAGE_LABEL[screen.stage]][locale]}>
           <span style={{ width: `${percent}%` }} />
         </div>
       </div>
+      {!skipped && (
+        <button type="button" className="btn btn-secondary btn-block" onClick={skip}>
+          {COPY.skipToReading[locale]}
+        </button>
+      )}
       {screen.slow && (
         <div className="rd-notice">
           <InfoIcon />
           <div>
             <p>{COPY.slow[locale]}</p>
-            <button type="button" className="btn btn-secondary" onClick={() => void flow.retry()}>
+            <button type="button" className="btn btn-secondary" onClick={retry}>
               {COPY.tryAgain[locale]}
             </button>
           </div>
@@ -143,7 +181,7 @@ export function RejectedScreen({ flow, state, locale }: { flow: ReadingFlow; sta
   if (screen.name !== 'rejected') return null;
   return (
     <section className="rd-card" aria-labelledby="rd-rejected-title">
-      {state.photo && <PalmPhoto src={state.photo.url} width={state.photo.prepared.scan.width} height={state.photo.prepared.scan.height} lines={null} locale={locale} alt={COPY.yourPalm[locale]} />}
+      {state.photo && <PalmPhoto src={state.photo.url} width={state.photo.prepared.scan.width} height={state.photo.prepared.scan.height} alt={COPY.yourPalm[locale]} />}
       <h2 id="rd-rejected-title" className="text-h3 font-bold">
         {ERROR_COPY.not_a_palm.title[locale]}
       </h2>
@@ -198,7 +236,14 @@ function SavedCard({ flow, reading, locale }: { flow: ReadingFlow; reading: Save
           <button type="button" className="btn btn-secondary" onClick={() => flow.showReading(reading.id)}>
             {COPY.open[locale]}
           </button>
-          <button type="button" className="text-link rd-link-button" onClick={() => void flow.removeReading(reading.id)}>
+          <button
+            type="button"
+            className="text-link rd-link-button"
+            onClick={() => {
+              linkDetails(deviceStorage(), reading.id, null);
+              void flow.removeReading(reading.id);
+            }}
+          >
             {COPY.removeHere[locale]}
           </button>
         </div>
@@ -224,11 +269,12 @@ export function ZeroScreen({ flow, state, locale }: { flow: ReadingFlow; state: 
       )}
       {none ? (
         <div className="rd-app-card">
-          <p className="rd-strong">{COPY.wantFull[locale]}</p>
-          <p>{COPY.appPromise[locale]}</p>
+          {/* Plan or pack holders use them in the app (web readings are free-only, case 21): never "buy". */}
+          <p className="rd-strong">{state.balance?.appPaid ? AUTH_COPY.planZero[locale] : COPY.wantFull[locale]}</p>
+          {!state.balance?.appPaid && <p>{COPY.appPromise[locale]}</p>}
           <Store locale={locale} placement="zero" qr />
           <p className="text-small rd-muted">{COPY.continuity[locale]}</p>
-          <p className="text-small rd-muted">{COPY.sameEmail[locale]}</p>
+          <p className="text-small rd-muted">{state.user && !state.user.isGuest ? AUTH_COPY.zeroInApp[locale] : COPY.sameEmail[locale]}</p>
         </div>
       ) : (
         <button type="button" className="btn btn-gold btn-block" onClick={() => flow.startNew()}>

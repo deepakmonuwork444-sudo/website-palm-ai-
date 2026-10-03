@@ -3,35 +3,53 @@
  * Every guide (src/content/guides/*.mdx) at its own path, e.g. /heart-line/
  * or /head-line/double/. Static routes (/, /app/, /tools/…) always win over
  * this rest route. Each guide must also be in src/config/pages.ts.
+ *
+ * Blog posts (src/content/blog/*.mdx, /blog/<slug>/, WEB-DEC-057) render here too, through
+ * BlogLayout: one route module keeps the guides' CSS in one file (a second route that shares
+ * these components split it into two chunks and cost the guides ~1.3 KB gzip of CSS).
  */
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 
+import BlogDiagram from '../components/blog/BlogDiagram.astro';
+import BlogTable from '../components/blog/BlogTable.astro';
 import LimitsBox from '../components/guides/LimitsBox.astro';
+import DiagramFigure from '../components/terms/DiagramFigure.astro';
 import Hi from '../components/guides/Hi.astro';
+import KeyPoint from '../components/guides/KeyPoint.astro';
 import Myth from '../components/guides/Myth.astro';
 import MythReality from '../components/guides/MythReality.astro';
-import PalmChart from '../components/guides/PalmChart.astro';
 import PalmFigure from '../components/guides/PalmFigure.astro';
 import ThreePart from '../components/guides/ThreePart.astro';
 import ToolCard from '../components/guides/ToolCard.astro';
 import Variation from '../components/guides/Variation.astro';
 import Variations from '../components/guides/Variations.astro';
+import BlogLayout from '../layouts/BlogLayout.astro';
 import GuideLayout from '../layouts/GuideLayout.astro';
 
 export async function getStaticPaths() {
-  const guides = await getCollection('guides');
-  return guides.map((entry) => ({ params: { guide: entry.data.path.slice(1, -1) }, props: { entry } }));
+  const entries = [...(await getCollection('guides')), ...(await getCollection('blog'))];
+  return entries.map((entry) => ({ params: { guide: entry.data.path.slice(1, -1) }, props: { entry } }));
 }
 
 interface Props {
-  entry: CollectionEntry<'guides'>;
+  entry: CollectionEntry<'guides'> | CollectionEntry<'blog'>;
 }
 
 const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
-const components = { Hi, LimitsBox, Myth, MythReality, PalmChart, PalmFigure, ThreePart, ToolCard, Variation, Variations };
+const components = { DiagramFigure, Hi, KeyPoint, LimitsBox, Myth, MythReality, PalmFigure, ThreePart, ToolCard, Variation, Variations };
+// Blog posts only (WEB-DEC-058): short figure captions (the cover is not repeated) and tables that scroll inside a card.
+const blogComponents = { ...components, DiagramFigure: BlogDiagram, table: BlogTable };
 ---
 
-<GuideLayout entry={entry} headings={headings}>
-  <Content components={components} />
-</GuideLayout>
+{
+  entry.collection === 'blog' ? (
+    <BlogLayout entry={entry} headings={headings}>
+      <Content components={blogComponents} />
+    </BlogLayout>
+  ) : (
+    <GuideLayout entry={entry} headings={headings}>
+      <Content components={components} />
+    </GuideLayout>
+  )
+}

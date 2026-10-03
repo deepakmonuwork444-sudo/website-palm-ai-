@@ -1,0 +1,35 @@
+---
+/**
+ * /hi/account/ — sign in (Google or a 6-digit email code) and the account
+ * (WEB-FEAT-029/062). noindex, never in a sitemap, not disallowed in
+ * robots.txt (ARCHITECTURE.md §11 F8). The English page is /account/.
+ * Referrer-Policy stays strict-origin-when-cross-origin (Google's button needs
+ * the page origin; public/_headers). Only this page, /hi/account/ and /reading/
+ * allow Google's sign-in origins in their CSP (src/lib/auth/csp.ts).
+ */
+import AccountApp from '../../../components/account/AccountApp';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { allowGoogleSignIn } from '../../../lib/auth/csp';
+import { t } from '../../../i18n';
+
+allowGoogleSignIn(Astro);
+const dict = t('hi').account;
+---
+
+<BaseLayout title={dict.pageTitle} description={dict.pageDescription} path="/hi/account/" locale="hi" langPath="/account/">
+  <div class="wrap account-page" id="account-root">
+    <h1 class="sr-only">{dict.pageHeading}</h1>
+    <AccountApp client:only="react" locale="hi" />
+    <noscript>
+      <p class="card noscript">{dict.noscript}</p>
+    </noscript>
+  </div>
+</BaseLayout>
+
+<style>
+  .account-page { padding-block: 1.5rem 4rem; max-width: 40rem; }
+  .noscript { padding: 1.25rem; }
+  @media (min-width: 64rem) {
+    .account-page { max-width: 44rem; padding-block: 2.5rem 6rem; }
+  }
+</style>

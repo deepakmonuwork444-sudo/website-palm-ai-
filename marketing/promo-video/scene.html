@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>PalmSays promo scene</title>
+<style>
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 600; font-style: normal; src: url(/fonts/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 600; font-style: italic; src: url(/fonts/cormorant-garamond/files/cormorant-garamond-latin-600-italic.woff2) format("woff2"); }
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 700; font-style: normal; src: url(/fonts/cormorant-garamond/files/cormorant-garamond-latin-700-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Mukta"; font-weight: 400; src: url(/fonts/mukta/files/mukta-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Mukta"; font-weight: 500; src: url(/fonts/mukta/files/mukta-latin-500-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Mukta"; font-weight: 600; src: url(/fonts/mukta/files/mukta-latin-600-normal.woff2) format("woff2"); }
+
+  :root {
+    --navy: #0B0A1F; --s1: #15132F; --s2: #1E1B42;
+    --gold: #E6B85C; --gold-b: #F5D98B; --cream: #F6F0E1;
+    --life: #2FD06A; --head: #4C8DFF; --heart: #FF4D5E; --fate: #B26BFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--navy); color: var(--cream); font-family: "Mukta", sans-serif; -webkit-font-smoothing: antialiased; }
+
+  /* ---------- shared background ---------- */
+  #bg { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 70% at 50% 0%, #1b1747 0%, var(--navy) 55%) , var(--navy); }
+  #glowTop { position: absolute; left: 50%; top: -260px; width: 1500px; height: 1100px; margin-left: -750px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(122, 104, 230, .30), rgba(122, 104, 230, 0)); }
+  #glowGold { position: absolute; left: 50%; top: 1250px; width: 1400px; height: 900px; margin-left: -700px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(230, 184, 92, .16), rgba(230, 184, 92, 0)); }
+  #stars { position: absolute; left: 0; top: 0; }
+  #vignette { position: absolute; inset: 0; background: radial-gradient(90% 60% at 50% 50%, transparent 55%, rgba(4, 3, 14, .55) 100%); }
+
+  .scene { position: absolute; inset: 0; opacity: 0; will-change: opacity, transform; }
+
+  /* captions: text lives between y 230 and y 1500, 60px side margins */
+  .cap { position: absolute; left: 60px; right: 60px; top: 236px; text-align: center; }
+  .h { font-family: "Cormorant Garamond", serif; font-weight: 600; color: var(--cream); letter-spacing: -.5px;
+    text-shadow: 0 4px 30px rgba(5, 4, 20, .85), 0 2px 6px rgba(5, 4, 20, .7); }
+  .h em { font-style: italic; }
+  .gold { color: var(--gold-b); text-shadow: none; filter: drop-shadow(0 4px 16px rgba(5, 4, 20, .85)); background: linear-gradient(180deg, #FFF6DC 0%, #F8DE94 45%, #EDC46E 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .w { display: inline-block; will-change: transform, opacity; }
+  .eyebrow { font-family: "Mukta"; font-weight: 600; font-size: 30px; letter-spacing: 6px; text-transform: uppercase; color: var(--gold); }
+
+  .glass { background: linear-gradient(160deg, rgba(58, 52, 120, .55), rgba(30, 27, 66, .62)); border: 1.5px solid rgba(214, 205, 255, .22);
+    box-shadow: 0 30px 80px rgba(3, 2, 12, .6), inset 0 1px 0 rgba(255, 255, 255, .12); backdrop-filter: blur(18px); }
+
+  /* ---------- S1 hook ---------- */
+  #s1 .h { font-size: 132px; line-height: 1.0; }
+  #handwrap { position: absolute; left: -10px; top: 500px; width: 1100px; height: 1366px; transform-origin: 50% 52%; }
+  #handwrap img { position: absolute; inset: 0; width: 100%; height: 100%;
+    -webkit-mask-image: linear-gradient(to right, transparent 4%, #000 24%, #000 86%, transparent 99%), linear-gradient(to bottom, transparent 0%, #000 9%, #000 70%, transparent 96%);
+    -webkit-mask-composite: source-in; mask-composite: intersect; }
+  #handwrap svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .chip { position: absolute; display: flex; align-items: center; gap: 12px; padding: 8px 22px 8px 16px; border-radius: 999px; font-family: "Mukta"; font-weight: 600; font-size: 30px; line-height: 1; color: var(--cream); white-space: nowrap;
+    background: rgba(18, 16, 44, .72); border: 1.5px solid rgba(255, 255, 255, .16); box-shadow: 0 8px 24px rgba(0, 0, 0, .45); padding-top: 12px; }
+  .chip i { width: 16px; height: 16px; border-radius: 50%; display: block; margin-top: -4px; box-shadow: 0 0 12px currentColor; background: currentColor; }
+
+  /* ---------- S2 photo -> lines ---------- */
+  #s2 .h, #s3 .h, #s4 .h { font-size: 104px; line-height: 1.02; }
+  .card { position: absolute; overflow: hidden; border-radius: 48px; border: 2px solid rgba(245, 217, 139, .38);
+    box-shadow: 0 40px 110px rgba(2, 1, 10, .75), 0 0 80px rgba(230, 184, 92, .12); background: var(--s1); }
+  .card img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  #filmcard { left: 130px; top: 540px; width: 820px; height: 1002px; }
+  #filmcard::after { content: ""; position: absolute; inset: 0; border-radius: 46px; box-shadow: inset 0 0 60px rgba(11, 10, 31, .55); pointer-events: none; }
+
+  /* ---------- S3 reading report ---------- */
+  #chips3 { display: flex; justify-content: center; gap: 16px; margin-top: 30px; }
+  #chips3 .chip { position: relative; font-size: 32px; }
+  .rep { position: absolute; transform-origin: 50% 50%;
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
+  #rep1 { left: -10px; top: 440px; width: 1100px; height: 1375px; }
+  #rep2 { left: -40px; top: 560px; width: 1160px; height: 1160px; }
+
+  /* ---------- S4 website ---------- */
+  #phone { position: absolute; left: 274px; top: 520px; width: 532px; height: 1032px; border-radius: 70px; padding: 16px;
+    background: linear-gradient(145deg, #3a3560, #121028 45%, #26224a); border: 2px solid rgba(245, 217, 139, .55);
+    box-shadow: 0 50px 120px rgba(2, 1, 10, .8), 0 0 90px rgba(122, 104, 230, .25), inset 0 0 0 2px rgba(0, 0, 0, .6); }
+  #screen { position: relative; width: 500px; height: 1000px; border-radius: 56px; overflow: hidden; background: var(--navy); }
+  #screen img { position: absolute; left: 0; top: 38px; width: 500px; height: 962px; }
+  #notch { position: absolute; left: 50%; top: 8px; width: 112px; height: 26px; margin-left: -56px; border-radius: 20px; background: #05040c; z-index: 3; }
+  #urlpill { position: absolute; left: 50%; top: 1500px; }
+
+  /* ---------- S5 end card ---------- */
+  #s5 { text-align: center; }
+  #mark { position: absolute; left: 50%; top: 300px; width: 210px; margin-left: -105px; filter: drop-shadow(0 12px 40px rgba(230, 184, 92, .35)); }
+  #halo { position: absolute; left: 50%; top: 250px; width: 520px; height: 520px; margin-left: -260px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(245, 217, 139, .22), rgba(245, 217, 139, 0)); }
+  #brand { position: absolute; left: 60px; right: 60px; top: 560px; font-size: 150px; line-height: 1; font-weight: 700; }
+  #domain { position: absolute; left: 60px; right: 60px; top: 745px; font-family: "Mukta"; font-weight: 500; font-size: 50px; letter-spacing: 3px; color: var(--gold-b); }
+  #rule { position: absolute; left: 50%; top: 850px; width: 360px; height: 2px; margin-left: -180px; background: linear-gradient(90deg, transparent, rgba(245, 217, 139, .7), transparent); }
+  #appline { position: absolute; left: 60px; right: 60px; top: 900px; font-size: 76px; line-height: 1.05; }
+  #badge { position: absolute; left: 50%; top: 1040px; width: 440px; margin-left: -220px; }
+  #guides5 { position: absolute; left: 60px; right: 60px; top: 1236px; font-family: "Mukta"; font-weight: 500; font-size: 38px; color: var(--cream); opacity: .92; }
+  #honest { position: absolute; left: 90px; right: 90px; top: 1330px; font-family: "Mukta"; font-weight: 400; font-size: 30px; line-height: 1.35; color: rgba(246, 240, 225, .66); }
+</style>
+</head>
+<body>
+<div id="bg"><div id="glowTop"></div><div id="glowGold"></div><canvas id="stars" width="1080" height="2300"></canvas><div id="vignette"></div></div>
+
+<!-- S1: hook -->
+<div id="s1" class="scene">
+  <div id="handwrap">
+    <img id="hand" src="/pub/images/story/hand-1-1200.webp" alt="" />
+    <svg viewBox="0 0 1200 1490" id="lines">
+      <defs>
+        <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9" /></filter>
+        <filter id="dotglow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="6" /></filter>
+      </defs>
+    </svg>
+    <div class="chip" id="c-heart" style="color:var(--heart)"><i></i><span style="color:var(--cream)">Heart</span></div>
+    <div class="chip" id="c-head" style="color:var(--head)"><i></i><span style="color:var(--cream)">Head</span></div>
+    <div class="chip" id="c-life" style="color:var(--life)"><i></i><span style="color:var(--cream)">Life</span></div>
+    <div class="chip" id="c-fate" style="color:var(--fate)"><i></i><span style="color:var(--cream)">Fate</span></div>
+  </div>
+  <div class="cap"><h1 class="h" id="hook"><span class="w">What</span> <span class="w">do</span> <span class="w">your</span><br /><em class="w gold">hands</em> <span class="w">say?</span></h1></div>
+</div>
+
+<!-- S2: one photo, lines traced -->
+<div id="s2" class="scene">
+  <div class="card" id="filmcard"><img id="film" alt="" /></div>
+  <div class="cap"><h2 class="h"><span class="w">One</span> <span class="w">photo.</span><br /><em class="w gold">Your lines, traced.</em></h2></div>
+</div>
+
+<!-- S3: the reading -->
+<div id="s3" class="scene">
+  <img class="rep" id="rep1" src="/pub/media/renders/phone-report-en-800.webp" alt="" />
+  <img class="rep" id="rep2" src="/pub/media/renders/phone-report-close-en-800.webp" alt="" />
+  <div class="cap">
+    <h2 class="h" style="font-size:96px"><span class="w">What</span> <span class="w">palmistry</span> <span class="w">says</span><br /><span class="w">about</span> <span class="w">your</span> <em class="w gold">lines</em></h2>
+    <div id="chips3">
+      <div class="chip w" style="color:var(--heart)"><i></i><span style="color:var(--cream)">Heart</span></div>
+      <div class="chip w" style="color:var(--head)"><i></i><span style="color:var(--cream)">Head</span></div>
+      <div class="chip w" style="color:var(--life)"><i></i><span style="color:var(--cream)">Life</span></div>
+      <div class="chip w" style="color:var(--fate)"><i></i><span style="color:var(--cream)">Fate</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: the website -->
+<div id="s4" class="scene">
+  <div id="phone"><div id="screen"><div id="notch"></div><img id="siteA" alt="" /><img id="siteB" alt="" /></div></div>
+  <div class="cap"><h2 class="h"><span class="w">Free</span> <span class="w">guides</span> <span class="w">&amp;</span> <span class="w">tools</span><br /><span class="w" style="font-size:.8em">at</span> <em class="w gold" style="font-size:.8em">palmsays.com</em></h2></div>
+</div>
+
+<!-- S5: end card -->
+<div id="s5" class="scene">
+  <div id="halo"></div>
+  <svg id="mark" viewBox="3.6 1.6 24.8 28.8">
+    <defs>
+      <linearGradient id="ma" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B2F92" /><stop offset=".5" stop-color="#241C60" /><stop offset="1" stop-color="#120F2E" /></linearGradient>
+      <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF1CC" /><stop offset=".4" stop-color="#F5D98B" /><stop offset=".75" stop-color="#E6B85C" /><stop offset="1" stop-color="#C8963E" /></linearGradient>
+      <linearGradient id="ml" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF1CC" /><stop offset="1" stop-color="#E9BE62" /></linearGradient>
+    </defs>
+    <path d="M4.5 29.5V14.2C4.5 7.7 9.6 2.5 16 2.5s11.5 5.2 11.5 11.7v15.3Z" fill="url(#ma)" stroke="url(#mg)" stroke-width="1.1" stroke-linejoin="round" />
+    <path d="M8.2 11.2c1.3-3.6 4.3-5.9 7.8-5.9" fill="none" stroke="#FFFFFF" stroke-opacity=".28" stroke-width=".8" stroke-linecap="round" />
+    <path id="markLines" d="M26.2 13.2c-4.4-1.6-9.4-1.4-13.6.8M5.6 16.6c5.2-.3 10 1.3 13.8 4.7M5.6 16.6c4.2 2.3 6.8 6.4 7.2 11.4" fill="none" stroke="url(#ml)" stroke-width="1.9" stroke-linecap="round" />
+  </svg>
+  <div class="h" id="brand">Palm<span class="gold">Says</span></div>
+  <div id="domain">palmsays.com</div>
+  <div id="rule"></div>
+  <div class="h" id="appline">Free palm reading<br /><em class="gold">in the app</em></div>
+  <img id="badge" src="/pub/badges/google-play-en.png" alt="Get it on Google Play" />
+  <div id="guides5">Free guides &amp; tools at palmsays.com</div>
+  <div id="honest">Palmistry is a tradition for reflection, not a prediction.</div>
+</div>
+
+<script>
+  // ---------- helpers ----------
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const eOut = (x) => 1 - Math.pow(1 - x, 3);
+  const eInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const eOutBack = (x) => { const c = 1.35; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+  const $ = (s) => document.querySelector(s);
+  const lerp = (a, b, k) => a + (b - a) * k;
+
+  // ---------- stars (seeded, drawn once) ----------
+  (() => {
+    let s = 7;
+    const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+    const c = $('#stars').getContext('2d');
+    for (let i = 0; i < 170; i++) {
+      const x = rnd() * 1080, y = rnd() * 2300, r = rnd() * 1.7 + 0.4, a = rnd() * 0.5 + 0.15;
+      const gold = rnd() < 0.25;
+      c.fillStyle = gold ? `rgba(245,217,139,${a})` : `rgba(214,205,255,${a})`;
+      c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+    }
+  })();
+
+  // ---------- S1 palm lines (hand-1-1200.webp pixel coordinates) ----------
+  const LINES = [
+    { k: 'heart', c: '#FF4D5E', d: 'M 352 668 C 440 660, 540 640, 612 612 C 652 596, 688 578, 716 560', a: 0.10, b: 0.72, chip: { x: 330, y: 648, anchor: 'right' } },
+    { k: 'head', c: '#4C8DFF', d: 'M 758 668 C 690 676, 600 694, 520 718 C 470 734, 430 750, 398 770', a: 0.42, b: 1.06, chip: { x: 376, y: 772, anchor: 'right' } },
+    { k: 'life', c: '#2FD06A', d: 'M 752 690 C 690 720, 628 780, 604 860 C 586 920, 588 990, 610 1062', a: 0.74, b: 1.44, chip: { x: 652, y: 1040, anchor: 'left' } },
+    { k: 'fate', c: '#B26BFF', d: 'M 520 1070 C 530 990, 540 900, 552 820 C 560 770, 566 730, 572 690', a: 1.06, b: 1.74, chip: { x: 500, y: 1100, anchor: 'right' } },
+  ];
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = $('#lines');
+  for (const L of LINES) {
+    const mk = (w, op, filt) => {
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', L.d); p.setAttribute('fill', 'none'); p.setAttribute('stroke', L.c);
+      p.setAttribute('stroke-width', w); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-opacity', op);
+      p.setAttribute('pathLength', '1'); p.setAttribute('stroke-dasharray', '1 1');
+      if (filt) p.setAttribute('filter', `url(#${filt})`);
+      svg.appendChild(p); return p;
+    };
+    L.glow = mk(26, 0.55, 'blur');
+    L.core = mk(8, 1);
+    L.hi = mk(2.5, 0.8); L.hi.setAttribute('stroke', '#ffffff');
+    L.dot = document.createElementNS(NS, 'circle'); L.dot.setAttribute('r', 16); L.dot.setAttribute('fill', '#fff'); L.dot.setAttribute('filter', 'url(#dotglow)'); svg.appendChild(L.dot);
+    L.len = L.core.getTotalLength();
+    L.chipEl = $('#c-' + L.k);
+    // position chip in wrap pixels (wrap is 1100 wide for a 1200 wide image)
+    const f = 1100 / 1200;
+    L.chipEl.style.top = (L.chip.y * f - 26) + 'px';
+    if (L.chip.anchor === 'right') L.chipEl.style.right = (1100 - L.chip.x * f) + 'px';
+    else L.chipEl.style.left = (L.chip.x * f) + 'px';
+  }
+
+  // words
+  const words = (root) => [...root.querySelectorAll('.w')];
+  const W1 = words($('#s1')), W2 = words($('#s2')), W3 = words($('#s3')), W4 = words($('#s4'));
+  const wordsIn = (list, t, start, step = 0.07, dur = 0.55, dy = 46) => {
+    list.forEach((el, i) => {
+      const k = eOut(seg(t, start + i * step, start + i * step + dur));
+      el.style.opacity = k; el.style.transform = `translateY(${(1 - k) * dy}px)`;
+    });
+  };
+  const show = (el, k, dy = 40, s0 = 1) => {
+    el.style.opacity = k;
+    el.style.transform = `translateY(${(1 - k) * dy}px) scale(${lerp(s0, 1, k)})`;
+  };
+
+  const capOut = (el, t, w) => { el.querySelector(".cap").style.opacity = 1 - eInOut(seg(t, w[2] - 0.05, w[2] + 0.2)); };
+  // scene windows: [in start, in end, out start, out end]
+  const WIN = { s1: [-1, 0, 2.1, 2.5], s2: [2.1, 2.55, 6.0, 6.4], s3: [6.0, 6.45, 10.9, 11.3], s4: [10.9, 11.35, 14.9, 15.3], s5: [14.9, 15.4, 99, 100] };
+  const sceneK = (t, w) => Math.min(eInOut(seg(t, w[0], w[1])), 1 - eInOut(seg(t, w[2], w[3])));
+
+  // frame sources set by the build
+  window.FILM = { n: 0, rate: 1.16, t0: 2.1 };
+  window.SITE = { nA: 0, nB: 0, tA: 10.9, tB: 13.0 };
+  const setSrc = (img, src) => { if (img.dataset.src !== src) { img.dataset.src = src; img.src = src; return img.decode().catch(() => {}); } return null; };
+
+  window.render = async (t) => {
+    const waits = [];
+    const tb = Math.min(t, 17.8); // background freezes for the final hold
+    $('#stars').style.transform = `translateY(${-tb * 7}px)`;
+    $('#glowTop').style.transform = `translate(${Math.sin(tb * 0.35) * 60}px, ${Math.cos(tb * 0.3) * 30}px)`;
+    $('#glowGold').style.transform = `translate(${Math.cos(tb * 0.28) * 70}px, 0)`;
+
+    // ---- S1 ----
+    {
+      const w = WIN.s1, el = $('#s1');
+      const out = eInOut(seg(t, w[2], w[3]));
+      el.style.opacity = 1 - out;
+      el.style.display = t > w[3] ? 'none' : 'block';
+      if (t <= w[3]) {
+        el.style.transform = `scale(${1 + out * 0.06})`;
+        el.style.transformOrigin = '50% 62%';
+        capOut(el, t, w); const hk = eOut(seg(t, 0, 2.5));
+        $('#handwrap').style.transform = `scale(${lerp(1.08, 1.0, hk)})`;
+        W1.forEach((wd, i) => {
+          const k = eOut(seg(t, i * 0.07, i * 0.07 + 0.6));
+          wd.style.opacity = lerp(0.3, 1, k);
+          wd.style.transform = `translateY(${(1 - k) * 38}px)`;
+        });
+        for (const L of LINES) {
+          const p = eInOut(seg(t, L.a, L.b));
+          const off = String(1 - p);
+          L.glow.setAttribute('stroke-dashoffset', off); L.core.setAttribute('stroke-dashoffset', off); L.hi.setAttribute('stroke-dashoffset', off);
+          L.glow.style.display = L.core.style.display = L.hi.style.display = p > 0.001 ? '' : 'none';
+          const pt = L.core.getPointAtLength(L.len * p);
+          L.dot.setAttribute('cx', pt.x); L.dot.setAttribute('cy', pt.y);
+          L.dot.setAttribute('opacity', p > 0.001 && p < 0.999 ? 0.95 : 0);
+          const ck = eOut(seg(t, L.b - 0.15, L.b + 0.25));
+          L.chipEl.style.opacity = ck;
+          L.chipEl.style.transform = `translateY(${(1 - ck) * 14}px) scale(${lerp(0.85, 1, ck)})`;
+        }
+      }
+    }
+
+    // ---- S2 ----
+    {
+      const w = WIN.s2, el = $('#s2'), k = sceneK(t, w);
+      el.style.opacity = k; el.style.display = k > 0 ? 'block' : 'none';
+      if (k > 0) {
+        const kin = eOut(seg(t, w[0], w[0] + 0.7)), kout = eInOut(seg(t, w[2], w[3]));
+        $('#filmcard').style.transform = `translateY(${(1 - kin) * 70 - kout * 40}px) scale(${lerp(0.94, 1, kin)})`;
+        wordsIn(W2, t, w[0] + 0.3, 0.09); capOut(el, t, w);
+        const i = clamp(Math.round((t - FILM.t0) * FILM.rate * 30), 0, FILM.n - 1);
+        const p = setSrc($('#film'), `/work/film/${String(i + 1).padStart(4, '0')}.jpg`);
+        if (p) waits.push(p);
+      }
+    }
+
+    // ---- S3 ----
+    {
+      const w = WIN.s3, el = $('#s3'), k = sceneK(t, w);
+      el.style.opacity = k; el.style.display = k > 0 ? 'block' : 'none';
+      if (k > 0) {
+        wordsIn(W3, t, w[0] + 0.3, 0.06); capOut(el, t, w);
+        const kin = eOut(seg(t, w[0], w[0] + 0.8));
+        const push = eInOut(seg(t, w[0], 9.0));
+        const x = eInOut(seg(t, 8.45, 9.05)); // crossfade to the close-up
+        $('#rep1').style.opacity = 1 - x;
+        $('#rep1').style.transform = `translateY(${(1 - kin) * 80}px) scale(${lerp(0.97, 1.1, push)})`;
+        const p2 = eInOut(seg(t, 8.45, w[3]));
+        $('#rep2').style.opacity = x;
+        $('#rep2').style.transform = `translateY(${lerp(40, -30, p2)}px) scale(${lerp(0.96, 1.06, p2)})`;
+      }
+    }
+
+    // ---- S4 ----
+    {
+      const w = WIN.s4, el = $('#s4'), k = sceneK(t, w);
+      el.style.opacity = k; el.style.display = k > 0 ? 'block' : 'none';
+      if (k > 0) {
+        wordsIn(W4, t, w[0] + 0.3, 0.07); capOut(el, t, w);
+        const kin = eOut(seg(t, w[0], w[0] + 0.8)), kout = eInOut(seg(t, w[2], w[3]));
+        $('#phone').style.transform = `translateY(${(1 - kin) * 110 - kout * 40}px) scale(${lerp(0.95, 1, kin)})`;
+        const x = eInOut(seg(t, SITE.tB, SITE.tB + 0.35));
+        const iA = clamp(Math.round((t - SITE.tA) * 30), 0, SITE.nA - 1);
+        const iB = clamp(Math.round((t - SITE.tB) * 30), 0, SITE.nB - 1);
+        const pa = setSrc($('#siteA'), `/work/site/a${String(iA).padStart(4, '0')}.jpg`); if (pa) waits.push(pa);
+        const pb = setSrc($('#siteB'), `/work/site/b${String(iB).padStart(4, '0')}.jpg`); if (pb) waits.push(pb);
+        $('#siteA').style.opacity = 1 - eInOut(seg(t, SITE.tB - 0.05, SITE.tB + 0.12)); $('#siteB').style.opacity = eInOut(seg(t, SITE.tB + 0.12, SITE.tB + 0.3));
+      }
+    }
+
+    // ---- S5 ----
+    {
+      const w = WIN.s5, el = $('#s5'), k = sceneK(t, w);
+      el.style.opacity = k; el.style.display = k > 0 ? 'block' : 'none';
+      if (k > 0) {
+        const mk = eOutBack(seg(t, 15.0, 15.8));
+        $('#mark').style.transform = `scale(${lerp(0.6, 1, mk)})`; $('#mark').style.opacity = clamp(mk * 1.4);
+        const ml = eInOut(seg(t, 15.3, 16.2));
+        const lines = $('#markLines'); lines.setAttribute('pathLength', '1'); lines.setAttribute('stroke-dasharray', '1 1'); lines.setAttribute('stroke-dashoffset', String(1 - ml));
+        const hk = eOut(seg(t, 15.2, 16.6)); $('#halo').style.opacity = hk; $('#halo').style.transform = `scale(${lerp(0.6, 1, hk)})`;
+        show($('#brand'), eOut(seg(t, 15.35, 16.0)), 40);
+        show($('#domain'), eOut(seg(t, 15.6, 16.2)), 30);
+        const rk = eOut(seg(t, 15.8, 16.5)); $('#rule').style.opacity = rk; $('#rule').style.transform = `scaleX(${rk})`;
+        show($('#appline'), eOut(seg(t, 16.0, 16.7)), 40);
+        show($('#badge'), eOut(seg(t, 16.35, 17.0)), 40, 0.92);
+        show($('#guides5'), eOut(seg(t, 16.7, 17.3)), 24);
+        show($('#honest'), eOut(seg(t, 16.9, 17.5)), 20);
+      }
+    }
+    await Promise.all(waits);
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  };
+
+  window.ready = (async () => {
+    await Promise.all([
+      document.fonts.load('600 100px "Cormorant Garamond"'), document.fonts.load('italic 600 100px "Cormorant Garamond"'), document.fonts.load('700 100px "Cormorant Garamond"'),
+      document.fonts.load('400 30px Mukta'), document.fonts.load('500 30px Mukta'), document.fonts.load('600 30px Mukta'),
+    ]);
+    await Promise.all([...document.images].filter((i) => i.getAttribute('src')).map((i) => i.decode().catch(() => { throw new Error('image ' + i.src); })));
+    return {
+      fonts: ['600 100px "Cormorant Garamond"', 'italic 600 100px "Cormorant Garamond"', '700 100px "Cormorant Garamond"', '400 30px Mukta', '600 30px Mukta'].map((f) => document.fonts.check(f)),
+    };
+  })();
+</script>
+</body>
+</html>

@@ -5,10 +5,12 @@
  * is picked (plan §12.6 bundle rule).
  */
 
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 
 import type { Locale } from '../../config/site';
+import { qrMatrix } from '../../lib/qr';
 import { COPY } from '../../lib/reading/copy';
+import { DESKTOP_QUERY, phoneUrl, showWebcam } from '../../lib/webcam/core';
 import { CheckIcon, InfoIcon, ShieldIcon } from './Icons';
 
 export function PrivacyPanel({ locale }: { locale: Locale }) {
@@ -29,7 +31,37 @@ export function PrivacyPanel({ locale }: { locale: Locale }) {
   );
 }
 
+/** Desktop with a camera API: offer the laptop webcam (WEB-DEC-059). Phones: always false. */
+function useWebcamOffer(): boolean {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia(DESKTOP_QUERY);
+    const sync = () => setOn(showWebcam(query.matches, navigator));
+    sync();
+    query.addEventListener('change', sync);
+    return () => query.removeEventListener('change', sync);
+  }, []);
+  return on;
+}
+
+/** Desktop only: a quiet QR card to carry on with the phone's better camera (no utm, no tracking). */
+function PhoneQr({ locale }: { locale: Locale }) {
+  const matrix = useMemo(() => qrMatrix(phoneUrl(location.href, locale === 'hi' ? { lang: 'hi' } : {})), [locale]);
+  return (
+    <div className="only-desktop">
+      <div className="rd-phone">
+        <svg viewBox={`0 0 ${matrix.size} ${matrix.size}`} role="img" aria-label={COPY.phoneQrLabel[locale]} shapeRendering="crispEdges">
+          <rect className="rd-qr-light" width={matrix.size} height={matrix.size} rx={matrix.size * 0.068} />
+          <path className="rd-qr-dark" d={matrix.path} />
+        </svg>
+        <p className="text-small rd-muted">{COPY.phoneQr[locale]}</p>
+      </div>
+    </div>
+  );
+}
+
 function FileButtons({ locale, onFile }: { locale: Locale; onFile: (file: File) => void }) {
+  const webcam = useWebcamOffer();
   const camera = useRef<HTMLInputElement>(null);
   const gallery = useRef<HTMLInputElement>(null);
   const changed = (event: ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +77,21 @@ function FileButtons({ locale, onFile }: { locale: Locale; onFile: (file: File) 
       <button type="button" className="btn btn-gold btn-block only-touch" onClick={() => camera.current?.click()}>
         {COPY.takePhoto[locale]}
       </button>
-      <button type="button" className="btn btn-gold btn-block only-desktop" onClick={() => gallery.current?.click()}>
+      {webcam && (
+        <button
+          type="button"
+          className="btn btn-gold btn-block only-desktop"
+          onClick={() => {
+            void import('../../lib/webcam/dialog').then(async ({ openWebcam }) => {
+              const file = await openWebcam({ locale, onUpload: () => gallery.current?.click() });
+              if (file) onFile(file);
+            });
+          }}
+        >
+          {COPY.useWebcam[locale]}
+        </button>
+      )}
+      <button type="button" className={`btn ${webcam ? 'btn-secondary' : 'btn-gold'} btn-block only-desktop`} onClick={() => gallery.current?.click()}>
         {COPY.uploadPhoto[locale]}
       </button>
       <button type="button" className="text-link rd-link-button only-touch" onClick={() => gallery.current?.click()}>
@@ -112,6 +158,7 @@ export function PickScreen({
         ))}
       </ul>
       <FileButtons locale={locale} onFile={onFile} />
+      <PhoneQr locale={locale} />
       <p className="text-small rd-muted">{COPY.cameraNote[locale]}</p>
       <p className="text-small rd-muted">{COPY.mehndi[locale]}</p>
       <PrivacyPanel locale={locale} />

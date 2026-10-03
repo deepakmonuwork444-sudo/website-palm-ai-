@@ -1,0 +1,206 @@
+{
+  "/": {
+    "image": "/og/home.jpg",
+    "title": "Free AI palm reading: What do your hands say?"
+  },
+  "/app/": {
+    "image": "/og/app.jpg",
+    "title": "PalmSays: the palm reading app that traces your real lines"
+  },
+  "/hi/": {
+    "image": "/og/hi.jpg",
+    "title": "मुफ़्त AI हस्तरेखा रीडिंग: आपके हाथ क्या कहते हैं?"
+  },
+  "/hi/app/": {
+    "image": "/og/hi-app.jpg",
+    "title": "PalmSays: हस्तरेखा ऐप जो आपकी असली रेखाएं बनाता है"
+  },
+  "/privacy/": {
+    "image": "/og/privacy.jpg",
+    "title": "Privacy policy"
+  },
+  "/terms/": {
+    "image": "/og/terms.jpg",
+    "title": "Terms of use"
+  },
+  "/about/": {
+    "image": "/og/about.jpg",
+    "title": "About PalmSays"
+  },
+  "/editorial-policy/": {
+    "image": "/og/editorial-policy.jpg",
+    "title": "Editorial policy"
+  },
+  "/palm-reading/": {
+    "image": "/og/palm-reading.jpg",
+    "title": "How to read palm lines: a beginner’s step-by-step guide"
+  },
+  "/hand-lines/": {
+    "image": "/og/hand-lines.jpg",
+    "title": "Lines on your palm and what they mean"
+  },
+  "/heart-line/": {
+    "image": "/og/heart-line.jpg",
+    "title": "Heart line meaning in palmistry (the love line)"
+  },
+  "/head-line/": {
+    "image": "/og/head-line.jpg",
+    "title": "Head line meaning in palmistry"
+  },
+  "/life-line/": {
+    "image": "/og/life-line.jpg",
+    "title": "Life line on your palm: what it shows (and what it doesn’t)"
+  },
+  "/fate-line/": {
+    "image": "/og/fate-line.jpg",
+    "title": "Fate line meaning in palmistry"
+  },
+  "/is-palmistry-real/": {
+    "image": "/og/is-palmistry-real.jpg",
+    "title": "Is palmistry true? An honest answer from a palm-reading app"
+  },
+  "/which-hand-to-read/": {
+    "image": "/og/which-hand-to-read.jpg",
+    "title": "Which hand to read in palmistry, for women and men"
+  },
+  "/marriage-line/": {
+    "image": "/og/marriage-line.jpg",
+    "title": "Marriage line in palmistry: what it really means"
+  },
+  "/head-line/double/": {
+    "image": "/og/head-line-double.jpg",
+    "title": "Two head lines on your palm: the double head line"
+  },
+  "/simian-line/": {
+    "image": "/og/simian-line.jpg",
+    "title": "Simian line: one line across your palm"
+  },
+  "/palm-mounts/": {
+    "image": "/og/palm-mounts.jpg",
+    "title": "Mounts of the palm"
+  },
+  "/hand-types/": {
+    "image": "/og/hand-types.jpg",
+    "title": "Hand types in palmistry: which one is yours?"
+  },
+  "/palmistry-fingers/": {
+    "image": "/og/palmistry-fingers.jpg",
+    "title": "Fingers in palmistry"
+  },
+  "/sun-line/": {
+    "image": "/og/sun-line.jpg",
+    "title": "Sun line (Apollo line) meaning in palmistry"
+  },
+  "/palm-crosses/": {
+    "image": "/og/palm-crosses.jpg",
+    "title": "Cross on the palm: what an X means in palmistry"
+  },
+  "/palmistry-m/": {
+    "image": "/og/palmistry-m.jpg",
+    "title": "The M on your palm: what the letter M means in palmistry"
+  },
+  "/lucky-signs/": {
+    "image": "/og/lucky-signs.jpg",
+    "title": "Lucky signs on the palm: star, triangle, square, fish and trident"
+  },
+  "/money-line/": {
+    "image": "/og/money-line.jpg",
+    "title": "Money line on the palm: what palmistry really reads for money"
+  },
+  "/career-palmistry/": {
+    "image": "/og/career-palmistry.jpg",
+    "title": "Career palmistry: what your palm lines say about work"
+  },
+  "/palmistry-terms/": {
+    "image": "/og/palmistry-terms.jpg",
+    "title": "Palmistry terms: a glossary of palm reading words (with Hindi names)"
+  },
+  "/tools/": {
+    "image": "/og/tools.jpg",
+    "title": "Free palm reading tools"
+  },
+  "/tools/palm-photo-checker/": {
+    "image": "/og/tools-palm-photo-checker.jpg",
+    "title": "Palm photo checker"
+  },
+  "/tools/heart-line-finder/": {
+    "image": "/og/tools-heart-line-finder.jpg",
+    "title": "Heart line finder: which heart line do you have?"
+  },
+  "/tools/head-line-finder/": {
+    "image": "/og/tools-head-line-finder.jpg",
+    "title": "Head line finder: which head line do you have?"
+  },
+  "/tools/life-line-finder/": {
+    "image": "/og/tools-life-line-finder.jpg",
+    "title": "Life line finder: which life line do you have?"
+  },
+  "/tools/fate-line-finder/": {
+    "image": "/og/tools-fate-line-finder.jpg",
+    "title": "Fate line finder: do you have a fate line?"
+  },
+  "/tools/which-hand-quiz/": {
+    "image": "/og/tools-which-hand-quiz.jpg",
+    "title": "Which hand should you read? Take the quiz"
+  },
+  "/tools/hand-type-quiz/": {
+    "image": "/og/tools-hand-type-quiz.jpg",
+    "title": "What hand type do you have? Find out from your photo"
+  },
+  "/tools/finger-reader/": {
+    "image": "/og/tools-finger-reader.jpg",
+    "title": "Palmistry finger reader: your fingers and thumb, measured from a photo"
+  },
+  "/tools/left-vs-right-palm/": {
+    "image": "/og/tools-left-vs-right-palm.jpg",
+    "title": "Left vs right palm: compare your two hands"
+  },
+  "/tools/palm-signs-checker/": {
+    "image": "/og/tools-palm-signs-checker.jpg",
+    "title": "Palm signs checker"
+  },
+  "/tools/palm-map/": {
+    "image": "/og/tools-palm-map.jpg",
+    "title": "Interactive palm map"
+  },
+  "/tools/palm-reading-quiz/": {
+    "image": "/og/tools-palm-reading-quiz.jpg",
+    "title": "Palm reading quiz: can you spot the lines?"
+  },
+  "/mercury-line/": {
+    "image": "/og/mercury-line.jpg",
+    "title": "Mercury line meaning in palmistry"
+  },
+  "/children-line/": {
+    "image": "/og/children-line.jpg",
+    "title": "Children lines on the palm: what the tradition says"
+  },
+  "/history-of-palmistry/": {
+    "image": "/og/history-of-palmistry.jpg",
+    "title": "A short history of palmistry"
+  },
+  "/life-line/broken/": {
+    "image": "/og/life-line-broken.jpg",
+    "title": "Broken life line on your palm: what a gap means"
+  },
+  "/blog/": {
+    "image": "/og/blog.jpg",
+    "title": "Palm reading blog: honest answers to the questions people ask"
+  },
+  "/blog/rarest-palm-lines/": {
+    "image": "/og/blog-rarest-palm-lines.jpg",
+    "title": "What are the rarest palm lines?"
+  },
+  "/blog/do-palm-lines-change/": {
+    "image": "/og/blog-do-palm-lines-change.jpg",
+    "title": "Do palm lines change over time?"
+  },
+  "/blog/best-palm-reading-apps/": {
+    "image": "/og/blog-best-palm-reading-apps.jpg",
+    "title": "Which palm reading app is best?"
+  },
+  "/blog/palm-reading-chatgpt-vs-palm-scanner/": {
+    "image": "/og/blog-palm-reading-chatgpt-vs-palm-scanner.jpg",
+    "title": "Can ChatGPT read your palm?"
+  }
+}

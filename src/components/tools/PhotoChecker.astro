@@ -2,11 +2,14 @@
 /**
  * Palm photo checker (tool 3): camera or gallery → a 96px canvas copy →
  * the app's pixel checks, all in the browser. No network request carries the
- * image (verified in the gate run). File inputs, not getUserMedia: the site's
- * Permissions-Policy blocks camera access, and the phone's own camera app is
- * the better camera anyway (capture="environment").
+ * image (verified in the gate run). Phones: file inputs (capture="environment", the phone's own
+ * camera app is the better camera). Desktops: "Use laptop camera"
+ * (WebcamButton, WEB-DEC-059) hands its JPEG to the gallery input.
  */
 import Icon from '../Icon.astro';
+import DropPalm from './DropPalm.astro';
+import ContinueOnPhone from './ContinueOnPhone.astro';
+import WebcamButton from './WebcamButton.astro';
 ---
 
 <div class="t-card" data-photo-check>
@@ -23,22 +26,25 @@ import Icon from '../Icon.astro';
     </div>
   </div>
 
-  <div class="t-pc-start" data-start>
+  <div class="t-pc-start t-drop" data-start>
+    <DropPalm />
     <div class="t-actions">
       <input id="pc-camera" class="t-file-input" type="file" accept="image/*" capture="environment" data-file />
       <label for="pc-camera" class="btn btn-gold t-file-label only-touch" data-camera-label>Take a palm photo</label>
+      <WebcamButton forInput="pc-gallery" />
       <input id="pc-gallery" class="t-file-input" type="file" accept="image/*" data-file />
       <label for="pc-gallery" class="btn btn-secondary t-file-label t-pc-gallery" data-gallery-label>Choose a photo</label>
     </div>
     <p class="t-privacy">
       <Icon name="shield" />
-      <span>Runs on your phone — your photo never leaves this device. Nothing is uploaded or saved; close the page and it is gone.</span>
+      <span>Runs on your phone: your photo never leaves this device. Nothing is uploaded or saved; close the page and it is gone.</span>
     </p>
     <ul class="t-pc-tips" aria-label="Tips for a good palm photo" data-tips>
       <li><Icon name="check" /><span>Open palm, fingers together</span></li>
       <li><Icon name="check" /><span>Good light, no flash glare</span></li>
       <li><Icon name="check" /><span>Whole palm in the frame</span></li>
     </ul>
+    <ContinueOnPhone />
   </div>
 
   <noscript><p class="t-noscript">The photo checker needs JavaScript. The tips below still apply.</p></noscript>

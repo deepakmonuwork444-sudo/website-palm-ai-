@@ -1,0 +1,107 @@
+---
+/**
+ * "What you get": a REAL result of the tool on a sample photo, drawn at
+ * build time from the hand model's actual output for that photo
+ * (src/lib/tools/hand/examples/right-palm.json) through the same measuring
+ * code the tool runs. Nothing is drawn by hand. The photo's licence and
+ * author are named under it (CC BY-SA 4.0).
+ */
+import exampleImage from '../../lib/tools/hand/examples/right-palm.jpg';
+import example from '../../lib/tools/hand/examples/right-palm.json';
+import { fingerHeadline } from '../../lib/tools/hand/fingers';
+import { HAND_BONES, LM, type PhotoHands } from '../../lib/tools/hand/landmarks';
+import { handShape, ratioText } from '../../lib/tools/hand/shape';
+import { assessHand } from '../../lib/tools/hand/verdict';
+import { ELEMENTS } from '../../lib/tools/hand-type';
+
+interface Props {
+  kind: 'shape' | 'fingers';
+  /** Smaller figure for the hub cards. */
+  compact?: boolean;
+}
+
+const { kind, compact = false } = Astro.props;
+const photo = example as unknown as PhotoHands;
+const verdict = assessHand(photo);
+if (!verdict.ok) throw new Error('HandExample: the stored example no longer passes the photo checks');
+const hand = verdict.hand;
+const W = photo.width;
+const H = photo.height;
+const P = (i: number) => ({ x: hand.landmarks[i]!.x * W, y: hand.landmarks[i]!.y * H });
+const d = (points: number[]) => points.map((i, n) => `${n === 0 ? 'M' : 'L'}${P(i).x.toFixed(1)} ${P(i).y.toFixed(1)}`).join(' ');
+const stroke = Math.max(2, Math.max(W, H) / 260);
+
+const marks =
+  kind === 'shape'
+    ? [
+        { tone: 'life', path: [LM.WRIST, LM.MIDDLE_MCP] },
+        { tone: 'head', path: [LM.INDEX_MCP, LM.LITTLE_MCP] },
+        { tone: 'heart', path: [LM.MIDDLE_MCP, LM.MIDDLE_PIP, LM.MIDDLE_DIP, LM.MIDDLE_TIP] },
+      ]
+    : [
+        { tone: 'head', path: [LM.INDEX_MCP, LM.INDEX_PIP, LM.INDEX_DIP, LM.INDEX_TIP] },
+        { tone: 'heart', path: [LM.RING_MCP, LM.RING_PIP, LM.RING_DIP, LM.RING_TIP] },
+        { tone: 'fate', path: [LM.THUMB_MCP, LM.THUMB_IP, LM.THUMB_TIP] },
+      ];
+
+const shape = handShape(verdict.measures);
+const summary =
+  kind === 'shape'
+    ? shape.elements.length === 1
+      ? ELEMENTS[shape.elements[0]!].name
+      : `Between ${shape.elements.map((e) => ELEMENTS[e].name.replace(' hand', '')).join(' and ')}`
+    : fingerHeadline(verdict.measures);
+const facts =
+  kind === 'shape'
+    ? [`Palm length ÷ width: ${ratioText(shape.palmRatio)}`, `Middle finger ÷ palm: ${ratioText(shape.fingerRatio)}`]
+    : [`Index: ${Math.round(verdict.measures.indexRingLength * 100)}% of ring`, `Thumb: ${Math.round(verdict.measures.thumbAngle)}° from the index finger`];
+---
+
+<figure class:list={['t-example', { 't-example-compact': compact }]}>
+  <div class="t-example-photo">
+    <div class="t-ov-frame">
+      <img src={exampleImage.src} width={W} height={H} alt="Example: a sample open palm with the points our hand model found drawn on it" loading="lazy" decoding="async" />
+      <svg class="t-ov" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <g class="t-ov-bones">
+          {HAND_BONES.map(([a, b]) => <path class="t-ov-halo" d={d([a, b])} stroke-width={(stroke * 1.8).toFixed(1)} />)}
+          {HAND_BONES.map(([a, b]) => <path class="t-ov-bone" d={d([a, b])} stroke-width={(stroke * 0.7).toFixed(1)} />)}
+        </g>
+        {
+          marks.map((mark) => (
+            <g class={`t-ov-mark t-ov-${mark.tone}`}>
+              <path class="t-ov-halo" d={d(mark.path)} stroke-width={(stroke * 2.6).toFixed(1)} />
+              <path class="t-ov-line" d={d(mark.path)} stroke-width={(stroke * 1.3).toFixed(1)} />
+            </g>
+          ))
+        }
+        <g class="t-ov-dots">
+          {hand.landmarks.map((_, i) => <circle cx={P(i).x.toFixed(1)} cy={P(i).y.toFixed(1)} r={(stroke * 1.5).toFixed(1)} />)}
+        </g>
+      </svg>
+    </div>
+  </div>
+  <figcaption class="t-example-text">
+    <span class="t-example-kicker">Example result</span>
+    <span class="t-example-summary">{summary}</span>
+    <ul class="t-example-facts">
+      {facts.map((fact) => <li>{fact}</li>)}
+    </ul>
+    {
+      compact ? (
+        <span class="t-example-credit">Real output on a sample photo: “Right Hand Palm” by Eyefive45, Wikimedia Commons, CC BY-SA 4.0.</span>
+      ) : (
+        <span class="t-example-credit">
+          Real output of this tool on a sample photo: “Right Hand Palm” by Eyefive45,{' '}
+          <a class="text-link" href="https://commons.wikimedia.org/wiki/File:Right_Hand_Palm.png" rel="noopener">
+            Wikimedia Commons
+          </a>
+          ,{' '}
+          <a class="text-link" href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener">
+            CC BY-SA 4.0
+          </a>
+          . Your own result appears above, with your photo.
+        </span>
+      )
+    }
+  </figcaption>
+</figure>

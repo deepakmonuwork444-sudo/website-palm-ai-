@@ -1,0 +1,147 @@
+---
+/**
+ * /palmistry-terms/ (SEMANTIC_SEO_PLAN.md §5.4, owner decision D2, WEB-DEC-053): the glossary and the
+ * site's entity registry page. Every term comes from src/lib/entities.ts (name, Hindi name, one-sentence
+ * definition, owner page): nothing is typed here twice. Each term has an anchor (#heart-line) that is
+ * also its JSON-LD `@id`, used by every page's about/mentions. Links go only to built pages. The
+ * diagrams are our own files (src/lib/diagrams.ts, CC BY 4.0). Zero JS.
+ * English only: /hi/palmistry-terms/ waits for the Hindi reviewer (Hindi definitions don't exist yet).
+ */
+import DocPage from '../../components/trust/DocPage.astro';
+import DiagramFigure from '../../components/terms/DiagramFigure.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { findPage, isLive } from '../../config/pages';
+import { absoluteUrl, site } from '../../config/site';
+import { ENTITIES, TERMS_PATH, pageEntities } from '../../lib/entities';
+import { diagramUrl, diagramsOnPage } from '../../lib/diagrams';
+import { definedTermSetSchema, sectionTerms, termLink, TERM_SECTIONS, TERM_SET_ID } from '../../lib/terms';
+import { diagramImageSchema, webPageSchema } from '../../lib/schema';
+
+const path = TERMS_PATH;
+const brand = site.brand;
+const title = 'Palmistry Terms: Palm Reading Glossary with Hindi Names';
+const h1 = 'Palmistry terms: a glossary of palm reading words (with Hindi names)';
+const description = `Palmistry terms explained in one sentence each, with Hindi names: the lines, mounts, hand shapes, fingers and signs of the palm, and where to read more.`;
+const answer =
+  'Palmistry has its own words for the lines, mounts, shapes and marks of the hand. This glossary gives each term’s meaning in one sentence, its Hindi name, and the guide that explains it.';
+
+const sections = TERM_SECTIONS.map((section) => ({ ...section, terms: sectionTerms(section) })).filter((section) => section.terms.length > 0);
+const diagrams = diagramsOnPage(path);
+const mountsChart = diagrams.find((item) => item.id === 'mounts-of-the-palm-chart');
+const gallery = diagrams.filter((item) => item !== mountsChart);
+// A diagram's guide, linked with its registry label (anchor rule R1: one phrase, one target).
+const guideLink = (owner: string) => {
+  if (!isLive(owner)) return undefined;
+  const label = findPage(owner)?.label ?? owner;
+  const text = ['/heart-line/', '/head-line/', '/life-line/', '/fate-line/'].includes(owner) ? `${label} meaning` : label;
+  return { href: owner, text };
+};
+
+const toc = [
+  ...sections.map((section) => ({ id: section.id, label: section.label })),
+  ...(gallery.length ? [{ id: 'diagrams', label: 'Diagrams' }] : []),
+  { id: 'sources', label: 'Sources' },
+];
+
+const url = absoluteUrl(path);
+const jsonLd = [
+  webPageSchema({ path, name: title, locale: 'en', description, entities: pageEntities(path), breadcrumb: true, mainEntity: TERM_SET_ID, lastReviewed: '2026-09-28' }),
+  definedTermSetSchema(ENTITIES),
+  ...diagrams.map((item) => diagramImageSchema({ id: `${url}#img-${item.id}`, url: diagramUrl(item), name: item.name, caption: item.caption })),
+];
+---
+
+<BaseLayout title={`${title}`} description={description} path={path} locale="en" jsonLd={jsonLd}>
+  <DocPage
+    crumb="Palmistry terms"
+    path={path}
+    parents={isLive('/palm-reading/') ? [{ name: 'How to read palms', path: '/palm-reading/' }] : []}
+    icon="book"
+    kicker="Glossary"
+    title={h1}
+    lead={answer}
+    meta={`${ENTITIES.length} terms · Last reviewed 28 September 2026 · by ${brand}`}
+    toc={toc}
+  >
+    <p class="terms-note">
+      Each term links to the guide or tool that explains it, where one is built. Palmistry is a tradition for reflection, not a science:
+      the definitions say what the books read, never what will happen. Hindi names marked *
+      are less settled and still wait for a check by our Hindi reviewer.
+    </p>
+
+    {
+      sections.map((section) => (
+        <section aria-labelledby={section.id}>
+          <h2 id={section.id}>{section.title}</h2>
+          {section.id === 'mounts' && mountsChart && <DiagramFigure id={mountsChart.id} />}
+          <div class="terms-list">
+            {section.terms.map((item) => {
+              const link = termLink(item);
+              return (
+                <div class="term">
+                  <h3 id={item.id} class="term-name">
+                    {item.name.en}{' '}
+                    <span lang="hi" class="term-hi script-system">{item.name.hi}</span>
+                    {item.hiCheck && <span class="term-star" title="Hindi name waits for our Hindi reviewer">*</span>}
+                  </h3>
+                  <p class="term-def">{item.def}</p>
+                  {link && (
+                    <p class="term-more">
+                      Read more: <a class="text-link" href={link}>{findPage(link)?.label ?? item.name.en}</a>
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ))
+    }
+
+    {
+      gallery.length > 0 && (
+        <section aria-labelledby="diagrams">
+          <h2 id="diagrams">Palmistry diagrams you can reuse</h2>
+          <p>
+            Our labelled diagrams of the palm, drawn from the same hand as the rest of the site. They are free to reuse under the{' '}
+            <a class="text-link" href={site.diagramLicence.url} rel="license">{site.diagramLicence.name}</a> licence with credit to {site.diagramLicence.credit}.
+            Each links to its full-size file.
+          </p>
+          <div class="terms-gallery">
+            {gallery.map((item) => (
+              <DiagramFigure id={item.id} compact more={guideLink(item.owner)} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <h2 id="sources">Where these definitions come from</h2>
+    <p>
+      The line, mount, hand-type and sign definitions summarise, in our own words, the classical books the rest of the site cites, mainly
+      Cheiro’s <em>Palmistry for All</em> (1916) and <em>Cheiro’s Language of the Hand</em>, Mrs J. B. Dale’s <em>Indian Palmistry</em> (1895)
+      and Chhotelal Jain’s <em>Samudrik Shastra</em> (1927). The earth, air, fire and water hands are a modern system, and we say so. The
+      guide linked from each term gives the full citation. Read <a class="text-link" href="/editorial-policy/">how we choose sources</a>.
+    </p>
+  </DocPage>
+</BaseLayout>
+
+<style>
+  .terms-note { color: var(--fg-muted); }
+  .terms-list { display: grid; gap: 0.75rem; margin: 0 0 1rem; }
+  .term {
+    padding: 0.875rem 1rem; border-radius: var(--r-well); border: 1px solid transparent;
+    background: var(--well) padding-box, var(--rim) border-box; box-shadow: var(--shine);
+  }
+  .term:has(:target) { background: var(--accent-soft) padding-box, var(--rim) border-box; }
+  .term .term-name { margin: 0 0 0.25rem; font-size: var(--fs-body); font-weight: 700; line-height: 1.4; scroll-margin-top: 6rem; }
+  .term-hi { margin-left: 0.25rem; font-weight: 400; color: var(--accent); }
+  .term-star { color: var(--accent); }
+  .term .term-def { margin: 0; }
+  .term .term-more { margin: 0.375rem 0 0; font-size: var(--fs-small); color: var(--fg-muted); }
+  .terms-gallery { display: grid; gap: 1.25rem; margin: 1rem 0 0.5rem; }
+  @media (min-width: 48rem) {
+    .terms-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .terms-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

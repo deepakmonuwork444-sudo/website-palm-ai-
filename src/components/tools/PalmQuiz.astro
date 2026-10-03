@@ -1,11 +1,11 @@
 ---
 /**
- * Palm reading quiz (tool 12): one question at a time on the stylised palm.
+ * Palm reading quiz (tool 12): one question at a time on the porcelain 3D hand.
  * The first question is server-rendered; the script runs the rest. Options
  * are real buttons; right/wrong is said in words and with an icon, never by
  * colour alone (DESIGN_SYSTEM.md §12).
  */
-import { LINE_ORDER, LINE_PATHS, MOUNT_AREAS, MOUNT_ORDER, PALM_OUTLINE, PALM_VIEWBOX } from '../../lib/tools/palm-geometry';
+import { FRAME, HAND_IMAGE, LINE_ORDER, LINE_PATHS, MAP_VIEWBOX, MOUNT_AREAS, MOUNT_ORDER } from '../../lib/tools/palm-geometry';
 import { QUIZ } from '../../lib/tools/quiz';
 
 const first = QUIZ[0]!;
@@ -15,8 +15,13 @@ const first = QUIZ[0]!;
   <p class="t-quiz-progress" data-progress>Question 1 of {QUIZ.length}</p>
   <div class="t-quiz-body" data-body>
     <div class="t-quiz-figure" data-figure>
-      <svg class="t-map-svg t-quiz-svg" viewBox={PALM_VIEWBOX} role="img" aria-label="A drawn right palm with one part highlighted." data-quiz-svg>
-        <path class="t-palm t-palm-grad" d={PALM_OUTLINE}></path>
+      <svg class="t-map-svg t-quiz-svg t-fig" viewBox={MAP_VIEWBOX} role="img" aria-label="A right palm (a 3D model) with one part highlighted." data-quiz-svg>
+        <defs>
+          <linearGradient id="t-quiz-fade-g" gradientUnits="userSpaceOnUse" x1="0" y1="150" x2="0" y2="1120"><stop offset="0" stop-color="black" /><stop offset="0.145" stop-color="white" /><stop offset="0.9" stop-color="white" /><stop offset="1" stop-color="black" /></linearGradient>
+          <mask id="t-quiz-fade" maskUnits="userSpaceOnUse" x="0" y="0" width={FRAME.width} height={FRAME.height}><rect width={FRAME.width} height={FRAME.height} fill="url(#t-quiz-fade-g)" /></mask>
+        </defs>
+        {/* The fingertips and the wrist run off the view: fade them out softly. */}
+        <image href={HAND_IMAGE.large} x="0" y="0" width={FRAME.width} height={FRAME.height} mask="url(#t-quiz-fade)" />
         {
           MOUNT_ORDER.map((id) => {
             const area = MOUNT_AREAS[id];

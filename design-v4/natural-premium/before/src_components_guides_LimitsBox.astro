@@ -1,0 +1,61 @@
+---
+/**
+ * "What palmistry can't tell you" (CONTENT_GUIDE.md §4.11, DESIGN_SYSTEM.md
+ * §7.8 LimitsBox): the default text, the page's topic line, and a link to
+ * /is-palmistry-real/. A calm surface-2 card with an outline info icon; no
+ * red, no warning icon. `care` adds the care line (lifespan pages only).
+ */
+import { isLive } from '../../config/pages';
+import { localeFromPath, localizePath } from '../../i18n';
+import { inlineMarkdown } from '../../lib/guides/guides';
+import { guideStrings } from '../../lib/guides/strings';
+import Icon from '../Icon.astro';
+
+interface Props {
+  /** The topic line for this page (inline markdown allowed). */
+  topic?: string;
+  care?: boolean;
+}
+
+const { topic, care = false } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const s = guideStrings(locale);
+const realPath = localizePath('/is-palmistry-real/', locale);
+const showLink = isLive(realPath) && Astro.url.pathname !== realPath;
+---
+
+<aside class="limits guide-block" aria-labelledby="limits-title" data-limits-box>
+  <div class="limits-head">
+    <span class="limits-mark glass-well"><Icon name="info" class="limits-icon" /></span>
+    <h2 id="limits-title" class="text-h3 font-bold limits-title">{s.limitsTitle}</h2>
+  </div>
+  <div class="limits-body">
+    <p>{s.limitsBody}</p>
+    {topic && <p set:html={inlineMarkdown(topic, locale)} />}
+    {showLink && <p><a class="text-link" href={realPath}>{s.limitsLink}</a></p>}
+    {care && <p class="text-small limits-care">{s.careLine}</p>}
+  </div>
+</aside>
+
+<style>
+  /* Showroom: calm cool-tinted glass with a slim blue rim; no red, no warning. */
+  .limits {
+    --tint: var(--line-head);
+    position: relative; margin: 2.5rem 0; padding: 1.375rem 1.25rem 1.375rem 1.5rem; border-radius: var(--r-card); border: 1px solid transparent;
+    background: linear-gradient(150deg, color-mix(in srgb, var(--tint) 14%, transparent), rgba(20,18,50,0.55) 70%) padding-box, var(--rim) border-box;
+    box-shadow: var(--shine), var(--e1);
+  }
+  :global([data-theme="day"]) .limits { background: linear-gradient(150deg, var(--color-day-info), var(--color-white) 70%) padding-box, var(--rim) border-box; }
+  .limits::before {
+    content: ""; position: absolute; inset: 1.125rem auto 1.125rem 0; width: 3px; border-radius: 0 3px 3px 0;
+    background: var(--tint); box-shadow: 0 0 14px color-mix(in srgb, var(--tint) 60%, transparent);
+  }
+  .limits-head { display: flex; gap: 0.75rem; align-items: center; margin: 0 0 0.875rem; }
+  .limits-mark { display: grid; place-items: center; flex: none; width: 2.5rem; height: 2.5rem; border-radius: 9999px; }
+  .limits :global(.limits-icon) { color: var(--accent); width: 1.375rem; height: 1.375rem; }
+  .limits-title { margin: 0; }
+  .limits-body p { margin: 0 0 0.625rem; }
+  .limits-body p:last-child { margin-bottom: 0; }
+  .limits-care { padding-top: 0.75rem; border-top: 1px solid var(--edge); color: var(--fg-muted); }
+  @media (min-width: 40rem) { .limits { padding: 1.625rem 1.75rem 1.625rem 2rem; } }
+</style>

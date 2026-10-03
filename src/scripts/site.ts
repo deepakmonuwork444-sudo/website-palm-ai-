@@ -74,6 +74,54 @@ function initHeader(): void {
   }).observe(sentinel);
 }
 
+/**
+ * The one gold action per screen (DESIGN_SYSTEM.md §7.1, §7.10):
+ * - <html data-past-hero> once the hero's gold button ([data-hero-cta]) has
+ *   scrolled up out of view: the header's outline "Scan my palm" appears.
+ * - The mobile bottom bar ([data-sticky-cta]) shows only after that, and hides
+ *   again while any in-page scan button ([data-scan-cta]) is on screen.
+ * Without JS (or IntersectionObserver) nothing extra appears: the in-page
+ * buttons still work.
+ */
+function initScanCta(): void {
+  const hero = document.querySelector('[data-hero-cta]');
+  if (!hero || !('IntersectionObserver' in window)) return;
+  const root = document.documentElement;
+  const bar = document.querySelector<HTMLElement>('[data-sticky-cta]');
+  const onScreen = new Set<Element>();
+  let pastHero = false;
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.target === hero) pastHero = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      if (entry.isIntersecting) onScreen.add(entry.target);
+      else onScreen.delete(entry.target);
+    }
+    root.toggleAttribute('data-past-hero', pastHero);
+    if (bar) {
+      const show = pastHero && onScreen.size === 0;
+      bar.toggleAttribute('data-shown', show);
+      bar.inert = !show;
+    }
+  });
+  observer.observe(hero);
+  for (const cta of document.querySelectorAll('[data-scan-cta]')) if (cta !== hero) observer.observe(cta);
+  // The footer ends the page: the bar steps aside so it never covers the footer.
+  const footer = document.querySelector('[data-site-footer]');
+  if (footer) observer.observe(footer);
+}
+
+/** Footer link groups are disclosure rows on phones and open columns from 64rem. */
+function initFooter(): void {
+  const wide = matchMedia('(min-width: 64rem)');
+  const sync = (): void => {
+    for (const group of document.querySelectorAll<HTMLDetailsElement>('[data-footer-group]')) group.open = wide.matches;
+  };
+  sync();
+  wide.addEventListener('change', sync);
+}
+
 initTheme();
 initMenu();
+initFooter();
 initHeader();
+initScanCta();

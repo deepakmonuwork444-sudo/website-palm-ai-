@@ -33,9 +33,47 @@ const previewApi = (() => {
  * page (SECURITY_PRIVACY.md §5). frame-ancestors can't live in a <meta>; it is
  * in public/_headers.
  */
+/**
+ * `astro dev` only: /reading → /reading/ with a 301, as Cloudflare does in
+ * production (wrangler.jsonc html_handling "auto-trailing-slash"). Without it the
+ * dev server answers a bare "404: Not Found" when a slash is left off.
+ * Files (a dot in the last part) and Vite's own paths are left alone.
+ */
+function devTrailingSlash() {
+  return {
+    name: 'palmsays-dev-trailing-slash',
+    apply: 'serve',
+    // A post hook, run after Astro's: Astro puts its own slash check (a bare 404 page) at the front of
+    // the stack, so this redirect has to be placed in front of it afterwards.
+    /** @param {import('vite').ViteDevServer} server */
+    configureServer(server) {
+      /**
+       * @param {import('node:http').IncomingMessage} req
+       * @param {import('node:http').ServerResponse} res
+       * @param {() => void} next
+       */
+      const handle = (req, res, next) => {
+        const [path = '', query] = (req.url ?? '').split('?');
+        const last = path.split('/').pop() ?? '';
+        const internal = /^\/(@|_|node_modules\/|src\/)/.test(path);
+        if (req.method === 'GET' && path.length > 1 && !path.endsWith('/') && !last.includes('.') && !internal) {
+          res.statusCode = 301;
+          res.setHeader('Location', `${path}/${query ? `?${query}` : ''}`);
+          res.end();
+          return;
+        }
+        next();
+      };
+      return () => server.middlewares.stack.unshift({ route: '', handle });
+    },
+  };
+}
+
 export default defineConfig({
   site: site.baseUrl,
   output: 'static',
+  // The floating dev toolbar pill confused the owner on localhost (v3 review): off for everyone.
+  devToolbar: { enabled: false },
   trailingSlash: 'always',
   build: { format: 'directory' },
   i18n: {
@@ -47,7 +85,26 @@ export default defineConfig({
   // No Shiki: its inline styles break the hashed CSP. Guides have no code blocks.
   markdown: { syntaxHighlight: false },
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), devTrailingSlash()],
+    build: {
+      // Vite's default (inline under 4 KB), except the guide hero's player: it stays its own bundled file (WEB-DEC-047).
+      assetsInlineLimit: (file) => (file.includes('TracedPalm') ? false : undefined),
+    },
+    // `astro dev` only: bundle every browser library once at start. When Vite found one late
+    // (uqr in the reading island), it rebuilt its cache mid-session and the open page failed
+    // with "504 Outdated Optimize Dep", leaving /reading/ blank.
+    optimizeDeps: {
+      include: [
+        'uqr',
+        'zod',
+        '@supabase/supabase-js',
+        '@mediapipe/tasks-vision',
+        'three',
+        'three/examples/jsm/environments/RoomEnvironment.js',
+        'three/examples/jsm/loaders/GLTFLoader.js',
+        'jspdf',
+      ],
+    },
   },
   security: {
     csp: {

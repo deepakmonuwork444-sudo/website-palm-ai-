@@ -2,9 +2,11 @@
 /**
  * One question as a real radio group (or checkbox group) with visible labels,
  * 48px targets and a visible focus ring (DESIGN_SYSTEM.md §7.2, §12).
- * Text-only pills, or cards with a small glyph when `glyphs` are given.
+ * Text-only pills, or cards with a picture on the 3D hand (or a small glyph).
  */
 import Icon from '../Icon.astro';
+import MiniPalm from './MiniPalm.astro';
+import type { PalmFigure } from '../../lib/tools/palm-geometry';
 
 export interface Choice {
   value: string;
@@ -12,6 +14,8 @@ export interface Choice {
   hint?: string;
   /** A 24×24 outline path shown above the label. */
   glyph?: string;
+  /** A picture on the 3D hand shown above the label (hand types, palm signs). */
+  figure?: PalmFigure | undefined;
 }
 
 interface Props {
@@ -25,7 +29,7 @@ interface Props {
 }
 
 const { name, legend, help, choices, type = 'radio', q } = Astro.props;
-const cards = choices.some((choice) => choice.glyph || choice.hint);
+const cards = choices.some((choice) => choice.glyph || choice.hint || choice.figure);
 ---
 
 <fieldset class="t-q" data-q={q ?? name}>
@@ -37,7 +41,8 @@ const cards = choices.some((choice) => choice.glyph || choice.hint);
         <label class="t-opt">
           <input class="t-opt-input" type={type} name={name} value={choice.value} />
           <span class="t-opt-box">
-            {choice.glyph && (
+            {choice.figure && <MiniPalm figure={choice.figure} />}
+            {!choice.figure && choice.glyph && (
               <svg class="t-choice-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                 <path d={choice.glyph} />
               </svg>

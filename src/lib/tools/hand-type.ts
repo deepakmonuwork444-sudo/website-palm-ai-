@@ -23,32 +23,32 @@ export const ELEMENTS: Record<Element, { name: string; palm: PalmShape; fingers:
     name: 'Earth hand',
     palm: 'square',
     fingers: 'short',
-    summary: 'In this modern system an earth hand is linked with a practical, steady nature — someone who likes doing things with their hands and trusts what is concrete.',
+    summary: 'In this modern system an earth hand is linked with a practical, steady nature: someone who likes doing things with their hands and trusts what is concrete.',
   },
   air: {
     name: 'Air hand',
     palm: 'square',
     fingers: 'long',
-    summary: 'An air hand is linked with a curious, talkative mind — at home with ideas, words and other people.',
+    summary: 'An air hand is linked with a curious, talkative mind, at home with ideas, words and other people.',
   },
   fire: {
     name: 'Fire hand',
     palm: 'long',
     fingers: 'short',
-    summary: 'A fire hand is linked with energy and enthusiasm — quick to start things and drawn to action.',
+    summary: 'A fire hand is linked with energy and enthusiasm: quick to start things and drawn to action.',
   },
   water: {
     name: 'Water hand',
     palm: 'long',
     fingers: 'long',
-    summary: 'A water hand is linked with sensitivity and imagination — tuned in to feelings and moods.',
+    summary: 'A water hand is linked with sensitivity and imagination, tuned in to feelings and moods.',
   },
 };
 
 export const MODERN_SYSTEM_NOTE =
   'The four-element system is a modern way of sorting hands, popular in 20th-century palmistry books. The classical books we cite elsewhere do not use it.';
 
-export const CHEIRO_TYPES: Cite = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part II, ch. I — The Study of the Shape of the Hands' };
+export const CHEIRO_TYPES: Cite = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part II, ch. I: The Study of the Shape of the Hands' };
 export const CHEIRO_SEVEN = ['elementary', 'square', 'spatulate', 'philosophic', 'conic', 'psychic', 'mixed'] as const;
 
 export function elementOf(palm: PalmShape, fingers: FingerLength): Element {

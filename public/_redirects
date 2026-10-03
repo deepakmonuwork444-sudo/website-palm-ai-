@@ -1,0 +1,12 @@
+# Frozen legal URLs (ARCHITECTURE.md §11 F3, WEB-DEC-029): the app and Play Console link the
+# .html names; they move to the site-layout pages with a 301. Browsers keep the #… part.
+# Workers applies these before looking for a file, so the fallback .html files are never served.
+# One rule per variant: 4 pages x (.html, no extension) = 8. tests/unit/legal.test.ts checks them.
+/privacy.html /privacy/ 301
+/privacy /privacy/ 301
+/terms.html /terms/ 301
+/terms /terms/ 301
+/delete-account.html /delete-account/ 301
+/delete-account /delete-account/ 301
+/reset-password.html /reset-password/ 301
+/reset-password /reset-password/ 301

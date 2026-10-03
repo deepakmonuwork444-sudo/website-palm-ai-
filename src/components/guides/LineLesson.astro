@@ -1,0 +1,43 @@
+---
+/**
+ * One of the 4 main lines, taught by seeing (guide v4, WEB-DEC-047): a crop
+ * of the same real photo with ONLY that line traced (the scanner's own line),
+ * what the line is read for, three forms as drawings at one scale
+ * (CompareRow), then the line's own guide. A line the scanner did not return
+ * shows a "not clearly seen" note instead of a crop. Zero JS.
+ */
+import { isLive } from '../../config/pages';
+import { localeFromPath, localizePath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { guideScan, lineCrop, type GuideLine } from '../../lib/guides/traced-palm';
+import CompareRow from './CompareRow.astro';
+import PhotoCrop from './PhotoCrop.astro';
+import './teach.css';
+
+interface Props {
+  line: GuideLine;
+  /** [drawing name, the form's short name] × 3. */
+  forms: [string, string][];
+}
+
+const { line, forms } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const s = guideStrings(locale);
+const t = s.teach;
+const box = lineCrop(guideScan(), line);
+const name = s.zoneName[line];
+const href = localizePath(`/${line}-line/`, locale);
+---
+
+<figure class="tb tb-box glass-panel">
+  <div class="tb-ll-row">
+    {box ? <PhotoCrop box={box} lines={[line]} alt={t.lessonAlt[line]} /> : <p class="tp-miss">{name}: {t.notClear}</p>}
+    <div>
+      <p class="tb-ll-name"><span class:list={['tp-dot', `tp-${line}`]} aria-hidden="true" />{name}</p>
+      <p><strong>{t.readFor}:</strong> {t.readForLine[line]}</p>
+    </div>
+  </div>
+  <CompareRow title={t.formsTitle} forms={forms} />
+  <figcaption>{t.lessonCaption(name.toLowerCase())}</figcaption>
+  {isLive(href) && <p class="tb-more"><a class="text-link" href={href}>{t.openGuide(name.toLowerCase())}</a></p>}
+</figure>

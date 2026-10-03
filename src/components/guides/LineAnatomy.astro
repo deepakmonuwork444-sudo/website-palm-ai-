@@ -1,0 +1,51 @@
+---
+/**
+ * "Read any line with 4 questions" (guide v4, the 4 line guides): where it
+ * starts and ends, how long, how clear, any breaks, forks or branches. Each
+ * question has an AI-made 3D render (decorative, the caption says AI-made),
+ * this line's own hint, and a link to its group of type cards below. Zero JS.
+ */
+import { localeFromPath } from '../../i18n';
+import { tile } from '../../lib/guides/images';
+import { guideStrings } from '../../lib/guides/strings';
+import type { GuideLine } from '../../lib/guides/traced-palm';
+import './teach.css';
+
+interface Props {
+  line: GuideLine;
+  /** A question whose group of cards is elsewhere on this page (e.g. the fate line has no length cards). */
+  links?: Partial<Record<'ends' | 'length' | 'clear' | 'marks', string>>;
+}
+
+const { line, links = {} } = Astro.props;
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+const hints = t.anatomyHint[line];
+const sizes = '4.5rem';
+// Each question links to its group H3 on this page ("Where does your heart line start and end?"), slugged as the MDX build does.
+const groupHref = (h: string) =>
+  `#${h.replace('{line}', `${line} line`).toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, '').replace(/\s/g, '-')}`;
+---
+
+<section class="tb tb-words tb-an glass-panel tb-box" aria-labelledby="an-title">
+  <p id="an-title" class="tb-title">{t.anatomyTitle}</p>
+  <ol>
+    {
+      t.anatomy.map((item, i) => {
+        const img = tile(item.img);
+        return (
+          <li class="tb-w">
+            <picture class="tb-w-pic">
+              <source type="image/avif" srcset={img.avif} sizes={sizes} />
+              <img class="tb-render" src={img.src} srcset={img.webp} sizes={sizes} width={img.width} height={img.height} alt="" loading="lazy" decoding="async" />
+            </picture>
+            <a class="tb-an-q" href={links[item.key as keyof typeof links] ?? groupHref(item.h)}>
+              {i + 1}. {item.q}
+            </a>
+            <p>{hints[i]}</p>
+          </li>
+        );
+      })
+    }
+  </ol>
+  <p class="tb-cap">{t.anatomyCaption}</p>
+</section>

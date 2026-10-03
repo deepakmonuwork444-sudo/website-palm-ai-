@@ -1,0 +1,183 @@
+---
+/**
+ * The shared shell of the legal and trust pages (WEB-FEAT-013, WEB-FEAT-035):
+ * breadcrumbs, a lit hero (3D icon, title, promise, meta line), an "On this
+ * page" list and one glass panel that holds the text. Same content on every
+ * screen size: the contents list sits above the text on phones and becomes a
+ * sticky side column from 64rem. Page text is English (these pages have no
+ * reviewed Hindi twin); the text styles below apply to the slotted content.
+ */
+import Breadcrumbs from '../Breadcrumbs.astro';
+import MediaIcon, { type MediaIconName } from '../MediaIcon.astro';
+import { t } from '../../i18n';
+
+interface Props {
+  /** Breadcrumb name of this page. */
+  crumb: string;
+  path: string;
+  /** Extra crumbs between Home and this page. */
+  parents?: { name: string; path: string }[];
+  icon: MediaIconName;
+  /** A person page: their photo in the orb (replaces the icon). */
+  portrait?: { src: string; alt: string } | undefined;
+  /** A person page without a photo yet: their initials in the orb. */
+  monogram?: string | undefined;
+  kicker: string;
+  title: string;
+  lead: string;
+  /** Small line under the lead, e.g. who operates the service and the last-updated date. */
+  meta?: string;
+  /** In-page contents: id of each h2 and its short label. */
+  toc?: { id: string; label: string }[];
+}
+
+const { crumb, path, parents = [], icon, portrait, monogram, kicker, title, lead, meta, toc = [] } = Astro.props;
+const dict = t('en');
+---
+
+<div class="wrap doc">
+  <Breadcrumbs items={[{ name: dict.nav.home, path: '/' }, ...parents, { name: crumb, path }]} label={dict.a11y.breadcrumb} />
+
+  <header class="doc-hero">
+    {
+      portrait ? (
+        <img class="doc-orb doc-portrait" src={portrait.src} alt={portrait.alt} width="176" height="176" />
+      ) : monogram ? (
+        <span class="doc-orb doc-monogram font-display" aria-hidden="true">{monogram}</span>
+      ) : (
+        <span class="doc-orb" aria-hidden="true"><MediaIcon name={icon} sizes="4rem" class="doc-orb-icon" /></span>
+      )
+    }
+    <p class="doc-kicker">{kicker}</p>
+    <h1 class="doc-title font-display tracking-display-en">{title}</h1>
+    <p class="doc-lead">{lead}</p>
+    {meta && <p class="doc-meta">{meta}</p>}
+  </header>
+
+  <div class:list={['doc-grid', toc.length > 0 && 'has-toc']}>
+    {
+      toc.length > 0 && (
+        <nav class="doc-toc" aria-label="On this page">
+          <p class="doc-toc-title">On this page</p>
+          <ol>
+            {toc.map((item) => (
+              <li>
+                <a class="doc-toc-link" href={`#${item.id}`}>
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+    <article class="doc-body glass-panel">
+      <slot />
+    </article>
+  </div>
+  <slot name="after" />
+</div>
+
+<style>
+  .doc { padding-block: 0.5rem var(--section); }
+
+  /* Hero: a centred, lit opening like the other showroom pages. */
+  .doc-hero { position: relative; max-width: 48rem; margin: 1.5rem auto 2rem; text-align: center; }
+  .doc-hero::before {
+    content: ""; position: absolute; inset: -3rem -10% auto; height: 16rem; z-index: -1; pointer-events: none;
+    background: radial-gradient(closest-side, var(--accent-soft), transparent);
+  }
+  .doc-orb {
+    display: inline-grid; place-items: center; width: 5.5rem; height: 5.5rem; margin-bottom: 1rem; border-radius: 9999px; border: 1px solid transparent;
+    background: var(--glass-1) padding-box, var(--glass-base) padding-box, var(--rim) border-box; box-shadow: var(--shine), var(--e1);
+  }
+  .doc-orb :global(.doc-orb-icon) { width: 4rem; }
+  .doc-portrait { width: 7rem; height: 7rem; padding: 0.25rem; object-fit: cover; }
+  .doc-monogram { width: 7rem; height: 7rem; font-size: 2.5rem; font-weight: 700; letter-spacing: 0.02em; color: var(--accent); }
+  .doc-kicker { margin: 0 0 0.5rem; font-size: var(--fs-small); font-weight: 700; letter-spacing: 0.04em; color: var(--accent); }
+  .doc-title { margin: 0; font-size: var(--fs-h1); line-height: var(--lh-h1); text-wrap: balance; }
+  .doc-lead { margin: 1rem auto 0; max-width: 40rem; font-size: var(--fs-lead); line-height: var(--lh-lead); color: var(--fg-muted); text-wrap: pretty; }
+  .doc-meta { margin: 1rem 0 0; font-size: var(--fs-caption); color: var(--fg-faint); }
+
+  /* Contents + text */
+  .doc-grid { display: grid; gap: 1.25rem; max-width: 50rem; margin-inline: auto; }
+  .doc-toc {
+    padding: 1rem 1.25rem; border-radius: var(--r-card); border: 1px solid transparent;
+    background: var(--well) padding-box, var(--rim) border-box; box-shadow: var(--shine);
+  }
+  .doc-toc-title { margin: 0 0 0.25rem; font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.04em; color: var(--accent); }
+  .doc-toc ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); column-gap: 1rem; }
+  .doc-toc-link {
+    display: flex; align-items: center; min-height: 2.75rem; font-size: var(--fs-small); line-height: 1.35; color: var(--fg-muted); text-decoration: none;
+    transition: color 200ms var(--ease), transform 300ms var(--ease-out);
+  }
+  .doc-toc-link:hover, .doc-toc-link:focus-visible { color: var(--accent); transform: translateX(3px); }
+
+  .doc-body { position: relative; min-width: 0; padding: 1.75rem 1.25rem 1.5rem; }
+  .doc-body::after {
+    content: ""; position: absolute; left: 14%; right: 14%; top: -1px; height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--color-gold-pale), transparent);
+  }
+
+  /* Text inside the panel (slotted, so :global under .doc-body). */
+  .doc-body :global(> :first-child) { margin-top: 0; }
+  .doc-body :global(h2) {
+    margin: 2.5rem 0 0.75rem; padding-top: 1.5rem; border-top: 1px solid var(--edge);
+    font-family: var(--ff-display); font-size: var(--fs-h3); line-height: 1.25; scroll-margin-top: 6rem;
+  }
+  .doc-body :global(h2:first-child) { padding-top: 0; border-top: 0; }
+  .doc-body :global(h3) { margin: 1.5rem 0 0.5rem; font-size: var(--fs-body); font-weight: 700; }
+  .doc-body :global(p), .doc-body :global(li) { max-width: 68ch; line-height: 1.7; }
+  .doc-body :global(p) { margin: 0 0 1rem; }
+  .doc-body :global(ul), .doc-body :global(ol) { margin: 0 0 1rem; padding-inline-start: 1.25rem; display: grid; gap: 0.5rem; }
+  .doc-body :global(li::marker) { color: var(--accent); }
+  .doc-body :global(strong) { color: var(--fg); }
+  .doc-body :global(.muted) { color: var(--fg-muted); }
+
+  /* Short-version cards: the promises first, each one a lit tile. */
+  .doc-body :global(.doc-points) { list-style: none; padding: 0; display: grid; gap: 0.75rem; }
+  .doc-body :global(.doc-point) {
+    display: flex; gap: 0.75rem; align-items: flex-start; max-width: none; padding: 0.875rem 1rem; border-radius: var(--r-well); border: 1px solid transparent;
+    background: var(--well) padding-box, var(--rim) border-box; box-shadow: var(--shine);
+  }
+  .doc-body :global(.doc-point-icon) { width: 1.25rem; height: 1.25rem; flex: none; margin-top: 0.2rem; color: var(--accent); }
+
+  /* A calm note well (placeholders, notices). */
+  .doc-body :global(.doc-note) {
+    max-width: none; padding: 0.875rem 1rem; border-radius: var(--r-well); color: var(--fg-muted); border: 1px solid var(--hairline); background: var(--accent-soft);
+  }
+
+  /* Data tables: a scroll box on phones, the full table on wide screens. */
+  .doc-body :global(.doc-table) { margin: 0 0 1.25rem; overflow-x: auto; border-radius: var(--r-well); border: 1px solid var(--edge); background: var(--well); }
+  .doc-body :global(table) { width: 100%; min-width: 40rem; border-collapse: collapse; font-size: var(--fs-small); line-height: 1.55; }
+  .doc-body :global(th), .doc-body :global(td) { padding: 0.75rem 0.875rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--edge); }
+  .doc-body :global(th) { color: var(--accent); font-weight: 700; }
+  .doc-body :global(tr:last-child td) { border-bottom: 0; }
+  /* Phones: each row becomes a small card, every cell labelled (data-label), same text as the table. */
+  @media (max-width: 47.99rem) {
+    .doc-body :global(.doc-table) { overflow: visible; border: 0; background: none; }
+    .doc-body :global(.doc-table table) { min-width: 0; }
+    .doc-body :global(.doc-table thead) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .doc-body :global(.doc-table tr) {
+      display: block; margin-bottom: 0.75rem; padding: 0.25rem 0; border-radius: var(--r-well); border: 1px solid transparent;
+      background: var(--well) padding-box, var(--rim) border-box; box-shadow: var(--shine);
+    }
+    .doc-body :global(.doc-table td) { display: block; padding: 0.5rem 1rem; border-bottom: 0; }
+    .doc-body :global(.doc-table td[data-label]::before) {
+      content: attr(data-label); display: block; margin-bottom: 0.125rem; font-size: var(--fs-caption); font-weight: 700; color: var(--accent);
+    }
+    .doc-body :global(.doc-table td:first-child) { color: var(--fg); font-weight: 600; }
+  }
+
+  @media (min-width: 48rem) {
+    .doc-body { padding: 2.5rem 3rem 2.25rem; }
+    .doc-hero { margin-block: 2.5rem 3rem; }
+  }
+  @media (min-width: 64rem) {
+    .doc-grid.has-toc { max-width: 70rem; grid-template-columns: 15rem minmax(0, 1fr); gap: 2rem; align-items: start; }
+    .doc-toc { position: sticky; top: 6rem; padding: 1.25rem; }
+    .doc-toc ol { grid-template-columns: 1fr; }
+    .doc-toc-link { min-height: 2.5rem; }
+    .doc-body :global(table) { min-width: 0; }
+  }
+</style>

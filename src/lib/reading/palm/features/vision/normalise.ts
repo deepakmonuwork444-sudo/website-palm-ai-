@@ -1,4 +1,4 @@
-// COPIED from palm-ai-new--feat-m1-foundation/src/features/vision/normalise.ts at app commit 38389f51b74d (2026-09-26).
+// COPIED from palm-ai-new--feat-m1-foundation/src/features/vision/normalise.ts at app commit fbc2232d837f (2026-09-30).
 // Do not edit by hand: change the app, then run `node scripts/sync-palm-lib.mjs` (ARCHITECTURE.md F7).
 // @ts-nocheck
 import { CROSSING_KINDS, visionOutputSchema, type VisionOutput } from '../observation/schema';
@@ -15,7 +15,7 @@ import {
   ZONES,
 } from '../observation/taxonomy';
 
-import { EXTRACTED_LINES, type ExtractedLineType } from './prompt';
+import { EXTRACTED_LINES, PROMPTED_LINES, type ExtractedLineType } from './prompt';
 
 /**
  * Repairs real model output into something the schema will accept.
@@ -355,11 +355,12 @@ export function normaliseVisionPayload(raw: string | unknown): NormaliseResult {
   }
 
   // A major line the model simply forgot is recorded as not seen, never as
-  // absent from the reading. Silence is not evidence.
+  // absent from the reading. Silence is not evidence. Fate is no longer asked
+  // for (prompt.ts, 2026-09-30), so its absence is not a repair.
   const lines = MAJOR_LINES.map((type) => {
     const entry = byType.get(type);
     if (entry === undefined) {
-      repairs.push(`${type} line missing from response, recorded as not visible`);
+      if ((PROMPTED_LINES as readonly string[]).includes(type)) repairs.push(`${type} line missing from response, recorded as not visible`);
       return toLine({ type, visible: false, confidence: 0 }, type);
     }
     return toLine(entry, type);

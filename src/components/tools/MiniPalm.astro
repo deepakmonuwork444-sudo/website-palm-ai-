@@ -1,30 +1,72 @@
 ---
 /**
- * A small drawing of one option on the stylised palm (picker thumbnails).
- * Trace colours with the halo (DESIGN_SYSTEM.md §2.3), on the palm fill.
- * Decorative: the option's visible text label says the same thing.
+ * A picker thumbnail on the porcelain 3D hand (src/lib/tools/palm-geometry.ts):
+ * the base render cropped to the part that matters, with the option's line
+ * drawn exactly in its colour (dark halo underneath), a faint ring at the point
+ * the option is about, a palm sign in gold, or the measuring bars of a
+ * hand-type picture. Decorative: the option's visible label says the same.
+ * The base render is one file per page (SVG <image>, cached); the hand-type
+ * pictures are lazy <img>s (they sit in a closed <details>).
  */
-import type { ThumbPath } from '../../lib/tools/finder';
-import { PALM_OUTLINE, PALM_VIEWBOX } from '../../lib/tools/palm-geometry';
+import { HAND_IMAGE, FRAME, PICTURE, PICTURE_SIZE, type PalmFigure } from '../../lib/tools/palm-geometry';
 
 interface Props {
-  paths: readonly ThumbPath[];
-  /** A zoomed viewBox (THUMB_VIEW); the whole palm by default. */
-  view?: string;
+  figure: PalmFigure;
   class?: string;
 }
 
-const { paths, view = PALM_VIEWBOX, class: className } = Astro.props;
+const { figure, class: className } = Astro.props;
+const [, , viewW] = figure.view.split(' ').map(Number) as [number, number, number, number];
+const markR = Math.round((viewW ?? 500) * 0.032);
+const tick = Math.round((viewW ?? 500) * 0.022);
+const picture = figure.picture && figure.picture !== 'base' ? PICTURE[figure.picture] : null;
+const bars = (figure.bars ?? []).map((bar) => {
+  const len = Math.hypot(bar.x2 - bar.x1, bar.y2 - bar.y1) || 1;
+  const nx = (-(bar.y2 - bar.y1) / len) * tick;
+  const ny = ((bar.x2 - bar.x1) / len) * tick;
+  const d = `M${bar.x1} ${bar.y1} L${bar.x2} ${bar.y2} M${bar.x1 - nx} ${bar.y1 - ny} L${bar.x1 + nx} ${bar.y1 + ny} M${bar.x2 - nx} ${bar.y2 - ny} L${bar.x2 + nx} ${bar.y2 + ny}`;
+  return { d, tone: bar.tone };
+});
+const glyph = figure.glyph;
+const glyphTransform = glyph
+  ? `translate(${glyph.x} ${glyph.y})${glyph.rotate ? ` rotate(${glyph.rotate})` : ''} scale(${(glyph.size / 24).toFixed(3)}) translate(-12 -12)`
+  : '';
 ---
 
-<svg class:list={['t-thumb', className]} viewBox={view} aria-hidden="true" focusable="false">
-  <path class="t-palm t-palm-grad" d={PALM_OUTLINE}></path>
-  {
-    paths.map((path) => (
-      <g class:list={[path.style ? `t-${path.style}` : null]}>
-        <path class="t-halo" d={path.d} />
-        <path class:list={['t-line', `t-l-${path.line}`]} d={path.d} />
-      </g>
-    ))
-  }
-</svg>
+{
+  picture ? (
+    <span class:list={['t-thumb t-thumb-photo', className]} aria-hidden="true">
+      <picture>
+        <source type="image/avif" srcset={`${picture.src}.avif`} />
+        <img class="t-thumb-img" src={`${picture.src}.webp`} width={PICTURE_SIZE.width} height={PICTURE_SIZE.height} alt="" loading="lazy" decoding="async" />
+      </picture>
+      <svg class="t-thumb-ov t-fig" viewBox={`0 ${picture.y} ${FRAME.width} ${FRAME.height}`} focusable="false">
+        {bars.map((bar) => (
+          <g class:list={['t-bar', `t-bar-${bar.tone}`]}>
+            <path class="t-halo" d={bar.d} />
+            <path class="t-bar-line" d={bar.d} />
+          </g>
+        ))}
+      </svg>
+    </span>
+  ) : (
+    <svg class:list={['t-thumb t-fig', className]} viewBox={figure.view} aria-hidden="true" focusable="false">
+      <image href={HAND_IMAGE.small} x="0" y="0" width={FRAME.width} height={FRAME.height} />
+      {(figure.paths ?? []).map((path) => (
+        <g class:list={[path.style ? `t-${path.style}` : null]}>
+          <path class="t-halo" d={path.d} />
+          <path class:list={['t-line', `t-l-${path.line}`]} d={path.d} />
+        </g>
+      ))}
+      {glyph && (
+        <g class="t-sign" transform={glyphTransform}>
+          <path class="t-halo" d={glyph.d} />
+          <path class="t-sign-line" d={glyph.d} />
+        </g>
+      )}
+      {figure.guide && <path class="t-guide" d={`M${figure.guide.x1} ${figure.guide.y1} L${figure.guide.x2} ${figure.guide.y2}`} />}
+      {figure.mark && <circle class="t-mark-halo" cx={figure.mark.x} cy={figure.mark.y} r={markR} />}
+      {figure.mark && <circle class="t-mark" cx={figure.mark.x} cy={figure.mark.y} r={markR} />}
+    </svg>
+  )
+}

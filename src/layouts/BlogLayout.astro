@@ -1,0 +1,255 @@
+---
+/**
+ * Blog post (WEB-DEC-057, redesigned WEB-DEC-058; CONTENT_GUIDE.md §7 template, §15 writing standard).
+ * Order: breadcrumb Home / Blog / post; the hero (topic chip, the H1 question, the "Quick answer" panel,
+ * a meta row with the author's initials, date, reading time and "Sources checked", an optional
+ * disclosure); "Key takeaways" (front matter, so key points sit above the fold); the cover: the post's
+ * first infographic, which BlogDiagram leaves out of the body; contents (a closed <details> on phones and tablets, a sticky side
+ * column from 64rem with a quiet "See your own lines" card that is not a second gold button); the MDX
+ * body; the limits box on YMYL posts; FAQ; sources (open); the author box; the guides' end block
+ * (the one gold action); "Keep reading": 3 post cards plus the pillar and related guides as links.
+ *
+ * Zero JS of its own (the reading bar is CSS scroll-driven where supported, nothing elsewhere). One
+ * JSON-LD @graph (BaseLayout): WebPage + BlogPosting (about/mentions from the front matter,
+ * src/lib/entities.ts; author = the Person @id; book citations) + the share image; Breadcrumbs.astro
+ * adds the BreadcrumbList. No inline style="" and no define:vars (CSP).
+ * Rendered by src/pages/[...guide].astro (one route with the guides). No <style> here: this file's CSS
+ * would ship on every guide (their budget is full), so the blog's styles are the linked, hashed
+ * src/styles/blog.css, loaded only by blog pages through BaseLayout's "head" slot.
+ *
+ * Publishing guard (src/lib/blog.ts publishProblem, the same rule as GuideLayout): a production
+ * build refuses a `draft` post, and a YMYL post without the owner's OK.
+ */
+import type { MarkdownHeading } from 'astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PostCard from '../components/blog/PostCard.astro';
+import EndCta from '../components/guides/EndCta.astro';
+import Faq from '../components/guides/Faq.astro';
+import LimitsBox from '../components/guides/LimitsBox.astro';
+import Sources from '../components/guides/Sources.astro';
+import DiagramFigure from '../components/terms/DiagramFigure.astro';
+import { isPreview } from '../config/env';
+import { findPage, isLive } from '../config/pages';
+import { site } from '../config/site';
+import { localizePath, t } from '../i18n';
+import { BLOG_PATH, coverDiagramId, needsCareLine, pickKeepReading, publishProblem, readingMinutes, toPostCard } from '../lib/blog';
+import { isEntityId, type EntityId, type PageEntities } from '../lib/entities';
+import { guideDates } from '../lib/guides/dates';
+import { formatDate, inlineMarkdown, isoWithOffset } from '../lib/guides/guides';
+import { guideStrings } from '../lib/guides/strings';
+import { AUTHOR_PATH, articleSchema, citationSchema, primaryImageSchema, webPageSchema, type Crumb } from '../lib/schema';
+import blogCss from '../styles/blog.css?url';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  entry: CollectionEntry<'blog'>;
+  headings: MarkdownHeading[];
+}
+
+const { entry, headings } = Astro.props;
+const p = entry.data;
+const locale = p.locale;
+const dict = t(locale);
+const s = guideStrings(locale);
+const labels = {
+  en: {
+    blog: 'Blog', published: 'Published', updated: 'Updated', keepReading: 'Keep reading', quickAnswer: 'Quick answer',
+    takeaways: 'Key takeaways', minRead: (n: number) => `${n} min read`, sourcesChecked: 'Sources checked',
+    sections: (n: number) => `${n} sections`, aboutAuthor: 'About the author', policy: 'How we write and check posts',
+    guides: 'Guides on this topic', seeTitle: 'See your own lines', seeText: 'The PalmSays app traces your heart, head, life and fate lines on your own photo.',
+    seeLink: 'How the scan works', allPosts: 'All blog posts',
+  },
+  // Hindi UI words wait for the Hindi reviewer (no Hindi post exists yet).
+  hi: {
+    blog: 'ब्लॉग', published: 'प्रकाशित', updated: 'अपडेट', keepReading: 'आगे पढ़ें', quickAnswer: 'छोटा जवाब',
+    takeaways: 'मुख्य बातें', minRead: (n: number) => `${n} मिनट`, sourcesChecked: 'स्रोत जाँचे गए',
+    sections: (n: number) => `${n} हिस्से`, aboutAuthor: 'लेखक के बारे में', policy: 'हम कैसे लिखते और जाँचते हैं',
+    guides: 'इस विषय की गाइड', seeTitle: 'अपनी रेखाएँ देखें', seeText: 'PalmSays ऐप आपकी फ़ोटो पर हृदय, मस्तिष्क, जीवन और भाग्य रेखा दिखाता है।',
+    seeLink: 'स्कैन कैसे काम करता है', allPosts: 'सभी ब्लॉग पोस्ट',
+  },
+}[locale];
+
+const problem = publishProblem(p, isPreview);
+if (problem) throw new Error(problem);
+
+// Entities from the front matter; an unknown id fails the build (the glossary owns every @id).
+const unknown = [...p.about, ...p.mentions].filter((id) => !isEntityId(id));
+if (unknown.length) throw new Error(`${p.path}: unknown entity id(s) ${unknown.join(', ')} (src/lib/entities.ts)`);
+const entities: PageEntities = { about: p.about as EntityId[], mentions: p.mentions as EntityId[] };
+
+const blogHome = localizePath(BLOG_PATH, locale);
+const crumbs: Crumb[] = [
+  { name: dict.nav.home, path: localizePath('/', locale) },
+  { name: labels.blog, path: blogHome },
+  { name: p.crumb, path: p.path },
+];
+
+// Keep reading: 3 other live posts as cards (its related posts first), then the pillar guide and the
+// related guides or tools as plain links (live, registered pages only).
+const body = entry.body ?? '';
+const minutes = readingMinutes(body);
+const cover = coverDiagramId(body);
+const livePosts = (await getCollection('blog'))
+  .filter((item) => item.data.locale === locale && isLive(item.data.path))
+  .map((item) => toPostCard(item.data, item.body ?? ''));
+const morePosts = pickKeepReading(p, livePosts);
+const guideLinks = [p.pillar, ...p.related]
+  .filter((path, index, all) => all.indexOf(path) === index && !path.startsWith(BLOG_PATH) && isLive(path))
+  .flatMap((path) => {
+    const name = findPage(path)?.label;
+    return name ? [{ path, name }] : [];
+  });
+
+const toc = [
+  ...headings.filter((heading) => heading.depth === 2).map((heading) => ({ id: heading.slug, text: heading.text })),
+  ...(p.faq.length ? [{ id: 'faq-title', text: s.faqTitle }] : []),
+  { id: 'sources-title', text: s.sourcesTitle },
+];
+
+const authorLive = isLive(AUTHOR_PATH);
+const showLimits = p.ymyl !== 'none' || Boolean(p.limits);
+// ≤ 37 characters: the store button's QR link adds "_qr", and utm_campaign allows 40 (site.ts UTM_TOKEN).
+const campaign = `blog-${p.path.replace(/^\/blog\/|\/$/g, '')}`.slice(0, 37).replace(/-+$/, '');
+const dates = guideDates(p.published, p.updated);
+const jsonLd = [
+  webPageSchema({ path: p.path, name: p.title, locale, entities, breadcrumb: true, primaryImage: true, lastReviewed: p.updated }),
+  articleSchema({
+    type: 'BlogPosting',
+    headline: p.h1,
+    description: p.description,
+    path: p.path,
+    locale,
+    datePublished: isoWithOffset(dates.published),
+    dateModified: isoWithOffset(dates.modified),
+    authorName: site.author.name,
+    ...(authorLive ? { authorUrl: AUTHOR_PATH } : {}),
+    entities,
+    citation: citationSchema(p.sources),
+  }),
+  primaryImageSchema(p.path, locale),
+];
+const initials = site.author.name
+  .split(/\s+/)
+  .map((part) => part[0] ?? '')
+  .join('')
+  .slice(0, 2)
+  .toUpperCase();
+const policyPath = localizePath('/editorial-policy/', locale);
+const policyLive = isLive(policyPath);
+const scanInfo = ['/how-it-works/', '/app/'].map((path) => localizePath(path, locale)).find((path) => isLive(path));
+const tocCount = labels.sections(toc.length);
+---
+
+<BaseLayout title={p.title} description={p.description} path={p.path} locale={locale} jsonLd={jsonLd} ogType="article">
+  <link slot="head" rel="stylesheet" href={blogCss} />
+  <div class="bp-progress" aria-hidden="true"></div>
+  <article class="bp wrap" data-ymyl={p.ymyl}>
+    <Breadcrumbs items={crumbs} label={dict.a11y.breadcrumb} />
+
+    <div class="bp-grid">
+      <div class="bp-main">
+        <header class="bp-head">
+          <p class="bp-chip">{p.topic}</p>
+          <h1 class="font-display text-h1 tracking-display-en bp-title">{p.h1}</h1>
+          <div class="bp-answer glass-panel">
+            <p class="bp-answer-label">{labels.quickAnswer}</p>
+            <p class="bp-answer-text" set:html={inlineMarkdown(p.answer, locale)} />
+          </div>
+          <div class="bp-meta">
+            <span class="bp-avatar font-display" aria-hidden="true">{initials}</span>
+            <ul class="bp-meta-list">
+              <li>
+                {s.writtenBy}{' '}
+                {authorLive ? <a class="text-link" href={AUTHOR_PATH} rel="author">{site.author.name}</a> : <span class="bp-strong">{site.author.name}</span>}
+              </li>
+              {p.reviewedBy && <li>{s.reviewedBy} {p.reviewedBy.name}, {p.reviewedBy.role}</li>}
+              <li>
+                {p.updated !== p.published ? labels.updated : labels.published}{' '}
+                <time datetime={p.updated}>{formatDate(p.updated, locale)}</time>
+              </li>
+              <li>{labels.minRead(minutes)}</li>
+              {p.status !== 'draft' && <li><a class="text-link" href="#sources-title">{labels.sourcesChecked}</a></li>}
+            </ul>
+          </div>
+          {p.disclosure && <p class="bp-disclosure" set:html={inlineMarkdown(p.disclosure, locale)} />}
+        </header>
+
+        <section class="bp-takeaways glass-panel" aria-labelledby="takeaways-title">
+          <h2 id="takeaways-title" class="bp-box-title">{labels.takeaways}</h2>
+          <ul>
+            {p.takeaways.map((item) => <li set:html={inlineMarkdown(item, locale)} />)}
+          </ul>
+        </section>
+
+        {cover && <div class="bp-cover"><DiagramFigure id={cover} reuse="details" eager /></div>}
+
+        <details class="bp-toc-m glass-well">
+          <summary><span>{s.onThisPage}</span><span class="bp-toc-count">{tocCount}</span></summary>
+          <nav aria-label={s.onThisPage}>
+            <ol class="bp-toc-list">
+              {toc.map((item) => <li><a href={`#${item.id}`}>{item.text}</a></li>)}
+            </ol>
+          </nav>
+        </details>
+
+        <div class="bp-prose">
+          <slot />
+        </div>
+
+        {showLimits && <LimitsBox {...(p.limits ? { topic: p.limits } : {})} care={needsCareLine(p.ymyl)} />}
+        {p.faq.length > 0 && <Faq title={s.faqTitle} items={p.faq} />}
+        <Sources sources={p.sources} open />
+
+        <section class="bp-author glass-panel" aria-labelledby="author-title">
+          <span class="bp-avatar bp-avatar-lg font-display" aria-hidden="true">{initials}</span>
+          <div>
+            <h2 id="author-title" class="bp-box-title">{labels.aboutAuthor}</h2>
+            <p class="bp-author-name">{authorLive ? <a class="text-link" href={AUTHOR_PATH} rel="author">{site.author.name}</a> : site.author.name}</p>
+            <p class="bp-author-bio">{site.author.name} builds {site.brand}, the app and this website, and writes its palmistry pages from the classical books named on each page.</p>
+            {policyLive && <p class="bp-author-bio"><a class="text-link" href={policyPath}>{labels.policy}</a></p>}
+          </div>
+        </section>
+
+        <EndCta campaign={campaign} />
+      </div>
+
+      <aside class="bp-side">
+        <nav class="bp-toc-d glass-well" aria-label={s.onThisPage}>
+          <p class="bp-toc-title">{s.onThisPage}</p>
+          <ol class="bp-toc-list">
+            {toc.map((item) => <li><a href={`#${item.id}`}>{item.text}</a></li>)}
+          </ol>
+        </nav>
+        {
+          scanInfo && (
+            <div class="bp-see glass-well">
+              <p class="bp-see-title">{labels.seeTitle}</p>
+              <p class="bp-see-text">{labels.seeText}</p>
+              <a class="text-link bp-see-link" href={scanInfo}>{labels.seeLink}</a>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+
+    {
+      (morePosts.length > 0 || guideLinks.length > 0) && (
+        <section class="bp-more" aria-labelledby="more-title">
+          <h2 id="more-title" class="bp-more-title font-display">{labels.keepReading}</h2>
+          {morePosts.length > 0 && (
+            <ul class="bp-cards">
+              {morePosts.map((post) => <li><PostCard post={post} as="h3" sizes="(min-width: 64rem) 22rem, (min-width: 40rem) 45vw, calc(100vw - 2rem)" /></li>)}
+            </ul>
+          )}
+          <p class="bp-guides">
+            {guideLinks.length > 0 && <span class="bp-guides-label">{labels.guides}:</span>}
+            {guideLinks.map((link) => <a class="bp-pill" href={link.path}>{link.name}</a>)}
+            <a class="bp-pill" href={blogHome}>{labels.allPosts}</a>
+          </p>
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>

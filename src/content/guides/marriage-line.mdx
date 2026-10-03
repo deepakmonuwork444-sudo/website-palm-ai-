@@ -6,14 +6,31 @@ h1: 'Marriage line in palmistry: what it really means'
 answer: 'No line on your palm shows when you’ll marry, whom, or how many times. Palmistry books read the small marriage lines under the little finger as marks of deep affection, and even they disagree.'
 crumb: Marriage line
 parent: /hand-lines/
-figureVariant: marriage-one
-figureAlt: 'A drawing of the edge of a palm under the little finger, with one short marriage line highlighted.'
-figureCaption: 'A marriage line, drawn on the edge of the palm under the little finger. This is a diagram: PalmSays does not read marriage lines from photos.'
+find:
+  region: marriage
+  title: 'Find your marriage lines'
+  prompt: 'Marriage lines are short creases on the edge of your hand, under the little finger. How many can you see?'
+  steps:
+    - 'Close your hand loosely and turn it so you can see its outer edge.'
+    - 'Look just below the little finger, above the end of the heart line.'
+    - 'Count the short lines that run in from the edge.'
+  question: 'How many do you see?'
+  choices:
+    - label: 'None'
+      answer: 'That is common, and it does not mean you won’t marry.'
+      href: '#how-many-marriage-lines-should-you-have'
+    - label: 'One'
+      answer: 'The books read these lines as bonds of feeling, never a date or a person.'
+      href: '#type-marriage-one'
+    - label: 'Two or more'
+      answer: 'Common too. Two lines do not mean two marriages.'
+      href: '#type-marriage-two'
+  cta: false
 quickFacts:
   - label: Hindi name
     value: 'विवाह रेखा (vivah rekha), also called शादी की रेखा (shadi ki rekha)'
   - label: Other names
-    value: 'Relationship lines, or lines of union. Benham’s *Laws of Scientific Hand Reading* (1900) calls them lines of affection.'
+    value: 'Relationship lines, or lines of union. Benham’s *Laws of Scientific Hand Reading* (1900) calls them lines of affection. All names: [palmistry terms](/palmistry-terms/#marriage-line).'
   - label: Where it sits
     value: 'Short lines on the outer edge of the palm, just under the little finger, on the Mount of Mercury (Budh parvat).'
   - label: What the tradition reads in it
@@ -26,7 +43,7 @@ related: ['/heart-line/', '/head-line/', '/simian-line/', '/is-palmistry-real/']
 ymyl: marriage
 status: checked
 published: '2026-09-26'
-updated: '2026-09-26'
+updated: '2026-09-28'
 keyword:
   primary: marriage line palmistry
   secondary:
@@ -48,16 +65,19 @@ keyword:
 ruleIds: []
 sources:
   - book: cheiro-palmistry-for-all-1916
-    locator: 'Part I, ch. VIII — Signs Relating to Marriage; ch. XVII — Different Classes of Lines and Right and Left Hands'
+    locator: 'Part I, ch. VIII: Signs Relating to Marriage (incl. the line curving into the heart line, and the island); ch. XVII: Different Classes of Lines and Right and Left Hands'
   - book: cheiro-language-of-the-hand-1900
-    locator: 'Part II, ch. XVI — The Line of Marriage, pp. 114–116'
+    locator: 'Part II, ch. XVI: The Line of Marriage, pp. 114–116'
   - book: benham-laws-of-scientific-hand-reading-1900
-    locator: 'Part II, ch. IX — The Lines of Affection, pp. 520–527'
+    locator: 'Part II, ch. IX: The Lines of Affection, pp. 520–527'
+    note: 'Rights unknown: facts only, in our words.'
+  - book: saint-germain-practice-of-palmistry-1900
+    locator: 'The Line of Heart (its opening: the lines of union read as lines of attachment)'
     note: 'Rights unknown: facts only, in our words.'
   - book: dale-indian-palmistry-1895
-    locator: 'No. 46 — Marriage lines; The Hand to Examine'
+    locator: 'No. 46: Marriage lines; The Hand to Examine'
   - book: markun-what-you-should-know-about-palmistry-1927
-    locator: 'The Lines — the Marriage Lines'
+    locator: 'The Lines: the Marriage Lines'
 faq:
   - q: Can the marriage line tell when I will get married?
     a: 'No. Some old books read an age from where the line sits, but no line can give a date. We never give a marriage age. What the tradition does describe is *how* you love, and that is read in your [heart line](/heart-line/).'
@@ -72,7 +92,7 @@ faq:
   - q: Which hand should I check for the marriage line, as a woman or a man?
     a: 'The line is the same for everyone. Tradition reads the hand you write with as the life you are making. Dale’s *Indian Palmistry* (1895) records an Eastern custom of the right hand for men and the left for women. More in [which hand to read](/which-hand-to-read/).'
   - q: Does the PalmSays app read marriage lines?
-    a: 'No. The app reads the heart, head, life and fate lines, the sun line and the mounts. Marriage lines sit on the side of the hand, where a normal palm photo can’t see them clearly, so the app leaves them out.'
+    a: 'No. The app reads the heart, head, life and fate lines and measures your hand type and fingers. Marriage lines sit on the side of the hand, where a normal palm photo can’t see them clearly, so the app leaves them out.'
 ---
 
 ## Where is the marriage line?
@@ -81,11 +101,7 @@ The marriage line is one or more short lines on the outer edge of your palm, jus
 
 To find yours, close your hand loosely and look at its side, below the little finger. The small crosswise creases there are what palmistry calls marriage lines. In Hindi they are <Hi>विवाह रेखा</Hi> (vivah rekha) or <Hi>शादी की रेखा</Hi> (shadi ki rekha). English books also call them relationship lines, and Benham calls them lines of affection.
 
-## What the marriage line can’t tell you
-
-The marriage line can’t tell you when you’ll marry, whom you’ll marry, how many times, or whether a marriage will last. Nothing on a palm can. What the old books describe are bonds of feeling, and even there they disagree with each other, as the rest of this guide shows.
-
-<LimitsBox topic="No line gives a marriage age, a number of marriages or a divorce; a relationship depends on the two people in it." />
+<LimitsBox topic="The marriage line can’t tell you when you’ll marry, whom you’ll marry, how many times, or whether a marriage will last. No line gives a marriage age, a number of marriages or a divorce; a relationship depends on the two people in it. What the old books describe are bonds of feeling, and even there they disagree with each other, as the rest of this guide shows." />
 
 ## What does the marriage line mean in palmistry?
 
@@ -105,42 +121,46 @@ There is no right number. Having no marriage line, one, or two is common, and so
 
 The number is not a count of marriages. Dale’s book reads it that way. Benham, writing five years later, called predicting marriages from the number of lines unscientific, a habit that led to constant error. Having no marriage line does not mean you won’t marry, and two lines do not mean two marriages.
 
+### No marriage line?
+
+Having no marriage line is common, and it says nothing about whether you will marry. Even the old books read these small lines as bonds of affection, not weddings. Cheiro reads the short ones as deep affection, and Saint-Germain argues that they are lines of attachment, not lines of marriage at all. With no line there, there is simply no crease to read.
+
 ## Marriage line types and what the books say
 
 Each card below shows a shape the books describe, with their reading in our words and where it comes from. Some shapes carry famous scary readings. They are named here only to show why we don’t repeat them.
 
 <Variations>
-<Variation variant="marriage-long" title="Long, clear marriage line" alt="A long marriage line running from the edge of the hand well into the palm" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900', 'benham-laws-of-scientific-hand-reading-1900']}>
+<Variation level={3} variant="marriage-long" title="Long, clear marriage line" gist="Cheiro reads a bond of deep, lasting affection. Never a date or a person." check="Is there one longer, clear line running in from the edge of your hand?" alt="A long marriage line running from the edge of the hand well into the palm" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900', 'benham-laws-of-scientific-hand-reading-1900']}>
 
 Cheiro reads a long, clearly formed line as the mark of a marriage or lasting union. He says it should run straight and clear. Benham reads a deep, well-cut line as deep and steady affection. It describes a bond of feeling, never a date or a person.
 
 </Variation>
-<Variation variant="marriage-one" title="Short marriage line" alt="One short marriage line on the edge of the palm under the little finger" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900']}>
+<Variation level={3} variant="marriage-one" title="Short marriage line" gist="Read as deep affection. Very common, and it says nothing about whether you will marry." check="Do you see one short line on the edge, under your little finger?" alt="One short marriage line on the edge of the palm under the little finger" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900']}>
 
 Cheiro reads the short lines as deep affection rather than marriage. Short lines are very common, and many hands have only short ones. A short line says nothing about whether you will marry.
 
 </Variation>
-<Variation variant="marriage-two" title="Two marriage lines" alt="Two short marriage lines, one above the other, on the edge of the palm" src={['dale-indian-palmistry-1895', 'benham-laws-of-scientific-hand-reading-1900']}>
+<Variation level={3} variant="marriage-two" title="Two marriage lines" gist="Common. Two lines do not mean two marriages." check="Do you see two short lines there, one above the other?" alt="Two short marriage lines, one above the other, on the edge of the palm" src={['dale-indian-palmistry-1895', 'benham-laws-of-scientific-hand-reading-1900']}>
 
 Two lines are common. Dale reads the number of lines as a number of partners. Benham rejected that: he read the lines as strong attachments over a life, not weddings. Two lines do not mean two marriages.
 
 </Variation>
-<Variation variant="marriage-fork" title="Forked marriage line" alt="A marriage line that splits into two branches at its inner end" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900', 'benham-laws-of-scientific-hand-reading-1900']}>
+<Variation level={3} variant="marriage-fork" title="Forked marriage line" gist="The shape behind the “divorce line” myth. We don’t read it as divorce." check="Does one of the lines split into two at its inner end?" alt="A marriage line that splits into two branches at its inner end" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900', 'benham-laws-of-scientific-hand-reading-1900']}>
 
 This is the shape behind the “divorce line” myth. Cheiro reads a fork at the end as a sign of separation or divorce. Benham disagreed: older palmists used it as a divorce sign, he wrote, but it does not always mean divorce. A fork at the *start* of the line he read as affection of unusual strength. We don’t read a fork as divorce.
 
 </Variation>
-<Variation variant="marriage-broken" title="Broken marriage line" alt="A short marriage line with a small gap in it" src={['cheiro-language-of-the-hand-1900', 'benham-laws-of-scientific-hand-reading-1900']}>
+<Variation level={3} variant="marriage-broken" title="Broken marriage line" gist="On a line this short, a gap is often just a crease or a shadow." check="Does one of the lines have a small gap in it?" alt="A short marriage line with a small gap in it" src={['cheiro-language-of-the-hand-1900', 'benham-laws-of-scientific-hand-reading-1900']}>
 
 *Cheiro’s Language of the Hand* reads a break as a sudden break in married life. Benham reads an affection that is interrupted in some way. We don’t repeat either as a forecast. On a line this short, a crease, a fold of skin or a shadow can easily look like a gap.
 
 </Variation>
-<Variation variant="marriage-up" title="Marriage line curving up" alt="A marriage line that bends upwards towards the little finger at its inner end" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900']}>
+<Variation level={3} variant="marriage-up" title="Marriage line curving up" gist="The old books attach a gloomy claim to this shape. We leave it out." check="Does a line bend up towards your little finger at its end?" alt="A marriage line that bends upwards towards the little finger at its inner end" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900']}>
 
 The old books attach a gloomy prediction about marriage to this shape. It is a claim about a whole life, which no crease can make, so we leave it out. A line that bends at its end is also hard to judge on the curved edge of the hand.
 
 </Variation>
-<Variation variant="marriage-down" title="Marriage line drooping down" alt="A marriage line that bends downwards towards the heart line at its inner end" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900']}>
+<Variation level={3} variant="marriage-down" title="Marriage line drooping down" gist="Cheiro’s gloomiest reading, about another person’s life. We leave it out." check="Does a line droop down towards your heart line at its end?" alt="A marriage line that bends downwards towards the heart line at its inner end" src={['cheiro-palmistry-for-all-1916', 'cheiro-language-of-the-hand-1900']}>
 
 Cheiro attaches one of his gloomiest readings to a line that droops towards the heart line, about what happens to a partner. It is a claim about another person’s life. No mark on your hand can show that, so we leave it out entirely.
 
@@ -171,7 +191,7 @@ We don’t read any marriage line as a divorce. A relationship depends on the tw
 
 The marriage line is read the same way for women and men. There is no separate marriage line for a woman, and no line describes a woman’s or a man’s fate. What traditions differ on is which hand to look at.
 
-Tradition reads the hand you write with as the life you are making, and the other hand as what you started with. Dale’s *Indian Palmistry* records an Eastern custom of reading a man’s right palm and a woman’s left. Then it adds practical advice: read the hand where the lines show most clearly. [Which hand to read](/which-hand-to-read/) explains this in full, for female and male palm reading.
+Tradition reads the hand you write with as the life you are making, and the other hand as what you started with. Dale’s *Indian Palmistry* records an Eastern custom of reading a man’s right palm and a woman’s left. Then it adds practical advice: read the hand where the lines show most clearly. Our guide on [which hand to read for the marriage line](/which-hand-to-read/) and the other lines explains this in full, for female and male palm reading.
 
 ## Marriage line vs heart line
 
@@ -179,10 +199,18 @@ The marriage line and the heart line are different lines. The heart line is the 
 
 If you want to know what palmistry says about how you love, look at your heart line, not the marriage line. Palmistry reads the heart line for your emotional style: how you feel, show affection and relate to people. The guide to the [heart line](/heart-line/) shows each of its types with its source.
 
+### Marriage line touching the heart line
+
+The marriage lines sit just above the outer end of the heart line, so a line that droops a little, or a crease from bending the little finger, can easily meet it. That is a common shape. Cheiro reads a marriage line that curves down into the heart line as the loss of a partner, and a fork turning down towards it as a separation. Both are claims about another person’s life and about a marriage’s future. No crease can show either, so we don’t repeat them as readings.
+
 ## Can a photo show your marriage lines?
 
 Usually not. Marriage lines sit on the side of the hand, running in from its outer edge. A normal palm photo, taken from above an open hand, sees them edge-on or not at all.
 
 The small marks the books read on these lines, such as islands, crosses and stars, are far too small for a phone camera. Even a fork or a gap on a line this short is hard to tell apart from a crease made by bending the little finger.
 
-That is why the PalmSays app does not read marriage lines. It reads the heart, head, life and fate lines, the sun line and the mounts, and it says so when a line isn’t clear. If you are curious, look at your marriage lines yourself in good light, as a reminder of the bonds that matter to you.
+That is why the PalmSays app does not read marriage lines. It reads the heart, head, life and fate lines, measures your hand type and fingers, and it says so when a line isn’t clear. If you are curious, look at your marriage lines yourself in good light, as a reminder of the bonds that matter to you.
+
+### Island on the marriage line
+
+An island is a tiny loop in the line. Cheiro reads an island on the marriage line as trouble and separation in married life. We don’t repeat that: it is a forecast about a marriage, and an island on a line a few millimetres long is far too small for a phone camera to show.

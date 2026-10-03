@@ -1,14 +1,14 @@
 ---
 /**
- * Interactive palm map (tool 11, DESIGN_SYSTEM.md §7.13): the stylised palm
- * with 4 lines and 8 mount spots. Every spot is a real <button> (keyboard,
+ * Interactive palm map (tool 11, DESIGN_SYSTEM.md §7.13): the porcelain 3D
+ * hand (src/lib/tools/palm-geometry.ts) with 4 lines and 8 mount spots. Every spot is a real <button> (keyboard,
  * 48px hit area, visible focus) laid over the drawing; the same buttons also
  * appear as a labelled list. The meaning panel is aria-live. Pins are placed
  * by the script (CSSOM, no inline style attributes under the hashed CSP) and
  * stay hidden until placed, so nothing shifts. Without JS the full list of
  * meanings is on the page under "What palmistry says".
  */
-import { LINE_ORDER, LINE_PATHS, MOUNT_AREAS, MOUNT_ORDER, PALM_OUTLINE, PALM_VIEWBOX } from '../../lib/tools/palm-geometry';
+import { FRAME, HAND_IMAGE, LINE_ORDER, LINE_PATHS, MAP_VIEWBOX, MOUNT_AREAS, MOUNT_ORDER } from '../../lib/tools/palm-geometry';
 import { MAP_SPOTS } from '../../lib/tools/palm-map';
 
 interface Props {
@@ -23,8 +23,13 @@ const mounts = MAP_SPOTS.filter((spot) => spot.kind === 'mount');
 <div class="t-card" data-palm-map data-live-guides={liveGuides}>
   <div class="t-map">
     <div class="t-map-figure">
-      <svg class="t-map-svg" viewBox={PALM_VIEWBOX} role="img" aria-label="A drawn right palm with the heart, head, life and fate lines and the mounts marked." data-map-svg>
-        <path class="t-palm t-palm-grad" d={PALM_OUTLINE}></path>
+      <svg class="t-map-svg t-fig" viewBox={MAP_VIEWBOX} role="img" aria-label="A right palm (a 3D model) with the heart, head, life and fate lines and the mounts marked." data-map-svg>
+        <defs>
+          <linearGradient id="t-map-fade-g" gradientUnits="userSpaceOnUse" x1="0" y1="150" x2="0" y2="1120"><stop offset="0" stop-color="black" /><stop offset="0.145" stop-color="white" /><stop offset="0.9" stop-color="white" /><stop offset="1" stop-color="black" /></linearGradient>
+          <mask id="t-map-fade" maskUnits="userSpaceOnUse" x="0" y="0" width={FRAME.width} height={FRAME.height}><rect width={FRAME.width} height={FRAME.height} fill="url(#t-map-fade-g)" /></mask>
+        </defs>
+        {/* The fingertips and the wrist run off the view: fade them out softly. */}
+        <image href={HAND_IMAGE.large} x="0" y="0" width={FRAME.width} height={FRAME.height} mask="url(#t-map-fade)" />
         {
           MOUNT_ORDER.map((id) => {
             const area = MOUNT_AREAS[id];
@@ -53,7 +58,7 @@ const mounts = MAP_SPOTS.filter((spot) => spot.kind === 'mount');
     <div class="t-map-side">
       <div class="t-map-panel" data-panel aria-live="polite">
         <h2 class="t-map-panel-title">Tap a line or a mount</h2>
-        <p class="t-caveat">Each dot on the palm is a line or a mount. Tap one — or pick from the list — to see what it is and what palmistry reads in it.</p>
+        <p class="t-caveat">Each dot on the palm is a line or a mount. Tap one, or pick from the list, to see what it is and what palmistry reads in it.</p>
       </div>
       <div class="t-map-lists" data-map-lists hidden>
         <p class="t-map-list-title">Lines</p>

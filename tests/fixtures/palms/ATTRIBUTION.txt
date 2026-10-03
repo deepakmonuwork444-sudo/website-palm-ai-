@@ -1,0 +1,37 @@
+Palm photos used by the photo-tool tests and screenshots (tests/fixtures/palms/).
+All are real photos under free licences, resized and re-encoded as JPEG on 2026-09-26.
+None is a PalmSays user or the owner. Found through the Openverse API.
+
+right-palm.jpg, left-palm-mirrored.jpg (mirrored copy), right-palm-exif-rotated.jpg (same pixels stored
+sideways with EXIF orientation 6), and src/lib/tools/hand/examples/right-palm.jpg (480 px copy shown as the
+"example result" on the tool pages)
+  "Right Hand Palm" by Eyefive45, Wikimedia Commons, CC BY-SA 4.0
+  https://commons.wikimedia.org/wiki/File:Right_Hand_Palm.png
+  https://creativecommons.org/licenses/by-sa/4.0/
+  Changes: transparent background filled white, resized, JPEG; the mirrored and rotated copies are derived.
+  These derived copies are shared under the same licence (CC BY-SA 4.0).
+
+two-hands.jpg
+  "Open Palm of the Left Hand, Fingers" by Eyefive45, Wikimedia Commons, CC BY-SA 4.0
+  https://commons.wikimedia.org/wiki/File:Open_Palm_of_the_Left_Hand,_Fingers.jpg
+  Changes: resized, JPEG. Shared under CC BY-SA 4.0.
+
+back-of-hand.jpg
+  "Hand of a Teenage Boy" by Eyefive45, Wikimedia Commons, CC BY-SA 4.0
+  https://commons.wikimedia.org/wiki/File:Hand_of_a_Teenage_Boy.png
+  Changes: transparent background filled white, resized, JPEG. Shared under CC BY-SA 4.0.
+
+palm-outdoors.jpg
+  "The Mounts in My Mom's Palm" by zeevveez, Flickr, CC BY 2.0
+  https://www.flickr.com/photos/29001414@N00/9531194110
+  https://creativecommons.org/licenses/by/2.0/
+  Changes: re-encoded.
+
+palm-too-close.jpg
+  "palm left hand" by krihsnasri, Flickr, CC0 1.0 (public domain dedication)
+  https://www.flickr.com/photos/144397451@N07/30245083773
+
+no-hand-leaf.jpg
+  "Open Palm" (a palm-tree leaf) by benswing, Flickr, CC BY 2.0
+  https://www.flickr.com/photos/52877333@N00/6708165517
+  Changes: re-encoded.

@@ -1,14 +1,14 @@
 ---
 /**
  * The picker for tools 4–7 (server-rendered). Real radio groups with visible
- * labels and palm thumbnails, "Not sure" in every question, one gold action.
+ * labels and thumbnails on the 3D hand (the option's line drawn exactly), "Not sure" in every question, one gold action.
  * The page's own <script> calls mountFinder() with that line's data, so each
  * page ships only its own line's rules.
  */
 import Icon from '../Icon.astro';
 import MiniPalm from './MiniPalm.astro';
 import { NOT_SURE, type LineFinder } from '../../lib/tools/finder';
-import { THUMB_VIEW } from '../../lib/tools/palm-geometry';
+import { lineThumb } from '../../lib/tools/palm-geometry';
 
 interface Props {
   finder: LineFinder;
@@ -22,17 +22,18 @@ const { finder, lineName } = Astro.props;
   <form class="t-form" novalidate aria-label={`Describe your ${lineName}`}>
     {
       finder.questions.map((question) => {
-        const thumbs = question.options.some((option) => option.thumb);
+        const figures = question.options.map((option) => lineThumb(finder.line, question.id, option.value));
+        const thumbs = figures.some(Boolean);
         return (
           <fieldset class="t-q" data-q={question.id}>
             <legend class="t-q-legend">{question.legend}</legend>
             {question.help && <p class="t-q-help">{question.help}</p>}
             <div class={thumbs ? 't-opts' : 't-opts-text'}>
-              {question.options.map((option) => (
+              {question.options.map((option, i) => (
                 <label class="t-opt">
                   <input class="t-opt-input" type="radio" name={question.id} value={option.value} />
                   <span class="t-opt-box">
-                    {option.thumb && <MiniPalm paths={option.thumb} view={THUMB_VIEW[finder.line]} />}
+                    {figures[i] && <MiniPalm figure={figures[i]} />}
                     <span class="t-opt-text">
                       <Icon name="check" class="t-opt-check" />
                       <span>{option.label}</span>

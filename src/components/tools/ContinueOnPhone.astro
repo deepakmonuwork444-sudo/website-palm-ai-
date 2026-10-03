@@ -1,0 +1,31 @@
+---
+/**
+ * "Continue on your phone" (WEB-DEC-059): a quiet card, desktop only
+ * (.only-desktop), with a build-time QR (uqr, no QR service, no JS) of this
+ * page's own address + ?from=desktop. No utm, no tracking.
+ */
+import { site } from '../../config/site';
+import { qrMatrix } from '../../lib/qr';
+import { phoneUrl } from '../../lib/webcam/core';
+
+const target = phoneUrl(new URL(Astro.url.pathname, site.baseUrl).href);
+const { size, path } = qrMatrix(target);
+---
+
+<div class="only-desktop t-phone">
+  <div class="t-phone-card">
+    <svg class="t-phone-qr" viewBox={`0 0 ${size} ${size}`} role="img" aria-label="QR code: open this page on your phone" shape-rendering="crispEdges">
+      <rect class="t-phone-light" width={size} height={size} rx={size * 0.068}></rect>
+      <path class="t-phone-dark" d={path}></path>
+    </svg>
+    <p class="t-caveat">Phone cameras see palm lines better. Scan to continue on your phone.</p>
+  </div>
+</div>
+
+<style>
+  .t-phone-card { display: flex; align-items: center; gap: 1rem; max-width: 26rem; margin-inline: auto; padding: 0.75rem; border-radius: 1rem; border: 1px solid var(--edge); }
+  .t-phone-qr { width: 5.5rem; height: 5.5rem; flex: none; }
+  .t-phone-light { fill: var(--color-qr-light); }
+  .t-phone-dark { fill: var(--color-qr-dark); }
+  .t-phone-card p { margin: 0; }
+</style>

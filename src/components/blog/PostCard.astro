@@ -1,0 +1,43 @@
+---
+/**
+ * One post as a card (/blog/ index and "Keep reading" under a post): cover thumbnail, topic chip,
+ * title (the one link, stretched over the card so the whole card is a tap target), optional summary,
+ * date and reading time. Not a `.glass-card`: showroom.ts hides those until they scroll into view,
+ * which left "Keep reading" blank in full-page views (WEB-DEC-058). Styles in src/styles/blog.css.
+ */
+import type { PostCard as Card } from '../../lib/blog';
+import { formatDate } from '../../lib/guides/guides';
+import PostCover from './PostCover.astro';
+
+interface Props {
+  post: Card;
+  /** Heading level of the title: h2 on /blog/, h3 under a post's "Keep reading" h2. */
+  as?: 'h2' | 'h3';
+  featured?: boolean;
+  summary?: boolean;
+  date?: boolean;
+  sizes?: string;
+  eager?: boolean;
+}
+
+const { post, as: Title = 'h3', featured = false, summary = false, date = false, sizes = '(min-width: 64rem) 22rem, calc(100vw - 2rem)', eager = false } = Astro.props;
+---
+
+<article class:list={['bp-card', featured && 'bp-card-featured']}>
+  {
+    post.cover && (
+      <div class="bp-thumb">
+        <PostCover id={post.cover} sizes={sizes} eager={eager} />
+      </div>
+    )
+  }
+  <div class="bp-card-body">
+    <p class="bp-chip">{post.topic}</p>
+    <Title class="bp-card-title"><a class="bp-card-link" href={post.path}>{post.title}</a></Title>
+    {summary && <p class="bp-card-sum">{post.summary}</p>}
+    <p class="bp-card-meta">
+      {date && <time datetime={post.published}>{formatDate(post.published, 'en')}</time>}
+      <span>{post.minutes} min read</span>
+    </p>
+  </div>
+</article>

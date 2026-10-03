@@ -4,19 +4,19 @@
  * SECURITY_PRIVACY.md §2 / UX_PSYCHOLOGY.md; prices and names come from site.ts.
  */
 
-const rupees = (value: number) => `₹${value}`;
+const rupees = (value: number) => `₹${Number(value).toLocaleString('en-IN')}`;
 
 export const en = {
   meta: {
-    homeTitleLive: 'Free AI Palm Reading Online – See Your Lines on Your Photo',
+    homeTitleLive: 'Free AI Palm Reading Online: See Your Lines on Your Photo',
     homeDescriptionLive:
-      'Upload or snap a palm photo and see your heart, head, life and fate lines traced on your own hand. First reading free, no email. No fake predictions.',
-    homeTitleSoon: 'AI Palm Reading That Traces Your Real Lines | PalmSays',
+      'Free AI palm reading online: upload or snap a palm photo and see your heart, head, life and fate lines traced on your own hand. First reading free, no email.',
+    homeTitleSoon: 'Free AI Palm Reading: See Your Real Lines Traced | PalmSays',
     homeDescriptionSoon:
-      'See how PalmSays traces the heart, head, life and fate lines on a palm, with a sample reading. Free web reading opens soon; the Android app works today.',
+      'Free AI palm reading: see how PalmSays traces the heart, head, life and fate lines on a real palm. The web reading opens soon; the Android app works today.',
     appTitle: 'PalmSays: Palm Reading App for Android (Free to Start)',
     appDescription:
-      'Scan your palm with your phone camera, see your lines traced and read what they mean. Free to start on Android. What’s free, what’s paid, and your privacy.',
+      'PalmSays is a palm reading app for Android: scan your palm, see your lines traced and read what they mean. Free to start. What’s free, what’s paid, privacy.',
     notFoundTitle: 'Page not found | PalmSays',
     notFoundDescription: 'This page does not exist. Go to the PalmSays home page or read about the lines on your palm.',
   },
@@ -38,6 +38,7 @@ export const en = {
     readMyPalm: 'Read my palm',
     trySample: 'Try a sample hand',
     getApp: 'Get the app',
+    scan: 'Scan my palm',
   },
   lang: {
     /** Label of the switch on this page: the other language, in its own script. */
@@ -54,7 +55,7 @@ export const en = {
     life: {
       name: 'Life line',
       where: 'Curves around the base of the thumb.',
-      reads: 'Palmistry reads it for energy and how you meet change — not for how long you live.',
+      reads: 'Palmistry reads it for energy and how you meet change, not for how long you live.',
     },
     head: {
       name: 'Head line',
@@ -69,7 +70,7 @@ export const en = {
     fate: {
       name: 'Fate line',
       where: 'Runs up the middle of the palm toward the middle finger.',
-      reads: 'Read for work and life direction. Many hands have no clear fate line — that is common.',
+      reads: 'Read for work and life direction. Many hands have no clear fate line, and that is common.',
     },
     notClearlySeen: 'not clearly seen',
     guideLink: (name: string) => `Read the ${name.toLowerCase()} guide`,
@@ -81,6 +82,18 @@ export const en = {
     foundLines: 'Lines shown:',
     missingLines: 'Not clearly seen:',
   },
+  /** Header sign-in + /account/ page shell (WEB-FEAT-029/062). The account page's own words: src/lib/auth/copy.ts. */
+  account: {
+    signIn: 'Sign in',
+    myReadings: 'My readings',
+    account: 'Account',
+    signOut: 'Sign out',
+    menuAria: 'Your account menu',
+    pageTitle: 'Your account | PalmSays',
+    pageDescription: 'Sign in to PalmSays with Google or an email code. The same account works in the PalmSays app.',
+    pageHeading: 'Your PalmSays account',
+    noscript: 'Signing in needs JavaScript. Please turn it on, or open this page in Chrome.',
+  },
   store: {
     badgeAlt: 'Get it on Google Play',
     freeToInstall: 'Free to install',
@@ -89,110 +102,222 @@ export const en = {
     cancelAnytime: 'Cancel plans anytime in Google Play',
     size: (mb: number) => `About ${mb} MB`,
     noAds: 'No ads',
-    onlyPlay: 'Only from Google Play — never an APK file.',
-    playName: (name: string) => `On Google Play the app is called ${name} for now — it is the same app.`,
+    onlyPlay: 'Only from Google Play, never as an APK file.',
+    playName: (name: string) => `PalmSays is currently listed as ${name} on Google Play. It is the same app.`,
     iphoneNote: 'The iPhone app isn’t ready yet. You can keep using this website.',
     qrCaption: 'Scan with your phone camera',
-    remoteInstall: 'Or press Install on Google Play here — the app goes straight to your phone (same Google account).',
+    remoteInstall: 'Or press Install on Google Play here, and the app goes straight to your phone (same Google account).',
     priceLabel: 'App price',
   },
   home: {
-    h1Live: 'Free AI palm reading — see your own lines traced on your photo',
-    h1Soon: 'AI palm reading that traces your real lines',
-    lead: 'Take one photo of your palm. We trace your heart, head, life and fate lines and show what palmistry says about each one.',
-    leadSoon: 'The free reading on this website opens soon. Until then, try a sample hand here, or use our Android app today.',
-    card: {
-      title: 'Read your palm',
-      status: 'The free web reading opens soon.',
-      statusDetail: 'Nothing is uploaded from this page yet.',
-      ownPalm: 'Read my own palm',
-      ownPalmBody:
-        'Your own reading isn’t open on this website yet. You can read your palm today in our Android app — it traces your lines on your own photo.',
-      moreAboutApp: 'More about the app',
+    heroCredit: 'The 3D hand in the opening is an AI-generated model, not a real customer.',
+    h1: 'See your own palm lines, traced and read',
+    lead: 'Free AI palm reading on your own photo. We trace your heart, head, life and fate lines on it and show what palmistry reads in them.',
+    scan: {
+      cta: 'Scan my palm for free',
+      facts: (n: number) => `${n} free readings. No payment. Hindi and English.`,
+      // While the web scan is closed the same button goes to the app page, and says so.
+      ctaApp: 'Get my free reading in the app',
+      factsApp: (n: number) => `${n} free readings in our Android app. No payment. The scan on this website opens soon.`,
+      honesty: 'Palmistry is a tradition for reflection, not a prediction.',
+      exampleTag: 'Example photo',
+      note: 'Your lines appear here after your scan',
+      scannedNote: 'A real scan: lines traced by PalmSays',
+      photoAlt: 'A real photo of an open palm inside a phone frame. No lines are drawn on it; lines appear only after a real scan.',
+      credit: 'Photo: Hanna Pad on Pexels.',
+      saved: (n: number) => (n === 1 ? 'You have 1 reading saved in this browser.' : `You have ${n} readings saved in this browser.`),
+      savedLink: 'Open my readings',
     },
-    chips: {
-      noPayment: 'No payment on this site',
-      bilingual: 'Hindi and English',
-    },
-    sample: {
-      title: 'See a sample reading',
-      badge: 'Sample',
-      intro:
-        'This sample uses a drawn palm, not anyone’s real hand. It shows how a reading looks: the lines on the photo, what the scan saw, and what palmistry says.',
-      glanceTitle: 'At a glance',
-      glance: [
-        'You tend to lead with warmth in close relationships.',
-        'You think in pictures and possibilities before plans.',
-        'Your energy goes outward — to people and activity.',
+    // v4 opening scroll story (DESIGN_V4_BRIEF.md): one hand at a time, then "Now, yours".
+    story: {
+      eyebrow: 'Free AI palm reading',
+      title: { before: 'What do your', em: 'hands', after: 'say?' },
+      beats: [
+        {
+          label: 'Every hand is different',
+          title: { before: 'No two hands are the', em: 'same.', after: '' },
+          body: 'Different fingers, different mounts, different lines. Palmistry reads every hand on its own.',
+        },
+        {
+          label: 'An old tradition',
+          title: { before: 'Read for', em: 'centuries.', after: '' },
+          body: 'From India to Europe, palm readers have looked to the same main lines: heart, head, life and fate.',
+        },
+        {
+          label: 'Every age',
+          title: { before: 'Every age, its own', em: 'story.', after: '' },
+          body: 'Young or old, every palm has lines worth reading.',
+        },
       ],
-      sawLabel: 'What the scan saw',
-      saysLabel: 'What palmistry says',
-      parts: {
-        love: {
-          title: 'Love',
-          saw: 'The heart line curves up toward the first finger.',
-          says: 'In palmistry this is read as warm, open-hearted affection.',
-          source: 'Cheiro, Cheiro’s Language of the Hand (1897)',
-        },
-        personality: {
-          title: 'Personality',
-          saw: 'The head line is long and slopes gently toward the edge of the palm. The life line curves wide around the thumb.',
-          says: 'Palmistry reads this as an imaginative mind that reaches for possibilities first, and energy spent outward on people and activity.',
-          source: 'William G. Benham, The Laws of Scientific Hand Reading (1900)',
-        },
-        career: {
-          title: 'Career & Money',
-          firstSentence: 'Your head line suggests you do your best work when you can shape ideas your own way.',
-        },
-        direction: {
-          title: 'Life Direction',
-          firstSentence: 'The fate line wasn’t clear in this photo, so this part leans on your head and life lines.',
-        },
+      yours: {
+        label: 'Your turn',
+        title: { before: 'Now,', em: 'yours.', after: '' },
+        body: 'Take a photo of your palm with your phone, or upload one. Your own lines are traced on it, then read.',
+        photoLink: 'Where your photo goes',
       },
-      readCount: 'You’ve read 2 of 4 parts.',
-      lockNote:
-        'In a free reading, Love and Personality open in full, and Career & Money and Life Direction show their first sentence. The full reading is in our Android app.',
-      notClearTitle: 'Fate line: not clearly seen',
-      notClearBody: 'We don’t guess. A clearer photo in good light usually helps — and many hands simply have no clear fate line.',
-      honesty: 'Palmistry is an old tradition, not a science. We show what the tradition says about your lines — not your future.',
+      aiNote: 'The hands in the opening story are AI-generated pictures, not real customers.',
     },
-    free: {
-      title: 'What’s free, and what’s in the app',
-      webTitle: 'On this website',
-      web: [
-        'A sample reading — free, no sign-up',
-        'Soon: a free reading of your own palm, right here',
-      ],
-      noCard: 'We never ask for card or UPI on this website.',
-      appTitle: 'In our Android app',
-      app: [
-        'Scan your palm with your phone camera',
-        'All 4 parts of your reading, with your lines traced on your photo',
-        'Hindi and English, no ads',
-      ],
+    reveals: {
+      title: 'What your palm reveals',
+      sub: 'Four parts, each read from your own lines. The lines below are from a real PalmSays reading.',
+      sampleTag: 'Sample',
+      ask: 'Get your free palm reading',
+      parts: { love: 'Love', personality: 'Personality', careerMoney: 'Career & money', direction: 'Life direction' },
+      directionNone: 'In this palm the fate line was too faint to read, so the reading said so instead of guessing.',
     },
     how: {
-      title: 'How the palm reading works',
+      title: 'How our AI palm reading works',
       steps: [
-        { title: 'Take a photo of your palm', body: 'Open palm, good light, the whole hand in the frame.' },
         {
-          title: 'We find and trace your lines',
-          body: 'Our AI finds your heart, head, life and fate lines and draws them on your photo. If a line isn’t clear, we say so instead of guessing.',
+          title: 'Take one photo of your open palm',
+          body: 'Good light, the whole hand in the frame, and see [which hand to photograph](/which-hand-to-read/) first. Your phone checks the photo before anything is sent.',
+          alt: 'The first screen of the reading: photo tips and the Take a palm photo button.',
+        },
+        {
+          title: 'We trace your lines on your photo',
+          body: 'Heart, head, life and fate. If a line isn’t clear, we tell you instead of guessing.',
+          alt: 'The reading screen while it traces the lines on a palm photo.',
         },
         {
           title: 'Read what palmistry says',
-          body: 'The meanings come from classical palmistry books — the source is under each one.',
+          body: 'Love and Personality in full, plus the first line of Career & money and Life direction.',
+          alt: 'The start of a finished reading: the palm at a glance and the Love part.',
         },
       ],
-      soonNote: 'On this website this opens soon. In the Android app it works today.',
+      previewNote: 'Real screens from the reading page.',
     },
-    learn: {
-      title: 'The four main lines on your palm',
-      intro: 'Most palm readings start with these four lines. Here is where each one sits and what the tradition reads in it.',
+    tools: {
+      title: 'Free palmistry tools that use your photo',
+      sub: 'Short, focused checks on your own hand.',
+      open: 'Try it on your photo',
+      soon: 'Opens soon',
+      local: 'On your phone',
+      all: 'See all free tools',
+      items: {
+        handShape: { name: 'Hand shape from your photo', blurb: 'Your palm and finger proportions, and the hand type palmistry gives them.' },
+        fingers: { name: 'Finger reader', blurb: 'Your finger lengths side by side, and what palmistry reads in them.' },
+        lineFinder: { name: 'Palm line finder', blurb: 'Your heart, head, life and fate lines, named on your own photo.' },
+        leftRight: { name: 'Left vs right hand', blurb: 'Both your hands compared: what differs, and how the tradition reads it.' },
+      },
+      englishNote: '',
+    },
+    sample: {
+      title: 'A real reading, before you scan yours',
+      tag: 'Sample',
+      note: 'Real text from PalmSays, made from a real palm scan. Your reading is made from your own photo.',
+      glanceTitle: 'At a glance',
+      readCount: 'You’ve read 2 of 4 parts.',
+      lockedNone: 'Nothing clear enough in this palm to preview.',
+      lockNote: 'In a free reading these two parts show their first line. The full reading is in our Android app (paid).',
+      cta: 'Scan my palm',
+    },
+    guides: {
+      title: 'Learn the lines on your palm',
+      sub: 'Honest guides, with a picture of each line. New to palmistry? Start with [how to read palm lines](/palm-reading/).',
+      items: {
+        heart: 'Heart line',
+        head: 'Head line',
+        life: 'Life line',
+        fate: 'Fate line',
+        marriage: 'Marriage line',
+        handLines: 'Lines on your palm',
+        palmReading: 'How to read palm lines',
+        isReal: 'Is palmistry true?',
+      },
+      blurbs: {
+        heart: 'Love and feelings: what its length, curve and forks mean.',
+        head: 'How you think: long, short, sloping or forked.',
+        life: 'Energy and big changes, not how long you live.',
+        fate: 'Career and direction, and what no fate line means.',
+        marriage: 'The small lines under the little finger, and what they can’t tell.',
+        handLines: 'Every main line on your hand, with a palm reading chart.',
+        palmReading: 'Seven steps to read any palm, from hand to lines.',
+        isReal: 'What science says, and how to enjoy it honestly.',
+      },
+      read: 'Read the guide',
+      minutes: (n: number) => `${n} min read`,
+      inEnglish: '',
+      all: 'All guides',
+    },
+    faq: {
+      title: 'Questions people ask',
+      items: [
+        {
+          q: 'Is the palm reading really free?',
+          // `open` = a visitor can finish a scan on this website today (src/lib/reading/open.ts); check-web blocks the live claim while it is off.
+          a: (guest: number, afterEmail: number, open: boolean) =>
+            open
+              ? `Yes. On this website you get ${guest + afterEmail} free readings: ${guest} now, and ${afterEmail} more after a free email sign-up. Each shows Love and Personality in full, plus the first line of Career & money and Life direction. The full reading is in our Android app, which is paid. We never ask for card details on this website.`
+              : `Yes, to start. The palm scan on this website opens soon. Today our Android app gives you ${guest + afterEmail} free readings: ${guest} right away, and ${afterEmail} more with a free account. Each shows Love and Personality in full, plus the first line of Career & money and Life direction. The full reading in the app is paid. We never ask for card details on this website.`,
+        },
+        {
+          q: 'What happens to my photo?',
+          a: (_guest: number, _afterEmail: number, open: boolean) =>
+            open
+              ? 'Before anything is sent, your browser makes the photo smaller and removes hidden data such as your location. A copy of the photo stays in this browser so you can see your reading again. Clearing browser data removes it.'
+              : 'The photo tools on this website check your photo on your own phone, and nothing is uploaded. When the palm scan here opens, your browser will make the photo smaller and remove hidden data such as your location before anything is sent.',
+        },
+        {
+          q: 'Can palmistry predict my future?',
+          a: () =>
+            'No. Palmistry is an old tradition, not a science. We show what the tradition says about your lines, not your future. No line can tell how long you’ll live, whether you’ll marry, or whether you’ll have children.',
+        },
+        {
+          q: 'Which hand should I scan?',
+          a: () => 'Most people start with the hand they write with. Your second free reading is a good time to scan the other hand.',
+        },
+        {
+          q: 'What if my photo isn’t clear?',
+          a: () =>
+            'Your phone checks the photo first. If it’s too dark or blurry, we tell you how to fix it, and nothing is sent. If one line isn’t clear, the reading says so instead of guessing.',
+        },
+      ],
+      privacyLink: 'Read the privacy policy',
     },
     app: {
-      title: 'Our Android app',
-      body: 'Scan your palm with your phone camera and get the full reading in Hindi or English.',
+      title: 'Want the full reading?',
+      body: 'Our Android app has all 4 parts of your reading, with your lines traced on your photo.',
+      ticks: ['All 4 parts: Love, Personality, Career & money, Life direction', 'Scan with your phone camera', 'Hindi and English, no ads'],
+      more: 'About our palm reading app',
+    },
+    // Pricing on the home page: the same facts and numbers as /app/ (appPage.price); numbers come from site.ts.
+    pricing: {
+      title: 'What’s free and what’s paid',
+      sub: 'Start free. The full reading is in our Android app, paid through Google Play, never on this site.',
+      free: {
+        name: 'Free',
+        lead: '',
+        tail: 'readings',
+        how: (guest: number, afterEmail: number) => `${guest} right away, ${afterEmail} more with a free account`,
+        points: () => ['Love and Personality in full', 'The first line of Career & money and Life direction'],
+      },
+      packs: {
+        name: 'Packs',
+        lead: 'from',
+        tail: 'one-time',
+        how: 'Pay once; the readings never expire',
+        points: (sizes: readonly number[]) => [
+          `${Array.from(sizes).slice(0, -1).join(', ')} or ${Array.from(sizes).slice(-1)} full readings`,
+          'All 4 parts in every reading',
+        ],
+      },
+      plans: {
+        name: 'Plans',
+        lead: 'from',
+        tail: '/month',
+        how: 'Renews until you cancel in Google Play',
+        points: (lite: number, full: number) => [
+          `Monthly Lite: ${lite} full readings a month`,
+          `Monthly and Yearly: ${full} full readings a month`,
+          'Unused readings don’t carry over',
+        ],
+      },
+      same: 'Packs and plans open the same full reading.',
+      where: 'In our Android app',
+    },
+    mostAsked: {
+      title: 'Most asked this week',
+      weekEnding: (date: string) => `Week ending ${date}`,
     },
   },
   locked: {
@@ -200,23 +325,51 @@ export const en = {
     lockedLabel: 'Locked part',
   },
   appPage: {
-    h1: 'Palm reading app for Android that traces your real lines',
-    lead: 'Scan your palm with your phone camera. The app traces your heart, head, life and fate lines on your own photo and shows what palmistry says about each.',
+    h1: 'PalmSays: the palm reading app that traces your real lines',
+    lead: 'Scan your palm with your phone camera. This hand reading app traces your heart, head, life and fate lines on your own photo and shows what palmistry says about each.',
     getTitle: 'Get the app',
     continuity: 'In the app you’ll take a fresh photo of your palm.',
-    doesTitle: 'What the app does',
+    photoNote: 'In the app, you scan your palm with your phone camera',
+    doesTitle: 'What the palm reading app does',
     does: [
       'Traces your heart, head, life and fate lines on your own palm photo',
+      'Measures your hand type and fingers on the same photo, and shows where the mounts sit',
       'Tells you when a line isn’t clear, instead of guessing',
       'Explains what palmistry says about each line, with the book it comes from',
-      'Works in Hindi and English, with no ads',
+      'Opens in English, with a switch to Hindi, and has no ads',
     ],
     priceTitle: 'What’s free and what’s paid',
     price: {
-      freeReadings: 'Free readings to start. The app shows what a free reading includes before you begin.',
-      plans: (price: number) => `Plans from ${rupees(price)}/month. They renew until you cancel in Google Play.`,
-      packs: (price: number) => `Packs from ${rupees(price)}. One-time, and the readings never expire.`,
-      payment: 'Google Play handles payment. We never see your card or UPI details.',
+      freeReadings: (guest: number, afterEmail: number) =>
+        `Free: ${guest + afterEmail} readings (${guest} right away, ${afterEmail} more with a free account). A free reading shows Love and Personality in full, and the first line of Career & money and Life direction.`,
+      // The price boxes (WEB-DEC-046): the app paywall's two tabs, Membership and One-time packs; numbers from site.appPlans / site.appPacks.
+      switchLabel: 'Choose how to pay',
+      currencyNote: 'Prices below are in Indian rupees (₹). Outside India, Google Play shows the price in your own currency before you pay.',
+      getInApp: 'Get it in the app',
+      startFree: 'Start free in the app',
+      membershipTitle: 'Membership',
+      membershipLead: 'New readings every month. Cancel anytime in Google Play.',
+      packsTitle: 'One-time packs',
+      packsLead: 'Pay once, with no autopay. The readings never expire.',
+      planNames: { yearly: 'Yearly', monthly: 'Monthly', lite: 'Monthly Lite' },
+      per: { year: '/year', month: '/month' },
+      spoken: {
+        year: (price: number) => `${rupees(price)} a year`,
+        month: (price: number) => `${rupees(price)} a month`,
+      },
+      readingsAMonth: (count: number) => `${count} full readings a month`,
+      trial: (days: number, readings: number) => `${days} days free, ${readings} readings`,
+      yearlyPerMonth: (perMonth: number, under: number) => `About ${rupees(perMonth)} a month, under ${rupees(under)} a reading`,
+      yearlyVsMonthly: (twelve: number) => `12 months of Monthly cost ${rupees(twelve)}`,
+      planPerReading: (price: number) => `About ${rupees(price)} a reading`,
+      readingsWord: 'readings',
+      packTags: { me: 'Just for me', family: 'Me + family', bigFamily: 'Big family', friends: 'Family + friends' },
+      packPerReading: (price: number) => `${rupees(price)} a reading`,
+      renewal: 'Plans renew on their own until you cancel in Google Play. Unused monthly readings don’t carry over.',
+      trialNote: (days: number, readings: number, price: number) =>
+        `Yearly starts free for ${days} days, with ${readings} readings. Then it’s ${rupees(price)} a year; cancel in Google Play before the trial ends and you pay nothing.`,
+      sameReading: 'Packs and plans open the same full reading, with all 4 parts.',
+      payment: 'Google Play handles payment. We never see your card details.',
     },
     privacyTitle: 'Your photos and privacy',
     privacyBody: 'The privacy policy explains what the app keeps, for how long, and how to delete it.',
@@ -235,7 +388,7 @@ export const en = {
       { q: 'Is there an iPhone app?', a: () => 'Not yet. The app is on Android only, from Google Play.' },
       {
         q: 'Can the app predict my future?',
-        a: () => 'No. It shows what the palmistry tradition says about your lines — for reflection, not prediction.',
+        a: () => 'No. It shows what the palmistry tradition says about your lines. It is for reflection, not prediction.',
       },
     ],
   },
@@ -246,12 +399,15 @@ export const en = {
     terms: 'Terms of use',
     deleteAccount: 'Delete your account',
     appPage: 'About the app',
+    about: 'About us',
+    editorialPolicy: 'How we write guides',
     noCookies: 'No cookies, no ad trackers',
-    noSelling: 'We don’t sell your data, and there are no ads — ever.',
+    noSelling: 'We don’t sell your data, and there are no ads, ever.',
     age: (age: number) => `Readings are for people ${age}+`,
     madeIn: 'Made in India',
     contact: 'Contact',
     grievance: 'Grievance contact',
+    toTop: 'Back to top',
   },
   notFound: {
     title: 'This page doesn’t exist',

@@ -41,7 +41,7 @@ export function nextStepBlock(): HTMLElement {
     h(
       'p',
       {},
-      h('a', { class: 'text-link', href: live ? '/#read' : '/app/', text: live ? 'Read my palm free' : 'See what the app does' }),
+      h('a', { class: 'text-link', href: live ? '/#read' : '/app/', text: live ? 'Read my palm free' : 'Palm reading app for Android' }),
     ),
   );
 }

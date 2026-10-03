@@ -113,7 +113,7 @@ export function mountQuiz(): void {
       const right = question.options.find((option) => option.id === question.answer)?.label ?? '';
       feedback.replaceChildren(
         mark(ok),
-        h('span', {}, h('strong', { text: ok ? 'Correct. ' : `Not quite — it’s “${right}”. ` }), question.explain),
+        h('span', {}, h('strong', { text: ok ? 'Correct. ' : `Not quite. It’s “${right}”. ` }), question.explain),
       );
       next.textContent = index === QUIZ.length - 1 ? 'See my score' : 'Next question';
       next.hidden = false;

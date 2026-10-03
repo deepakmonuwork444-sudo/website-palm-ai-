@@ -85,12 +85,16 @@ Contrast figures are WCAG 2.x ratios. AA needs 4.5 for body text and 3.0 for lar
 
 ### 2.3 Line colours and the halo rule
 
+**v4 (2026-09-26, owner, `DESIGN_V4_BRIEF.md`):** the website uses the classic set (heart red, head blue, life green, fate purple). The app keeps its own colours. Old values: life `#F07A5A`, head `#6EA8FF`, heart `#F27BB0`, fate `#A993FF`.
+
 | Line | Trace colour (photos and diagram palm, both themes) | On Night page | Day twin (text and dots on paper) | On Day paper | Hindi |
 |---|---|---|---|---|---|
-| Life | `#F07A5A` | 7.1 | `#B5391A` | 5.5 | जीवन रेखा |
-| Head | `#6EA8FF` | 8.1 | `#1F5BC4` | 5.8 | मस्तिष्क रेखा |
-| Heart | `#F27BB0` | 7.6 | `#B02A6E` | 5.7 | हृदय रेखा |
-| Fate | `#A993FF` | 7.7 | `#6440D0` | 6.1 | भाग्य रेखा |
+| Life | `#2FD06A` | 9.6 | `#137A3A` | 5.0 | जीवन रेखा |
+| Head | `#4C8DFF` | 6.1 | `#1F5BC4` | 5.8 | मस्तिष्क रेखा |
+| Heart | `#FF4D5E` | 6.0 | `#C8102E` | 5.4 | हृदय रेखा |
+| Fate | `#B26BFF` | 6.0 | `#6440D0` | 6.1 | भाग्य रेखा |
+
+**v4 type and footer (2026-09-26):** every section title (`h2`) is set in the display serif, as in the home story (`--fs-h2` 2–3rem, `--lh-h2` 1.1; `--fs-h1` 2.25–3.75rem); an `h2` at h3 size inside a card stays in the sans. Section spacing 4.5rem phone / 8rem desktop. The drawn palm is fine ivory-gold line art on a faint glaze, no filled purple hand. The footer carries no store button: each page's own app block has it, with the price beside it.
 
 - **A line's colour follows the surface it sits on, not the theme.**
   - On a photo, or on the stylised palm (`#3A3078 → #1D1850`), always use the trace colours with a halo.
@@ -98,6 +102,7 @@ Contrast figures are WCAG 2.x ratios. AA needs 4.5 for body text and 3.0 for lar
 - **The halo:** every traced line is drawn over a `#1A1440` stroke about 1.4× its width, with round caps and joins, as in the app's `icon.svg`.
   - Without the halo, the life line on the diagram palm is only 4.1:1.
   - *(rec)* Line 3px, halo 4.2px, with `vector-effect: non-scaling-stroke` so that zooming doesn't fatten the lines.
+  - **Exception, the web reading's photos (WEB-DEC-043):** the live scan and the report photo use the app's thin, shiny style instead of the halo: a colour glow 3.5 px at 22%, a 1 px core and a 0.4 px white sheen, in screen pixels; faint lines are dashed 4 4. Colours stay the classic trace set above.
 - **Line colours are data.** They never appear in UI chrome: not in buttons, borders, headings or backgrounds.
 - A "bad-sounding" line keeps its normal colour. Nothing is ever shown in red or as a warning.
 - The logo keeps its own pink, cyan and green lines (`#FF7FA6`, `#5FD4FF`, `#6FE89A`) **inside the logo only**.
@@ -209,7 +214,9 @@ Not everything gets 20. Identical radius on everything is the "SaaS card kit" te
 
 ### 4.3 Elevation and glass
 
-- **No box shadows, anywhere.** Depth comes from the 3 surface steps and the 1px `--edge`.
+- **Showroom system (WEB-DEC-042, owner 2026-09-26; supersedes the rules below where they differ):** the whole site uses the "Showroom layer" at the end of `src/styles/global.css`: a fixed aurora + film grain behind `body`; rim-lit glass (`.glass-card`, `.card`, `.glass-panel`, `.glass-well`, `.chip-glass`: `--glass-1` fill over an almost-opaque `--glass-base`, `--rim` gradient border, `--shine` top highlight, `--e1/--e2/--e3` elevation); gold foil text (`.foil`, `<em>` in h1/h2); 3D gold `.btn-gold` with a shine sweep, glass `.btn-secondary`; real-looking `.device` phone frames; card titles (`h3`) in the display serif. Motion: `src/scripts/showroom.ts` reveals blocks on scroll (hidden only after the script runs; off under reduced motion) and, on desktop with a fine pointer, adds a card spotlight and device tilt. Backdrop blur only on desktop with hover and not on low-end devices (`html[data-lite]`). Fixed colours used by components are named tokens in `@theme static` (no raw hex in components). The header is a floating glass capsule; the footer a lit glass floor.
+- **Glass cards (WEB-DEC-041, owner 2026-09-26, replaces "no box shadows"):** main-section cards use `.glass-card` (`global.css`): the `--gc-fill` layered gradient, a 1px `--gc-edge`, a top-edge shine and soft depth (`--gc-depth`); links lift 3px with a gold edge + glow on hover (`--gc-depth-hover`; no lift under reduced motion). Inset tiles use `.glass-well`; the section behind them gets `.glass-stage` (soft coloured light). Backdrop blur only on desktop with a hover pointer; phones get the same look without blur. Keep each section's layout; the glass is finish, not a redesign. First used: home Tools + Guides.
+- Elsewhere depth still comes from the 3 surface steps and the 1px `--edge`.
   - The app's `GoldButton` glow is **not** carried over to the web.
   - Shadow and blur utilities are removed from Tailwind (§6) so they can't creep in.
 - **The gold `--hairline` appears once per page**, on the single hero (the palm frame or the upload card). Selected controls may also use it.
@@ -242,7 +249,7 @@ On the hero this runs as CSS only, once. On the user's own photo, the beam runs 
 
 **Everything else responds to the user:** press, open, expand, confirm.
 - **The only loop allowed** is a soft ring pulse while the server is really working.
-- No scroll-triggered entrances, no fade-up on sections, no parallax, no hover effects on every card, no marquees, no looping background.
+- No scroll-triggered entrances, no fade-up on sections, no parallax, no hover effects beyond the glass-card lift (§4.3), no marquees, no looping background.
 
 **Rules:**
 - Animate only `transform`, `opacity` and `stroke-dashoffset`.
@@ -484,6 +491,7 @@ Every control has a hit area of at least 48 × 48px (extend it with padding or `
 - **Lines:**
   - Trace colours with a halo, drawn in the order life, head, heart, fate.
   - A line the scan didn't return is not drawn; its chip is dashed (§7.2).
+  - *(WEB-DEC-043)* In the web reading this is now the app's live scan (`LiveScan.tsx`: palm zoom, landmark dots, lines drawn heart, head, life, fate, a short tour, "Skip to my reading") and the app's report photo (`ReportPhoto.tsx`: side labels with leaders, "All lines" + one chip per line, tap to pick one); the SVG is drawn in the photo box's own pixels.
 - **Line chips** sit under the photo. Tapping one highlights its line.
 - **Full screen:** tapping the photo opens a full-screen view with native pinch-zoom (`touch-action: pinch-zoom`, no library).
 - **For screen readers:** `<figure>` plus a `<figcaption>` that lists the lines found and not found.
@@ -547,6 +555,8 @@ Every control has a hit area of at least 48 × 48px (extend it with padding or `
 | Related | 3–4 guides, as text links with line glyphs |
 
 Prose sits on `surface-1` at 680px wide at most. Long sections use `content-visibility: auto`.
+
+**Guide v4 blocks (WEB-DEC-047, pilot /palm-reading/):** `TracedPalm` hero (no `data-tilt` on teaching figures; photo ≤ 400 CSS px; the report's line look in photo pixels: glow 4.5 at 30%, core 1.6, sheen 0.5; SVG type ≥ 13 px at 320 px; final frame by default, the one-time show only with motion allowed); teaching blocks share `src/components/guides/teach.css` (`tb-`, tokens only, 48 px targets): glossary glyphs, flow, step tiles, do/don't photos, drawn hands, hand-shape silhouettes, line lessons (photo crop at ~1x + 3 drawn forms at one scale), 4-questions sheet, mount areas (gold dashed, numbered, legend with Hindi), Not this / This pairs, radio quiz with :has() feedback. Same DOM on every screen size.
 
 ### 7.9 Store button, price line, QR tile
 
@@ -636,6 +646,7 @@ Prose sits on `surface-1` at 680px wide at most. Long sections use `content-visi
 - **A small custom set in the same stroke:** the 4 lines, the mounts and the 4 hand shapes.
 - **Icons always come with a visible text label.** Icon-only controls also need an `aria-label` and still get a 48px hit area.
 - **No emoji in the UI.** Emoji render differently on every Android version. The app's ❤️🧠⭐ line labels become line-colour dots.
+- **3D icon images (WEB-DEC-046, updated 2026-09-28):** our own AI-made 3D icon renders, not emoji (gift = free, crown = membership, bolt = one-time packs) in `public/images/icons/price-*` (AVIF + WebP, 128 + 256 px, centred 80% crop of the 2048 px render), shown on the /app/ price boxes as dark studio tiles (4.5rem Free, 3.75rem group heads, 1rem radius, hairline rim, soft drop shadow; same in Night and Day). Always `<picture>` + `<img alt="" width height loading="lazy" decoding="async">`, served from our own origin (CSP `img-src 'self'`); never emoji characters or emoji image sets.
 - No filled or duotone icon styles, and no icon fonts.
 
 ## 9. Imagery and diagrams
@@ -646,6 +657,7 @@ Prose sits on `surface-1` at 680px wide at most. Long sections use `content-visi
 - **Diagrams are original SVG files** (so Google Images can index them): the stylised palm (`#3A3078 → #1D1850`) with the trace colours and halo. One illustration system covers every guide, tool and blog thumbnail.
 - **The trace motif appears only where it carries meaning:** the hero sample, each guide's header, tool-card glyphs and the share card. Never as dividers or background decoration.
 - **Not used:** star fields, zodiac wheels, nebulae, swirly or mandala dividers, stock "mystic" art, ॐ as ornament, 3D hands, AI art.
+- **Guide v4 (WEB-DEC-047):** the guides teach on ONE real photo, the app's scan-guide palm (360 × 480; 2x = Lanczos3 + light sharpen, never AI upscaling), traced only with the app's real scan of it; every crop is an SVG viewBox on that one file. **Exception (WEB-DEC-048):** the /which-hand-to-read/ hero alone shows the owner's own consented left palm (`public/samples/left-palm-*`) traced with its real palm4_v2@8a252bb scan; the lesson crops stay on the one scan-guide photo. Never show Palmistry_seg or 11K Hands dataset photos on the site. **Update 2026-09-28:** the teaching photo is now an AI-made HD palm (1792 × 2400, AVIF/WebP 600–1800 w, frame 360 × 482), labelled "AI-made", traced only by the real scanner output for that image. **3D render tiles** (AI-made, `src/lib/guides/images.ts`, `.tb-render`: square, `--r-well` radius, hairline rim, `--shine` + `--e2`, dark studio background, same in Night and Day) are allowed for teaching illustrations (hand shapes, which hand, words to know) and must be labelled as AI images. Never draw palm lines (SVG or otherwise) on an AI image unless they are real scanner output for that exact image; a render's own built-in glow is part of the illustration and never presented as a reading.
 - **Formats:** AVIF with a WebP fallback, `width` and `height` always set, `loading="lazy"` below the fold, and `fetchpriority="high"` only on the hero.
 
 ## 10. The 7 wow moments (honest and fast)

@@ -32,17 +32,44 @@ const locale = localeFromPath(Astro.url.pathname);
 </section>
 
 <style>
-  .faq { margin-top: 3rem; }
-  .faq h2 { margin: 0 0 1rem; }
-  .faq-list { border-top: 1px solid var(--border); }
-  .faq-item { border-bottom: 1px solid var(--border); }
+  /* Showroom: each question is its own glass row; answers open smoothly where the browser allows. */
+  .faq { margin-top: 4rem; }
+  .faq h2 { margin: 0 0 1.25rem; }
+  .faq-list { display: flex; flex-direction: column; gap: 0.625rem; }
+  .faq-item {
+    border-radius: var(--r-well); border: 1px solid transparent;
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: 0 10px 24px -18px rgba(0,0,0,0.7);
+    transition: box-shadow 320ms var(--ease-out), background 200ms var(--ease);
+  }
+  :global([data-theme="day"]) .faq-item { box-shadow: 0 8px 20px -16px rgba(23,19,61,0.25); }
+  .faq-item:hover, .faq-item[open] { background: var(--glass-1) padding-box, var(--rim-hover) border-box; }
+  .faq-item[open] { box-shadow: var(--e1); }
   .faq-q {
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3rem;
-    padding: 0.75rem 0; cursor: pointer; list-style: none;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.25rem;
+    padding: 0.875rem 1rem 0.875rem 1.25rem; cursor: pointer; list-style: none; border-radius: inherit;
   }
   .faq-q::-webkit-details-marker { display: none; }
-  .faq-q::after { content: "+"; flex: none; font-size: 1.5rem; line-height: 1; color: var(--accent); }
-  .faq-item[open] .faq-q::after { content: "−"; }
-  .faq-a { padding: 0 0 1rem; }
+  /* Plus in a small ring; the vertical bar folds away to a minus. */
+  .faq-q::after {
+    content: ""; flex: none; width: 2rem; height: 2rem; border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    background:
+      linear-gradient(var(--accent), var(--accent)) center / 0.75rem 1.5px no-repeat,
+      linear-gradient(var(--accent), var(--accent)) center / 1.5px 0.75rem no-repeat;
+    transition: transform 360ms var(--ease-out), background-size 360ms var(--ease-out), box-shadow 320ms var(--ease-out);
+  }
+  .faq-item[open] .faq-q::after {
+    transform: rotate(180deg); box-shadow: none;
+    background:
+      linear-gradient(var(--accent), var(--accent)) center / 0.75rem 1.5px no-repeat,
+      linear-gradient(var(--accent), var(--accent)) center / 1.5px 0 no-repeat;
+  }
+  .faq-a { padding: 0 1.25rem 1.125rem; color: var(--fg); }
   .faq-a :global(p) { margin: 0; }
+  @supports selector(::details-content) {
+    .faq-item { interpolate-size: allow-keywords; }
+    .faq-item::details-content { block-size: 0; overflow: hidden; opacity: 0; transition: block-size 420ms var(--ease-out), opacity 320ms var(--ease), content-visibility 420ms allow-discrete; }
+    .faq-item[open]::details-content { block-size: auto; opacity: 1; }
+  }
+  @media (min-width: 40rem) { .faq-q { padding-inline: 1.5rem 1.125rem; } .faq-a { padding-inline: 1.5rem 3.5rem; } }
 </style>

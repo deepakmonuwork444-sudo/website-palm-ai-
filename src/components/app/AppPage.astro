@@ -1,17 +1,28 @@
 ---
 /**
- * /app/ and /hi/app/ (SEO_PLAYBOOK.md §3, UX_PSYCHOLOGY.md §8): the full
- * hand-off. Device-aware store button with the price line, QR + remote
- * install on desktop, the honest note on iPhone. Only features the app has
- * today; prices from site.ts ([verify] against Play before launch).
+ * /app/ and /hi/app/ v3 (SEO_PLAYBOOK.md §3, UX_PSYCHOLOGY.md §8): the full
+ * hand-off. The store button with its price line is the page's action (QR +
+ * remote install on desktop, the honest note on iPhone); the real palm photo
+ * in the phone frame is the one visual (no lines drawn: this is not a scan).
+ * Only features the app has today; prices from site.ts ([verify] against Play
+ * before launch).
+ *
+ * Showroom look (WEB-DEC-042): the store block sits on one glass panel, the
+ * phone stands on a lit stage. Prices (WEB-DEC-046, 2026-09-28): the app
+ * paywall's two tabs as boxed grids, a free box, Membership (Yearly first with
+ * the gold rim) and One-time packs, every price from site.appPlans/appPacks.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../Breadcrumbs.astro';
 import Icon from '../Icon.astro';
+import MediaIcon, { type MediaIconName } from '../MediaIcon.astro';
+import PalmScan from '../home/PalmScan.astro';
+import PricePanel from '../PricePanel.astro';
 import StoreButton from '../StoreButton.astro';
 import { site, type Locale } from '../../config/site';
 import { localizePath, t } from '../../i18n';
-import { mobileApplicationSchema, organizationSchema } from '../../lib/schema';
+import { pageEntities } from '../../lib/entities';
+import { APP_ID, mobileApplicationSchema, organizationSchema, primaryImageSchema, webPageSchema } from '../../lib/schema';
 
 interface Props {
   locale: Locale;
@@ -25,71 +36,138 @@ const crumbs = [
   { name: dict.nav.home, path: localizePath('/', locale) },
   { name: dict.nav.app, path },
 ];
-const jsonLd = [organizationSchema(), mobileApplicationSchema({ locale, description: dict.meta.appDescription })];
+const entities = pageEntities(path);
+const jsonLd = [
+  organizationSchema(),
+  webPageSchema({ path, name: dict.meta.appTitle, locale, entities, breadcrumb: true, primaryImage: true, mainEntity: APP_ID }),
+  primaryImageSchema(path, locale),
+  // featureList = the page's own 'What the app does' sentences (knowledge-based trust).
+  mobileApplicationSchema({ locale, description: dict.meta.appDescription, featureList: page.does, entities }),
+];
 const { planFromPerMonth, packFrom } = site.appPrices;
+const doesIcons: MediaIconName[] = ['palm-lines', 'scan', 'book', 'globe'];
 ---
 
-<BaseLayout title={dict.meta.appTitle} description={dict.meta.appDescription} path={path} locale={locale} jsonLd={jsonLd}>
+<BaseLayout
+  title={dict.meta.appTitle}
+  description={dict.meta.appDescription}
+  path={path}
+  locale={locale}
+  jsonLd={jsonLd}
+  photoCredit={dict.home.scan.credit}
+>
   <div class="wrap">
     <Breadcrumbs items={crumbs} label={dict.a11y.breadcrumb} />
   </div>
 
   <section class="wrap app-hero" aria-labelledby="app-h1">
     <div class="app-hero-copy">
-      <h1 id="app-h1" class="font-display text-h1 tracking-display-en">{page.h1}</h1>
+      <h1 id="app-h1" class="font-display tracking-display-en app-title">{page.h1}</h1>
       <p class="text-lead text-fg-muted measure">{page.lead}</p>
-      <p class="play-name text-small">
-        <Icon name="info" class="info-icon" />
-        <span>{dict.store.playName(site.appNameOnPlay)}</span>
-      </p>
+      <div id="get" class="get-block glass-panel">
+        <StoreButton locale={locale} medium="app_page" campaign="get" showQr />
+        <div class="get-notes">
+          <p class="play-name text-small">
+            <Icon name="info" class="info-icon" />
+            <span>{dict.store.playName(site.appNameOnPlay)}</span>
+          </p>
+          <p class="text-small continuity">
+            <Icon name="camera" class="info-icon" />
+            <span>{page.continuity}</span>
+          </p>
+        </div>
+      </div>
     </div>
-    <div id="get" class="get-card">
-      <h2 class="text-h3 font-bold">{page.getTitle}</h2>
-      <StoreButton locale={locale} medium="app_page" campaign="get" showQr />
-      <p class="text-small text-fg-muted">{page.continuity}</p>
+    <div class="app-hero-visual">
+      <div class="app-stage">
+        <PalmScan
+          scan={null}
+          tag={dict.home.scan.exampleTag}
+          note={page.photoNote}
+          scannedNote={page.photoNote}
+          alt={dict.home.scan.photoAlt}
+          credit={dict.home.scan.credit}
+          animate
+          sizes="(min-width: 64rem) 22rem, 70vw"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="section band" aria-labelledby="does-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="does-title" class="text-h2 font-bold section-title">{page.doesTitle}</h2>
+      </div>
+      <div class="does-grid">
+        <ul class="does">
+          {
+            page.does.map((item, index) => (
+              <li class="does-item glass-card">
+                <span class="does-icon" aria-hidden="true">
+                  <MediaIcon name={doesIcons[index] ?? 'book'} sizes="3.25rem" />
+                </span>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <!-- Natural premium (WEB-DEC-060): a real screen of the reading page (scripts/make-ui-previews.mjs) in a plain phone frame; it replaced the AI-made 3D phone render (public/media/renders/phone-report-*, kept on disk). -->
+        <img class="does-render device" src={`/samples/ui-step-3-${locale}.webp`} width="560" height="700" alt="" loading="lazy" decoding="async" />
+      </div>
+      <!-- A short 3D product film (decorative; public/media/README.md): a 3D phone whose screen is a real recording of our own /reading/ page (preview mode). Plays only in view, never under reduced motion. -->
+      <div class="app-film" aria-hidden="true">
+        <video class="app-film-video" muted loop playsinline preload="none" poster={`/media/video/product-film-${locale}-poster.webp`} width="1280" height="720" data-inview-video>
+          <source src={`/media/video/product-film-${locale}.webm`} type="video/webm" />
+          <source src={`/media/video/product-film-${locale}.mp4`} type="video/mp4" />
+        </video>
+      </div>
     </div>
   </section>
 
   <div class="wrap app-body">
-    <section aria-labelledby="does-title" class="app-section">
-      <h2 id="does-title" class="text-h2 font-bold">{page.doesTitle}</h2>
-      <ul class="ticks">
-        {page.does.map((item) => <li><Icon name="check" class="tick" /><span>{item}</span></li>)}
-      </ul>
+    <section aria-labelledby="price-title" class="price-card">
+      <div class="section-head">
+        <h2 id="price-title" class="text-h2 font-bold section-title">{page.priceTitle}</h2>
+      </div>
+      <PricePanel locale={locale} medium="app_page" />
     </section>
 
-    <section aria-labelledby="price-title" class="app-section">
-      <h2 id="price-title" class="text-h2 font-bold">{page.priceTitle}</h2>
-      <ul class="price-list">
-        <li>{page.price.freeReadings}</li>
-        <li>{page.price.plans(planFromPerMonth)}</li>
-        <li>{page.price.packs(packFrom)}</li>
-        <li>{page.price.payment}</li>
-      </ul>
-    </section>
+    <div class="trust-pair">
+      <section aria-labelledby="privacy-title" class="trust-card glass-card">
+        <h2 id="privacy-title" class="text-h3 font-bold">
+          <span class="trust-orb" aria-hidden="true"><Icon name="shield" class="trust-icon" /></span>
+          <span>{page.privacyTitle}</span>
+        </h2>
+        <p>{page.privacyBody}</p>
+        <p class="links-row">
+          <a class="text-link" href="/privacy/" hreflang={locale === 'hi' ? 'en' : undefined}>{page.privacyLink}</a>
+          <a class="text-link" href="/delete-account/" hreflang={locale === 'hi' ? 'en' : undefined}>{page.deleteLink}</a>
+        </p>
+      </section>
 
-    <section aria-labelledby="privacy-title" class="app-section">
-      <h2 id="privacy-title" class="text-h2 font-bold">{page.privacyTitle}</h2>
-      <p class="measure">{page.privacyBody}</p>
-      <p class="links-row">
-        <a class="text-link" href="/privacy.html" hreflang={locale === 'hi' ? 'en' : undefined}>{page.privacyLink}</a>
-        <a class="text-link" href="/delete-account.html" hreflang={locale === 'hi' ? 'en' : undefined}>{page.deleteLink}</a>
-      </p>
-    </section>
+      <section aria-labelledby="limits-title" class="trust-card glass-card limits">
+        <h2 id="limits-title" class="text-h3 font-bold">
+          <span class="trust-orb" aria-hidden="true"><Icon name="info" class="trust-icon" /></span>
+          <span>{page.limitsTitle}</span>
+        </h2>
+        <p>{page.limits}</p>
+        <p class="text-fg-muted">{page.limitsMore}</p>
+      </section>
+    </div>
 
-    <section aria-labelledby="limits-title" class="app-section limits">
-      <h2 id="limits-title" class="text-h2 font-bold">{page.limitsTitle}</h2>
-      <p class="measure">{page.limits}</p>
-      <p class="measure text-fg-muted">{page.limitsMore}</p>
-    </section>
-
-    <section aria-labelledby="faq-title" class="app-section">
-      <h2 id="faq-title" class="text-h2 font-bold">{page.faqTitle}</h2>
-      <div class="faq">
+    <section aria-labelledby="faq-title" class="faq-block">
+      <div class="section-head">
+        <h2 id="faq-title" class="text-h2 font-bold section-title">{page.faqTitle}</h2>
+      </div>
+      <div class="faq glass-panel">
         {
           page.faq.map((item) => (
             <details>
-              <summary>{item.q}</summary>
+              <summary>
+                <span>{item.q}</span>
+                <span class="faq-orb" aria-hidden="true"><Icon name="chevron" class="faq-chevron" /></span>
+              </summary>
               <p>{item.a(planFromPerMonth, packFrom)}</p>
             </details>
           ))
@@ -99,36 +177,121 @@ const { planFromPerMonth, packFrom } = site.appPrices;
   </div>
 </BaseLayout>
 
+<script>
+  // Decorative 3D films play only while on screen; never under reduced motion (the poster stays).
+  const films = document.querySelectorAll<HTMLVideoElement>('video[data-inview-video]');
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  if (films.length && 'IntersectionObserver' in window) {
+    const seen = new IntersectionObserver(
+      (entries) => {
+        for (const { target, isIntersecting } of entries) {
+          const film = target as HTMLVideoElement;
+          if (isIntersecting && !still.matches) film.play().catch(() => {});
+          else film.pause();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    films.forEach((film) => seen.observe(film));
+  }
+</script>
+
 <style>
-  .app-hero { display: grid; gap: 2rem; padding-block: 0.5rem 3rem; }
-  .app-hero-copy { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+  /* ---- Hero ---- */
+  .app-hero { display: grid; gap: 2.5rem; padding-block: 0.5rem 3.5rem; }
+  .app-hero-copy { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
   .app-hero-copy h1, .app-hero-copy p { margin: 0; }
-  .play-name { display: flex; gap: 0.5rem; align-items: flex-start; color: var(--fg-muted); }
-  .play-name :global(.info-icon) { color: var(--accent); margin-top: 0.15rem; }
-  .get-card { display: flex; flex-direction: column; gap: 1.25rem; padding: 1.5rem; border-radius: 1.75rem;
-    background-color: var(--surface-1); border: 1px solid var(--hairline); min-width: 0; }
-  .get-card h2, .get-card p { margin: 0; }
+  .app-title { font-size: var(--fs-h1); line-height: var(--lh-h1); text-wrap: balance; }
+  .get-block { position: relative; display: flex; flex-direction: column; gap: 1.25rem; margin-top: 0.5rem; padding: 1.5rem 1.5rem 1.25rem; }
+  .get-block :global(.store-badge) { margin-left: -0.5rem; }
+  /* A thin gold light along the panel's top edge: the store block is the page's one lit object. */
+  .get-block::before {
+    content: ""; position: absolute; left: 12%; right: 12%; top: -1px; height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(245,217,139,0.85), transparent);
+    box-shadow: none;
+  }
+  :global([data-theme="day"]) .get-block::before { background: linear-gradient(90deg, transparent, rgba(160,110,20,0.6), transparent); box-shadow: none; }
+  .get-notes { display: flex; flex-direction: column; gap: 0.625rem; padding-top: 1rem; border-top: 1px solid var(--edge); }
+  .continuity, .play-name { display: flex; gap: 0.625rem; align-items: flex-start; color: var(--fg-muted); }
+  .continuity :global(.info-icon), .play-name :global(.info-icon) { color: var(--accent); margin-top: 0.15rem; flex: none; }
+
+  .app-hero-visual { --device-w: 15rem; min-width: 0; }
+  /* The stage: a soft halo behind the phone and a pool of light under it. */
+  .app-stage { position: relative; isolation: isolate; padding-block: 1rem 2rem; }
+
+
+
   @media (min-width: 64rem) {
-    .app-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 4rem; padding-block: 1rem 5rem; }
+    .app-hero { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); align-items: center; gap: 4rem; padding-block: 1rem 5.5rem; }
+    .app-title { font-size: var(--fs-display); line-height: var(--lh-display); }
+    .get-block { padding: 1.75rem 1.75rem 1.5rem; }
+    .app-hero-visual { --device-w: min(22rem, calc((100vh - 9rem) * 0.75)); }
+    .app-stage { padding-block: 1.5rem 3rem; }
+    .app-stage::after { bottom: 0.75rem; }
+    /* Resting 3D pose: the phone turns slightly toward the copy; pointer tilt adds to it. */
+    .app-stage :global(.device) {
+      transform: perspective(1400px) rotateX(calc(var(--tilt-x, 0deg) + 3deg)) rotateY(calc(var(--tilt-y, 0deg) - 9deg));
+    }
   }
 
-  .app-body { display: grid; gap: 3rem; padding-bottom: var(--section); }
-  .app-section h2 { margin: 0 0 1rem; }
-  .ticks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
-  .ticks li { display: flex; gap: 0.625rem; align-items: flex-start; }
-  .ticks :global(.tick) { color: var(--accent); margin-top: 0.2rem; }
-  .price-list { margin: 0; padding-inline-start: 1.25rem; list-style: disc; display: flex; flex-direction: column; gap: 0.5rem; }
-  .price-list li::marker { color: var(--accent); }
-  .links-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; }
-  .links-row a { display: inline-flex; align-items: center; min-height: 3rem; }
-  .limits { padding: 1.5rem; border-radius: 1.25rem; background-color: var(--surface-2); }
-  .limits p { margin: 0 0 0.5rem; }
-  .faq { display: flex; flex-direction: column; border-top: 1px solid var(--border); }
-  .faq details { border-bottom: 1px solid var(--border); }
-  .faq summary { display: flex; align-items: center; min-height: 3rem; padding-block: 0.5rem; cursor: pointer; font-weight: 700; }
-  .faq p { margin: 0 0 1rem; color: var(--fg-muted); }
+  /* ---- What the app does: four lit glass tiles ---- */
+  .does-grid { display: grid; gap: 2.5rem; margin-top: 2.25rem; }
+  .does { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.875rem; }
+  .does-item { display: grid; grid-template-columns: 3.25rem minmax(0, 1fr); gap: 1rem; align-items: center; padding: 1.125rem 1.25rem; }
+  /* The 3D glass-and-gold object stands on a soft gold light (no drawn circle). */
+  .does-icon { position: relative; display: grid; place-items: center; width: 3.25rem; height: 3.25rem; }
+
+  .does-icon :global(.media-icon) { position: relative; width: 3.25rem;  }
+  :global([data-theme="day"]) .does-icon :global(.media-icon) {  }
+  /* A real screen in a plain phone frame (the .device bezel). */
+  .does-render { display: block; justify-self: center; width: min(100%, 18rem); height: auto; aspect-ratio: 4 / 5; object-fit: cover; background: var(--surface-1); }
+  @media (min-width: 48rem) { .does { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } .does-item { padding: 1.5rem 1.75rem; } }
   @media (min-width: 64rem) {
-    .app-body { grid-template-columns: 1fr 1fr; column-gap: 4rem; }
-    .limits, .app-section:last-child { grid-column: 1 / -1; }
+    .does-grid { grid-template-columns: minmax(0, 1fr) 22rem; gap: 4rem; align-items: center; }
+    .does { grid-template-columns: minmax(0, 1fr); }
+    .does-render { width: 22rem; }
+  }
+  /* The 3D product film: a dark studio window, the same navy as the film's own edges (no seam). */
+  .app-film {
+    position: relative; overflow: hidden; isolation: isolate; aspect-ratio: 4 / 3; margin-top: 2.5rem; border-radius: var(--r-panel);
+    border: 1px solid transparent; background: linear-gradient(rgb(2,1,25), rgb(2,1,25)) padding-box, var(--rim) border-box; box-shadow: var(--e2);
+  }
+  .app-film-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  @media (min-width: 48rem) { .app-film { aspect-ratio: 16 / 9; max-width: 56rem; margin: 3.5rem auto 0; } }
+
+  /* ---- Body ---- */
+  .app-body { display: grid; gap: 4.5rem; padding-block: var(--section); }
+
+  /* Prices: the section head, then the shared PricePanel (src/components/PricePanel.astro). */
+  .price-card { display: grid; gap: 2.25rem; }
+
+  /* Privacy + limits */
+  .trust-pair { display: grid; gap: 1rem; }
+  .trust-card { padding: 1.5rem; }
+  .trust-card.limits { background: var(--well) padding-box, var(--rim) border-box; }
+  .trust-card h2 { margin: 0 0 0.875rem; display: flex; align-items: center; gap: 0.75rem; }
+  .trust-orb {
+    display: grid; place-items: center; width: 2.5rem; height: 2.5rem; flex: none; border-radius: 9999px; color: var(--accent);
+    background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .trust-card :global(.trust-icon) { width: 1.25rem; height: 1.25rem; }
+  .trust-card p { margin: 0 0 0.5rem; }
+  .links-row { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; }
+  .links-row a { display: inline-flex; align-items: center; min-height: 3rem; }
+  @media (min-width: 48rem) { .trust-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } .trust-card { padding: 1.75rem 2rem; } }
+
+  /* FAQ: one glass panel, hairline rows */
+  .faq { margin-top: 2.25rem; padding: 0.5rem 1.25rem; }
+  .faq details + details { border-top: 1px solid var(--edge); }
+  .faq summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.75rem; padding-block: 0.625rem; cursor: pointer; font-weight: 700; list-style: none; border-radius: 0.75rem; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary:hover { color: var(--accent); }
+  .faq-orb { display: grid; place-items: center; width: 2rem; height: 2rem; flex: none; border-radius: 9999px; background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--hairline); color: var(--accent); }
+  .faq summary :global(.faq-chevron) { width: 1rem; height: 1rem; transform: rotate(90deg); transition: transform 320ms var(--ease-out); }
+  .faq details[open] summary :global(.faq-chevron) { transform: rotate(-90deg); }
+  .faq p { margin: 0 0 1.125rem; color: var(--fg-muted); max-width: 44rem; }
+  @media (min-width: 64rem) {
+    .faq-block { max-width: 52rem; }
+    .faq { padding: 0.75rem 2rem; }
   }
 </style>

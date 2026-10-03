@@ -33,7 +33,7 @@ export interface MapSpot {
   pin: { x: number; y: number };
 }
 
-const LOTH_MOUNTS: Cite = { book: 'cheiro-language-of-the-hand-1900', locator: 'Part I, ch. XV — The Mounts, pp. 63–65' };
+const LOTH_MOUNTS: Cite = { book: 'cheiro-language-of-the-hand-1900', locator: 'Part I, ch. XV: The Mounts, pp. 63–65' };
 
 const LINES: Record<LineName, Omit<MapSpot, 'id' | 'kind' | 'pin'>> = {
   heart: {
@@ -44,7 +44,7 @@ const LINES: Record<LineName, Omit<MapSpot, 'id' | 'kind' | 'pin'>> = {
     bookLead: 'A heart line that ends under the index finger:',
     book: 'Loyal, steady affection held to high ideals — once you are truly attached, you tend to stay attached.',
     ruleId: 'cx-heart-end-index',
-    cite: { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. VII — The Line of Heart' },
+    cite: { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. VII: The Line of Heart' },
     guide: '/heart-line/',
     tool: '/tools/heart-line-finder/',
   },
@@ -56,7 +56,7 @@ const LINES: Record<LineName, Omit<MapSpot, 'id' | 'kind' | 'pin'>> = {
     bookLead: 'A straight head line:',
     book: 'Practical common sense — a mind that prefers the concrete and can be relied on to carry a decision through.',
     ruleId: 'cx-head-straight',
-    cite: { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. II — The Line of Head' },
+    cite: { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. II: The Line of Head' },
     guide: '/head-line/',
     tool: '/tools/head-line-finder/',
   },
@@ -96,7 +96,7 @@ const MOUNTS: Record<MountId, Omit<MapSpot, 'id' | 'kind' | 'pin' | 'tool'>> = {
     book: 'Ambition, pride and enthusiasm — a wish to lead, organise and carry a goal through.',
     ruleId: 'cx-mount-jupiter-raised',
     cite: LOTH_MOUNTS,
-    guide: null,
+    guide: '/palm-mounts/',
   },
   saturn: {
     name: 'Mount of Saturn (Shani)',
@@ -107,7 +107,7 @@ const MOUNTS: Record<MountId, Omit<MapSpot, 'id' | 'kind' | 'pin' | 'tool'>> = {
     book: 'Seriousness and prudence — a liking for quiet, solitude and earnest work.',
     ruleId: 'cx-mount-saturn-raised',
     cite: LOTH_MOUNTS,
-    guide: null,
+    guide: '/palm-mounts/',
   },
   sun: {
     name: 'Mount of the Sun (Surya)',
@@ -118,7 +118,7 @@ const MOUNTS: Record<MountId, Omit<MapSpot, 'id' | 'kind' | 'pin' | 'tool'>> = {
     book: 'Enthusiasm for beauty — art, poetry and pleasing surroundings — with a warm, generous manner.',
     ruleId: 'cx-mount-apollo-raised',
     cite: LOTH_MOUNTS,
-    guide: null,
+    guide: '/palm-mounts/',
   },
   mercury: {
     name: 'Mount of Mercury (Budh)',
@@ -128,8 +128,8 @@ const MOUNTS: Record<MountId, Omit<MapSpot, 'id' | 'kind' | 'pin' | 'tool'>> = {
     bookLead: 'When this mount is full, the books read:',
     book: 'Quick wit and a ready tongue, with a flair for commerce, science and anything that needs a sharp mind.',
     ruleId: 'cx-mount-mercury-raised',
-    cite: { book: 'cheiro-palmistry-for-all-1916', locator: 'Part II, ch. X — The Mount of Mercury' },
-    guide: null,
+    cite: { book: 'cheiro-palmistry-for-all-1916', locator: 'Part II, ch. X: The Mount of Mercury' },
+    guide: '/palm-mounts/',
   },
   venus: {
     name: 'Mount of Venus (Shukra)',
@@ -140,7 +140,7 @@ const MOUNTS: Record<MountId, Omit<MapSpot, 'id' | 'kind' | 'pin' | 'tool'>> = {
     book: 'Warmth, sympathy and a love of beauty — colour, music and the company of others.',
     ruleId: 'cx-mount-venus-raised',
     cite: LOTH_MOUNTS,
-    guide: null,
+    guide: '/palm-mounts/',
   },
   moon: {
     name: 'Mount of the Moon (Chandra)',
@@ -151,7 +151,7 @@ const MOUNTS: Record<MountId, Omit<MapSpot, 'id' | 'kind' | 'pin' | 'tool'>> = {
     book: 'A strong imagination and romantic ideals, with a love of travel, scenery and anything new.',
     ruleId: 'cx-mount-luna-raised',
     cite: LOTH_MOUNTS,
-    guide: null,
+    guide: '/palm-mounts/',
   },
   'mars-thumb': {
     name: 'Mars, near the thumb (Mangal)',
@@ -162,7 +162,7 @@ const MOUNTS: Record<MountId, Omit<MapSpot, 'id' | 'kind' | 'pin' | 'tool'>> = {
     book: 'Active courage and a fighting spirit — quick to stand up for yourself, with a temper that flares and passes.',
     ruleId: 'cx-mount-mars-thumb-raised',
     cite: LOTH_MOUNTS,
-    guide: null,
+    guide: '/palm-mounts/',
   },
   'mars-outer': {
     name: 'Mars, on the outer edge (Mangal)',
@@ -173,7 +173,7 @@ const MOUNTS: Record<MountId, Omit<MapSpot, 'id' | 'kind' | 'pin' | 'tool'>> = {
     book: 'Moral courage and self-control — steady resistance to what seems wrong, and calm under pressure.',
     ruleId: 'cx-mount-mars-outer-raised',
     cite: LOTH_MOUNTS,
-    guide: null,
+    guide: '/palm-mounts/',
   },
 };
 

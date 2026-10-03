@@ -16,7 +16,7 @@ function card(sign: PalmSign, guides: Set<string>): HTMLElement {
       'div',
       { class: 't-reading' },
       h('span', { class: 't-trad', text: 'What the books say' }),
-      h('p', { class: 't-reading-text', text: sign.booksSay ?? 'No meaning is given here — see why below.' }),
+      h('p', { class: 't-reading-text', text: sign.booksSay ?? 'No meaning is given here. See why below.' }),
     ),
     h('div', { class: 't-reading' }, h('span', { class: 't-trad', text: sign.booksSay ? 'What we leave out' : 'Why' }), h('p', { class: 't-reading-text', text: sign.leftOut })),
     sign.cites.length ? sourceList(sign.cites.map(citeText), 3) : h('p', { class: 't-more', text: 'No classical source' }),

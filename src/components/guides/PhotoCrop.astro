@@ -1,0 +1,39 @@
+---
+/**
+ * A cropped view of the guide photo (guide v4, WEB-DEC-047): an SVG whose
+ * viewBox is the crop, showing the one shared photo file (#tpd-photo, defined
+ * by the TracedPalm hero) and the scanner's own lines (#tpd-<line>). Nothing
+ * else may be drawn as a line on a photo: marks passed in the slot are areas
+ * and dots only. `gold` traces in the neutral gold (the quiz).
+ */
+import { guideScan, type Box, type GuideLine } from '../../lib/guides/traced-palm';
+
+interface Props {
+  box: Box;
+  alt: string;
+  lines?: GuideLine[];
+  gold?: boolean;
+  /** Another photo of the guide photo's 3:4 shape (drawn in the same frame), e.g. the "too dark" example photo. */
+  photo?: string;
+  class?: string;
+}
+
+const { box, alt, lines = [], gold = false, photo, class: cls } = Astro.props;
+const scan = guideScan();
+const traced = scan.lines.filter((trace) => lines.includes(trace.line));
+---
+
+<svg class:list={['tb-crop', cls]} viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`} role="img" aria-label={alt}>
+  {photo ? <image href={photo} width={scan.width} height={scan.height} preserveAspectRatio="none" /> : <use href="#tpd-photo" />}
+  <slot name="under" />
+  {
+    traced.map((trace) => (
+      <g class:list={['tp-l', gold ? 'tp-gold' : `tp-${trace.line}`, { 'tp-faint': trace.faint }]}>
+        <use class="tp-glow" href={`#tpd-${trace.line}`} />
+        <use class="tp-core" href={`#tpd-${trace.line}`} />
+        <use class="tp-sheen" href={`#tpd-${trace.line}`} />
+      </g>
+    ))
+  }
+  <slot />
+</svg>

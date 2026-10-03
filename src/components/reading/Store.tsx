@@ -12,7 +12,7 @@ import { qrMatrix } from '../../lib/qr';
 interface Props {
   locale: Locale;
   /** utm_campaign: where in the reading (reading, lock, zero). */
-  placement: 'reading' | 'lock' | 'zero';
+  placement: 'reading' | 'lock' | 'zero' | 'account';
   qr?: boolean;
   onClick?: () => void;
 }

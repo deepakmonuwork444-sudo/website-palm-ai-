@@ -30,7 +30,7 @@ describe('which-hand quiz', () => {
     expect(whichHand({ tradition: 'writing', writing: 'left', goal: 'born' })?.hand).toBe('right');
     const both = whichHand({ tradition: 'writing', writing: 'left', goal: 'both' });
     expect(both?.hand).toBe('both');
-    expect(both?.headline).toBe('Read both hands — start with your left');
+    expect(both?.headline).toBe('Read both hands: start with your left');
   });
 
   it('uses both hands → no writing-hand rule, read the clearer hand', () => {

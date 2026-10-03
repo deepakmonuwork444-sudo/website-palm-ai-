@@ -1,0 +1,46 @@
+---
+/**
+ * "Words to know" (guide v4, WEB-DEC-047): the six words a beginner meets on
+ * the page, each with an AI-made 3D render (2026-09-28, public/images/guides/,
+ * decorative: the word beside it says it all), a one-line meaning and its
+ * Hindi name (system Devanagari font, as <Hi>). Zero JS.
+ */
+import { localeFromPath } from '../../i18n';
+import { tile, WORD_TILE } from '../../lib/guides/images';
+import { guideStrings } from '../../lib/guides/strings';
+import './teach.css';
+
+const locale = localeFromPath(Astro.url.pathname);
+const t = guideStrings(locale).teach;
+const sizes = '4.5rem';
+---
+
+<section class="tb tb-words glass-panel tb-box" aria-labelledby="words-title">
+  <h2 id="words-title" class="tb-title">{t.wordsTitle}</h2>
+  <dl>
+    {
+      t.words.map((word) => {
+        const img = tile(WORD_TILE[word.key] ?? 'word-line');
+        return (
+          <div class="tb-w">
+            <dt>
+              {/* Inside the <dt> (a <dl> row may hold only dt/dd); placed in the row's first column by teach.css. */}
+              <picture class="tb-w-pic">
+                <source type="image/avif" srcset={img.avif} sizes={sizes} />
+                <img class="tb-render" src={img.src} srcset={img.webp} sizes={sizes} width={img.width} height={img.height} alt="" loading="lazy" decoding="async" />
+              </picture>
+              {word.term}{' '}
+              {locale === 'en' && (
+                <span class="tb-hi">
+                  <span lang="hi" class="script-system">{word.hi}</span> ({word.hiLatin})
+                </span>
+              )}
+            </dt>
+            <dd>{word.text}</dd>
+          </div>
+        );
+      })
+    }
+  </dl>
+  <p class="tb-cap">{t.wordsCredit}</p>
+</section>

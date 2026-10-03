@@ -1,0 +1,36 @@
+---
+/**
+ * Hand shapes (guide v4, WEB-DEC-047): the seven types Cheiro describes, as
+ * AI-made 3D renders (2026-09-28, public/images/guides/shape-*), in rounded
+ * tiles, labelled as AI images in the caption. Never real people's hands,
+ * never lines drawn on them. Zero JS.
+ */
+import { localeFromPath } from '../../i18n';
+import { tile } from '../../lib/guides/images';
+import { HAND_SHAPE_ORDER } from '../../lib/guides/palm-geometry';
+import { guideStrings } from '../../lib/guides/strings';
+import './teach.css';
+
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+const sizes = '(min-width: 40rem) 5.5rem, 23vw';
+---
+
+<figure class="tb tb-shapes tb-box glass-panel">
+  <ul class="tb-grid">
+    {
+      HAND_SHAPE_ORDER.map((key) => {
+        const img = tile(`shape-${key}`);
+        return (
+          <li>
+            <picture>
+              <source type="image/avif" srcset={img.avif} sizes={sizes} />
+              <img class="tb-render" src={img.src} srcset={img.webp} sizes={sizes} width={img.width} height={img.height} alt={t.shapes[key].alt} loading="lazy" decoding="async" />
+            </picture>
+            {t.shapes[key].name}
+          </li>
+        );
+      })
+    }
+  </ul>
+  <figcaption><span class="tb-tag">{t.aiImage}</span> {t.shapesCaption}</figcaption>
+</figure>

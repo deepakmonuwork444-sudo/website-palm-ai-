@@ -1,0 +1,53 @@
+---
+/**
+ * "Check yourself" for the P2 guides that are not line pillars (WEB-DEC-054):
+ * the v4 CheckQuiz markup and CSS (teach.css), with this page's own questions
+ * from ./quizzes.ts. Radios + :has(), no JS; every option has an answer, and
+ * "Yes, that's right." / "Not quite." say it in words.
+ */
+import { isLive } from '../../../config/pages';
+import { localeFromPath, localizePath } from '../../../i18n';
+import { guideStrings } from '../../../lib/guides/strings';
+import { PAGE_QUIZZES } from './quizzes';
+import '../teach.css';
+
+interface Props {
+  /** The guide's path, the key in PAGE_QUIZZES. */
+  page: string;
+}
+
+const { page } = Astro.props;
+const items = PAGE_QUIZZES[page];
+if (!items) throw new Error(`PageQuiz: no questions for ${page}`);
+const locale = localeFromPath(Astro.url.pathname);
+const t = guideStrings(locale).teach;
+const quizHref = localizePath('/tools/palm-reading-quiz/', locale);
+---
+
+<div class="tb tb-quiz">
+  {
+    items.map((item, qi) => (
+      <fieldset class="tb-qz tb-well">
+        <legend>
+          {qi + 1}. {item.q}
+        </legend>
+        <div class="tb-opts">
+          {item.options.map((option, oi) => (
+            <label class="tb-opt">
+              <input type="radio" name={`quiz-${qi + 1}`} value={String(oi)} />
+              {option.text}
+            </label>
+          ))}
+        </div>
+        <div aria-live="polite">
+          {item.options.map((option, oi) => (
+            <p class="tb-fb" data-i={String(oi)}>
+              <strong>{option.ok ? t.right : t.wrong}</strong> {option.fb}
+            </p>
+          ))}
+        </div>
+      </fieldset>
+    ))
+  }
+  {isLive(quizHref) && <p class="tb-more"><a class="text-link" href={quizHref}>{t.quizMore}</a></p>}
+</div>

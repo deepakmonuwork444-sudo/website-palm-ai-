@@ -1,0 +1,34 @@
+{
+  "note": "Licensed real stock photos used on palmsays.com (owner direction 'natural premium', 2026-10-02). Not AI-made. Licence checked on the photo page and https://www.pexels.com/license/ at download time. The owner's own consented hand photos will replace these when they arrive.",
+  "photos": [
+    {
+      "id": "real-palm",
+      "title": "A Persons Palm on White Background",
+      "page": "https://www.pexels.com/photo/a-persons-palm-on-white-background-8058729/",
+      "photographer": "Hanna Pad (Anna Nekrashevich)",
+      "photographerUrl": "https://www.pexels.com/@anna-nekrashevich/",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "licenseCheckedOn": "2026-10-01",
+      "download": "https://images.pexels.com/photos/8058729/pexels-photo-8058729.jpeg (original, 2160 x 3840)",
+      "localOriginal": "design-v4/guide-assets/real-palm-pexels-8058729-original.jpg",
+      "edit": "Cropped to 3:4 (x 170 to 1970, y 1020 to 3420 of the original), no resize: design-v4/guide-assets/real-palm.png, 1800 x 2400. No retouching, no mirroring.",
+      "scan": "design-v4/guide-assets/real-palm.scan.json = src/lib/guides/scans/guide-palm-scan.json: the app's services/palm-lines pipeline, model palm4_v2@8a252bb, run locally with research-tools/scan-palm-local.py, handSide right, quality ok, unedited.",
+      "usedOn": [
+        "/images/guides/palm-hero-{600,900,1200,1800}.{avif,webp}: the guides' traced hero and every lesson crop",
+        "public/img/diagrams/*: blog infographics that show a palm photo"
+      ]
+    },
+    {
+      "id": "home-sample-palm",
+      "title": "Close-up shot of a palm",
+      "page": "https://www.pexels.com/photo/close-up-shot-of-a-palm-8058739/",
+      "photographer": "Hanna Pad (Anna Nekrashevich)",
+      "photographerUrl": "https://www.pexels.com/@anna-nekrashevich/",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "licenseCheckedOn": "2026-09-26",
+      "usedOn": ["/samples/hero-palm-*: the home page and /app/ sample photo (see public/samples/LICENSE.txt)"]
+    }
+  ]
+}

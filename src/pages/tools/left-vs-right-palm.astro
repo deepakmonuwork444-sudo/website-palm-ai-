@@ -1,0 +1,156 @@
+---
+/**
+ * Tool 14 — Left vs right hand (v3, 2026-09-26; KEYWORD_MAP.md §3). Two
+ * photos, each measured on the phone by the hand model; the line half uses
+ * the reading API's scan step and says "opens soon" while it is off.
+ * /which-hand-to-read/ keeps "left or right hand" wording; tool 8 keeps the
+ * quiz wording; this page owns "compare left and right palm".
+ */
+import Icon from '../../components/Icon.astro';
+import ContinueOnPhone from '../../components/tools/ContinueOnPhone.astro';
+import ToolLayout from '../../components/tools/ToolLayout.astro';
+import WebcamButton from '../../components/tools/WebcamButton.astro';
+import { allowHandModel } from '../../lib/tools/hand/csp';
+import { downloadMb } from '../../lib/tools/hand/model-files';
+import { HAND_PLATE } from '../../lib/tools/palm-geometry';
+import { toolById } from '../../lib/tools/registry';
+import { citeText } from '../../lib/tools/sources';
+import { CHEIRO_HANDS, DALE_HAND } from '../../lib/tools/which-hand';
+
+allowHandModel(Astro);
+
+const tool = toolById('hand-compare');
+const slots = [
+  { key: 'a', title: 'First hand', hint: 'Your left or right hand. We work out which.', plate: HAND_PLATE.right },
+  { key: 'b', title: 'Second hand', hint: 'Now the other hand, the same way.', plate: HAND_PLATE.left },
+];
+---
+
+<ToolLayout
+  tool={tool}
+  title="Left vs Right Palm: Compare Both Hands From Photos"
+  description="One photo of each hand shows where your left and right palms differ: hand type, fingers and thumb, measured on your phone. Photos never leave your device."
+  h1="Left vs right palm: compare your two hands"
+  promise="One photo of each hand. We measure both on your phone and show where your two hands differ, and what palmists make of a difference."
+  ownPalm={false}
+  spot={{
+    title: 'How to take the two photos',
+    paras: [
+      'Photograph each hand the same way: open, palm to the camera, fingers straight and relaxed, the whole hand in the frame with the phone held flat above it. Taking both in the same light and at the same distance makes the comparison fair.',
+      'Hold the phone in the hand you are not photographing, or ask someone to help. A timer or a phone stand works too.',
+    ],
+  }}
+  howTitle="How it works"
+  how={[
+    { title: 'Take one photo of each hand', body: 'Both photos open only in this browser tab. Nothing is uploaded.' },
+    { title: 'A hand model measures each hand', body: 'Google’s open MediaPipe hand model runs on your phone, finds 21 points on each hand and tells the left from the right.' },
+    { title: 'See the differences', body: 'Hand type, finger lengths and the thumb, side by side. Only a measure that lands in a different band counts as a difference.' },
+  ]}
+  saysTitle="What palmistry says about two different hands"
+  says={[
+    {
+      term: 'Born with, and made',
+      text: 'Cheiro reads one hand as what a person is born with and the other as what they have made of it; a difference between them is read as change.',
+      source: citeText(CHEIRO_HANDS),
+    },
+    {
+      term: 'The Indian custom',
+      text: 'Mrs Dale records the custom of reading a man’s right palm and a woman’s left, or whichever hand shows its lines clearly.',
+      source: citeText(DALE_HAND),
+    },
+    {
+      term: 'Most hands differ a little',
+      text: 'Nobody’s two hands are mirror copies. Small differences are normal; palmists look for clear ones.',
+    },
+  ]}
+  limits={[
+    'A difference between your hands is a difference in shape, not a prediction about your life.',
+    'Photos taken at different angles or distances can differ for that reason alone. Take both the same way.',
+    'Our model tells left from right by the look of the hand. If it gets it wrong, you can still compare the two photos.',
+    'Comparing the lines of both hands needs our line scanner, which opens soon on this website.',
+  ]}
+  faq={[
+    {
+      q: 'Are my photos uploaded?',
+      a: 'No. Both photos open in this browser tab and the hand model runs on your phone. Only the model itself is downloaded from our site, once.',
+    },
+    {
+      q: 'Which hand is the important one?',
+      a: 'Traditions differ: many palmists read the hand you write with, and an old Indian custom reads a man’s right hand and a woman’s left. The which-hand quiz explains both.',
+    },
+    {
+      q: 'Why do my two hands come out different?',
+      a: 'Everyone’s hands differ a little. If the difference is small and near a cut-off, another photo may flip it; clear differences stay.',
+    },
+    {
+      q: 'Can I compare the lines too?',
+      a: 'Not on the website yet: that needs our line scanner, which opens soon. Our Android app compares both hands’ lines today.',
+    },
+  ]}
+  links={[
+    { href: '/which-hand-to-read/', label: 'Guide: which hand to read, left or right' },
+    { href: '/tools/which-hand-quiz/', label: 'Which-hand quiz' },
+    { href: '/tools/hand-type-quiz/', label: 'Hand type from your photo' },
+    { href: '/tools/finger-reader/', label: 'Finger reader' },
+  ]}
+>
+  <div class="t-card t-compare" data-compare>
+    <div class="t-compare-slots">
+      {
+        slots.map((slot, i) => (
+          <section class="t-slot" data-slot={slot.key} aria-labelledby={`slot-${slot.key}-title`}>
+            <picture class="t-slot-hand">
+              <source type="image/avif" srcset={`${slot.plate}.avif`} />
+              <img src={`${slot.plate}.webp`} width={HAND_PLATE.width} height={HAND_PLATE.height} alt="" loading="lazy" decoding="async" />
+            </picture>
+            <h3 class="t-slot-title" id={`slot-${slot.key}-title`} data-slot-title>
+              {slot.title}
+            </h3>
+            <div class="t-slot-body" data-slot-body>
+              <p class="t-caveat">{slot.hint}</p>
+            </div>
+            <div class="t-actions">
+              <input id={`cmp-${slot.key}-camera`} class="t-file-input" type="file" accept="image/*" capture="environment" data-file />
+              <label for={`cmp-${slot.key}-camera`} class:list={['btn t-file-label only-touch', i === 0 ? 'btn-gold' : 'btn-secondary']} data-camera-label>
+                <Icon name="camera" />
+                <span data-first-label>Take a photo</span>
+              </label>
+              <WebcamButton forInput={`cmp-${slot.key}-gallery`} />
+              <input id={`cmp-${slot.key}-gallery`} class="t-file-input" type="file" accept="image/*" data-file />
+              <label for={`cmp-${slot.key}-gallery`} class:list={['btn btn-secondary t-file-label', { 't-pc-gallery': i === 0 }]} data-gallery-label>
+                <Icon name="image" />
+                <span>Choose a photo</span>
+              </label>
+            </div>
+          </section>
+        ))
+      }
+    </div>
+
+    <div class="t-work" data-work hidden>
+      <span class="t-work-spin" aria-hidden="true"></span>
+      <div class="t-work-body">
+        <p class="t-work-text" data-work-text></p>
+        <progress class="t-work-bar" data-work-bar hidden aria-label="Download progress"></progress>
+      </div>
+    </div>
+
+    <div class="t-result" data-compare-result></div>
+
+    <p class="t-privacy">
+      <Icon name="shield" />
+      <span>Runs on your phone: your photos never leave this device. Nothing is uploaded or saved.</span>
+    </p>
+    <p class="t-caveat">The first time, your browser downloads our hand finder: up to {downloadMb()} MB, once.</p>
+    <p class="t-caveat" data-inapp hidden>If choosing a photo doesn’t work in this app’s browser, open this page in Chrome.</p>
+    <ContinueOnPhone />
+    <noscript><p class="t-noscript">This tool needs JavaScript to find your hands.</p></noscript>
+    <p class="t-sr" role="status" aria-live="polite" data-status></p>
+  </div>
+</ToolLayout>
+
+<script>
+  import { mountCompare } from '../../lib/tools/client/compare-ui';
+
+  mountCompare();
+</script>

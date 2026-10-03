@@ -7,6 +7,9 @@
  *
  *   node scripts/sync-palm-lib.mjs                      app repo next to this one
  *   node scripts/sync-palm-lib.mjs "D:\path\to\app"     another checkout
+ *   node scripts/sync-palm-lib.mjs --no-git             runs no git command in the app repo: the
+ *                                                       commit is read from its .git files and
+ *                                                       uncommitted changes are not checked
  *
  * - Follows every relative import (value and type) from ENTRIES; the copy keeps
  *   the app's own folder layout under src/lib/reading/palm/ so no import is
@@ -17,6 +20,10 @@
  *   app's one reads the profile store) and features/quality/gate.ts (the app's
  *   one decodes with expo-image-manipulator; the web decodes with a canvas in
  *   src/lib/reading/quality.ts).
+ * - The live scan's maths (features/lines/live-scan.ts, side-labels.ts) and the
+ *   report's smoothPath (components/deep-report/access.ts, pure TS) come too:
+ *   the web draws the scan with the app's own camera, label and curve maths
+ *   (WEB-DEC-043).
  * - Each copy starts with a header naming its source path and the app commit.
  *   SOURCE.md lists every file with the sha256 of the app's original; the
  *   parity test (tests/unit/reading-palm.test.ts) checks the copies against it.
@@ -36,7 +43,9 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const app = resolve(process.argv[2] ?? join(root, '..', 'palm-ai-new--feat-m1-foundation'));
+const args = process.argv.slice(2);
+const noGit = args.includes('--no-git');
+const app = resolve(args.find((a) => !a.startsWith('--')) ?? join(root, '..', 'palm-ai-new--feat-m1-foundation'));
 const appSrc = join(app, 'src');
 const dest = join(root, 'src', 'lib', 'reading', 'palm');
 
@@ -54,6 +63,10 @@ const ENTRIES = [
   'features/lines/client.ts',
   'features/observation/dominance.ts',
   'features/observation/schema.ts',
+  // The live scan and the report photo (WEB-DEC-043): camera, labels, curves.
+  'features/lines/live-scan.ts',
+  'features/lines/side-labels.ts',
+  'components/deep-report/access.ts',
 ];
 
 const SHIM_HEADER = (path) =>
@@ -141,14 +154,30 @@ for (const entry of ENTRIES) {
 
 let commit = 'unknown';
 let dirty = [];
+/** The app's HEAD commit from its .git files (--no-git: no git command runs in the app repo). */
+function headFromFiles() {
+  const gitDir = join(app, '.git');
+  const head = readFileSync(join(gitDir, 'HEAD'), 'utf8').trim();
+  if (!head.startsWith('ref: ')) return head.slice(0, 12);
+  const ref = head.slice(5);
+  const loose = join(gitDir, ...ref.split('/'));
+  if (existsSync(loose)) return readFileSync(loose, 'utf8').trim().slice(0, 12);
+  const packed = existsSync(join(gitDir, 'packed-refs')) ? readFileSync(join(gitDir, 'packed-refs'), 'utf8') : '';
+  const line = packed.split('\n').find((l) => l.trim().endsWith(` ${ref}`));
+  return line ? line.slice(0, 12) : 'unknown';
+}
 try {
-  commit = execSync('git rev-parse --short=12 HEAD', { cwd: app }).toString().trim();
-  const copied = [...files.keys()].filter((path) => files.get(path) !== null).map((path) => `src/${path}`);
-  dirty = execSync(`git status --porcelain -- ${copied.map((p) => `"${p}"`).join(' ')}`, { cwd: app })
-    .toString()
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
+  if (noGit) {
+    commit = headFromFiles();
+  } else {
+    commit = execSync('git rev-parse --short=12 HEAD', { cwd: app }).toString().trim();
+    const copied = [...files.keys()].filter((path) => files.get(path) !== null).map((path) => `src/${path}`);
+    dirty = execSync(`git status --porcelain -- ${copied.map((p) => `"${p}"`).join(' ')}`, { cwd: app })
+      .toString()
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
 } catch {
   // Not a git checkout: the commit stays "unknown".
 }
@@ -179,7 +208,7 @@ const source = `# src/lib/reading/palm — copied app code (do not edit)
 Written by \`scripts/sync-palm-lib.mjs\` on ${date}.
 
 - App repo: \`palm-ai-new--feat-m1-foundation\`
-- App commit: \`${commit}\`${dirty.length ? ` **plus uncommitted changes in ${dirty.length} copied file(s)** (the copies are the working tree, not the commit)` : ''}
+- App commit: \`${commit}\`${dirty.length ? ` **plus uncommitted changes in ${dirty.length} copied file(s)** (the copies are the working tree, not the commit)` : ''}${noGit ? ' (read from its .git files with `--no-git`: the copies are the working tree, not compared with the commit)' : ''}
 - Files: ${rows.length} (${Object.keys(SHIMS).length} web shims)
 
 Each copy starts with a 3-line header (source path + commit, "do not edit", \`@ts-nocheck\`); the

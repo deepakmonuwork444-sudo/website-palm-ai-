@@ -1,4 +1,4 @@
-// COPIED from palm-ai-new--feat-m1-foundation/src/features/lines/merge.ts at app commit 38389f51b74d (2026-09-26).
+// COPIED from palm-ai-new--feat-m1-foundation/src/features/lines/merge.ts at app commit fbc2232d837f (2026-09-30).
 // Do not edit by hand: change the app, then run `node scripts/sync-palm-lib.mjs` (ARCHITECTURE.md F7).
 // @ts-nocheck
 import type {
@@ -35,15 +35,13 @@ import {
  *   under its own ontology checks): read exactly like heart / head / life and
  *   preferred over the vision model's words. Otherwise fate falls back to the
  *   AI-description rule below.
- * - fate (untraced), sun, mercury: the scanner does not trace them (proposed decision,
- *   narrowing DEC-006). When the vision model describes one as visible, its
- *   words (length, depth, curve, continuity, start, end, marks) are kept at
- *   the model's lower confidence ceiling, `source: 'model'`, WITHOUT a path or
- *   mark points — "seen by AI, not traced". Rules may read them; nothing is
- *   drawn. A line the model did not describe as visible is `notAnalysed: true`:
- *   not visible, confidence 0, no rule reads it (not even its absence).
- *   Other minor lines the model volunteered are dropped.
- * - mounts and hand shape still come from the model, capped at lower confidence.
+ * - fate (untraced), sun, mercury: the scanner does not trace them. Since the
+ *   truth gate (2026-09-29, lines/truth.ts) the vision model's words about
+ *   them are no longer kept: each is `notAnalysed: true` — not visible,
+ *   confidence 0, no rule reads it (not even its absence). Other minor lines
+ *   the model volunteered are dropped. (`aiOnlyLine` remains for reference.)
+ * - mounts and hand shape: never kept from the model (truth gate). Mounts are
+ *   taught from the landmarks; the hand type is measured (features/hand).
  * - model crossings are dropped: their positions were placed by a model that
  *   cannot localise, and a report may point at them on the photo.
  * - scanner unavailable: heart, head, life keep the model's descriptive values,
@@ -83,6 +81,7 @@ export const DEPTH_PROXY_UNCALIBRATED = true;
 
 const round2 = (n: number) => Math.round(Math.min(1, Math.max(0, n)) * 100) / 100;
 const round3 = (n: number) => Math.round(n * 1000) / 1000;
+const round4 = (n: number) => Math.round(n * 10000) / 10000;
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
 function unseen(confidence = 0) {
@@ -249,14 +248,6 @@ export function modelLineWithoutGeometry(line: LineObservation): LineObservation
   };
 }
 
-function capMount(mount: MountObservation): MountObservation {
-  return {
-    ...mount,
-    confidence: cap(mount.confidence),
-    prominence: { value: mount.prominence.value, confidence: cap(mount.prominence.confidence) },
-  };
-}
-
 /**
  * A fate, sun or mercury line as the vision model described it, or "not
  * analysed" when the model did not report it as visible. A model "not visible"
@@ -302,19 +293,15 @@ export function mergeVisionWithScan(output: VisionOutput, scan: Exclude<LineScan
           return fromModel ? modelLineWithoutGeometry(fromModel) : { ...emptyLine(type), source: 'model' as const };
         });
 
-  // A traced fate line replaces the AI's description of it.
+  // Truth gate (2026-09-29, lines/truth.ts): a fate, sun or mercury line the
+  // scanner did not trace is never read from the model's words any more — it
+  // is "not analysed". A traced fate line replaces it.
   const aiOnlyTypes = AI_ONLY_LINES.filter((type) => !(type === 'fate' && fateTrace));
-  const aiOnly = aiOnlyTypes.map((type) => aiOnlyLine(type, output));
+  const aiOnly = aiOnlyTypes.map((type) => notAnalysedLine(type));
   const lines = [...traced, ...aiOnly];
-  const notRead = aiOnly.filter((line) => line.notAnalysed).map((line) => line.type);
-  const aiDescribed = aiOnly.length - notRead.length;
+  const notRead = aiOnly.map((line) => line.type);
 
-  const warnings = [
-    ...output.warnings,
-    MODEL_PARTS_WARNING,
-    ...(scan.status === 'ok' ? [] : [SCAN_UNAVAILABLE_WARNING]),
-    ...(aiDescribed > 0 ? [fateTrace ? AI_ONLY_LINES_FATE_TRACED_WARNING : AI_ONLY_LINES_WARNING] : []),
-  ].slice(0, 20);
+  const warnings = [...output.warnings, ...(scan.status === 'ok' ? [] : [SCAN_UNAVAILABLE_WARNING])].slice(0, 20);
 
   const lineScan: LineScanInfo =
     scan.status === 'ok'
@@ -329,8 +316,17 @@ export function mergeVisionWithScan(output: VisionOutput, scan: Exclude<LineScan
           latencyMs: Math.max(0, Math.round(scan.latencyMs)),
           // Hand landmarks and palm width: kept for Report V2 (mounts, palm frame). No rule reads them.
           ...(scan.response.hand
-            ? { landmarks: scan.response.hand.landmarks.map(([x, y]) => [round3(x), round3(y)] as [number, number]) }
+            ? {
+                // 4 decimals, as the scanner sends them (2026-09-29; readings before kept 3): at 3 the
+                // measured palm ratio moves by ~0.005, enough to cross a hand-type cut-off.
+                landmarks: scan.response.hand.landmarks.map(([x, y]) => [round4(x), round4(y)] as [number, number]),
+                // For the measured hand (features/hand): the model's side guess and
+                // the size of the JPEG the landmarks are normalised on.
+                handedness: scan.response.hand.handedness.slice(0, 12),
+                handednessScore: round3(clamp01(scan.response.hand.handednessScore)),
+              }
             : {}),
+          image: { width: Math.round(scan.response.image.width), height: Math.round(scan.response.image.height) },
           ...(scan.response.hand?.palmWidthNormalized !== undefined
             ? { palmWidthNormalized: round3(scan.response.hand.palmWidthNormalized) }
             : {}),
@@ -338,10 +334,13 @@ export function mergeVisionWithScan(output: VisionOutput, scan: Exclude<LineScan
         }
       : { status: 'unavailable', reason: scan.reason.slice(0, 40), notAnalysed: notRead };
 
+  // Truth gate: the model's mount prominence and hand shape are never kept
+  // (lines/truth.ts). Mounts are taught from the landmarks instead, and the
+  // hand type is measured (features/hand).
   return {
     lines,
-    mounts: output.mounts.map(capMount),
-    handShape: { value: output.handShape.value, confidence: cap(output.handShape.confidence) },
+    mounts: [],
+    handShape: { value: null, confidence: 0 },
     warnings,
     lineScan,
   };

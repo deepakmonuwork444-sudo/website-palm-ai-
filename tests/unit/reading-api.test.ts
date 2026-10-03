@@ -62,11 +62,12 @@ describe('server error codes → what the screen does (F6, plan §8.3)', () => {
 });
 
 describe('parsing the server answers', () => {
-  it('reading_balance → only the free numbers (packs and plans are the app\'s)', () => {
+  it('reading_balance → the free numbers; packs and plans only as the appPaid flag (never counted as free, case 21)', () => {
     expect(parseBalance({ free_now: 1, free_remaining: 2, email_needed: false, paid_available: 9, subscription: { active: true } })).toEqual({
       freeNow: 1,
       freeRemaining: 2,
       emailNeeded: false,
+      appPaid: true,
     });
     expect(parseBalance(null)).toEqual({ freeNow: 0, freeRemaining: 0, emailNeeded: false });
     expect(parseBalance({ free_now: -3, free_remaining: 'x', email_needed: 'yes' })).toEqual({ freeNow: 0, freeRemaining: 0, emailNeeded: false });

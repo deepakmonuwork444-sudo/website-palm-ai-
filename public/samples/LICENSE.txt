@@ -1,0 +1,91 @@
+PalmSays — sample images in /samples/
+
+hero-palm-480.avif, hero-palm-480.webp, hero-palm-960.avif, hero-palm-960.webp, hero-palm-1200.jpg
+  What:      a real photo of an open palm (not AI-generated, not drawn). Used on the home page
+             and /app/ until the owner's consented hand photos arrive (DESIGN_SYSTEM.md §9, D7).
+  Source:    "Close-up shot of a palm" by Hanna Pad on Pexels
+             https://www.pexels.com/photo/close-up-shot-of-a-palm-8058739/
+             Photographer: https://www.pexels.com/@anna-nekrashevich/
+  Licence:   Pexels License (https://www.pexels.com/license/): free to use, commercial use allowed,
+             attribution not required (we credit the photographer anyway), modification allowed.
+             Not allowed: selling unaltered copies, implying endorsement by the person shown,
+             or using the photo in an offensive or misleading way.
+  Changes:   cropped to 3:4 (top 110 px of the 1600 px download removed), resized, re-encoded.
+             Downloaded 2026-09-26 (1600 x 2844 px, original 2160 x 3840).
+  Honesty:   no palm lines are drawn on this photo. Lines appear on the home page ONLY if a real
+             scanner output for this exact photo is saved as /samples/hero-palm.json
+             (the scan-palm response for hero-palm-1200.jpg; polylines normalised 0–1).
+             It is not a PalmSays customer and not the owner.
+
+Replace all of these with the owner's consented photos when they arrive; keep this file updated.
+
+mock-scan-palm.webp
+  What:      the open-palm photo from the Palm Read AI app's own pre-scan guide
+             (app repo: assets/scan-guide/do-open-palm.webp, 360 x 480, copied unchanged 2026-09-26).
+  Used:      ONLY in preview (mock) mode of /reading/: the stored mock scan
+             (src/lib/reading/mock/scan-response.json) is the app's real palm4_v2 scan of THIS photo,
+             so the preview draws those lines on this photo and never on a visitor's photo (WEB-DEC-043).
+  Licence:   same owner as the app; the app repo does not record where this photo came from.
+             Confirm its licence before any public page shows it (the live reading never does).
+             2026-09-28: the owner picked this photo for the guides (see guide-palm-* below).
+
+guide-palm-360.webp, guide-palm-360.avif, guide-palm-720.webp, guide-palm-720.avif
+  What:      the same open-palm photo as mock-scan-palm.webp (the Palm Read AI app's own scan-guide photo,
+             app repo assets/scan-guide/do-open-palm.webp, 360 x 480). Used by the guides (template v4,
+             WEB-DEC-047), first on /palm-reading/: the hero traced the app's real palm4_v2 scan of THIS photo
+             (src/lib/reading/mock/scan-response.json); no line is ever drawn on it by hand.
+             2026-09-28 (later): no longer shown; the guides moved to the HD photo (palm-hero-*, below).
+             The guide-palm-* and guide-dont-* files are kept until the owner decides to remove them.
+  Owner:     the owner picked this photo for the guides on 2026-09-28, answering the question that asked
+             him to confirm the right to use it (guide v4 plan approval).
+  Changes:   360: the original file (WebP) + an AVIF re-encode. 720: a 2x Lanczos3 resize with a light
+             sharpen, then WebP/AVIF. No AI upscaling (it would invent creases).
+
+guide-dont-dark.webp, guide-dont-fist.webp, guide-dont-far.webp, guide-dont-back.webp
+  What:      the app's other scan-guide photos (app repo assets/scan-guide/dont-*.webp, 360 x 480, copied
+             unchanged 2026-09-28), shown as the "Don't" photos on /palm-reading/ (what you need, and the
+             "shadows look like breaks" mistake). Same source and owner as above; same 2026-09-28 note.
+
+left-palm-480.avif, left-palm-480.webp, left-palm-960.avif, left-palm-960.webp
+  What:      a real photo (not AI-generated, not drawn) of an open LEFT palm, thumb on the left,
+             photographed indoors (960 x 1280 original). Used ONLY as the hero of /which-hand-to-read/
+             (WEB-DEC-048); the lesson crops on /palm-reading/ stay on guide-palm-* (WEB-DEC-047).
+  Source:    the owner's own hand, photographed by the owner.
+  Consent:   given by the owner on 2026-09-28 for use on palmsays.com.
+  Changes:   re-encoded with sharp (Lanczos3 resize to 480 w; 960 w = the original size, never upscaled)
+             to AVIF and WebP; EXIF/GPS and all other metadata stripped by the re-encode. Framed a little
+             tighter on the page only by a fixed CSS zoom toward the palm centre (the same file; nothing
+             cut out of it, no coordinate changed).
+  Honesty:   the lines on it are the real palm4_v2@8a252bb scan of THIS photo (the app's /v1/analyse
+             response, src/lib/guides/scans/left-palm-scan.json, pasted unedited). No line is drawn by
+             hand, and the site gives no meaning or reading for the person in the photo.
+
+/images/guides/: palm-hero-600.avif, palm-hero-600.webp (and the same at 900, 1200 and 1800 w)
+  The guides' traced hero photo and every lesson crop (WEB-DEC-047; real photo since 2026-10-02, natural premium).
+  What:      a real photo of an open RIGHT palm, fingers spread, thumb on the right (not AI-generated, not drawn).
+  Source:    "A Persons Palm on White Background" by Hanna Pad (Anna Nekrashevich) on Pexels
+             https://www.pexels.com/photo/a-persons-palm-on-white-background-8058729/
+             Photographer: https://www.pexels.com/@anna-nekrashevich/
+  Licence:   Pexels License (https://www.pexels.com/license/), checked 2026-10-01: free to use, commercial use
+             allowed, attribution not required (we credit the photographer in the caption), modification allowed.
+             Not allowed: selling unaltered copies, implying endorsement by the person shown, offensive use.
+  Changes:   original 2160 x 3840 download cropped to 3:4 (x 170 to 1970, y 1020 to 3420), no resize, no retouch,
+             no mirroring (design-v4/guide-assets/real-palm.png); then sharp Lanczos3 resize to 600/900/1200/1800 w,
+             AVIF q58 (4:4:4) and WebP q80; never upscaled. Credits: design-v4/photo-credits.json.
+  Honesty:   the lines drawn on it are the real PalmSays scanner output for THIS exact image: the app's
+             services/palm-lines pipeline, model palm4_v2@8a252bb, run locally on 2026-10-01
+             (research-tools/scan-palm-local.py, handSide right, quality ok), all 4 lines found, pixel_confidence
+             0.918 to 0.997. Saved unedited as src/lib/guides/scans/guide-palm-scan.json. No line is drawn by hand,
+             and the site gives no meaning or reading for this hand. It is not a PalmSays customer and not the owner.
+  Before:    2026-09-28 to 2026-10-01 these files were an AI-made palm (Higgsfield, design-v4/guide-assets/hero-palm.png,
+             kept there unused for the record).
+
+/images/guides/photo-dont-*, shape-*, hand-*, word-*  and  /images/icons/price-*
+  What:      AI-made example photos (dark, fist, far, back) and AI-made 3D renders (the 7 hand shapes, the
+             writing and other hand, the "Words to know" pictures, the line guides' "Read any line with 4 questions" pictures word-end and word-clear, the /app/ price icons: gift, crown,
+             bolt). Made for PalmSays on 2026-09-28 (design-v4/guide-assets/, PNG originals). Labelled as
+             AI-made in their captions; the icons are decorative (alt=""). Not real people's hands.
+             The glowing lines inside the "Words to know" renders are part of the illustration, never a
+             reading and never a scanner result.
+  Changes:   sharp resize (photos 300/600 w, renders 256/512, icons 128/256 from a centred 80% crop),
+             AVIF q58 and WebP q80.

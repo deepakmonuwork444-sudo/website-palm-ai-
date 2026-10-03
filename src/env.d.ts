@@ -13,6 +13,8 @@ interface ImportMetaEnv {
   readonly PUBLIC_API_URL?: string;
   /** Cloudflare Turnstile site key of the palmsays.com widget. Public by design. */
   readonly PUBLIC_TURNSTILE_SITE_KEY?: string;
+  /** Google Web client ID (the app's, shared: one Google user = one account). Public by design. Without it the Google button is hidden (email code still works). */
+  readonly PUBLIC_GOOGLE_WEB_CLIENT_ID?: string;
 }
 
 interface ImportMeta {

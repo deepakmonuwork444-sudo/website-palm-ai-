@@ -57,6 +57,52 @@
   .status.show { display: block; }
   .ok { background: rgba(43, 179, 163, 0.15); border: 1px solid #2BB3A3; }
   .err { background: rgba(255, 92, 92, 0.14); border: 1px solid #FF5C5C; }
+  /* Showroom look (WEB-DEC-042): the text sits on one lit glass panel. Visual only. */
+  body { background: #070619; min-height: 100vh; box-sizing: border-box; padding: 16px; }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(60rem 38rem at 8% -6%, rgba(98,72,214,0.30), transparent 62%),
+      radial-gradient(52rem 34rem at 100% 28%, rgba(60,44,160,0.22), transparent 60%),
+      radial-gradient(40rem 26rem at 88% 104%, rgba(230,184,92,0.10), transparent 60%);
+  }
+  main {
+    position: relative; margin: 8px auto 24px; padding: 28px 20px 24px; border: 1px solid transparent; border-radius: 28px;
+    background: linear-gradient(165deg, rgba(64,56,132,0.42) 0%, rgba(22,19,54,0.66) 48%, rgba(12,10,34,0.78) 100%) padding-box,
+      linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.05) 38%, rgba(255,255,255,0.03) 62%, rgba(230,184,92,0.26)) border-box;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 1px 1px rgba(0,0,0,0.3), 0 30px 60px -30px rgba(0,0,0,0.8);
+  }
+  main::before {
+    content: ""; position: absolute; left: 14%; right: 14%; top: -1px; height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255,236,190,0.7), transparent);
+  }
+  main > h1:first-child { margin-top: 0; }
+  h1 { font-family: Georgia, "Times New Roman", "Noto Sans Devanagari", serif; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+  h2 { letter-spacing: 0.005em; }
+  a { text-decoration-color: rgba(245,217,139,0.5); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: #F5D98B; }
+  a:focus-visible, button:focus-visible { outline: 2px solid #F5D98B; outline-offset: 3px; border-radius: 4px; }
+  @media (min-width: 720px) { body { padding: 48px 24px; } main { padding: 48px 56px 40px; border-radius: 32px; } }
+  .card {
+    background: linear-gradient(180deg, rgba(5,4,18,0.55), rgba(26,22,62,0.45)) padding-box,
+      linear-gradient(180deg, rgba(245,217,139,0.35), rgba(255,255,255,0.04) 50%, rgba(230,184,92,0.18)) border-box;
+    border: 1px solid transparent; border-radius: 20px; box-shadow: inset 0 2px 12px rgba(0,0,0,0.35);
+  }
+  input:not([type="checkbox"]) {
+    min-height: 48px; background: rgba(5,4,18,0.55); border-color: rgba(255,255,255,0.18); border-radius: 14px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.35);
+  }
+  button:not(.secondary):not(.link) {
+    min-height: 52px; border: 1px solid rgba(255,226,160,0.55); border-radius: 9999px; font-weight: 700; color: #1F1300;
+    background: linear-gradient(180deg, #FBE6A6 0%, #EFC873 38%, #DDAE55 70%, #C8963E 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), inset 0 -3px 6px rgba(120,76,8,0.35), 0 10px 24px -10px rgba(230,184,92,0.75);
+  }
+  button.secondary {
+    min-height: 52px; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.16);
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+  }
+  button.link { min-height: 48px; }
+  .status { border-radius: 14px; }
+  .card > h2:first-child, .card > p:first-child { margin-top: 0; }
 </style>
 </head>
 <body>

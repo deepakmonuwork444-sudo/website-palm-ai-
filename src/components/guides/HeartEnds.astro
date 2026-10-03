@@ -1,0 +1,37 @@
+---
+/**
+ * "Which end do you read from?" (guide v4, the heart line guide): the
+ * scanner's own heart line on a crop of the same real photo, its two end
+ * points marked (dot = little-finger end, ring = the finger end) and named in
+ * words. Nothing else is drawn on the photo. Zero JS.
+ */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { guideScan, lineCrop, lineEnds, wordBeside } from '../../lib/guides/traced-palm';
+import PhotoCrop from './PhotoCrop.astro';
+import './teach.css';
+
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+const e = t.heartEnds;
+const scan = guideScan();
+const box = lineCrop(scan, 'heart', 30, 4 / 3);
+const ends = lineEnds(scan, 'heart');
+const font = box ? Math.round(box.w * 0.055 * 10) / 10 : 0;
+const r = box ? Math.round(box.w * 0.016 * 10) / 10 : 0;
+const a = box && ends ? wordBeside(ends.start, ends.end, box, font, e.a, 1.9) : null;
+const b = box && ends ? wordBeside(ends.end, ends.start, box, font, e.b, 1.9) : null;
+---
+
+{
+  box && ends && (
+    <figure class="tb tb-ends">
+      <PhotoCrop box={box} lines={['heart']} alt={e.alt}>
+        <circle class="tb-start" cx={ends.start[0]} cy={ends.start[1]} r={r} />
+        <circle class="tb-end" cx={ends.end[0]} cy={ends.end[1]} r={r} />
+        {a && <text class="tb-lab" x={a.x} y={a.y} font-size={font} text-anchor="middle">{e.a}</text>}
+        {b && <text class="tb-lab" x={b.x} y={b.y} font-size={font} text-anchor="middle">{e.b}</text>}
+      </PhotoCrop>
+      <figcaption>{e.caption}</figcaption>
+    </figure>
+  )
+}

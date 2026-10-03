@@ -1,0 +1,175 @@
+---
+/**
+ * /editorial-policy/ (WEB-FEAT-035, SEO_PLAYBOOK.md §14): where meanings come from (the books of
+ * CONTENT_GUIDE.md §9.2), how rights are handled, what we never write (§4), how AI is used,
+ * the review steps (§10), the Hindi rule, updates (SEO_PLAYBOOK.md §18) and corrections.
+ * Never says the rule set is reviewed by a person or an expert: every rule in the app is still
+ * a draft (§4.8). English only (no reviewed Hindi twin).
+ */
+import Icon from '../../components/Icon.astro';
+import DocPage from '../../components/trust/DocPage.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../config/site';
+import { companyForBuild } from '../../lib/legal-page';
+import { ORGANIZATION_ID, WEBSITE_ID } from '../../lib/schema';
+
+const company = companyForBuild();
+const path = '/editorial-policy/';
+const brand = site.brand;
+const authorPath = '/about/deepak-chauhan/';
+
+const toc = [
+  { id: 'sources', label: 'Where meanings come from' },
+  { id: 'citing', label: 'How we cite and quote' },
+  { id: 'diagram-licence', label: 'Reusing our diagrams' },
+  { id: 'never', label: 'What we never write' },
+  { id: 'ai', label: 'How we use AI' },
+  { id: 'review', label: 'How a guide is checked' },
+  { id: 'hindi', label: 'Hindi pages' },
+  { id: 'updates', label: 'Updates and corrections' },
+  { id: 'money', label: 'Money and independence' },
+];
+
+const quotable = [
+  'Cheiro, Palmistry for All (1916)',
+  'Cheiro, Cheiro’s Language of the Hand (first published 1894)',
+  'Cheiro, Cheiro’s Guide to the Hand (1900)',
+  'Leo Markun, What You Should Know About Palmistry (1927)',
+  'Mrs J. B. Dale, Indian Palmistry (1895)',
+  'Henry Frith, Practical Palmistry (1895)',
+  'Edward Heron-Allen, A Manual of Cheirosophy (1885) and Practical Cheirosophy (1887)',
+  'Adolphe Desbarrolles, Chiromancie nouvelle (1859, French; quotes are our translation)',
+];
+const factsOnly = [
+  'W. G. Benham, The Laws of Scientific Hand Reading (1900)',
+  'Albert Raphael, Cheirosophy (1901)',
+  'Comte C. de Saint-Germain, The Practice of Palmistry for Professional Purposes (1900)',
+  'Katharine St. Hill, The Grammar of Palmistry (1893)',
+  'Louis Williams, Key to Palmistry (1902)',
+  'Chhotelal Jain, Samudrik Shastra ya Bhagya Nirnay (1927, Hindi)',
+];
+
+const licence = site.diagramLicence;
+
+const webpage = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${site.baseUrl}${path}#webpage`,
+  name: `${brand} editorial policy`,
+  url: `${site.baseUrl}${path}`,
+  inLanguage: 'en',
+  dateModified: '2026-09-28',
+  isPartOf: { '@id': WEBSITE_ID },
+  publisher: { '@id': ORGANIZATION_ID },
+};
+---
+
+<BaseLayout
+  title={`Editorial policy: how we write guides | ${brand}`}
+  description={`Where ${brand} meanings come from, how we cite the classical palmistry books, what we never predict, how AI is used, and how to ask for a correction.`}
+  path={path}
+  locale="en"
+  jsonLd={[webpage]}
+>
+  <DocPage
+    crumb="Editorial policy"
+    path={path}
+    parents={[{ name: 'About', path: '/about/' }]}
+    icon="book"
+    kicker="How we write"
+    title="Editorial policy"
+    lead={`How ${brand} guides and readings are written and checked: every meaning from a named book, nothing predicted, AI used in the open, and mistakes fixed when you tell us.`}
+    meta="Last updated 28 September 2026."
+    toc={toc}
+  >
+    <h2 id="sources">Where meanings come from</h2>
+    <p>
+      Every meaning on {brand}, in a guide or in a reading, comes from a classical palmistry book and names it. The app’s rule set was
+      built from these books, and the website uses the same rules, so a guide and your reading say the same thing. If a guide and the
+      app ever disagree, the app wins until we fix the guide.
+    </p>
+    <h3>Books we may quote (public domain)</h3>
+    <ul>
+      {quotable.map((book) => <li>{book}</li>)}
+    </ul>
+    <h3>Books we use for facts only, in our own words</h3>
+    <p class="muted">Their rights status is unknown to us, so we never quote them.</p>
+    <ul>
+      {factsOnly.map((book) => <li>{book}</li>)}
+    </ul>
+    <p>
+      Pages about whether palmistry works, or about medical topics such as the single palmar crease, cite scientific and medical
+      sources (for example MedlinePlus) for those claims. We don’t cite Wikipedia or a competitor as the source of a meaning, and we
+      never invent a source, a quote, a chapter or a statistic.
+    </p>
+
+    <h2 id="citing">How we cite and quote</h2>
+    <ul>
+      <li>Every meaning carries a source: author, title, year and chapter or page, for example “Cheiro, Palmistry for All (1916), Part I, ch. VII”.</li>
+      <li>Meanings are written in our own words. A quote is allowed only from a public-domain book, in quotation marks, at most 25 words, with its chapter.</li>
+      <li>Each guide ends with a sources box listing every book and study it used.</li>
+      <li>Where the books read a feature in different ways, we show both, side by side, instead of quietly picking one.</li>
+    </ul>
+
+    <h2 id="diagram-licence">Reusing our diagrams</h2>
+    <p>
+      Our own palm diagrams and line drawings are free to reuse under the <a href={licence.url} rel="license">{licence.name}</a> licence:
+      you may copy, share and adapt them, as long as you credit “{licence.credit}” and link to the page you took them from. This does not
+      cover photos of hands, which belong to the people in them or to their credited photographers.
+    </p>
+
+    <h2 id="never">What we never write</h2>
+    <p>Palmistry is a tradition for reflection, not a science. So, on any page and in any reading, we never give:</p>
+    <ul class="doc-points">
+      <li class="doc-point"><Icon name="info" class="doc-point-icon" /><span>Dates or ages, such as a marriage age.</span></li>
+      <li class="doc-point"><Icon name="info" class="doc-point-icon" /><span>Lifespan, or anything about when someone will die.</span></li>
+      <li class="doc-point"><Icon name="info" class="doc-point-icon" /><span>Health, illness or fertility readings. For any health worry, see a doctor.</span></li>
+      <li class="doc-point"><Icon name="info" class="doc-point-icon" /><span>Divorce, the number of marriages, or whether and how many children someone will have.</span></li>
+      <li class="doc-point"><Icon name="info" class="doc-point-icon" /><span>Money amounts or promised money outcomes.</span></li>
+    </ul>
+    <p>
+      Some old books make claims we refuse to pass on even when a line matches them: about death, illness, poverty, tragedy,
+      crime, a person’s character, or a woman’s fate. We name a well-known scary reading only to explain why a line can’t tell it. We
+      don’t sell or recommend gems, pujas, mantras or other remedies, and we don’t use fear or countdowns to sell.
+    </p>
+
+    <h2 id="ai">How we use AI</h2>
+    <ul>
+      <li><strong>In a reading:</strong> AI traces the lines on your photo and describes the palm in words. The meanings then come from the fixed rule set above, and an AI language model writes them up as your report, from the observations and the matched rules only. A filter checks every sentence for claims we never make.</li>
+      <li><strong>In the photo tools:</strong> a hand model runs on your own device to find points on your hand; the meanings shown are fixed texts from the books.</li>
+      <li><strong>In writing guides:</strong> drafts are prepared with the help of an AI writing assistant, from the app’s rules and the book passages. Every draft is then checked against those rules and passages before it is published.</li>
+    </ul>
+    <p class="doc-note">
+      Honest status: the rules in the app’s rule set are still marked as drafts, and no outside palmistry expert has reviewed them yet.
+      We will say so here when that changes, and not before.
+    </p>
+
+    <h2 id="review">How a guide is checked</h2>
+    <ol>
+      <li>Written from the app’s rules and the named books, with a source for every meaning.</li>
+      <li>Automatic checks: page structure, links, sources, the “what palmistry can’t tell you” box, and a list of words we never use.</li>
+      <li>A fact check against the app: each meaning must match its rule, including how carefully it is worded.</li>
+      <li>Pages about marriage, children, lifespan and medical topics are read and approved by the founder, <a class="text-link" href={authorPath}>{site.author.name}</a>, before they go live.</li>
+    </ol>
+    <p>Each guide shows who wrote it and when it was last reviewed. We only name a reviewer when a real, named person has read the page.</p>
+
+    <h2 id="hindi">Hindi pages</h2>
+    <p>
+      Hindi pages are written in Hindi from the checked English, not machine-published. Each one is read in full by the founder (or,
+      once we have one, a named Hindi reviewer) before it goes live. Until then, some pages are English only.
+    </p>
+
+    <h2 id="updates">Updates and corrections</h2>
+    <ul>
+      <li>Our main guides are reviewed every 3 months, and the others every 6 months. The “last reviewed” date changes only when we really review a page.</li>
+      <li>When the app’s rules change, we re-check every page that uses them.</li>
+      <li>Found a mistake, a wrong source or a claim that goes too far? Email <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>. We check it against the source, fix the page if we were wrong, and update its date.</li>
+    </ul>
+
+    <h2 id="money">Money and independence</h2>
+    <p>
+      {brand} makes money from its Android app (reading packs and plans sold through Google Play). Our guides and tools link to the
+      app, and that is our interest in them. There are no ads, no paid placements and no sponsored meanings. More about us on the <a class="text-link" href="/about/">About page</a>.
+    </p>
+  </DocPage>
+</BaseLayout>

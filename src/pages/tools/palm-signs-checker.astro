@@ -7,6 +7,7 @@
 import ChoiceGroup from '../../components/tools/ChoiceGroup.astro';
 import ToolLayout from '../../components/tools/ToolLayout.astro';
 import { isLive } from '../../config/pages';
+import { signThumb } from '../../lib/tools/palm-geometry';
 import { toolById } from '../../lib/tools/registry';
 import { CHANCE_CROSSING_QUOTE, SIGNS } from '../../lib/tools/signs';
 import { citeText } from '../../lib/tools/sources';
@@ -25,11 +26,11 @@ const says = SIGNS.map((sign) => ({
   title="Palm Signs Checker: M, Cross, Star, Fish & Triangle"
   description="Tick the signs you can see on your palm – M, cross, star, triangle, fish, island – and read what palmistry books say about each one, with sources."
   h1="Palm signs checker"
-  promise="Tick the marks you can see on your palm and read what the old palmistry books say about each one, with the source — and what we leave out."
+  promise="Tick the marks you can see on your palm and read what the old palmistry books say about each one, with the source and what we leave out."
   spot={{
     title: 'How to look for signs',
     paras: [
-      'Signs are small marks — a cross, a star, a triangle — usually on the raised pads (mounts) under the fingers or at the base of the palm. Look in bright light from the side, and zoom in with your phone camera if it helps.',
+      'Signs are small marks (a cross, a star, a triangle), usually on the raised pads (mounts) under the fingers or at the base of the palm. Look in bright light from the side, and zoom in with your phone camera if it helps.',
       `Be strict with yourself: many “signs” are ordinary lines crossing by chance. Cheiro asks for a triangle ${CHANCE_CROSSING_QUOTE} (Cheiro’s Language of the Hand, 1900, ch. XXII).`,
     ],
   }}
@@ -48,7 +49,7 @@ const says = SIGNS.map((sign) => ({
   faq={[
     {
       q: 'What does the M on my palm mean?',
-      a: 'None of the classical books we use describes an M sign. It is formed by your heart, head, life and fate lines, so read those lines instead — the line finders do exactly that.',
+      a: 'None of the classical books we use describes an M sign. It is formed by your heart, head, life and fate lines, so read those lines instead. The line finders do exactly that.',
     },
     {
       q: 'Is a mystic cross rare?',
@@ -60,7 +61,7 @@ const says = SIGNS.map((sign) => ({
     },
     {
       q: 'Why can’t I upload a photo for this?',
-      a: 'Because phone photos can’t show small signs reliably — even our app’s scan leaves them out. Ticking what you see with your own eyes is the honest way.',
+      a: 'Because phone photos can’t show small signs reliably. Even our app’s scan leaves them out. Ticking what you see with your own eyes is the honest way.',
     },
     {
       q: 'Does this tool use AI?',
@@ -82,7 +83,7 @@ const says = SIGNS.map((sign) => ({
         type="checkbox"
         legend="Which signs can you clearly see?"
         help="Tick all that apply. Seeing none is common."
-        choices={SIGNS.map((sign) => ({ value: sign.id, label: sign.name, glyph: sign.glyph }))}
+        choices={SIGNS.map((sign) => ({ value: sign.id, label: sign.name, glyph: sign.glyph, figure: signThumb(sign.id, sign.glyph) }))}
       />
       <div class="t-actions">
         <button type="submit" class="btn btn-gold">Show what the books say</button>

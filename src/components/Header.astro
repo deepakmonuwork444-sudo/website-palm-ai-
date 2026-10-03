@@ -3,22 +3,35 @@
  * Site header (DESIGN_SYSTEM.md §7.10).
  * Mobile (56px): logo, the अA language link, Menu (a bottom sheet <dialog>).
  * Desktop (64px): logo, nav, हिंदी/English pill, Day toggle, outline action.
- * The outline action is hidden on the home page, where the hero owns the one
- * gold action. It turns to glass after 24px of scroll (no blur on mobile).
+ * The outline action ("Scan my palm", to /reading/) is always shown: hiding it
+ * until the hero had scrolled away left an empty gap that filled in on scroll
+ * (owner 2026-09-28). The capsule is SOLID (owner 2026-10-01: at 0.9–0.97 alpha, dark
+ * body text still read through it), and once the page scrolls the strip behind
+ * and above it is filled with the page colour, so no text shows above the pill.
  * The language control is a plain link to the twin URL: no JS swap, no cookie.
+ * Account (WEB-FEAT-029/062): "Sign in" (to /account/) or, for a signed-in
+ * account, a round initial with a small menu (native popover: My readings,
+ * Account, Sign out). A tiny inline script picks one from this browser's
+ * stored session — a GUEST session counts as signed out — before first paint;
+ * no Supabase code on any page (tests/unit/auth.test.ts runs this script).
  */
-import { isLive } from '../config/pages';
+import { localizedLink } from '../config/pages';
 import { site, type Locale } from '../config/site';
 import { localizePath, otherLocale, t } from '../i18n';
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import PrimaryButton from './PrimaryButton.astro';
+import { webScanOpen } from '../lib/reading/open';
+// Its CSP hash is added in BaseLayout's frontmatter (a component renders after the <head> CSP is written).
+import { HEADER_AUTH_SCRIPT } from '../lib/auth/header-script';
 
 interface Props {
   locale: Locale;
   /** The twin page's path, or null when this page has no translation. */
   twinPath: string | null;
   showCta?: boolean;
+  /** Unused since 2026-09-28 (the action always shows); kept so callers need no change. */
+  ctaAfterHero?: boolean;
 }
 
 const { locale, twinPath, showCta = true } = Astro.props;
@@ -27,26 +40,32 @@ const other = otherLocale(locale);
 const home = localizePath('/', locale);
 const langHref = twinPath ?? localizePath('/', other);
 
+// Guides (the 7-step hub) and Tools stay visible on Hindi pages: they fall back to the English page (hreflang="en") until a Hindi twin is live.
+const toItem = (label: string, path: string) => {
+  const link = localizedLink(path, locale, localizePath);
+  return link ? { label, ...link } : null;
+};
 const navItems = [
-  { label: dict.nav.howItWorks, href: `${home}#how-it-works`, page: home },
-  { label: dict.nav.sample, href: `${home}#sample`, page: home },
-  // Guides: the beginner's 7-step guide is the hub that links every other guide.
-  { label: dict.nav.guides, href: localizePath('/palm-reading/', locale), page: localizePath('/palm-reading/', locale) },
-  // Tools hub (English only until /hi/tools/ is reviewed; isLive hides it on Hindi pages).
-  { label: dict.nav.tools, href: localizePath('/tools/', locale), page: localizePath('/tools/', locale) },
-  { label: dict.nav.app, href: localizePath('/app/', locale), page: localizePath('/app/', locale) },
-].filter((item) => isLive(item.page));
+  { label: dict.nav.howItWorks, href: `${home}#how-it-works` },
+  { label: dict.nav.sample, href: `${home}#sample` },
+  toItem(dict.nav.guides, '/palm-reading/'),
+  toItem(dict.nav.tools, '/tools/'),
+  toItem(dict.nav.app, '/app/'),
+].filter((item): item is { label: string; href: string; lang?: Locale } => item !== null);
 
-const cta = site.webReadingEnabled
-  ? { label: dict.nav.readMyPalm, href: `${home}#read` }
-  : { label: dict.nav.trySample, href: `${home}#sample` };
+// One route for both languages; the reading page follows ?lang (WEB-FEAT-026). With the flag off, that page explains itself.
+// Scan when a visitor can finish one on this build, else the app (src/lib/reading/open.ts).
+const cta = webScanOpen
+  ? { label: dict.nav.scan, href: locale === 'hi' ? '/reading/?lang=hi' : '/reading/' }
+  : { label: dict.nav.getApp, href: `${localizePath('/app/', locale)}#get` };
 const current = Astro.url.pathname;
+const accountHref = localizePath('/account/', locale);
 ---
 
 <div class="scroll-sentinel" data-scroll-sentinel aria-hidden="true"></div>
 <header class="site-header" data-header>
   <div class="wrap header-row">
-    <a href={home} class="logo-link" aria-label={`${site.brand} — ${dict.nav.home}`}>
+    <a href={home} class="logo-link" aria-label={`${site.brand}: ${dict.nav.home}`}>
       <Logo />
     </a>
 
@@ -55,7 +74,7 @@ const current = Astro.url.pathname;
         {
           navItems.map((item) => (
             <li>
-              <a class="nav-link header-nav-link" href={item.href} aria-current={current === item.href ? 'page' : undefined}>
+              <a class="nav-link header-nav-link" href={item.href} hreflang={item.lang} aria-current={current === item.href ? 'page' : undefined}>
                 {item.label}
               </a>
             </li>
@@ -71,6 +90,18 @@ const current = Astro.url.pathname;
           ><span lang="hi" class="script-system">अ</span><span lang="en">A</span></span
         >
       </a>
+      <a class="account-signin" href={accountHref} aria-label={dict.account.signIn} data-auth-out>
+        <Icon name="self" />
+        <span class="account-signin-text">{dict.account.signIn}</span>
+      </a>
+      <button type="button" class="account-avatar" popovertarget="account-menu" aria-label={dict.account.menuAria} data-auth-in hidden>
+        <span data-account-initial aria-hidden="true">•</span>
+      </button>
+      <div id="account-menu" class="account-menu" popover>
+        <a href={`${accountHref}?view=readings`}>{dict.account.myReadings}</a>
+        <a href={accountHref}>{dict.account.account}</a>
+        <a href={`${accountHref}?signout=1`}>{dict.account.signOut}</a>
+      </div>
       <button type="button" class="theme-toggle desktop-only" data-theme-toggle aria-pressed="false">
         <Icon name="sun" />
         <span>{dict.theme.day}</span>
@@ -98,18 +129,33 @@ const current = Astro.url.pathname;
       <Icon name="close" />
     </button>
   </div>
-  <PrimaryButton href={cta.href} block data-menu-link>{cta.label}</PrimaryButton>
+  <PrimaryButton href={cta.href} block data-menu-link>
+    <Icon name="camera" class="cta-icon" />
+    <span>{cta.label}</span>
+  </PrimaryButton>
   <nav aria-label={dict.a11y.mainNav}>
     <ul class="sheet-list">
       {
         navItems.map((item) => (
           <li>
-            <a class="sheet-row" href={item.href} data-menu-link>
+            <a class="sheet-row" href={item.href} hreflang={item.lang} data-menu-link>
               {item.label}
             </a>
           </li>
         ))
       }
+      <li data-auth-out>
+        <a class="sheet-row" href={accountHref}>{dict.account.signIn}</a>
+      </li>
+      <li data-auth-in hidden>
+        <a class="sheet-row" href={`${accountHref}?view=readings`}>{dict.account.myReadings}</a>
+      </li>
+      <li data-auth-in hidden>
+        <a class="sheet-row" href={accountHref}>{dict.account.account}</a>
+      </li>
+      <li data-auth-in hidden>
+        <a class="sheet-row" href={`${accountHref}?signout=1`}>{dict.account.signOut}</a>
+      </li>
       <li>
         <a class="sheet-row" href={langHref} hreflang={other}>
           <span lang={other} class:list={{ 'script-system': other === 'hi' }}>{dict.lang.switchTo}</span>
@@ -125,22 +171,27 @@ const current = Astro.url.pathname;
   </nav>
 </dialog>
 
+<!-- Account state before first paint (hashed into the page CSP; src/lib/auth/header-script.ts). -->
+<script is:inline set:html={HEADER_AUTH_SCRIPT} />
+
 <style>
   .scroll-sentinel { position: absolute; top: 0; left: 0; width: 1px; height: 24px; pointer-events: none; }
-  .site-header {
-    position: sticky; top: 0; z-index: 40; background-color: var(--page); border-bottom: 1px solid transparent;
-    transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  /* Showroom header (WEB-DEC-042): a floating glass capsule. Solid-ish on phones (no blur), blurred glass on desktop. */
+  .site-header { position: sticky; top: 0; z-index: 40; padding-top: 0.625rem; background: transparent; pointer-events: none; }
+  /* Scrolled (site.ts sets data-scrolled; no JS: always): a page-coloured strip from the top edge to the pill's bottom. */
+  :global([data-scrolled]) .site-header { background: var(--page); }
+  @media (scripting: none) { .site-header { background: var(--page); } }
+  .site-header > .header-row { pointer-events: auto; }
+  .header-row.wrap {
+    width: calc(100% - 2 * var(--gutter) + 1.5rem); max-width: 72rem; padding-inline: 0.75rem 0.5rem; border-radius: 0.75rem;
+    border: 1px solid transparent; background: var(--glass-1) padding-box, var(--rim) border-box;
+    box-shadow: var(--shine);
+    transition: background 300ms var(--ease), box-shadow 300ms var(--ease);
   }
-  /* No blur on mobile, so the scrolled header is solid there; glass + blur only on large screens with hover. */
-  :global([data-scrolled]) .site-header { background-color: var(--surface-1); border-bottom-color: var(--glass-edge); }
+  
+  :global([data-scrolled]) .header-row.wrap { box-shadow: var(--shine); }
   @media (min-width: 64rem) and (hover: hover) {
-    :global([data-scrolled]) .site-header { background-color: var(--glass); }
-    @supports (backdrop-filter: blur(12px)) {
-      :global([data-scrolled]) .site-header { backdrop-filter: blur(12px); }
-    }
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    :global([data-scrolled]) .site-header { backdrop-filter: none; background-color: var(--surface-1); }
+    .header-row.wrap { border-radius: 0.875rem; padding-inline: 1.5rem 0.5rem; }
   }
   .header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; }
   .logo-link { display: inline-flex; align-items: center; min-height: 3rem; color: var(--fg); text-decoration: none; }
@@ -150,16 +201,49 @@ const current = Astro.url.pathname;
   .header-nav-link { display: inline-flex; align-items: center; min-height: 3rem; padding-inline: 0.75rem; }
 
   .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+  /* Account: an icon link (text from desktop up) or a round gold initial with a small popover menu. */
+  .account-signin, .account-avatar {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3rem; min-width: 3rem;
+    border-radius: 0.5rem; font: inherit; font-size: var(--fs-small); cursor: pointer; text-decoration: none;
+  }
+  .account-signin { padding: 0 0.875rem; border: 1px solid var(--gc-edge); background: rgba(255,255,255,0.04); color: var(--fg); }
+  .account-signin:hover { border-color: rgba(230,184,92,0.5); color: var(--accent); background: rgba(230,184,92,0.08); }
+  .account-signin :global(.icon) { width: 1.25rem; height: 1.25rem; }
+  .account-signin-text { display: none; }
+  .account-avatar { padding: 0; border: 1px solid transparent; background: transparent; }
+  .account-avatar > span {
+    display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 9999px;
+    background-image: var(--gold-gradient); color: var(--color-on-gold); font-weight: 700; font-size: 1.0625rem;
+  }
+  .account-avatar:hover > span, .account-avatar:focus-visible > span { box-shadow: 0 0 0 2px var(--accent-soft); }
+  [data-auth-in][hidden], [data-auth-out][hidden] { display: none !important; }
+  .account-menu {
+    position: fixed; inset: auto; top: 4.5rem; right: max(var(--gutter), calc((100vw - 72rem) / 2)); margin: 0; min-width: 12rem;
+    padding: 0.5rem; border: 1px solid transparent; border-radius: 0.75rem; color: var(--fg);
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--e3);
+  }
+  :global([data-theme=day]) .account-menu { background: linear-gradient(180deg, var(--color-white), var(--color-day-page)) padding-box, var(--rim) border-box; }
+  .account-menu:popover-open { display: flex; flex-direction: column; }
+  .account-menu a { display: flex; align-items: center; min-height: 3rem; padding: 0 0.875rem; border-radius: 0.75rem; color: var(--fg); text-decoration: none; }
+  .account-menu a:hover, .account-menu a:focus-visible { background: var(--accent-soft); color: var(--accent); }
   .lang-link, .theme-toggle, .menu-button {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3rem; min-width: 3rem;
-    padding: 0 0.875rem; border-radius: 9999px; border: 1px solid var(--control-border); background: transparent;
+    padding: 0 0.875rem; border-radius: 0.5rem; border: 1px solid var(--gc-edge); background: rgba(255,255,255,0.04);
     color: var(--fg); font: inherit; font-size: var(--fs-small); cursor: pointer; text-decoration: none;
   }
-  .lang-link:hover, .theme-toggle:hover, .menu-button:hover { border-color: var(--accent); color: var(--accent); }
+  .lang-link:hover, .theme-toggle:hover, .menu-button:hover { border-color: rgba(230,184,92,0.5); color: var(--accent); background: rgba(230,184,92,0.08); }
+  .header-nav-link { position: relative; color: var(--fg-muted); transition: color 200ms var(--ease); }
+  .header-nav-link::after {
+    content: ""; position: absolute; left: 0.75rem; right: 0.75rem; bottom: 0.7rem; height: 1px; border-radius: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent); transform: scaleX(0); transition: transform 350ms var(--ease-out);
+  }
+  .header-nav-link:hover, .header-nav-link[aria-current="page"] { color: var(--fg); text-decoration: none; }
+  .header-nav-link:hover::after, .header-nav-link[aria-current="page"]::after { transform: scaleX(1); }
   .theme-toggle[aria-pressed="true"] { background-color: var(--accent-soft); border-color: var(--hairline); }
   .lang-full { display: none; }
   .lang-short { font-weight: 700; }
   .desktop-only { display: none; }
+  .menu-sheet :global(.cta-icon) { width: 1.35rem; height: 1.35rem; }
 
   @media (min-width: 64rem) {
     .header-row { min-height: 4rem; }
@@ -168,20 +252,44 @@ const current = Astro.url.pathname;
     .mobile-only { display: none; }
     .lang-full { display: inline; }
     .lang-short { display: none; }
+    .account-signin-text { display: inline; }
+    .account-menu { top: 5rem; }
+    .header-nav-link, :global(.header-cta) { white-space: nowrap; }
+  }
+  /* Very small phones (320–375px): the row was 375px wide and every page scrolled sideways. Menu keeps its name. */
+  @media (max-width: 23.4rem) {
+    .header-row { gap: 0.375rem; }
+    .header-row.wrap { padding-inline: 0.5rem 0.375rem; }
+    .header-actions { gap: 0.25rem; }
+    .lang-link { padding: 0 0.625rem; }
+    .menu-button { padding: 0; }
+    .menu-button > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  }
+  /* Small laptops: everything on one line (at 1024px labels broke onto two lines). Icons keep their names. */
+  @media (min-width: 64rem) and (max-width: 79.99rem) {
+    .header-row { gap: 0.5rem; }
+    .header-actions { gap: 0.375rem; }
+    .header-nav-link { padding-inline: 0.5rem; font-size: 0.9375rem; }
+    .lang-link, .theme-toggle { padding: 0 0.75rem; }
+    .account-signin { padding: 0; }
+    .account-signin-text { display: none; }
+    .theme-toggle > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   }
 
   .menu-sheet {
     margin: auto 0 0; width: 100%; max-width: none; max-height: 85dvh; padding: 1.25rem var(--gutter) calc(1.5rem + env(safe-area-inset-bottom));
-    border: none; border-top: 1px solid var(--glass-edge); border-radius: 1.75rem 1.75rem 0 0; color: var(--fg);
-    /* Solid: without blur (never on mobile) a translucent sheet lets the page text show through. */
-    background-color: var(--surface-1);
+    border: 1px solid transparent; border-bottom: none; border-radius: 1rem 1rem 0 0; color: var(--fg);
+    /* Solid glass: without blur (never on mobile) a translucent sheet lets the page text show through. */
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--e3);
   }
   .menu-sheet[open] { display: flex; flex-direction: column; gap: 1rem; animation: sheet-in var(--dur-sheet) var(--ease); }
-  .menu-sheet::backdrop { background: var(--scrim); }
+  .menu-sheet::backdrop { background: var(--scrim);  }
+  :global([data-theme="day"]) .menu-sheet { background: linear-gradient(180deg, var(--color-white), var(--color-day-page)) padding-box, var(--rim) border-box; }
   @keyframes sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .menu-sheet[open] { animation-duration: 420ms; animation-timing-function: var(--ease-out); }
   .sheet-head { display: flex; align-items: center; justify-content: space-between; }
   .sheet-close {
-    display: inline-flex; align-items: center; gap: 0.375rem; min-height: 3rem; padding: 0 0.75rem; border-radius: 9999px;
+    display: inline-flex; align-items: center; gap: 0.375rem; min-height: 3rem; padding: 0 0.75rem; border-radius: 0.5rem;
     border: 1px solid var(--control-border); background: transparent; color: var(--fg); font: inherit; cursor: pointer;
   }
   .sheet-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }

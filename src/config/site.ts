@@ -13,6 +13,24 @@ export type Locale = (typeof LOCALES)[number];
 /** A SHA-256 certificate fingerprint as Play Console prints it: 32 hex pairs joined by colons. */
 export const SHA256_FINGERPRINT = /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/;
 
+/**
+ * Every membership plan the app's paywall sells, in whole rupees, in the app's
+ * order (Yearly first). App repo: src/features/billing/preview-prices.ts and
+ * subscription.ts (DEC-043, DEC-044). [verify] against Google Play before launch.
+ */
+const APP_PLANS = [
+  { id: 'yearly', inr: 999, per: 'year', readingsPerMonth: 20, trialDays: 3, trialReadings: 5 },
+  { id: 'monthly', inr: 299, per: 'month', readingsPerMonth: 20, trialDays: 0, trialReadings: 0 },
+  { id: 'lite', inr: 149, per: 'month', readingsPerMonth: 6, trialDays: 0, trialReadings: 0 },
+] as const;
+/** One-time reading packs (app repo: products.ts): pay once, never expire. `tag` is the app's pack label. [verify] against Google Play. */
+const APP_PACKS = [
+  { readings: 4, inr: 199, tag: 'me' },
+  { readings: 10, inr: 349, tag: 'family' },
+  { readings: 25, inr: 749, tag: 'bigFamily' },
+  { readings: 50, inr: 1299, tag: 'friends' },
+] as const;
+
 export const site = {
   brand: 'PalmSays',
   /** Hindi form of the brand: not decided by the owner yet (ARCHITECTURE.md §5). */
@@ -50,9 +68,19 @@ export const site = {
    */
   appPrices: {
     currency: 'INR',
-    planFromPerMonth: 149,
-    packFrom: 199,
+    /** Derived from appPlans / appPacks below (one source of truth). */
+    planFromPerMonth: Math.min(...APP_PLANS.filter((plan) => plan.per === 'month').map((plan) => plan.inr)),
+    packFrom: Math.min(...APP_PACKS.map((pack) => pack.inr)),
     verified: false,
+  },
+  /** Each plan and pack with its own price, for the /app/ price boxes. */
+  appPlans: APP_PLANS,
+  appPacks: APP_PACKS,
+  /** What packs and plans give (app repo: src/features/billing/products.ts, subscription.ts). Change with the app. */
+  appOffer: {
+    packSizes: APP_PACKS.map((pack) => pack.readings),
+    liteMonthlyReadings: APP_PLANS[2].readingsPerMonth,
+    fullMonthlyReadings: APP_PLANS[1].readingsPerMonth,
   },
   /** Download size in MB; null hides the size line until it is measured. */
   appSizeMb: null as number | null,
@@ -65,6 +93,24 @@ export const site = {
     grievanceContact: null as string | null,
   },
   author: { name: 'Deepak Chauhan' },
+  /**
+   * The day palmsays.com goes public, YYYY-MM-DD (WEB-DEC-049, owner decision D10). null until the
+   * owner deploys (OWNER_GUIDE.md §13). When set, it is every guide's `datePublished` unless the guide's
+   * own `published` date is later (src/lib/guides/dates.ts). Never set it to a future or past guess.
+   */
+  launchDate: null as string | null,
+  /**
+   * Licence for our own palm diagrams and line drawings, never the photos (WEB-DEC-050, owner decision D11).
+   * Used by the editorial policy text and the `license` of diagram ImageObjects (src/lib/schema.ts).
+   */
+  diagramLicence: {
+    name: 'CC BY 4.0',
+    url: 'https://creativecommons.org/licenses/by/4.0/',
+    /** The credit line people must give when they reuse a diagram. */
+    credit: 'PalmSays (palmsays.com)',
+    /** Where the licence is explained on our site (the editorial policy section). */
+    pagePath: '/editorial-policy/#diagram-licence',
+  },
   /** Cloudflare Web Analytics is not set up yet; the footer cookie line depends on this list staying cookie-free. */
   cookieFree: true,
 } as const;

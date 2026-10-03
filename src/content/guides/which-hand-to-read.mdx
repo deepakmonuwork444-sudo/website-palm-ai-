@@ -2,12 +2,35 @@
 title: 'Which Hand to Read in Palmistry? Female & Male Palm Reading'
 description: 'Palm reading for female and male: which hand to read, left or right, what the traditions say, and what stays the same for everyone. Plus a quick quiz.'
 path: /which-hand-to-read/
-h1: 'Which hand to read in palmistry — for women and men'
+h1: 'Which hand to read in palmistry, for women and men'
 answer: 'Look at both hands. In palmistry tradition, the hand you write with is read as the life you are making, and the other as what you started with. The lines and their meanings are the same for women and men.'
 crumb: Which hand to read
 parent: /palm-reading/
-figureAlt: 'A drawn palm showing the four main lines: the heart, head, life and fate lines.'
-figureCaption: 'The four main lines on a drawn palm. They are read the same way on every hand; traditions differ only on which hand to read first. In a reading, PalmSays traces your own lines on your photo.'
+find:
+  region: all
+  show: animate
+  photo: left-palm
+  title: 'Which hand should you read?'
+  prompt: 'The same four lines are read on every hand. The question is which hand to start with. Which one do you write with?'
+  steps:
+    - 'Put both palms side by side in good light.'
+    - 'Start with the hand you write with.'
+    - 'Then compare the same line on the other hand. Small differences are normal.'
+  question: 'Which hand do you write with?'
+  choices:
+    - label: 'My right hand'
+      answer: 'Read your right hand as the life you are making, and your left as what you started with.'
+      href: '#your-writing-hand-vs-your-other-hand'
+    - label: 'My left hand'
+      answer: 'Swap them: your left hand is read as the life you are making.'
+      href: '#left-handed'
+    - label: 'Both, about equally'
+      answer: 'Then read each hand on its own, for what its lines show.'
+      href: '#left-handed'
+tool:
+  slug: left-vs-right-palm
+  name: Left vs right hand
+  label: 'Or compare your two hands, photo by photo, in the left vs right hand tool'
 quickFacts:
   - label: In Hindi
     value: 'कौन सा हाथ देखें (kaun sa haath dekhen)'
@@ -24,7 +47,7 @@ step: 1
 ymyl: none
 status: checked
 published: '2026-09-26'
-updated: '2026-09-26'
+updated: '2026-09-28'
 keyword:
   primary: which hand to read palm
   secondary:
@@ -46,13 +69,13 @@ keyword:
 ruleIds: []
 sources:
   - book: cheiro-palmistry-for-all-1916
-    locator: 'Part I, ch. XVII — Different Classes of Lines and Right and Left Hands'
+    locator: 'Part I, ch. XVII: Different Classes of Lines and Right and Left Hands'
   - book: cheiro-language-of-the-hand-1900
-    locator: 'Part II, ch. IV — The Right and Left Hands, pp. 77–78'
+    locator: 'Part II, ch. IV: The Right and Left Hands, pp. 77–78'
   - book: dale-indian-palmistry-1895
     locator: 'The Hand to Examine'
   - book: benham-laws-of-scientific-hand-reading-1900
-    locator: 'Part I, ch. IV — Preliminary Arrangements, What Hand to Use, pp. 31–32'
+    locator: 'Part I, ch. IV: Preliminary Arrangements, What Hand to Use, pp. 31–32'
 faq:
   - q: Which hand is read in palmistry for a female?
     a: 'Look at both, and read the hand you write with as the life you are making, the same as for a man. An old Eastern custom reads a woman’s left palm first; even Mrs Dale, who records it, advises taking the hand where the lines are clearest.'
@@ -70,15 +93,14 @@ faq:
     a: 'Then the writing-hand idea doesn’t apply. Read each hand on its own, for what its lines show.'
 ---
 
-## The quick answer
-
-Look at both hands. In palmistry tradition, the hand you write with is read as the life you are making, and the other hand as what you started with. Cheiro’s own rule was to examine both hands, and to depend more on the right, the hand that shows what a person has developed.
-
-This is the same for women and men. The lines and their meanings don’t change; some traditions change only **which hand** comes first, as explained below.
-
 ## Not sure which hand? Take the which-hand quiz
 
-Two questions settle it for most people. Which hand do you write with? And do you use both hands about equally? If you write with one hand, start with that one. If you use both, read each hand on its own.
+Two questions settle it for most people:
+
+1. Which hand do you write with? Start with that one.
+2. Do you use both hands about equally? Then read each hand on its own.
+
+This is the same for women and men. The lines and their meanings don’t change; some traditions change only **which hand** comes first, as explained below.
 
 <ToolCard slug="which-hand-quiz" name="Which-hand quiz" question="Which hand should you read? Take the quiz" text="A few quick questions about how you use your hands, then the hand the tradition reads first, and why." label="Based on tradition, not AI" />
 
@@ -90,7 +112,13 @@ The idea comes from Cheiro. In *Palmistry for All* (1916) he writes that the rig
 
 Notice that Cheiro speaks of the right and the left hand. Reading them as your writing hand and your other hand is a later convention, and it is the one the PalmSays app follows.
 
-Cheiro also warns against reading one hand alone. Place both hands side by side, he advises, and look for the reason behind any change.
+Cheiro’s own rule was to examine both hands, and to depend more on the right, the hand that shows what a person has developed. He also warns against reading one hand alone. Place both hands side by side, he advises, and look for the reason behind any change.
+
+<KeyPoint>Your writing hand is read as the life you are making. Your other hand is read as what you started with.</KeyPoint>
+
+### Active hand and passive hand
+
+Benham names the two hands the **active** and the **passive** hand: the right is active and the left passive, the other way round for a left-handed person. The hand that does the work, he writes, records the present; the passive hand shows your natural gifts. People today also say the dominant and the non-dominant hand. All of these name the same split: your writing hand and your other hand.
 
 ## Palm reading for female: which hand, and what to look at
 
@@ -119,6 +147,14 @@ What to look at is the same four lines as for anyone. There is no separate “ma
 
 Palmistry books don’t agree on which hand to read, so here are the main views, each from its source.
 
+| Tradition (book) | Hand read first | What the other hand shows |
+|---|---|---|
+| Western: Cheiro (1900, 1916) | Both, relying more on the right, the hand a person has developed | The left: the natural tendencies you were born with |
+| Western: Benham (1900) | The active hand, the one that does the work (the left for a left-handed person) | The passive hand: your natural gifts |
+| Indian: Dale, *Indian Palmistry* (1895) | A man’s right palm, a woman’s left; or the hand where the lines are clearest | The book gives no reading |
+
+People also ask about a Chinese rule for which hand to read. None of the books we use gives one, so we don’t list it.
+
 - **Cheiro** (1900 and 1916): examine both hands, and depend more on the right, which shows what you have developed. He calls reading the left hand because it is “nearest to the heart” a superstition from the Middle Ages.
 - **William G. Benham** (1900): read both hands. The passive hand shows your natural gifts; the active hand, the one that does the work, shows the present. He also rejects the “nearest the heart” idea: the heart, he points out, has no more to do with the left hand than the right.
 - **Mrs J. B. Dale**, *Indian Palmistry* (1895): “The general rule in the East is that the right palm of the male and the left palm of the female ought to be examined.” In the same passage she advises: “take the hand in which the signs and lines are clearly shown.”
@@ -131,11 +167,13 @@ Swap the hands. If you write with your left hand, palmistry tradition reads your
 
 Cheiro adds an observation of his own: “left-handed people have the lines more clearly marked on the left hand, and vice versa.”
 
-If you use both hands about equally, or you aren’t sure, the writing-hand idea doesn’t apply. Read each hand on its own, for what its lines show. The PalmSays app does the same when it doesn’t know which hand you use most.
+### Ambidextrous?
+
+If you use both hands about equally, or you aren’t sure, the writing-hand idea doesn’t apply. Read each hand on its own, for what its lines show. The PalmSays app does the same when it doesn’t know which hand you use most. The books we use give no separate rule for people who use both hands equally.
 
 ## Which hand for each line?
 
-For every line, the answer is the same: compare both hands.
+For every one of the [lines on your palm](/hand-lines/), the answer is the same: compare both hands.
 
 - **[Heart line](/heart-line/):** a difference between the hands is read as a change in how you show affection.
 - **[Head line](/head-line/):** your writing hand is read as how you think now.

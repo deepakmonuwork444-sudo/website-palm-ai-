@@ -1,0 +1,49 @@
+---
+/**
+ * The mounts on the real photo (guide v4, WEB-DEC-047): numbered AREAS placed
+ * from the scanner's hand landmarks where the books put them (never lines,
+ * never "measured"), the scanner's lines faint for orientation, and a legend
+ * with the Hindi names. Zero JS.
+ */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { GUIDE_LINES, guideScan, MOUNT_ORDER, mountAreas, palmCrop } from '../../lib/guides/traced-palm';
+import PhotoCrop from './PhotoCrop.astro';
+import './teach.css';
+
+const locale = localeFromPath(Astro.url.pathname);
+const t = guideStrings(locale).teach;
+const scan = guideScan();
+const areas = mountAreas(scan);
+const box = palmCrop(scan);
+const number = (key: string) => MOUNT_ORDER.indexOf(key as never) + 1;
+---
+
+<figure class="tb tb-box glass-panel">
+  <div class="tb-mm-row">
+    <PhotoCrop box={box} lines={[...GUIDE_LINES]} alt={t.mountsAlt} class="tb-mount">
+      {
+        areas.map((area) => (
+          <g>
+            <ellipse cx={area.cx} cy={area.cy} rx={area.rx} ry={area.ry} />
+            <circle cx={area.cx} cy={area.cy} r="9" />
+            <text x={area.cx} y={area.cy + 4.5} font-size="13" text-anchor="middle">{number(area.key)}</text>
+          </g>
+        ))
+      }
+    </PhotoCrop>
+    <ol class="tb-legend">
+      {
+        MOUNT_ORDER.map((key, i) => (
+          <li>
+            <span class="tb-n" aria-hidden="true">{i + 1}</span>
+            <span>
+              <strong>{t.mounts[key].name}</strong>{locale === 'en' ? ' ' : ''}{locale === 'en' && <span lang="hi" class="script-system">{t.mounts[key].hi}</span>}{locale === 'en' ? ` (${t.mounts[key].planet})` : ''}{`: ${t.mounts[key].where}`}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+  <figcaption>{t.mountsCaption}</figcaption>
+</figure>

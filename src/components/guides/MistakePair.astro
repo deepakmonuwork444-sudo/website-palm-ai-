@@ -1,0 +1,64 @@
+---
+/**
+ * A beginner mistake as "Not this" / "This" (guide v4, WEB-DEC-047), on real
+ * photos: the lines are the scanner's own; the finger creases are marked as an
+ * AREA, a line's start as a dot on the scanner's first point. The words
+ * "Not this" and "This" carry the meaning, never a colour or a tick alone.
+ */
+import { localeFromPath } from '../../i18n';
+import { guideStrings } from '../../lib/guides/strings';
+import { fingerBaseCrop, fingerCreaseArea, guideScan, lineCrop, startsCrop, type GuideLine } from '../../lib/guides/traced-palm';
+import PhotoCrop from './PhotoCrop.astro';
+import './teach.css';
+
+interface Props {
+  kind: 'crease' | 'start' | 'shadow';
+}
+
+const { kind } = Astro.props;
+const t = guideStrings(localeFromPath(Astro.url.pathname)).teach;
+const m = t.mistakes[kind];
+const scan = guideScan();
+const start = (line: GuideLine) => scan.lines.find((trace) => trace.line === line)?.points[0] ?? null;
+const crease = fingerCreaseArea(scan);
+const creaseBox = fingerBaseCrop(scan);
+const startBox = startsCrop(scan, ['heart', 'head']);
+const lifeBox = lineCrop(scan, 'life') ?? { x: 0, y: 0, w: scan.width, h: scan.height };
+const headStart = start('head');
+const heartStart = start('heart');
+// The AI-made "too dark" example photo (same shape as the guide photo), framed square on the hand like the tile beside it.
+const darkBox = { x: 0, y: 90, w: scan.width, h: scan.width };
+---
+
+<div class="tb tb-mp">
+  <figure>
+    {
+      kind === 'crease' && (
+        <PhotoCrop box={creaseBox} alt={m.notAlt}>
+          {crease && <ellipse class="tb-area" cx={crease.cx} cy={crease.cy} rx={crease.rx} ry={crease.ry} transform={`rotate(${crease.rotate} ${crease.cx} ${crease.cy})`} />}
+        </PhotoCrop>
+      )
+    }
+    {
+      kind === 'start' && (
+        <PhotoCrop box={startBox} lines={['head']} alt={m.notAlt}>
+          {headStart && <circle class="tb-start" cx={headStart[0]} cy={headStart[1]} r="4.5" />}
+        </PhotoCrop>
+      )
+    }
+    {kind === 'shadow' && <PhotoCrop box={darkBox} photo="/images/guides/photo-dont-dark-600.webp" alt={m.notAlt} />}
+    <figcaption><span class="tb-tag tb-no">{t.notThis}</span> {m.not}</figcaption>
+  </figure>
+  <figure>
+    {kind === 'crease' && <PhotoCrop box={creaseBox} lines={['heart']} alt={m.yesAlt} />}
+    {
+      kind === 'start' && (
+        <PhotoCrop box={startBox} lines={['heart']} alt={m.yesAlt}>
+          {heartStart && <circle class="tb-start" cx={heartStart[0]} cy={heartStart[1]} r="4.5" />}
+        </PhotoCrop>
+      )
+    }
+    {kind === 'shadow' && <PhotoCrop box={lifeBox} lines={['life']} alt={m.yesAlt} />}
+    <figcaption><span class="tb-tag">{t.this}</span> {m.yes}</figcaption>
+  </figure>
+</div>

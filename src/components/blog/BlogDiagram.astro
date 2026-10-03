@@ -1,0 +1,24 @@
+---
+/**
+ * `<DiagramFigure>` inside a blog post body (src/pages/[...guide].astro maps it for blog entries only):
+ * the caption stays one short line and the licence + PNG link fold into "Reuse this image". The post's
+ * first infographic is its cover, shown at the top by BlogLayout, so it is not repeated in the body.
+ * No <style> here: the styles live in src/styles/blog.css (the guides' CSS must not grow, WEB-DEC-058).
+ */
+import { getCollection } from 'astro:content';
+
+import { coverDiagramId } from '../../lib/blog';
+import DiagramFigure from '../terms/DiagramFigure.astro';
+
+interface Props {
+  id: string;
+  alt?: string;
+  caption?: string;
+}
+
+const { id, alt, caption } = Astro.props;
+const post = (await getCollection('blog')).find((entry) => entry.data.path === Astro.url.pathname);
+const isCover = post ? coverDiagramId(post.body ?? '') === id : false;
+---
+
+{!isCover && <DiagramFigure id={id} reuse="details" {...(alt ? { alt } : {})} {...(caption ? { caption } : {})} />}

@@ -1,0 +1,9 @@
+---
+/**
+ * A markdown table inside a blog post body ([...guide].astro maps `table` for blog entries only): a
+ * card that scrolls sideways inside itself on phones, so the page never scrolls sideways. Styles in
+ * src/styles/blog.css. Current browsers make a scrolling box keyboard-focusable on their own.
+ */
+---
+
+<div class="bp-table"><table><slot /></table></div>

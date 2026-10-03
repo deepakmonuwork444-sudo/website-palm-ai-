@@ -1,0 +1,45 @@
+---
+/**
+ * QR tile (DESIGN_SYSTEM.md §7.9): generated as SVG at build time (no QR
+ * service), #0B0A1F modules on an #F6F0E1 tile (17.1:1) in both themes,
+ * 4-module quiet zone, ≥ 132px (rendered at 176px), 12 radius, no logo.
+ */
+import { qrMatrix } from '../lib/qr';
+
+interface Props {
+  text: string;
+  caption: string;
+  label: string;
+  class?: string;
+}
+
+const { text, caption, label, class: className } = Astro.props;
+const { size, path } = qrMatrix(text);
+---
+
+<figure class:list={['qr', className]}>
+  <span class="qr-frame">
+  <svg class="qr-tile" viewBox={`0 0 ${size} ${size}`} role="img" aria-label={label} shape-rendering="crispEdges">
+    <rect class="qr-light" width={size} height={size} rx={size * 0.068}></rect>
+    <path class="qr-dark" d={path}></path>
+  </svg>
+  </span>
+  <figcaption class="text-small text-fg-muted">{caption}</figcaption>
+</figure>
+
+<style>
+  .qr { margin: 0; display: inline-flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+  .qr-frame {
+    display: block; padding: 0.5rem; border-radius: 1.25rem; border: 1px solid transparent;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03)) padding-box,
+      linear-gradient(150deg, var(--color-gold-pale), rgba(230,184,92,0.2) 40%, rgba(230,184,92,0.15) 60%, var(--color-gold-deep)) border-box;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 40px -18px rgba(0,0,0,0.8), 0 12px 36px -16px rgba(230,184,92,0.5);
+  }
+  :global([data-theme="day"]) .qr-frame {
+    background: var(--color-white) padding-box, linear-gradient(150deg, var(--color-gold-soft), rgba(122,82,0,0.15) 45%, var(--color-gold-day-deep)) border-box;
+    box-shadow: 0 16px 34px -18px rgba(23,19,61,0.35), 0 10px 30px -16px rgba(122,82,0,0.3);
+  }
+  .qr-tile { width: 11rem; height: 11rem; display: block; }
+  .qr-light { fill: var(--color-qr-light); }
+  .qr-dark { fill: var(--color-qr-dark); }
+</style>

@@ -18,6 +18,7 @@
 import type { FinishedSynthesis } from './palm/features/knowledge/synthesis/modules';
 import { hasFinishedReading } from './palm/features/knowledge/synthesis/modules';
 import { analysedSide } from './palm/features/lines/client';
+import { LIVE_FAINT_BELOW } from './palm/features/lines/live-scan';
 import { rejectionMessages } from './palm/features/lines/merge';
 import type { LineServiceResponse } from './palm/features/lines/types';
 import type { DominantHand } from './palm/features/observation/schema';
@@ -27,15 +28,17 @@ import { FREE_LOCKED_SECTIONS, lockSynthesis } from './palm/features/reading/acc
 import { LineScannerUnavailableError, QualityRejectedError, runReading } from './palm/features/reading/pipeline';
 import type { SectionKey } from './palm/features/reading/report-sections';
 import { VisionError } from './palm/features/vision/provider';
+import type { GoogleFailure } from '../auth/google';
 import { newKey, webVisionProvider, type Balance, type ReadingApi, type WebUser } from './api';
 import type { ReadingMode } from './config';
 import { ReadingError, planFor, toReadingError, type ReadingErrorCode } from './errors';
 import type { WebEvent } from './events';
 import type { EncodedCopy, PreparedPhoto, RgbaCopy } from './image';
-import type { ReadingStore, SavedReading, TracedLine, TracedLineName } from './store';
+import type { ReadingStore, SavedReading, StoredHand, TracedLine, TracedLineName } from './store';
 import type { TokenSource } from './turnstile';
 
-export type Stage = 'gating' | 'sending' | 'tracing' | 'found' | 'reading' | 'writing';
+/** `done`: the reading is saved while the live scan still plays (holdForShow); the report opens on endShow(). */
+export type Stage = 'gating' | 'sending' | 'tracing' | 'found' | 'reading' | 'writing' | 'done';
 
 export interface Bilingual {
   en: string;
@@ -48,13 +51,35 @@ export type Screen =
   | { name: 'idle' }
   | { name: 'checking' }
   | { name: 'review' }
-  | { name: 'working'; stage: Stage; lines: TracedLine[] | null; slow: boolean }
+  | {
+      name: 'working';
+      stage: Stage;
+      /** The scanner's accepted lines; null until the scan answers. */
+      lines: TracedLine[] | null;
+      /** The scanner's hand (landmarks, outline); null until the scan answers or when it found none. */
+      hand: StoredHand | null;
+      /** The hand the reading uses (the scanner may correct the choice); null before the scan. */
+      side: HandSide | null;
+      slow: boolean;
+      /** The saved reading, once stage is `done`. */
+      readingId: string | null;
+    }
   | { name: 'rejected'; message: Bilingual; noCharge: boolean }
   | { name: 'error'; code: ReadingErrorCode }
   | { name: 'revealed'; readingId: string }
   | { name: 'zero' };
 
-export type SignupMessage = 'codeSent' | 'emailTaken' | 'waitCode' | 'codesOff' | 'badEmail' | 'badCode' | 'wrongCode';
+export type SignupMessage = 'codeSent' | 'emailTaken' | 'waitCode' | 'codesOff' | 'badEmail' | 'badCode' | 'wrongCode' | GoogleMessage;
+
+/** Google sign-in did not finish (lib/auth/google.ts GoogleFailure → the sheet's words). */
+export type GoogleMessage = 'googleOff' | 'googleOffline' | 'googleWait' | 'googleFailed';
+
+const GOOGLE_MESSAGE: Record<GoogleFailure, GoogleMessage> = {
+  not_configured: 'googleOff',
+  offline: 'googleOffline',
+  wait: 'googleWait',
+  failed: 'googleFailed',
+};
 
 export type Sheet =
   | { kind: 'lock'; section: SectionKey }
@@ -66,6 +91,8 @@ export type Sheet =
       via: 'email_change' | 'email';
       busy: boolean;
       message: SignupMessage | null;
+      /** signIn: this browser had an account and was signed out (case 20): "Sign in to read". */
+      reason?: 'signup' | 'signIn';
     };
 
 export interface PhotoInPlay {
@@ -74,6 +101,29 @@ export interface PhotoInPlay {
   /** One idempotency key per photo, reused on every retry (never a double charge). */
   key: string;
   gate: GateResult;
+  /**
+   * The photo the lines are drawn on: the visitor's own (live), or in preview
+   * (mock) mode the sample palm the stored scan belongs to (WEB-DEC-043). The
+   * photo check always runs on the visitor's own photo.
+   */
+  shown: ShownPhoto;
+}
+
+export interface ShownPhoto {
+  url: string;
+  width: number;
+  height: number;
+  /** True: the preview's sample palm, not the visitor's photo. */
+  sample: boolean;
+}
+
+/** Preview (mock) mode only: the photo the stored mock scan was made from. */
+export interface SamplePhoto {
+  url: string;
+  width: number;
+  height: number;
+  /** The photo's bytes, saved with the preview reading instead of the visitor's photo. */
+  load(): Promise<Blob>;
 }
 
 export interface FlowState {
@@ -91,6 +141,11 @@ export interface FlowState {
   lastNotice: boolean;
   /** The reading revealed just now (its lines draw in once); null for a reading opened later. */
   fresh: string | null;
+  /**
+   * guestNotMoved: Google (or a code) signed in to an EXISTING account, so the guest's
+   * reading stays in this browser only and was not moved into it (owner, case 2).
+   */
+  notice: 'guestNotMoved' | null;
 }
 
 export interface FlowDeps {
@@ -112,13 +167,33 @@ export interface FlowDeps {
   lineDrawMs?: number;
   /** After this long in one reading, say it is slow and offer "Try again". */
   slowAfterMs?: number;
+  /** Preview (mock) mode: draw and keep the lines on this sample palm, never on the visitor's photo. */
+  sample?: SamplePhoto;
+  /**
+   * The page plays the live scan before the report (WEB-DEC-043): a finished
+   * reading waits in stage `done` until endShow() ("Skip" or the show's end).
+   */
+  holdForShow?: boolean;
+  /** This browser had a real account and is signed out now: ask to sign in instead of making a new guest (case 20). */
+  hadAccount?(): boolean;
 }
 
 const MAIN_LINES: readonly TracedLineName[] = ['life', 'head', 'heart', 'fate'];
+
+/** What the scan found, carried on the working screen for the live scan. */
+interface ScanFound {
+  lines: TracedLine[];
+  hand: StoredHand | null;
+  side: HandSide;
+}
 /** A pass lasts 10 minutes on the server; ask again a little before. */
 const PASS_REUSE_MS = 9 * 60_000;
 
-/** The scanner's accepted main lines (normalised polylines), drawn in the order life, head, heart, fate. */
+/**
+ * The scanner's accepted main lines (normalised polylines), in the order life,
+ * head, heart, fate. `faint`: the crease was seen weakly (pixel_confidence
+ * below the app's LIVE_FAINT_BELOW, 0.6), drawn dashed as in the app.
+ */
 export function tracedLinesFromScan(response: LineServiceResponse): TracedLine[] {
   const lines = response.lines;
   if (!lines) return [];
@@ -126,18 +201,31 @@ export function tracedLinesFromScan(response: LineServiceResponse): TracedLine[]
   for (const type of MAIN_LINES) {
     const line = lines[type];
     if (line && line.present && line.label === type && line.polyline.length >= 2) {
-      out.push({ type, path: line.polyline.map(([x, y]) => [x, y] as [number, number]) });
+      out.push({ type, path: line.polyline.map(([x, y]) => [x, y] as [number, number]), faint: line.pixel_confidence < LIVE_FAINT_BELOW });
     }
   }
   return out;
 }
 
-/** The observation's traced main lines (what the saved reading draws). */
-export function tracedLinesFromObservation(lines: readonly { type: string; visible: boolean; path?: [number, number][] | undefined }[]): TracedLine[] {
+/** The scanner's hand (21 landmarks, handedness, outline when sent); null when it found none. */
+export function handFromScan(response: LineServiceResponse): StoredHand | null {
+  const hand = response.hand;
+  if (!hand || hand.landmarks.length !== 21) return null;
+  const outline = hand.outline && hand.outline.length >= 8 ? hand.outline.map(([x, y]) => [x, y] as [number, number]) : null;
+  return { landmarks: hand.landmarks.map(([x, y]) => [x, y] as [number, number]), handedness: hand.handedness, outline };
+}
+
+/** The observation's traced main lines (what the saved reading draws); `faint` comes from the scan's lines. */
+export function tracedLinesFromObservation(
+  lines: readonly { type: string; visible: boolean; path?: [number, number][] | undefined }[],
+  scanned: readonly TracedLine[] = [],
+): TracedLine[] {
   const out: TracedLine[] = [];
   for (const type of MAIN_LINES) {
     const line = lines.find((l) => l.type === type);
-    if (line?.visible && line.path && line.path.length >= 2) out.push({ type, path: line.path });
+    if (line?.visible && line.path && line.path.length >= 2) {
+      out.push({ type, path: line.path, faint: scanned.find((s) => s.type === type)?.faint === true });
+    }
   }
   return out;
 }
@@ -146,6 +234,11 @@ export function dominantHandOf(side: HandSide, writes: boolean | null): Dominant
   if (writes === null) return 'unknown';
   if (writes) return side;
   return side === 'left' ? 'right' : 'left';
+}
+
+/** A preview reading from before WEB-DEC-043: the sample scan's lines on the visitor's own photo. */
+export function isStalePreview(reading: Pick<SavedReading, 'preview' | 'hand'>): boolean {
+  return reading.preview && reading.hand === undefined;
 }
 
 function otherSide(side: HandSide): HandSide {
@@ -182,6 +275,8 @@ export class ReadingFlow {
   private runId = 0;
   private passAt = 0;
   private slowTimer: ReturnType<typeof setTimeout> | null = null;
+  /** The live scan ended (or "Skip" was tapped) for the current run: the report opens as soon as it is saved. */
+  private showEnded = false;
 
   constructor(private readonly deps: FlowDeps) {
     this.state = {
@@ -196,6 +291,7 @@ export class ReadingFlow {
       readings: [],
       lastNotice: false,
       fresh: null,
+      notice: null,
     };
   }
 
@@ -233,7 +329,12 @@ export class ReadingFlow {
       this.set({ screen: { name: 'off' } });
       return;
     }
-    const readings = await this.deps.store.list().catch(() => [] as SavedReading[]);
+    const stored = await this.deps.store.list().catch(() => [] as SavedReading[]);
+    // Preview readings saved before WEB-DEC-043 drew the sample scan's lines on the visitor's
+    // own photo (owner: lines not on the real creases). They carry no `hand`: drop them.
+    const stale = stored.filter(isStalePreview);
+    for (const r of stale) await this.deps.store.remove(r.id).catch(() => undefined);
+    const readings = stored.filter((r) => !isStalePreview(r));
     // A stored session only: nobody is signed in on page load (invariant 5).
     const user = await this.deps.api.currentUser().catch(() => null);
     const balance = user ? await this.deps.api.balance().catch(() => null) : null;
@@ -270,8 +371,18 @@ export class ReadingFlow {
     }
     const gate = this.deps.checkPhoto(prepared.check, prepared.sourceWidth, prepared.sourceHeight);
     this.track(gate.passed ? 'photo_check_pass' : 'photo_check_fail', gate.passed ? '' : (gate.primaryIssue ?? ''));
-    const photo: PhotoInPlay = { prepared, url: this.deps.objectUrl(prepared.blob), key: newKey(), gate };
+    const url = this.deps.objectUrl(prepared.blob);
+    const sample = this.sample();
+    const shown: ShownPhoto = sample
+      ? { url: sample.url, width: sample.width, height: sample.height, sample: true }
+      : { url, width: prepared.scan.width, height: prepared.scan.height, sample: false };
+    const photo: PhotoInPlay = { prepared, url, key: newKey(), gate, shown };
     this.set({ photo, screen: { name: 'review' } });
+  }
+
+  /** Preview (mock) mode's sample palm; null in live mode. */
+  private sample(): SamplePhoto | null {
+    return this.deps.api?.mode === 'mock' ? (this.deps.sample ?? null) : null;
   }
 
   setHand(hand: HandSide): void {
@@ -299,6 +410,14 @@ export class ReadingFlow {
   async use(): Promise<void> {
     const photo = this.state.photo;
     if (!photo || !photo.gate.passed || !this.deps.api) return;
+    if (this.deps.hadAccount?.()) {
+      // Signed out on a browser that had an account: no silent new guest (and no new free reading).
+      const current = await this.deps.api.currentUser().catch(() => null);
+      if (!current) {
+        this.openSignup('signIn');
+        return;
+      }
+    }
     await this.run(photo);
   }
 
@@ -314,20 +433,37 @@ export class ReadingFlow {
 
   private cancelRun(): void {
     this.runId += 1;
+    this.showEnded = false;
     if (this.slowTimer) clearTimeout(this.slowTimer);
     this.slowTimer = null;
   }
 
-  private working(run: number, stage: Stage, lines: TracedLine[] | null = null): void {
+  private working(run: number, stage: Stage, found: ScanFound | null = null): void {
     if (run !== this.runId) return;
     const slow = this.state.screen.name === 'working' ? this.state.screen.slow : false;
-    this.set({ screen: { name: 'working', stage, lines, slow } });
+    this.set({ screen: { name: 'working', stage, lines: found?.lines ?? null, hand: found?.hand ?? null, side: found?.side ?? null, slow, readingId: null } });
+  }
+
+  /**
+   * The live scan finished, or "Skip to my reading" was tapped: the report
+   * opens now if the reading is saved, else the moment it is.
+   */
+  endShow(): void {
+    this.showEnded = true;
+    const screen = this.state.screen;
+    if (screen.name === 'working' && screen.stage === 'done' && screen.readingId) this.reveal(screen.readingId);
+  }
+
+  private reveal(readingId: string, patch: Partial<FlowState> = {}): void {
+    // The photo now belongs to the saved reading; a new one starts clean.
+    this.state = { ...this.state, photo: null };
+    this.set({ ...patch, screen: { name: 'revealed', readingId } });
   }
 
   private async run(photo: PhotoInPlay): Promise<void> {
     this.cancelRun();
     const run = this.runId;
-    this.set({ screen: { name: 'working', stage: 'gating', lines: null, slow: false }, sheet: null });
+    this.set({ screen: { name: 'working', stage: 'gating', lines: null, hand: null, side: null, slow: false, readingId: null }, sheet: null });
     if (this.deps.slowAfterMs) {
       this.slowTimer = setTimeout(() => {
         const screen = this.state.screen;
@@ -416,15 +552,17 @@ export class ReadingFlow {
     if (scan.status !== 'ok') throw new ReadingError('scanner_unavailable', scan.reason);
     const side = analysedSide(scan.response, hand);
     const lines = tracedLinesFromScan(scan.response);
+    const found: ScanFound = { lines, hand: handFromScan(scan.response), side };
 
-    // 3. Lines found: the real lines draw on the photo.
-    this.working(run, 'found', lines);
+    // 3. Lines found: the real hand and lines draw on the photo (the live scan).
+    this.working(run, 'found', found);
     this.track('lines_found');
-    await this.deps.sleep(this.deps.lineDrawMs ?? 1400);
+    const drawMs = this.deps.lineDrawMs ?? 1400;
+    if (drawMs > 0) await this.deps.sleep(drawMs);
     if (run !== this.runId) return;
 
     // 4. Reading: extract-palm through the app's own pipeline (charges the free reading; refunds a bad photo).
-    this.working(run, 'reading', lines);
+    this.working(run, 'reading', found);
     let outcome;
     try {
       outcome = await runReading({
@@ -451,23 +589,38 @@ export class ReadingFlow {
     if (run !== this.runId) return;
 
     // 5. Writing: locks applied BEFORE anything is stored or shown.
-    this.working(run, 'writing', lines);
+    this.working(run, 'writing', found);
     const synthesis: FinishedSynthesis | null = hasFinishedReading(outcome.synthesis)
       ? lockSynthesis(outcome.synthesis as FinishedSynthesis, FREE_LOCKED_SECTIONS)
       : null;
     await this.completeWithRetry(session.id, outcome);
     if (run !== this.runId) return;
 
-    const drawn = tracedLinesFromObservation(outcome.observation.lines);
+    let drawn = tracedLinesFromObservation(outcome.observation.lines, lines);
+    let savedHand = found.hand;
+    let kept: { blob: Blob; width: number; height: number } = { blob: photo.prepared.blob, width: photo.prepared.scan.width, height: photo.prepared.scan.height };
+    const sample = photo.shown.sample ? this.sample() : null;
+    if (sample) {
+      // Preview: the stored scan belongs to the sample palm, so the reading keeps THAT photo.
+      try {
+        kept = { blob: await sample.load(), width: sample.width, height: sample.height };
+      } catch {
+        // Never draw the sample's lines on the visitor's photo.
+        drawn = [];
+        savedHand = null;
+      }
+      if (run !== this.runId) return;
+    }
     const reading: SavedReading = {
       id: session.id,
       createdAt: this.now().toISOString(),
       handSide: side,
-      photo: photo.prepared.blob,
-      photoWidth: photo.prepared.scan.width,
-      photoHeight: photo.prepared.scan.height,
+      photo: kept.blob,
+      photoWidth: kept.width,
+      photoHeight: kept.height,
       lines: drawn,
       missing: MAIN_LINES.filter((type) => !drawn.some((l) => l.type === type)),
+      hand: savedHand,
       synthesis,
       preview: api.mode === 'mock',
     };
@@ -475,17 +628,13 @@ export class ReadingFlow {
     const balance = await api.balance().catch(() => this.state.balance);
     this.track('reading_done', number);
     const readings = [...this.state.readings.filter((r) => r.id !== reading.id), reading];
-    // The photo now belongs to the saved reading; a new one starts clean.
-    this.state = { ...this.state, photo: null };
-    this.set({
-      readings,
-      balance,
-      lastNotice: false,
-      hand: otherSide(side),
-      writes: null,
-      screen: { name: 'revealed', readingId: reading.id },
-      fresh: reading.id,
-    });
+    const saved = { readings, balance, lastNotice: false, hand: otherSide(side), writes: null, fresh: reading.id };
+    if (this.deps.holdForShow && !this.showEnded && run === this.runId) {
+      // The live scan is still playing: the report opens on endShow().
+      this.set({ ...saved, screen: { name: 'working', stage: 'done', lines, hand: found.hand, side, slow: false, readingId: reading.id } });
+      return;
+    }
+    this.reveal(reading.id, saved);
   }
 
   /** complete_reading is idempotent: a dropped answer is retried twice before giving up. */
@@ -562,9 +711,52 @@ export class ReadingFlow {
     this.set({ sheet: { kind: 'lock', section } });
   }
 
-  openSignup(): void {
+  openSignup(reason: 'signup' | 'signIn' = 'signup'): void {
     this.track('signup_start');
-    this.set({ sheet: { kind: 'signup', step: 'email', email: '', via: 'email_change', busy: false, message: null } });
+    this.set({ sheet: { kind: 'signup', step: 'email', email: '', via: 'email_change', busy: false, message: null, reason } });
+  }
+
+  dismissNotice(): void {
+    this.set({ notice: null });
+  }
+
+  /**
+   * "Continue with Google" (WEB-DEC-045): the ID token from Google's button or One Tap.
+   * A guest links it (same account: the reading and its free count stay); an existing
+   * Google account signs in instead and the guest reading stays in this browser only.
+   * The visitor stays where they were: the photo they picked, or the report they read.
+   */
+  async google(token: string, nonce: string): Promise<void> {
+    const api = this.deps.api;
+    if (!api) return;
+    const sheet = this.state.sheet;
+    if (sheet?.kind === 'signup') this.set({ sheet: { ...sheet, busy: true, message: null } });
+    const outcome = await api.googleSignIn(token, nonce).catch(() => ({ ok: false as const, reason: 'offline' as const }));
+    if (!outcome.ok) {
+      const current = this.state.sheet;
+      if (current?.kind === 'signup') this.set({ sheet: { ...current, busy: false, message: GOOGLE_MESSAGE[outcome.reason] } });
+      else this.set({ sheet: { kind: 'signup', step: 'email', email: '', via: 'email_change', busy: false, message: GOOGLE_MESSAGE[outcome.reason] } });
+      return;
+    }
+    this.track('signup_done');
+    const user = await api.currentUser().catch(() => this.state.user);
+    const balance = await api.balance().catch(() => this.state.balance);
+    const notice = outcome.switched ? ('guestNotMoved' as const) : null;
+    if (balance && balance.freeRemaining === 0) {
+      this.set({ user, balance, sheet: null, notice });
+      this.showZero();
+      return;
+    }
+    const screen = this.state.screen;
+    const stay = screen.name === 'review' || screen.name === 'revealed' || screen.name === 'zero';
+    this.set({
+      user,
+      balance,
+      sheet: null,
+      notice,
+      lastNotice: Boolean(balance && balance.freeNow > 0 && balance.freeRemaining === 1),
+      ...(stay ? {} : { screen: { name: 'idle' } as Screen }),
+    });
   }
 
   closeSheet(): void {

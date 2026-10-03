@@ -30,6 +30,8 @@ For copy, also use `content-writer`; for head tags, `seo-page`.
 | 9 | Hand-type quiz | `/tools/hand-type-quiz/` | 2 measurements: palm shape, finger length | Earth, air, fire or water + a share card | Rules. **Source to settle first** (CONTENT_GUIDE §9.4) | what hand type do I have | P2 |
 | 10 | Palm signs checker | `/tools/palm-signs-checker/` | Tick the signs you see (M, cross, star, triangle, fish, island) | Traditional meanings + sources | Rules; no app rule exists, so the meanings are cited from the books | palm signs checker | P2 |
 | 11 | Interactive palm map | `/tools/palm-map/` | Tap a line or mount | Meaning sheet + guide link + "See it on your palm" | Static (lesson content) | interactive palm reading chart | P1 |
+| 13 | Finger reader (v3) | `/tools/finger-reader/` | Own palm photo | Index vs ring, thumb angle + length, gaps, little finger, measured on the photo + book meanings with sources | **On-device AI hand model** (MediaPipe), rules for meanings | palmistry finger reader | P2 |
+| 14 | Left vs right hand (v3) | `/tools/left-vs-right-palm/` | Two photos | Both hands measured side by side, real differences only; lines of both via the scan step (opens soon) | On-device hand model; line half = AI scan | compare left and right palm | P2 |
 | 12 | Palm reading quiz | `/tools/palm-reading-quiz/` | 10 questions on diagrams | Score card (shareable, no personal data) | Static (web version of the app's lesson quizzes) | palm reading quiz | P2 |
 
 - **Tool ↔ guide pairs:** SEO_PLAYBOOK §11.
@@ -63,7 +65,7 @@ For copy, also use `content-writer`; for head tags, `seo-page`.
 | 3 | Runs on your phone — your photo never leaves this device. |
 | 4–7 | Traditional meanings from classical books — not AI. No photo needed. |
 | 8 | Based on palmistry tradition — not AI. |
-| 9 | Your measurements, matched to hand types — not AI. |
+| 9, 13, 14 | Finds your hand with an AI model that runs on your phone. Your photo never leaves this device. (14 adds the scanner wording once its line half goes live; WEB-DEC-039) |
 | 10 | You tick what you see; meanings come from classical books — not AI. |
 | 11 | A map of traditional meanings — not AI. |
 | 12 | A quiz on diagrams — no photo needed. |
@@ -116,7 +118,7 @@ For copy, also use `content-writer`; for head tags, `seo-page`.
 ## Verify checklist (before a tool page ships)
 
 - [ ] The URL and keyword match KEYWORD_MAP §3; the title, meta and H1 match SEO_PLAYBOOK §5 (lengths checked).
-- [ ] The honesty label is exact; AI is mentioned only on tools 1–2.
+- [ ] The honesty label is exact; AI is mentioned on tools 1–2 (server scanner) and 9, 13, 14 (on-device hand model), nowhere else.
 - [ ] Every result text equals the rule meaning (or a cited book passage for tools 9–10) and carries its source chip.
 - [ ] No prediction, blocked claim or banned word; the limits box is present; tool 6 has the care line.
 - [ ] 400–900 unique words under the tool; no copy of the guide's variation cards.

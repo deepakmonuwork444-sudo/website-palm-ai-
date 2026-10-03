@@ -26,6 +26,10 @@
 | Page views, Web Vitals | Cloudflare Web Analytics, no cookies | Aggregated | |
 | Funnel counts | `log_event_counts` daily totals, no user ID | Per migration 0021 | Web events need S10 |
 | Email address (after sign-up) | Supabase Auth; the email provider sends the code (S8) | Until account deletion | Only account email until an opt-in list exists |
+| Google sign-in: name, given name, email and profile-photo **link** from the Google ID token | Supabase Auth `auth.users` metadata + identity (WEB-DEC-045). The website shows only an initial, never loads the photo | Until account deletion | **Stored by Supabase** — never say the Google name "stays only on this device" |
+| Website readings (observation + report) of a signed-in user | Supabase `palm_observations` / `reading_reports` under the account; listed on `/account/` (any device) and in the app's History | Until the user deletes them or the account | The photo is NOT there: it stays on the device where it was taken |
+| Name typed on `/account/` | Browser `localStorage` (`palmsays-me`) only | Until sign-out "remove" or clearing | Never sent |
+| "This browser had an account" flag | Browser `localStorage` (`palmsays-had-account`) | Until clearing | Not personal data (case 20) |
 
 **Processors to name on `/privacy/`:** Modal (USA) — line tracing; Cloudflare — hosting, proxy, Workers AI, Turnstile, Web Analytics; Supabase — database and sign-in; the email provider once chosen (e.g. Brevo, S8).
 
@@ -54,11 +58,17 @@ Use these as written. Changing the meaning needs a check against §1 and an upda
 | Sentence (EN / HI) | Where | Must be true |
 |---|---|---|
 | "Photo not stored on servers" (bottom CTA bar chip) | Mobile bottom bar | [verify] providers keep nothing |
+| "Runs on your phone: your photo never leaves this device. Nothing is uploaded or saved." (photo tools 9, 13, 14; checker: "Runs on your phone: your photo never leaves this device."; no em dash since the writing standard, WEB-DEC-057) | Under the photo buttons, once per tool | The hand model and pixel checks run in the page; `tests/e2e/photo-tools.mjs` fails if any request after the pick is not a GET to this site; a photo handed to the next tool sits in this tab's sessionStorage only until that page reads it (WEB-DEC-039). The model pages add only `'wasm-unsafe-eval'` + `blob:` (connect) to their CSP |
 | "No cookies, no ad trackers" | Footer | Devtools shows **no cookie** on the live site (watch `__cf_bm` from Cloudflare bot features and Turnstile storage) |
 | "We never ask for card or UPI on this website." / "इस वेबसाइट पर हम कभी कार्ड या UPI नहीं मांगते।" | Hero chip, lock, zero state | No payments on the web (WEB-DEC-010) |
-| "We don't sell your data, and there are no ads — ever." / "हम आपका डेटा नहीं बेचते, और कोई विज्ञापन नहीं — कभी नहीं।" | Footer, privacy, sign-up | No ad pixels; analytics list matches the policy |
-| "This photo didn't work — and it didn't use up your free reading." / "यह फ़ोटो काम नहीं आई — और आपकी मुफ़्त रीडिंग ख़र्च नहीं हुई।" | Failed photo | Local check blocks before sending; 422/503 refunded; [verify] retry + idempotency (D24) |
+| "We don't sell your data, and there are no ads, ever." / "हम आपका डेटा नहीं बेचते, और कोई विज्ञापन नहीं, कभी नहीं।" (em dash removed 2026-10-01, WEB-DEC-057) | Footer, privacy, sign-up | No ad pixels; analytics list matches the policy |
+| "This photo didn't work, and it didn't use up your free reading." / "यह फ़ोटो काम नहीं आई, और आपकी मुफ़्त रीडिंग ख़र्च नहीं हुई।" | Failed photo | Local check blocks before sending; 422/503 refunded; [verify] retry + idempotency (D24) |
 | "Readings are for people 18+" | Footer, sign-up | WEB-DEC-012 |
+| "Same account works in the PalmSays app." / "यही अकाउंट PalmSays ऐप में भी चलता है।" | Sign-in card, sheets, /account/ | Same Supabase project + same Google Web client ID (WEB-DEC-045) |
+| "Kept in this browser only." (the name typed on /account/) | /account/ name field | `palmsays-me` in localStorage, never sent. **Never** say this about the Google name: Supabase stores Google's name, email and photo link in the account |
+| "The photo stays only on the device where it was taken." | /account/ My readings | Photos are never uploaded for storage; server readings have no photo |
+| "Signs out of this browser only. The app on your phone stays signed in." | /account/ | `signOut({ scope: 'local' })` (tests/unit/auth.test.ts) |
+| "The reading you made before signing in stays in this browser only — it was not moved into this account." | After Google/code sign-in to an EXISTING account (case 2) | Owner 2026-09-27: no server move |
 
 **Never use** (all are false for the web path): "sent once", "never stored", "we keep nothing", "deleted right after", "used once to find your lines, then deleted", "we don't keep it", and any claim that the reading data is not stored. Also avoid [rec]: "100% private", "military-grade", "fully anonymous" (IP codes and the email code are kept).
 
@@ -97,6 +107,8 @@ Each item must have evidence (link, screenshot, test) in `PROJECT_MASTER.md` bef
 - `Referrer-Policy: strict-origin-when-cross-origin` (so Play and analytics see our referrer); stricter (e.g. `no-referrer`) on `/reading/`, `/account/`, `/delete-account/`, `/reset-password/`
 - `X-Frame-Options: DENY` and CSP `frame-ancestors 'none'` (header only)
 - `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()` — the `capture` file input still opens the phone camera app
+  - **Exception (WEB-DEC-059):** `camera=(self)` (same origin only; microphone, geolocation, payment, usb stay `()`) on `/reading/*`, `/tools/hand-type-quiz/*`, `/tools/finger-reader/*`, `/tools/palm-photo-checker/*`, `/tools/palm-line-finder/*`, `/tools/left-vs-right-palm/*`, for the laptop "Use laptop camera" dialog. Cloudflare joins a header set by two matching rules with a comma, so each block first detaches the `/*` value (`! Permissions-Policy`) and then sets the whole policy again. Checked with `wrangler dev` on the built site: those 6 paths send one header with `camera=(self)`, every other page `camera=()`. [verify once live] `curl -sI https://palmsays.com/reading/ | grep -i permissions-policy`.
+  - **What the webcam sends:** nothing by itself. The live video is only shown in the dialog on the device and is never recorded or sent; every track stops when the dialog closes. Only the one photo the person chooses ("Use this photo") goes on, as a JPEG through exactly the same path as an uploaded photo (the reading: resized + re-encoded in the browser, two small copies via our proxy, as in the privacy rows; the on-device tools: never leaves the device). The privacy lines on the pages stay true unchanged.
 
 **CSP:** Astro's built-in CSP (hashes of its own scripts and styles) plus:
 ```
@@ -107,6 +119,8 @@ frame-src https://challenges.cloudflare.com; worker-src 'self' blob:;
 object-src 'none'; base-uri 'none'; form-action 'self'
 ```
 No `unsafe-eval`. `'wasm-unsafe-eval'` only on `/reading/`, and only if a WASM decoder (HEIC, MediaPipe) is ever added. Adding any new origin to the CSP needs a line in this file.
+
+**Google sign-in (WEB-DEC-045), ONLY on `/account/`, `/hi/account/` and `/reading/`** (`src/lib/auth/csp.ts`, Google's documented list, no wildcards): `script-src https://accounts.google.com/gsi/client`, `frame-src https://accounts.google.com/gsi/`, `connect-src https://accounts.google.com/gsi/`, `style-src 'self' https://accounts.google.com/gsi/style` (`'self'` re-added: Astro drops its default once a style source is added). No COOP header (if one is ever added: `same-origin-allow-popups`). `/account/*` and `/hi/account/*` keep `Referrer-Policy: strict-origin-when-cross-origin` (Google's button needs the origin) — never `no-referrer` there. The header's inline account script is allowed by its SHA-256 (added in `BaseLayout`). [verify once live] GIS may set a first-party `g_state` cookie (One Tap cool-down) — check against the footer's "No cookies" claim.
 
 ## 6. Secrets
 

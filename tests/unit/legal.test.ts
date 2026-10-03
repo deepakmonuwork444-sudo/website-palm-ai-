@@ -1,6 +1,20 @@
 import { describe, expect, it } from 'vitest';
 
-import { PREVIEW_PLACEHOLDERS, publicKeyProblem, renderLegal, resolveLegalValues, sha256Source } from '../../src/lib/legal';
+import { readFileSync } from 'node:fs';
+
+import { findPage } from '../../src/config/pages';
+import {
+  GRIEVANCE_PLACEHOLDER,
+  LEGACY_LEGAL_TARGETS,
+  LEGAL_PAGES,
+  PREVIEW_PLACEHOLDERS,
+  legacyRedirectHtml,
+  publicKeyProblem,
+  renderLegal,
+  resolveCompany,
+  resolveLegalValues,
+  sha256Source,
+} from '../../src/lib/legal';
 
 const jwt = (payload: object) => ['e30', Buffer.from(JSON.stringify(payload)).toString('base64url'), 'sig'].join('.');
 
@@ -81,5 +95,69 @@ describe('renderLegal', () => {
     expect(renderLegal('t', plain, values)).not.toContain('robots');
     const already = '<meta charset="utf-8" /><meta name="robots" content="noindex" />';
     expect(renderLegal('t', already, values, { forceNoindex: true }).match(/name="robots"/g)).toHaveLength(1);
+  });
+});
+
+describe('resolveCompany (owner item 9)', () => {
+  const none = { name: null, email: null, grievanceContact: null };
+
+  it('shows visible placeholders on a preview build that check-web can find', () => {
+    const company = resolveCompany(none, false);
+    expect(company.name).toBe(PREVIEW_PLACEHOLDERS.operatorName);
+    expect(company.email).toBe(PREVIEW_PLACEHOLDERS.contactEmail);
+    expect(company.grievanceContact).toBe(GRIEVANCE_PLACEHOLDER);
+    expect(company.missing).toEqual(['company.name', 'company.email', 'company.grievanceContact']);
+    // scripts/check-web.mjs reports these exact markers (an error on a production build).
+    for (const value of [company.name, company.email, company.grievanceContact]) {
+      expect(value).toMatch(/\[OWNER NAME|owner@example\.invalid/);
+    }
+  });
+
+  it('refuses a production build without the real details, and passes with them', () => {
+    expect(() => resolveCompany(none, true)).toThrow(/company\.name, company\.email, company\.grievanceContact/);
+    const real = { name: 'Example Pvt Ltd', email: 'hello@palmsays.com', grievanceContact: 'A. Person, grievance@palmsays.com' };
+    expect(resolveCompany(real, true)).toEqual({ ...real, missing: [] });
+  });
+});
+
+describe('frozen legal URLs (F3)', () => {
+  it('public/_redirects sends all 8 variants to the new pages with a 301', () => {
+    const rules = readFileSync('public/_redirects', 'utf8')
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith('#'))
+      .map((line) => line.split(/\s+/));
+    const expected = LEGAL_PAGES.flatMap((name) => [
+      [`/${name}.html`, LEGACY_LEGAL_TARGETS[name], '301'],
+      [`/${name}`, LEGACY_LEGAL_TARGETS[name], '301'],
+    ]);
+    expect(rules).toEqual(expected);
+    for (const name of LEGAL_PAGES) {
+      expect(LEGACY_LEGAL_TARGETS[name]).toBe(`/${name}/`);
+      expect(findPage(LEGACY_LEGAL_TARGETS[name])).toBeDefined();
+    }
+  });
+
+  it('keeps a noindex fallback file at each .html URL that forwards with the query and #… part', () => {
+    for (const name of LEGAL_PAGES) {
+      const html = legacyRedirectHtml(name, { brand: 'Palm<Says', baseUrl: 'https://palmsays.com/' });
+      const target = LEGACY_LEGAL_TARGETS[name];
+      expect(html).toContain('<meta name="robots" content="noindex" />');
+      expect(html).toContain(`<link rel="canonical" href="https://palmsays.com${target}" />`);
+      expect(html).toContain(`content="0; url=${target}"`);
+      expect(html).toContain('Palm&#60;Says');
+      expect(html.match(/<h1>/g)).toHaveLength(1);
+      const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? '';
+      expect(script).toBe(`location.replace("${target}"+location.search+location.hash);`);
+      expect(html).toContain(sha256Source(script));
+    }
+  });
+
+  it('registers the new pages, with delete-account and reset-password noindex', () => {
+    expect(findPage('/privacy/')?.indexable).toBe(true);
+    expect(findPage('/terms/')?.indexable).toBe(true);
+    expect(findPage('/delete-account/')?.indexable).toBe(false);
+    expect(findPage('/reset-password/')?.indexable).toBe(false);
+    for (const legacy of ['/privacy', '/terms', '/delete-account', '/reset-password']) expect(findPage(legacy)?.indexable).toBe(false);
   });
 });

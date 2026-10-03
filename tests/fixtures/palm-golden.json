@@ -1,5 +1,5 @@
 {
- "note": "Computed by the APP's compiled code (commit 38389f51b74d) from src/lib/reading/mock/*.json. Written by scripts/sync-palm-lib.mjs; never edit.",
+ "note": "Computed by the APP's compiled code (commit fbc2232d837f) from src/lib/reading/mock/*.json. Written by scripts/sync-palm-lib.mjs; never edit.",
  "observation": {
   "schemaVersion": 1,
   "capturedAt": "<time>",
@@ -732,9 +732,7 @@
    }
   ],
   "mounts": [],
-  "warnings": [
-   "Mounts and hand shape come from the general vision model and are read at lower confidence."
-  ],
+  "warnings": [],
   "extractor": {
    "provider": "cloudflare-workers-ai",
    "model": "mock",
@@ -853,6 +851,12 @@
     ]
    ],
    "palmWidthNormalized": 0.307,
+   "image": {
+    "width": 360,
+    "height": 480
+   },
+   "handedness": "Left",
+   "handednessScore": 0.966,
    "geometry": {
     "version": "2026-09-19.1",
     "headLifeGap": 0.044,

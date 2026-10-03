@@ -42,6 +42,84 @@ export const PREVIEW_PLACEHOLDERS = {
   supabaseKey: 'sb_publishable_preview',
 } as const;
 
+/** Visible placeholder for the grievance contact; the "[OWNER NAME" prefix is what check-web looks for. */
+export const GRIEVANCE_PLACEHOLDER = '[OWNER NAME: set company.grievanceContact in src/config/site.ts]';
+
+export interface CompanyDetails {
+  name: string;
+  email: string;
+  grievanceContact: string;
+  /** Names of the site.ts fields still showing a placeholder (preview builds only; production throws). */
+  missing: string[];
+}
+
+/**
+ * The operator details the trust and legal pages print (owner item 9). A preview build shows
+ * visible placeholders, which check-web reports (a warning on preview, an error on production);
+ * a production build refuses to render without the real values.
+ */
+export function resolveCompany(
+  company: { name: string | null; email: string | null; grievanceContact: string | null },
+  production: boolean,
+): CompanyDetails {
+  const missing: string[] = [];
+  const pick = (value: string | null, field: string, placeholder: string): string => {
+    const trimmed = value?.trim();
+    if (trimmed) return trimmed;
+    missing.push(`company.${field}`);
+    return placeholder;
+  };
+  const details: CompanyDetails = {
+    name: pick(company.name, 'name', PREVIEW_PLACEHOLDERS.operatorName),
+    email: pick(company.email, 'email', PREVIEW_PLACEHOLDERS.contactEmail),
+    grievanceContact: pick(company.grievanceContact, 'grievanceContact', GRIEVANCE_PLACEHOLDER),
+    missing,
+  };
+  if (production && missing.length) {
+    throw new Error(`Trust and legal pages: missing ${missing.join(', ')} in src/config/site.ts for a production build (owner item 9).`);
+  }
+  return details;
+}
+
+/** The four frozen legacy URLs and the page each one now lives at (ARCHITECTURE.md §11 F3). */
+export const LEGACY_LEGAL_TARGETS: Record<LegalPage, string> = {
+  privacy: '/privacy/',
+  terms: '/terms/',
+  'delete-account': '/delete-account/',
+  'reset-password': '/reset-password/',
+};
+
+/**
+ * The fallback file kept at a frozen `.html` URL. In production public/_redirects answers
+ * these URLs with a 301 before any file is looked at (Workers: "redirects are always followed,
+ * regardless of whether or not an asset matches"), so this page is only seen if the redirect
+ * is ever removed: it then sends the visitor on, keeping the query and the #… part.
+ */
+export function legacyRedirectHtml(name: LegalPage, { brand, baseUrl }: { brand: string; baseUrl: string }): string {
+  const target = LEGACY_LEGAL_TARGETS[name];
+  const script = `location.replace(${JSON.stringify(target)}+location.search+location.hash);`;
+  const safeBrand = escapeHtml(brand);
+  const absolute = `${baseUrl.replace(/\/+$/, '')}${target}`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${sha256Source(script)}; base-uri 'none'; form-action 'none'" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<meta http-equiv="refresh" content="0; url=${target}" />
+<link rel="canonical" href="${absolute}" />
+<title>This page has moved | ${safeBrand}</title>
+<script>${script}</script>
+</head>
+<body>
+<h1>This page has moved</h1>
+<p><a href="${target}">Open the ${safeBrand} page at ${absolute}</a></p>
+</body>
+</html>
+`;
+}
+
 /**
  * Why `key` must not be published in a web page, or null when it is a public
  * key: a legacy JWT whose role is "anon", or an `sb_publishable_…` key.

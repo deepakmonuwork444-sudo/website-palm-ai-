@@ -1,28 +1,26 @@
-import type { LineFinder, ThumbPath } from '../finder';
+import type { LineFinder } from '../finder';
 import type { Cite } from '../sources';
 
 /** Head line finder (tool 5). Rules copied from the app's corpus-rules.ts, 2026-09-26. */
 
-const PFA: Cite = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. II — The Line of Head' };
-const PFA_CLASSES: Cite = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. XVII — Different Classes of Lines' };
-const LOTH: Cite = { book: 'cheiro-language-of-the-hand-1900', locator: 'Part II, ch. VII — The Line of Head, pp. 87–90' };
-const LOTH_LIFE: Cite = { book: 'cheiro-language-of-the-hand-1900', locator: 'Part II, ch. V — The Line of Life, pp. 79–85' };
+const PFA: Cite = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. II: The Line of Head' };
+const PFA_CLASSES: Cite = { book: 'cheiro-palmistry-for-all-1916', locator: 'Part I, ch. XVII: Different Classes of Lines' };
+const LOTH: Cite = { book: 'cheiro-language-of-the-hand-1900', locator: 'Part II, ch. VII: The Line of Head, pp. 87–90' };
+const LOTH_LIFE: Cite = { book: 'cheiro-language-of-the-hand-1900', locator: 'Part II, ch. V: The Line of Life, pp. 79–85' };
 const MARKUN: Cite = { book: 'markun-what-you-should-know-about-palmistry-1927', locator: 'the section on the Line of the Head' };
-const GUIDE: Cite = { book: 'cheiro-guide-to-the-hand-1900', locator: 'Ch. XII — The Line of Head, pp. 79–82' };
-const GUIDE_LIFE: Cite = { book: 'cheiro-guide-to-the-hand-1900', locator: 'Ch. XI — The Line of Life, pp. 71–72' };
+const GUIDE: Cite = { book: 'cheiro-guide-to-the-hand-1900', locator: 'Ch. XII: The Line of Head, pp. 79–82' };
+const GUIDE_LIFE: Cite = { book: 'cheiro-guide-to-the-hand-1900', locator: 'Ch. XI: The Line of Life, pp. 71–72' };
 const FRITH: Cite = { book: 'frith-practical-palmistry-1895', locator: 'The Head Line, pp. 65–68' };
-const HAM: Cite = { book: 'heron-allen-manual-of-cheirosophy-1885', locator: 'Cheiromancy, § 3 — The Line of Head, p. 250' };
+const HAM: Cite = { book: 'heron-allen-manual-of-cheirosophy-1885', locator: 'Cheiromancy, § 3: The Line of Head, p. 250' };
 const HAP: Cite = { book: 'heron-allen-practical-cheirosophy-1887', locator: 'The Line of Head, p. 113' };
 const DESB: Cite = { book: 'desbarrolles-chiromancie-nouvelle-1859', locator: 'Ligne de tête, pp. 220–221' };
-const BENHAM: Cite = { book: 'benham-laws-of-scientific-hand-reading-1900', locator: 'Part II, ch. VI — The Line of Head, pp. 426–443' };
+const BENHAM: Cite = { book: 'benham-laws-of-scientific-hand-reading-1900', locator: 'Part II, ch. VI: The Line of Head, pp. 426–443' };
 const RAPH: Cite = { book: 'raphael-cheirosophy-1901', locator: 'The Head Line, pp. 113–115' };
 const STH: Cite = { book: 'st-hill-grammar-of-palmistry-1893', locator: 'Line of Head (Cerebral), pp. 40–42' };
 const SG: Cite = { book: 'saint-germain-practice-of-palmistry-1900', locator: 'The Line of Head, pp. 214–223' };
-const DALE_LIVER: Cite = { book: 'dale-indian-palmistry-1895', locator: 'The Liver Line — the old name for the head line' };
+const DALE_LIVER: Cite = { book: 'dale-indian-palmistry-1895', locator: 'The Liver Line (the old name for the head line)' };
 const DALE_LIFE: Cite = { book: 'dale-indian-palmistry-1895', locator: 'The Line of Life' };
 
-const BASE = 'M160 158 C 132 162, 100 172, 68 190';
-const LIFE: ThumbPath = { d: 'M160 164 C 134 178, 122 206, 130 244', line: 'life' };
 
 export const HEAD_FINDER: LineFinder = {
   line: 'head',
@@ -32,9 +30,9 @@ export const HEAD_FINDER: LineFinder = {
       legend: 'What shape is your head line?',
       help: 'It is the line across the middle of your palm, starting near the thumb.',
       options: [
-        { value: 'straight', label: 'Straight, almost level', evidence: 'A straight head line', set: { curvature: 'straight' }, thumb: [{ d: 'M160 158 C 130 160, 98 162, 62 166', line: 'head' }] },
-        { value: 'gentle', label: 'Gently sloping', evidence: 'A gently sloping head line', set: { curvature: 'gentle' }, thumb: [{ d: 'M160 158 C 132 162, 100 170, 66 184', line: 'head' }] },
-        { value: 'curved', label: 'Curving down steeply', evidence: 'A steeply curving head line', set: { curvature: 'curved' }, thumb: [{ d: 'M160 158 C 130 164, 98 186, 80 216', line: 'head' }] },
+        { value: 'straight', label: 'Straight, almost level', evidence: 'A straight head line', set: { curvature: 'straight' } },
+        { value: 'gentle', label: 'Gently sloping', evidence: 'A gently sloping head line', set: { curvature: 'gentle' } },
+        { value: 'curved', label: 'Curving down steeply', evidence: 'A steeply curving head line', set: { curvature: 'curved' } },
       ],
     },
     {
@@ -42,47 +40,47 @@ export const HEAD_FINDER: LineFinder = {
       legend: 'Where does it start, next to the life line?',
       help: 'The life line is the curve around your thumb.',
       options: [
-        { value: 'joined', label: 'Joined to the life line at the start', evidence: 'Joined to the life line at the start', set: { join: 'joined' }, thumb: [LIFE, { d: 'M159 164 C 132 164, 100 172, 68 190', line: 'head' }] },
-        { value: 'separate', label: 'Just apart from the life line', evidence: 'Starts just apart from the life line', set: { join: 'separate' }, thumb: [LIFE, { d: 'M156 150 C 130 156, 100 168, 68 188', line: 'head' }] },
-        { value: 'wide', label: 'Well apart, with a wide gap', evidence: 'A wide gap from the life line', set: { join: 'wide' }, thumb: [LIFE, { d: 'M148 138 C 126 148, 98 164, 68 186', line: 'head' }] },
-        { value: 'index', label: 'Higher up, under the index finger', evidence: 'Starts under the index finger', set: { start: 'jupiter' }, thumb: [LIFE, { d: 'M146 128 C 134 146, 100 166, 68 188', line: 'head' }] },
-        { value: 'inside', label: 'Inside the life line, near the thumb', evidence: 'Starts inside the life line', set: { start: 'mars_negative' }, thumb: [LIFE, { d: 'M170 180 C 142 170, 104 174, 68 190', line: 'head' }] },
+        { value: 'joined', label: 'Joined to the life line at the start', evidence: 'Joined to the life line at the start', set: { join: 'joined' } },
+        { value: 'separate', label: 'Just apart from the life line', evidence: 'Starts just apart from the life line', set: { join: 'separate' } },
+        { value: 'wide', label: 'Well apart, with a wide gap', evidence: 'A wide gap from the life line', set: { join: 'wide' } },
+        { value: 'index', label: 'Higher up, under the index finger', evidence: 'Starts under the index finger', set: { start: 'jupiter' } },
+        { value: 'inside', label: 'Inside the life line, near the thumb', evidence: 'Starts inside the life line', set: { start: 'mars_negative' } },
       ],
     },
     {
       id: 'length',
       legend: 'How long is it?',
       options: [
-        { value: 'long', label: 'Long: reaches the outer edge area', evidence: 'A long head line', set: { length: 'long' }, thumb: [{ d: 'M160 158 C 130 162, 96 170, 58 182', line: 'head' }] },
-        { value: 'short', label: 'Short: stops near the middle of the palm', evidence: 'A short head line', set: { length: 'short' }, thumb: [{ d: 'M160 158 C 144 160, 128 164, 112 168', line: 'head' }] },
+        { value: 'long', label: 'Long: reaches the outer edge area', evidence: 'A long head line', set: { length: 'long' } },
+        { value: 'short', label: 'Short: stops near the middle of the palm', evidence: 'A short head line', set: { length: 'short' } },
       ],
     },
     {
       id: 'end',
       legend: 'Where does it end?',
       options: [
-        { value: 'outer', label: 'At the outer edge, fairly level', evidence: 'Ends on the outer edge, fairly level', set: { end: 'mars_positive' }, thumb: [{ d: 'M160 158 C 130 160, 96 166, 58 170', line: 'head' }] },
-        { value: 'moon', label: 'Low on the outer palm, towards the wrist', evidence: 'Ends low on the outer palm (Mount of the Moon)', set: { end: 'luna' }, thumb: [{ d: 'M160 158 C 130 164, 98 186, 78 214', line: 'head' }] },
-        { value: 'middle', label: 'Curving up under the middle finger', evidence: 'Ends under the middle finger', set: { end: 'saturn' }, thumb: [{ d: 'M160 158 C 138 158, 124 150, 120 136', line: 'head' }] },
-        { value: 'ring', label: 'Curving up under the ring finger', evidence: 'Ends under the ring finger', set: { end: 'apollo' }, thumb: [{ d: 'M160 158 C 132 160, 100 152, 92 138', line: 'head' }] },
-        { value: 'little', label: 'Curving up under the little finger', evidence: 'Ends under the little finger', set: { end: 'mercury' }, thumb: [{ d: 'M160 158 C 128 160, 84 158, 66 144', line: 'head' }] },
+        { value: 'outer', label: 'At the outer edge, fairly level', evidence: 'Ends on the outer edge, fairly level', set: { end: 'mars_positive' } },
+        { value: 'moon', label: 'Low on the outer palm, towards the wrist', evidence: 'Ends low on the outer palm (Mount of the Moon)', set: { end: 'luna' } },
+        { value: 'middle', label: 'Curving up under the middle finger', evidence: 'Ends under the middle finger', set: { end: 'saturn' } },
+        { value: 'ring', label: 'Curving up under the ring finger', evidence: 'Ends under the ring finger', set: { end: 'apollo' } },
+        { value: 'little', label: 'Curving up under the little finger', evidence: 'Ends under the little finger', set: { end: 'mercury' } },
       ],
     },
     {
       id: 'depth',
       legend: 'How clearly is it marked?',
       options: [
-        { value: 'deep', label: 'Deep and clearly cut', evidence: 'A deep, clearly marked head line', set: { depth: 'deep' }, thumb: [{ d: BASE, line: 'head', style: 'thick' }] },
-        { value: 'faint', label: 'Faint, lying on the surface', evidence: 'A faint head line', set: { depth: 'faint' }, thumb: [{ d: BASE, line: 'head', style: 'thin' }] },
+        { value: 'deep', label: 'Deep and clearly cut', evidence: 'A deep, clearly marked head line', set: { depth: 'deep' } },
+        { value: 'faint', label: 'Faint, lying on the surface', evidence: 'A faint head line', set: { depth: 'faint' } },
       ],
     },
     {
       id: 'continuity',
       legend: 'Is it one unbroken line?',
       options: [
-        { value: 'unbroken', label: 'Yes, unbroken', evidence: 'An unbroken head line', set: { continuity: 'continuous' }, thumb: [{ d: BASE, line: 'head' }] },
-        { value: 'broken', label: 'It has a break (a gap)', evidence: 'A break in the head line', set: { continuity: 'broken' }, thumb: [{ d: 'M160 158 C 144 160, 128 164, 114 167', line: 'head' }, { d: 'M106 171 C 94 176, 80 182, 68 190', line: 'head' }] },
-        { value: 'chained', label: 'It looks like a chain of small loops', evidence: 'A chained head line', set: { continuity: 'chained' }, thumb: [{ d: BASE, line: 'head', style: 'chain' }] },
+        { value: 'unbroken', label: 'Yes, unbroken', evidence: 'An unbroken head line', set: { continuity: 'continuous' } },
+        { value: 'broken', label: 'It has a break (a gap)', evidence: 'A break in the head line', set: { continuity: 'broken' } },
+        { value: 'chained', label: 'It looks like a chain of small loops', evidence: 'A chained head line', set: { continuity: 'chained' } },
       ],
     },
     {
@@ -90,7 +88,7 @@ export const HEAD_FINDER: LineFinder = {
       legend: 'Does it split into a fork at the end?',
       help: 'Often called the writer’s fork.',
       options: [
-        { value: 'yes', label: 'Yes, a fork', evidence: 'A fork at the end', set: { fork: 1 }, thumb: [{ d: 'M160 158 C 132 162, 104 170, 88 178', line: 'head' }, { d: 'M88 178 C 78 180, 70 182, 60 182', line: 'head' }, { d: 'M88 178 C 80 186, 74 194, 68 204', line: 'head' }] },
+        { value: 'yes', label: 'Yes, a fork', evidence: 'A fork at the end', set: { fork: 1 } },
         { value: 'no', label: 'No fork', evidence: 'No fork', set: { fork: 0 } },
       ],
     },

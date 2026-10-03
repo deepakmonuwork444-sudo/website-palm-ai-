@@ -1,0 +1,1297 @@
+{
+ "version": "1.0.0",
+ "ontologyVersion": "2026-09-19.2",
+ "model": {
+  "name": "palm4_v2/palm4_v2@8a252bb",
+  "sha256": "8a252bbc1920cb2a907cae7bc26529de242fd018d1fb48cfac110fbdb8fdc052"
+ },
+ "image": {
+  "width": 960,
+  "height": 1280
+ },
+ "hand": {
+  "handedness": "Left",
+  "handednessScore": 0.947,
+  "landmarks": [
+   [
+    0.4112,
+    0.93
+   ],
+   [
+    0.2419,
+    0.8197
+   ],
+   [
+    0.1805,
+    0.6744
+   ],
+   [
+    0.1723,
+    0.5489
+   ],
+   [
+    0.1416,
+    0.4395
+   ],
+   [
+    0.3799,
+    0.51
+   ],
+   [
+    0.3904,
+    0.3469
+   ],
+   [
+    0.4173,
+    0.2557
+   ],
+   [
+    0.4516,
+    0.1738
+   ],
+   [
+    0.5016,
+    0.5172
+   ],
+   [
+    0.5337,
+    0.3344
+   ],
+   [
+    0.5525,
+    0.2287
+   ],
+   [
+    0.5722,
+    0.1334
+   ],
+   [
+    0.603,
+    0.5524
+   ],
+   [
+    0.649,
+    0.3907
+   ],
+   [
+    0.6633,
+    0.2947
+   ],
+   [
+    0.6741,
+    0.206
+   ],
+   [
+    0.7007,
+    0.614
+   ],
+   [
+    0.7539,
+    0.4975
+   ],
+   [
+    0.7716,
+    0.4226
+   ],
+   [
+    0.7854,
+    0.3475
+   ]
+  ],
+  "palmWidth": 335.5,
+  "palmWidthNormalized": 0.3495,
+  "outline": [
+   [
+    0.5963,
+    0.0972
+   ],
+   [
+    0.5444,
+    0.1
+   ],
+   [
+    0.5259,
+    0.1139
+   ],
+   [
+    0.5185,
+    0.1417
+   ],
+   [
+    0.5074,
+    0.1472
+   ],
+   [
+    0.4815,
+    0.1361
+   ],
+   [
+    0.4444,
+    0.1417
+   ],
+   [
+    0.3963,
+    0.2
+   ],
+   [
+    0.3556,
+    0.2806
+   ],
+   [
+    0.3296,
+    0.3611
+   ],
+   [
+    0.3185,
+    0.4861
+   ],
+   [
+    0.2963,
+    0.5472
+   ],
+   [
+    0.263,
+    0.6
+   ],
+   [
+    0.2407,
+    0.5972
+   ],
+   [
+    0.2259,
+    0.475
+   ],
+   [
+    0.1963,
+    0.425
+   ],
+   [
+    0.163,
+    0.4056
+   ],
+   [
+    0.1333,
+    0.4056
+   ],
+   [
+    0.1037,
+    0.425
+   ],
+   [
+    0.1111,
+    0.6833
+   ],
+   [
+    0.1222,
+    0.7222
+   ],
+   [
+    0.1852,
+    0.8444
+   ],
+   [
+    0.2481,
+    0.8944
+   ],
+   [
+    0.2148,
+    0.9972
+   ],
+   [
+    0.5556,
+    0.9972
+   ],
+   [
+    0.5852,
+    0.9417
+   ],
+   [
+    0.6704,
+    0.8472
+   ],
+   [
+    0.7259,
+    0.7528
+   ],
+   [
+    0.7963,
+    0.5222
+   ],
+   [
+    0.8148,
+    0.35
+   ],
+   [
+    0.8074,
+    0.3306
+   ],
+   [
+    0.7889,
+    0.3194
+   ],
+   [
+    0.763,
+    0.3194
+   ],
+   [
+    0.7481,
+    0.3278
+   ],
+   [
+    0.7259,
+    0.4278
+   ],
+   [
+    0.7111,
+    0.4556
+   ],
+   [
+    0.6889,
+    0.4611
+   ],
+   [
+    0.7,
+    0.2028
+   ],
+   [
+    0.6704,
+    0.1833
+   ],
+   [
+    0.6444,
+    0.1833
+   ],
+   [
+    0.6148,
+    0.1972
+   ],
+   [
+    0.6037,
+    0.1917
+   ],
+   [
+    0.6185,
+    0.1139
+   ]
+  ]
+ },
+ "quality": {
+  "ok": true,
+  "reasons": [],
+  "metrics": {
+   "palmWidthPx": 335.5,
+   "palmWidthFraction": 0.3495,
+   "handednessScore": 0.947,
+   "chiralityMatchesDeclaredSide": true,
+   "laplacianVariance": 91.88,
+   "meanLuminance": 143.2,
+   "clippedFraction": 0,
+   "creaseStrength": 3.749
+  }
+ },
+ "lines": {
+  "heart": {
+   "present": true,
+   "label": "heart",
+   "model_class": "heart",
+   "flagged": false,
+   "pixel_confidence": 0.999,
+   "semantic_confidence": 1,
+   "polyline": [
+    [
+     0.727,
+     0.6796
+    ],
+    [
+     0.7152,
+     0.6744
+    ],
+    [
+     0.702,
+     0.6708
+    ],
+    [
+     0.6899,
+     0.6659
+    ],
+    [
+     0.6769,
+     0.662
+    ],
+    [
+     0.6651,
+     0.6568
+    ],
+    [
+     0.6519,
+     0.6532
+    ],
+    [
+     0.64,
+     0.6481
+    ],
+    [
+     0.6273,
+     0.6439
+    ],
+    [
+     0.6156,
+     0.6385
+    ],
+    [
+     0.6039,
+     0.6332
+    ],
+    [
+     0.5929,
+     0.6269
+    ],
+    [
+     0.5814,
+     0.6212
+    ],
+    [
+     0.5707,
+     0.6146
+    ],
+    [
+     0.559,
+     0.6092
+    ],
+    [
+     0.5485,
+     0.6024
+    ],
+    [
+     0.5382,
+     0.5954
+    ],
+    [
+     0.5278,
+     0.5884
+    ],
+    [
+     0.5173,
+     0.5816
+    ],
+    [
+     0.5076,
+     0.5738
+    ],
+    [
+     0.4979,
+     0.5659
+    ],
+    [
+     0.4894,
+     0.5569
+    ],
+    [
+     0.4843,
+     0.5472
+    ],
+    [
+     0.4794,
+     0.5375
+    ],
+    [
+     0.4726,
+     0.5281
+    ],
+    [
+     0.4658,
+     0.5187
+    ],
+    [
+     0.459,
+     0.5094
+    ],
+    [
+     0.4509,
+     0.5002
+    ],
+    [
+     0.4454,
+     0.4906
+    ]
+   ],
+   "start": [
+    0.727,
+    0.6796
+   ],
+   "end": [
+    0.4454,
+    0.4906
+   ],
+   "normalized_length": 1.19,
+   "length_class": "medium",
+   "length_band": "borderline",
+   "length_alt": "long",
+   "partial": false,
+   "curvature": {
+    "chord_arc_ratio": 0.9085,
+    "net_turning_deg": 36.4,
+    "class": "gentle"
+   },
+   "continuity": "continuous",
+   "breaks": [],
+   "forks": [],
+   "depth_proxy": {
+    "value": 0.1712,
+    "class": "moderate"
+   },
+   "start_zone": "mercury",
+   "end_zone": "jupiter",
+   "pieces": 1,
+   "semantic": {
+    "checks": [
+     {
+      "id": "upper_band",
+      "metric": "mean_v",
+      "value": 0.0747,
+      "passed": true,
+      "hard": true,
+      "min": -0.05,
+      "max": 0.4
+     },
+     {
+      "id": "not_on_fingers",
+      "metric": "finger_fraction",
+      "value": 0.0949,
+      "passed": true,
+      "hard": true,
+      "max": 0.35
+     },
+     {
+      "id": "inside_palm",
+      "metric": "inside_palm_fraction",
+      "value": 0.927,
+      "passed": true,
+      "hard": true,
+      "min": 0.7
+     },
+     {
+      "id": "spans_palm",
+      "metric": "u_span",
+      "value": 1.0259,
+      "passed": true,
+      "hard": true,
+      "min": 0.25
+     },
+     {
+      "id": "runs_across",
+      "metric": "u_span",
+      "value": 1.0259,
+      "passed": true,
+      "hard": false,
+      "min": 0.6
+     },
+     {
+      "id": "starts_little_finger_side",
+      "metric": "start_u",
+      "value": 1.1684,
+      "passed": true,
+      "hard": true,
+      "min": 0.5
+     },
+     {
+      "id": "ends_index_middle_side",
+      "metric": "end_u",
+      "value": 0.1425,
+      "passed": true,
+      "hard": false,
+      "max": 0.45
+     },
+     {
+      "id": "roughly_horizontal",
+      "metric": "chord_angle_across_deg",
+      "value": 18.4429,
+      "passed": true,
+      "hard": true,
+      "max": 35
+     }
+    ],
+    "metrics": {
+     "mean_v": 0.0747,
+     "finger_fraction": 0.0949,
+     "inside_palm_fraction": 0.927,
+     "u_span": 1.0259,
+     "v_span": 0.2396,
+     "start_u": 1.1684,
+     "start_v": 0.1392,
+     "end_u": 0.1425,
+     "end_v": -0.0992,
+     "max_u": 1.1684,
+     "chord_angle_across_deg": 18.4429,
+     "bulge_u": -0.0427,
+     "length_norm": 1.1903
+    }
+   }
+  },
+  "head": {
+   "present": true,
+   "label": "head",
+   "model_class": "head",
+   "flagged": false,
+   "pixel_confidence": 0.987,
+   "semantic_confidence": 1,
+   "polyline": [
+    [
+     0.3337,
+     0.5474
+    ],
+    [
+     0.3435,
+     0.5553
+    ],
+    [
+     0.3563,
+     0.5595
+    ],
+    [
+     0.3696,
+     0.5632
+    ],
+    [
+     0.383,
+     0.5668
+    ],
+    [
+     0.3949,
+     0.572
+    ],
+    [
+     0.4083,
+     0.5756
+    ],
+    [
+     0.4203,
+     0.5809
+    ],
+    [
+     0.4322,
+     0.5862
+    ],
+    [
+     0.4442,
+     0.5914
+    ],
+    [
+     0.4558,
+     0.5972
+    ],
+    [
+     0.4655,
+     0.6051
+    ],
+    [
+     0.4753,
+     0.613
+    ],
+    [
+     0.4841,
+     0.6222
+    ],
+    [
+     0.4928,
+     0.6313
+    ],
+    [
+     0.4997,
+     0.6408
+    ],
+    [
+     0.5066,
+     0.6502
+    ],
+    [
+     0.5116,
+     0.66
+    ],
+    [
+     0.5166,
+     0.6698
+    ],
+    [
+     0.5254,
+     0.6789
+    ],
+    [
+     0.5342,
+     0.6881
+    ],
+    [
+     0.5411,
+     0.6975
+    ],
+    [
+     0.5498,
+     0.7067
+    ],
+    [
+     0.5567,
+     0.7161
+    ],
+    [
+     0.5675,
+     0.7228
+    ]
+   ],
+   "start": [
+    0.3337,
+    0.5474
+   ],
+   "end": [
+    0.5675,
+    0.7228
+   ],
+   "normalized_length": 1.031,
+   "length_class": "medium",
+   "length_band": "firm",
+   "length_alt": null,
+   "partial": false,
+   "curvature": {
+    "chord_arc_ratio": 0.9182,
+    "net_turning_deg": 26,
+    "class": "gentle"
+   },
+   "continuity": "continuous",
+   "breaks": [],
+   "forks": [],
+   "depth_proxy": {
+    "value": 0.0911,
+    "class": "moderate"
+   },
+   "start_zone": "jupiter",
+   "end_zone": "mars_positive",
+   "pieces": 1,
+   "semantic": {
+    "checks": [
+     {
+      "id": "middle_band",
+      "metric": "mean_v",
+      "value": 0.2069,
+      "passed": true,
+      "hard": true,
+      "min": 0.1,
+      "max": 0.65
+     },
+     {
+      "id": "not_on_fingers",
+      "metric": "finger_fraction",
+      "value": 0,
+      "passed": true,
+      "hard": true,
+      "max": 0.05
+     },
+     {
+      "id": "inside_palm",
+      "metric": "inside_palm_fraction",
+      "value": 1,
+      "passed": true,
+      "hard": true,
+      "min": 0.8
+     },
+     {
+      "id": "starts_in_thumb_half",
+      "metric": "start_u",
+      "value": -0.0648,
+      "passed": true,
+      "hard": true,
+      "max": 0.7
+     },
+     {
+      "id": "starts_thumb_side",
+      "metric": "start_u",
+      "value": -0.0648,
+      "passed": true,
+      "hard": false,
+      "max": 0.2
+     },
+     {
+      "id": "spans_palm",
+      "metric": "u_span",
+      "value": 0.8796,
+      "passed": true,
+      "hard": true,
+      "min": 0.2
+     },
+     {
+      "id": "runs_across",
+      "metric": "u_span",
+      "value": 0.8796,
+      "passed": true,
+      "hard": false,
+      "min": 0.5
+     },
+     {
+      "id": "across_or_sloping",
+      "metric": "chord_angle_across_deg",
+      "value": 21.6514,
+      "passed": true,
+      "hard": true,
+      "max": 50
+     },
+     {
+      "id": "below_heart",
+      "metric": "below_heart_v",
+      "value": 0.1322,
+      "passed": true,
+      "hard": true,
+      "min": 0.03
+     },
+     {
+      "id": "starts_near_life",
+      "metric": "start_distance_to_life",
+      "value": 0.0933,
+      "passed": true,
+      "hard": false,
+      "max": 0.35
+     }
+    ],
+    "metrics": {
+     "mean_v": 0.2069,
+     "finger_fraction": 0,
+     "inside_palm_fraction": 1,
+     "u_span": 0.8796,
+     "v_span": 0.2445,
+     "start_u": -0.0648,
+     "start_v": 0.1276,
+     "end_u": 0.8148,
+     "end_v": 0.3708,
+     "max_u": 0.8148,
+     "chord_angle_across_deg": 21.6514,
+     "bulge_u": 0.0375,
+     "length_norm": 1.0306,
+     "below_heart_v": 0.1322,
+     "start_distance_to_life": 0.0933
+    }
+   }
+  },
+  "life": {
+   "present": true,
+   "label": "life",
+   "model_class": "life",
+   "flagged": false,
+   "pixel_confidence": 0.985,
+   "semantic_confidence": 1,
+   "polyline": [
+    [
+     0.3015,
+     0.5434
+    ],
+    [
+     0.3133,
+     0.5465
+    ],
+    [
+     0.3232,
+     0.5546
+    ],
+    [
+     0.3332,
+     0.5625
+    ],
+    [
+     0.3453,
+     0.5678
+    ],
+    [
+     0.3569,
+     0.5739
+    ],
+    [
+     0.3679,
+     0.5807
+    ],
+    [
+     0.3778,
+     0.5887
+    ],
+    [
+     0.3867,
+     0.598
+    ],
+    [
+     0.3937,
+     0.6076
+    ],
+    [
+     0.3988,
+     0.6176
+    ],
+    [
+     0.404,
+     0.6275
+    ],
+    [
+     0.4091,
+     0.6374
+    ],
+    [
+     0.4136,
+     0.6475
+    ],
+    [
+     0.4164,
+     0.6578
+    ],
+    [
+     0.4192,
+     0.6682
+    ],
+    [
+     0.4223,
+     0.6785
+    ],
+    [
+     0.4249,
+     0.6888
+    ],
+    [
+     0.4277,
+     0.6992
+    ],
+    [
+     0.4284,
+     0.7099
+    ],
+    [
+     0.4307,
+     0.7203
+    ],
+    [
+     0.4309,
+     0.7311
+    ],
+    [
+     0.431,
+     0.7419
+    ],
+    [
+     0.4312,
+     0.7527
+    ],
+    [
+     0.4287,
+     0.764
+    ],
+    [
+     0.4263,
+     0.7753
+    ],
+    [
+     0.4226,
+     0.786
+    ],
+    [
+     0.419,
+     0.7967
+    ],
+    [
+     0.4142,
+     0.8069
+    ],
+    [
+     0.4095,
+     0.8171
+    ],
+    [
+     0.4041,
+     0.827
+    ],
+    [
+     0.3976,
+     0.8364
+    ],
+    [
+     0.3929,
+     0.8466
+    ],
+    [
+     0.3858,
+     0.8557
+    ],
+    [
+     0.3775,
+     0.8643
+    ],
+    [
+     0.3716,
+     0.874
+    ]
+   ],
+   "start": [
+    0.3015,
+    0.5434
+   ],
+   "end": [
+    0.3716,
+    0.874
+   ],
+   "normalized_length": 1.525,
+   "length_class": "long",
+   "length_band": "firm",
+   "length_alt": null,
+   "partial": false,
+   "curvature": {
+    "chord_arc_ratio": 0.8373,
+    "net_turning_deg": 75.7,
+    "class": "curved"
+   },
+   "continuity": "continuous",
+   "breaks": [],
+   "forks": [],
+   "depth_proxy": {
+    "value": 0.1577,
+    "class": "moderate"
+   },
+   "start_zone": "jupiter",
+   "end_zone": "wrist",
+   "pieces": 1,
+   "semantic": {
+    "checks": [
+     {
+      "id": "starts_high",
+      "metric": "start_v",
+      "value": 0.1434,
+      "passed": true,
+      "hard": true,
+      "max": 0.6
+     },
+     {
+      "id": "starts_thumb_side",
+      "metric": "start_u",
+      "value": -0.1553,
+      "passed": true,
+      "hard": false,
+      "max": 0.2
+     },
+     {
+      "id": "runs_toward_wrist",
+      "metric": "end_v",
+      "value": 0.8945,
+      "passed": true,
+      "hard": false,
+      "min": 0.42
+     },
+     {
+      "id": "spans_down",
+      "metric": "v_span",
+      "value": 0.7597,
+      "passed": true,
+      "hard": true,
+      "min": 0.15
+     },
+     {
+      "id": "runs_down",
+      "metric": "v_span",
+      "value": 0.7597,
+      "passed": true,
+      "hard": false,
+      "min": 0.25
+     },
+     {
+      "id": "stays_thumb_side",
+      "metric": "max_u",
+      "value": 0.5465,
+      "passed": true,
+      "hard": true,
+      "max": 1
+     },
+     {
+      "id": "arcs_around_thenar",
+      "metric": "bulge_u",
+      "value": 0.2134,
+      "passed": true,
+      "hard": true,
+      "min": -0.03
+     },
+     {
+      "id": "inside_palm",
+      "metric": "inside_palm_fraction",
+      "value": 1,
+      "passed": true,
+      "hard": true,
+      "min": 0.75
+     }
+    ],
+    "metrics": {
+     "mean_v": 0.4593,
+     "finger_fraction": 0,
+     "inside_palm_fraction": 1,
+     "u_span": 0.7018,
+     "v_span": 0.7597,
+     "start_u": -0.1553,
+     "start_v": 0.1434,
+     "end_u": 0.5291,
+     "end_v": 0.8945,
+     "max_u": 0.5465,
+     "chord_angle_across_deg": 57.5929,
+     "bulge_u": 0.2134,
+     "length_norm": 1.5252,
+     "below_heart_v": 0.3846
+    }
+   }
+  },
+  "fate": {
+   "present": true,
+   "label": "fate",
+   "model_class": "fate",
+   "flagged": false,
+   "pixel_confidence": 0.984,
+   "semantic_confidence": 1,
+   "polyline": [
+    [
+     0.4699,
+     0.7737
+    ],
+    [
+     0.4717,
+     0.7654
+    ],
+    [
+     0.4735,
+     0.7571
+    ],
+    [
+     0.4777,
+     0.7499
+    ],
+    [
+     0.4852,
+     0.7442
+    ],
+    [
+     0.491,
+     0.7378
+    ],
+    [
+     0.4946,
+     0.7303
+    ],
+    [
+     0.4938,
+     0.7224
+    ],
+    [
+     0.4939,
+     0.7144
+    ],
+    [
+     0.4929,
+     0.7066
+    ],
+    [
+     0.4913,
+     0.6989
+    ],
+    [
+     0.491,
+     0.6909
+    ],
+    [
+     0.492,
+     0.6828
+    ],
+    [
+     0.4915,
+     0.6749
+    ],
+    [
+     0.4907,
+     0.667
+    ],
+    [
+     0.4899,
+     0.6592
+    ],
+    [
+     0.4864,
+     0.6518
+    ],
+    [
+     0.4835,
+     0.6443
+    ],
+    [
+     0.4788,
+     0.6372
+    ],
+    [
+     0.476,
+     0.6297
+    ]
+   ],
+   "start": [
+    0.4699,
+    0.7737
+   ],
+   "end": [
+    0.476,
+    0.6297
+   ],
+   "normalized_length": 0.611,
+   "length_class": "medium",
+   "length_band": "firm",
+   "length_alt": null,
+   "partial": false,
+   "curvature": {
+    "chord_arc_ratio": 0.9004,
+    "net_turning_deg": 40.7,
+    "class": "gentle"
+   },
+   "continuity": "continuous",
+   "breaks": [],
+   "forks": [],
+   "depth_proxy": {
+    "value": 0.0437,
+    "class": "faint"
+   },
+   "start_zone": "plain_of_mars",
+   "end_zone": "saturn",
+   "pieces": 1,
+   "semantic": {
+    "checks": [
+     {
+      "id": "inside_palm",
+      "metric": "inside_palm_fraction",
+      "value": 1,
+      "passed": true,
+      "hard": true,
+      "min": 0.6
+     },
+     {
+      "id": "not_on_fingers",
+      "metric": "finger_fraction",
+      "value": 0,
+      "passed": true,
+      "hard": true,
+      "max": 0.2
+     },
+     {
+      "id": "runs_up_the_palm",
+      "metric": "chord_angle_across_deg",
+      "value": 68.4441,
+      "passed": true,
+      "hard": true,
+      "min": 45
+     },
+     {
+      "id": "min_length",
+      "metric": "length_norm",
+      "value": 0.6106,
+      "passed": true,
+      "hard": true,
+      "min": 0.2
+     },
+     {
+      "id": "spans_up",
+      "metric": "v_span",
+      "value": 0.3563,
+      "passed": true,
+      "hard": true,
+      "min": 0.15
+     },
+     {
+      "id": "starts_lower_palm",
+      "metric": "start_v",
+      "value": 0.5721,
+      "passed": true,
+      "hard": true,
+      "min": 0.3
+     },
+     {
+      "id": "starts_low",
+      "metric": "start_v",
+      "value": 0.5721,
+      "passed": true,
+      "hard": false,
+      "min": 0.42
+     },
+     {
+      "id": "ends_upper_palm",
+      "metric": "end_v",
+      "value": 0.2159,
+      "passed": true,
+      "hard": true,
+      "max": 0.45
+     },
+     {
+      "id": "reaches_up",
+      "metric": "end_v",
+      "value": 0.2159,
+      "passed": true,
+      "hard": false,
+      "max": 0.37
+     },
+     {
+      "id": "ends_toward_middle_finger",
+      "metric": "end_u",
+      "value": 0.4334,
+      "passed": true,
+      "hard": true,
+      "min": 0.2,
+      "max": 0.8
+     },
+     {
+      "id": "not_the_life_line",
+      "metric": "overlap_life",
+      "value": 0,
+      "passed": true,
+      "hard": true,
+      "max": 0.7
+     },
+     {
+      "id": "not_the_head_line",
+      "metric": "overlap_head",
+      "value": 0.3415,
+      "passed": true,
+      "hard": true,
+      "max": 0.7
+     }
+    ],
+    "metrics": {
+     "mean_v": 0.3874,
+     "finger_fraction": 0,
+     "inside_palm_fraction": 1,
+     "u_span": 0.2072,
+     "v_span": 0.3563,
+     "start_u": 0.6354,
+     "start_v": 0.5721,
+     "end_u": 0.4334,
+     "end_v": 0.2159,
+     "max_u": 0.6406,
+     "chord_angle_across_deg": 68.4441,
+     "bulge_u": 0.054,
+     "length_norm": 0.6106,
+     "overlap_heart": 0,
+     "overlap_life": 0,
+     "overlap_head": 0.3415,
+     "below_heart_v": 0.3127,
+     "start_distance_to_life": 1.0019
+    }
+   }
+  }
+ },
+ "notAnalysed": [
+  "sun",
+  "mercury",
+  "relationship",
+  "travel",
+  "intuition",
+  "girdle_of_venus"
+ ],
+ "analysedSide": "left",
+ "sideCorrected": false,
+ "timingsMs": {
+  "decode": 57,
+  "landmarks": 36,
+  "outline": 192,
+  "crop": 18,
+  "quality": 2,
+  "model": 227,
+  "postprocess": 75,
+  "total": 954
+ }
+}

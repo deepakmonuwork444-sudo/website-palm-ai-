@@ -17,6 +17,7 @@ Versions are the npm latest on 2026-09-26 (R09 §1.1). At the scaffold, re-check
 | `react`, `react-dom` | 19.3.0 | Islands only |
 | `tailwindcss` + `@tailwindcss/vite` | 4.3.3 | `@theme` tokens (`DESIGN_SYSTEM.md`) |
 | `@supabase/supabase-js` | 2.117.2 | Auth + RPC, **only via `api.palmsays.com`** |
+| `@mediapipe/tasks-vision` | 1.0.1 (Apache-2.0) | On-device hand landmarks for the photo tools (v3, WEB-DEC-039); wasm self-hosted from the package, model in `public/models/`, loaded only after a photo is picked |
 | `wrangler` | 4.141.0 | Deploy, previews, rollback |
 | `zod` | 4 (the one Astro ships) | Content schemas |
 | `pagefind` | 1.5.2 | P3 only (search at ~40 posts) |
@@ -49,6 +50,8 @@ palm-ai-website/
   src/lib/reading/palm/   COPIED from the app by scripts/sync-palm-lib.mjs + SOURCE.md (commit, date, files, sha256) — WEB-DEC-037.
                           Never edit by hand — re-sync.
   src/lib/web/            supabase.ts (proxy URL), image.ts, quality.ts, api.ts, idb.ts, events.ts, store-link.ts
+  src/lib/entities.ts     entity registry: palmistry terms, verified Wikidata ids, about/mentions per page (WEB-DEC-049)
+  src/lib/schema.ts       JSON-LD builders; BaseLayout joins them into one @graph per page (WEB-DEC-049)
   src/pages/              index, [...slug] (guides, both languages), tools/<slug>, blog/…, app, reading, account,
                           privacy, terms, delete-account, reset-password, 404, robots.txt.ts, llms.txt.ts,
                           .well-known/assetlinks.json.ts, og/[...path].png.ts, hi/…
@@ -77,7 +80,7 @@ Legend — **Rendering:** SSG = static HTML; +island = one interactive component
 | `/which-hand-to-read/` | Guide; links to tool 8 | SSG | yes | `/hi/which-hand-to-read/` (P2) | no | P1 |
 | `/tools/` | Tools hub (links all 12, tool 1 = `/`) | SSG | yes | `/hi/tools/` (P2) | no | P1 |
 | `/app/` | App page | SSG + 1 KB device script | yes | `/hi/app/` | no | P1 |
-| `/account/` | Readings left, delete data, sign out | client-only | noindex | — | no | P1 |
+| `/account/`, `/hi/account/` | Sign in (Google + 6-digit email code), name, free readings left, My readings (server, locked like the web report), Get the app, sign out (this browser), delete account link (WEB-FEAT-029/062) | client-only island | noindex, not in sitemap, no hreflang pair (language switch via `langPath`) | — | no | P1 |
 | `/privacy/`, `/terms/` | Legal | SSG | yes | Hindi summary later | no | P1 |
 | `/delete-account/`, `/reset-password/` | Account pages | SSG + small island | noindex | — | no | P1 |
 | `/privacy.html`, `/terms.html`, `/delete-account.html`, `/reset-password.html` | **Frozen legacy URLs** (app + Play Console) | 301 → the URL above | — | — | no | P1 |
@@ -89,23 +92,34 @@ Legend — **Rendering:** SSG = static HTML; +island = one interactive component
 | `/.well-known/assetlinks.json` | App Links proof | build file; `application/json`, no redirect; skipped while the SHA list is empty | — | — | — | P1 (on with S9) |
 | `/og/<path>.png` | Share images | build file, one per language | — | — | — | P1 |
 
-### Tools — all 12 standalone (WEB-DEC-006)
+### Tools — standalone pages (WEB-DEC-006; v3 photo tools WEB-DEC-039)
 
 Slugs for tools 4–11 are **proposals**: the plan does not fix them. `KEYWORD_MAP.md` sets the final slug before first publish; after that the slug is frozen and this table must match it. Tool result states (e.g. `?shape=forked`) never create indexable URLs.
 
 | # | Tool | URL | Rendering | Indexable | Hindi pair | Phase |
 |---|---|---|---|---|---|---|
 | 1 | Free AI palm reading | `/` → `/reading/` | as above | yes | `/hi/` | P1 |
-| 2 | Palm line finder (AI scan, no meanings) | `/tools/palm-line-finder/` | SSG; "opens soon" page until WEB-SRV-004 (live island later) | **no** while `webReadingEnabled` is false | later | P2 |
-| 3 | Palm photo checker (on-device) | `/tools/palm-photo-checker/` | SSG + plain TS | yes | `/hi/tools/palm-photo-checker/` (P2) | P1 |
+| 2 | Palm line finder (AI scan, no meanings) | `/tools/palm-line-finder/` | SSG + plain TS; wired to the reading API scan step (`src/lib/tools/line-scan.ts`): "opens soon" (no upload) until WEB-SRV-004 `lines_only` exists (`LINES_ONLY_SERVER`), mock on previews (`?reading=mock`) | **no** until `LINE_SCAN_LIVE` | later | P2 |
+| 3 | Palm photo checker (on-device pixel maths) | `/tools/palm-photo-checker/` | SSG + plain TS; a passing photo is handed to the photo tools (this tab only) | yes | `/hi/tools/palm-photo-checker/` (P2) | P1 |
 | 4–7 | Heart / head / life / fate line finder | `/tools/heart-line-finder/`, `/tools/head-line-finder/`, `/tools/life-line-finder/`, `/tools/fate-line-finder/` (KEYWORD_MAP §3) | SSG + plain TS | yes | later | P2 |
 | 8 | Which-hand quiz | `/tools/which-hand-quiz/` | SSG + plain TS | yes | later | P1 |
-| 9 | Hand type quiz | `/tools/hand-type-quiz/` (KEYWORD_MAP §3) | SSG + plain TS | yes | later | P2 |
+| 9 | Hand type from your photo (URL kept from the quiz; the quiz stays as the no-photo way) | `/tools/hand-type-quiz/` | SSG + plain TS + on-device hand model | yes | later | P2 |
 | 10 | Palm signs checker | `/tools/palm-signs-checker/` (KEYWORD_MAP §3) | SSG + plain TS | yes | later | P2 |
 | 11 | Interactive palm map | `/tools/palm-map/` | SSG + plain TS | yes | later | P1 |
 | 12 | Palm reading quiz | `/tools/palm-reading-quiz/` | SSG + plain TS | yes | later | P2 |
+| 13 | Finger reader (index vs ring, thumb, gaps) | `/tools/finger-reader/` | SSG + plain TS + on-device hand model | yes | later | P2 |
+| 14 | Left vs right hand | `/tools/left-vs-right-palm/` | SSG + plain TS + on-device hand model; line half = reading API scan step (off until WEB-SRV-004 `lines_only`) | yes | later | P2 |
 
 Built 2026-09-26 (tools session): slugs are now **frozen**. The rule-based tools and the photo checker use plain TypeScript, not React (DESIGN_SYSTEM.md §11: rule tools ≤ 10–20 KB; React + ReactDOM alone is ≈ 57 KB gzip). Logic and data live in `src/lib/tools/` (pure, unit-tested), markup in `src/components/tools/`, pages in `src/pages/tools/`; tool data is TypeScript, not a `src/content/tools/*.yaml` collection, so the rules are type-checked and tested.
+
+#### On-device hand model (photo tools 9, 13, 14; WEB-DEC-039)
+
+- **What:** MediaPipe Hand Landmarker (21 points per hand + left/right), npm `@mediapipe/tasks-vision` 1.0.1 and `hand_landmarker.task` float16 v1 (sha256 `fbc2a300…cde1`, 7.8 MB), both Apache-2.0; licence + source in `public/models/hand-landmarker/LICENSE.txt`. Nothing from a CDN: the wasm (11.8 MB SIMD / 11.0 MB fallback) and its loader are emitted by Vite from the package into `/_astro/` (hashed, immutable); the model sits in `/models/hand-landmarker/float16-1/` (`_headers`: immutable).
+- **Loading:** only after the visitor picks a photo (`src/lib/tools/hand/detector.ts`): our own fetch with a real byte count ("4.2 of 20 MB, once"), wasm handed over as a `blob:` URL (one download), model as a buffer; the HTTP cache keeps both. Photo downscaled to 768 px before the model; 0.3 confidence + a second pass with a 20 % grey border (recall 195 → 202 of 206 phone photos, many darker skin tones).
+- **CSP:** only these pages add `'wasm-unsafe-eval'` to script-src and `blob:` to connect-src (`src/lib/tools/hand/csp.ts` via `Astro.csp`); every other page keeps the strict policy. No inline `style` attributes (the hashed CSP blocks them).
+- **Privacy:** the photo is decoded, re-encoded without EXIF and measured in the page; the e2e run (`tests/e2e/photo-tools.mjs`) fails if any request after the pick is not a GET to this site. A photo handed between tools stays in this tab's `sessionStorage` for one page load.
+- **Maths:** `src/lib/tools/hand/` (pure, unit-tested: `measure.ts`, `verdict.ts`, `shape.ts`, `fingers.ts`, `compare.ts`); cut-offs in `cutoffs.ts`, set on 485 open-palm photos (Palmistry_seg, CC BY 4.0, app repo dataset).
+- **Budget:** check-web counts a photo-tool page (`data-tool-kind` hand/device/ai) against the 70 KB tool budget (QA_RELEASE.md §2.3; today 14–27 KB); the model and the MediaPipe runtime load after the pick and are not counted.
 
 ### P2 and P3 pages
 
@@ -117,7 +131,7 @@ Built 2026-09-26 (tools session): slugs are now **frozen**. The rule-based tools
 | `/simian-line/` | Sensitive guide (medical facts first) | SSG | yes | later | no | **P1-late** (KEYWORD_MAP v2; after the sourced medical section + owner OK) |
 | `/palmistry-pdf/` | Lead magnet (PDF file itself `X-Robots-Tag: noindex`) | SSG + opt-in island | yes | `/hi/palmistry-pdf/` | no | P2 |
 | `/about/`, `/about/<name>/`, `/editorial-policy/`, `/how-it-works/` | Trust pages | SSG | yes | later | no | P2 (before P2 guides) |
-| `/blog/`, `/blog/<slug>/`, `/blog/page/<n>/` | Blog | SSG | yes | `/hi/blog/<slug>/` when translated | no | P2 |
+| `/blog/`, `/blog/<slug>/` (built 2026-10-01, WEB-DEC-057; `/blog/page/<n>/` only when the index gets long) | Blog | SSG | yes | `/hi/blog/<slug>/` when translated | no | P2 |
 | `/indian-palmistry/` + `/hi/hast-rekha/` | Culture hub (paired only if equivalent) | SSG | yes | see left | no | P3 |
 | `/chinese-palmistry/`, `/palm-mounts/`, `/history-of-palmistry/`, `/palmistry-fingers/`, `/mercury-line/` | Guides | SSG | yes | later | no | P3 |
 
@@ -136,7 +150,7 @@ Defined in `src/content.config.ts` with Zod 4. The build fails on any schema err
 - `ymyl` (`none` | `marriage` | `children` | `lifespan` | `health`) — forces the LimitsBox and wording checks
 - `faq[]` (≤ 8), `heroImage`, `draft`, `noindex`
 
-**blog** — the guide fields plus `pillarLink` and `author`.
+**blog** (as built, WEB-DEC-057: `src/content/blog/<slug>.mdx`, route `src/pages/[...guide].astro` (shared with the guides so their CSS stays one file), `src/layouts/BlogLayout.astro`, helpers `src/lib/blog.ts`): `title`, `description`, `path` (`/blog/<slug>/`), `locale`, `h1`, `answer` (≤ 40 words), `summary` (the /blog/ index line), `crumb`, `disclosure?`, `pillar`, `related[]` (≤ 3), `about[]`/`mentions[]` (ids from `src/lib/entities.ts`), `author` (`deepak-chauhan`), `ymyl`, `limits?`, `status`, `published`, `updated`, `reviewedBy?`, `keyword`, `sources[]` (≥ 1, the guides' book/other shapes), `faq[]` (≤ 8). Each post is also a row in `src/config/pages.ts` (sitemap group `blog`).
 
 **tools** (`src/content/tools/*.yaml`) — `id`, `slug`, title + description per language, `kind` (`photo-ai` | `photo-local` | `quiz` | `picker` | `map`), `usesAI` (shown as a label), `island`, `relatedGuides`, `faq`, `limits`, `howItWorks`, `sources`. Every tool page renders the tool plus how it works, what palmistry says (with sources), honest limits, FAQ, and links to its guide and to the reading.
 
@@ -158,6 +172,8 @@ Pages never type these values. Static pages import them; live values (balance) c
 | `appLinkPaths` | the 6 paths + `/hi/` twins (§11 F1) | frozen |
 | `assetlinksSha256` | `[]` | Play App Signing SHA-256 from owner; empty list = file not served |
 | `locales` | `['en', 'hi']` | fixed |
+| `launchDate` | `null` | owner sets the go-live day before deploy (OWNER_GUIDE.md §13); becomes every older guide's `datePublished` (WEB-DEC-049) |
+| `diagramLicence` | CC BY 4.0, credit "PalmSays (palmsays.com)" | decided 2026-09-28 (WEB-DEC-050); our diagrams only, never photos |
 | `freeReadings` | `{ guest: 1, afterEmail: 1 }` | static copy only; a build check compares it with the server; the reading screen always uses `reading_balance()` |
 | `appPrices`, `appSizeMb`, `appFreeFeatures` | from Play | [verify] per country before launch |
 | `readingTimeP50`, `readingTimeP90` | `null` until measured | copy using them is hidden while `null` |
@@ -198,6 +214,18 @@ Full spec: plan §8.1–8.3; rules and tests: skill `web-reading-flow`; data and
 
 Every call goes to `api.palmsays.com` with `apikey: <publishable key>` and `Authorization: Bearer <user access token>`.
 
+### 7.1 Sign-in and the account (WEB-DEC-045, `WEB_AUTH_PLAN.md`)
+
+- **One Supabase client** for the whole page: `src/lib/supabase-client.ts` (`storageKey: 'palmsays-auth'`, `detectSessionInUrl: false`), used by `api-live.ts` and `lib/auth/live.ts`; reached only through `import()` and only with `readingConfig().apiUrl` (never `*.supabase.co`). A test's injected fetch gets its own client.
+- **Google** = Google Identity Services (`lib/auth/gis.ts`, popup + FedCM) → ID token → `signInWithIdToken`, or for a guest `linkIdentity({ provider: 'google', token, nonce })` (same user id); on `identity_already_exists` / linking off → sign in to the existing account, the guest reading stays in this browser and the page says so (`lib/auth/google.ts` `linkOrSignIn`, ported from the app). Fresh nonce per attempt (SHA-256 to Google, raw to Supabase). GIS loads only on `/account/`, `/hi/account/`, `/reading/` when a sign-in card/sheet is on screen; One Tap only on `/account/` and after the first free reading. Hidden in in-app browsers / Android WebView (`isInAppBrowser`, incl. `; wv)`) — "Open in Chrome" note instead; email code always available.
+- **Email code:** reading sheet as before (guest `updateUser` → `verifyOtp('email_change')`; "taken" → sign-in code). `/account/`: a guest the same way; no session → `signInWithOtp({ shouldCreateUser: true })` → `verifyOtp('email')`.
+- **Sign-out:** only on `/account/` (header link `/account/?signout=1`): `signOut({ scope: 'local' })` + GIS `disableAutoSelect()`, then "remove readings from this browser?". Guests never see "Sign out".
+- **Header:** `src/lib/auth/header-script.ts`, inline in `Header.astro` (its hash added to the CSP in `BaseLayout`): signed in = a `palmsays-auth` session whose user is not anonymous → round initial + popover menu (My readings, Account, Sign out); else "Sign in". Sets `palmsays-had-account` (case 20: signed-out browsers get "Sign in to read" instead of a new guest).
+- **My readings:** `reading_reports` of the user (any device); opening one re-validates its `palm_observations` with the app's `palmObservationSchema`, re-runs the app's `synthesise` and applies `lockSynthesis` (`lib/account/server-reading.ts`, loaded on "Open"). No photo (it stays on the device where it was taken).
+- **Name:** typed on `/account/` → `localStorage palmsays-me` (this browser only); pre-fills the reading's name question, else Google's given name.
+- **Mock:** `lib/auth/mock.ts` keeps a pretend session in the same `palmsays-auth` entry (`mock: true`, deleted by the live client).
+- **Off:** when the reading mode is `off` (production until `site.webReadingEnabled`) `/account/` says sign-in on the website opens soon and shows the app.
+
 ## 8. What lives where
 
 | Here (website repo) | App repo (`palm-ai-new--feat-m1-foundation`) |
@@ -221,6 +249,7 @@ Every call goes to `api.palmsays.com` with `apikey: <publishable key>` and `Auth
 | `PUBLIC_API_URL` | build | yes | Preview builds only: another https proxy (never `*.supabase.co`); production = `site.apiUrl` |
 | `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | build | yes | The publishable key (also the legal pages) |
 | `PUBLIC_TURNSTILE_SITE_KEY` | build | yes | Turnstile site key of the palmsays.com widget (until it moves into `site.ts`) |
+| `PUBLIC_GOOGLE_WEB_CLIENT_ID` | build | yes | The app's Google **Web** client ID (`864260847321-9mpk…`), shared so one Google user = one account (WEB-DEC-045). Empty → the Google button is hidden in live mode; the email code still works |
 | `CLOUDFLARE_API_TOKEN` | CI / Workers Builds only | **no** | Deploy; scoped to this Worker only |
 | `CLOUDFLARE_ACCOUNT_ID` | CI only | no (not secret, keep out of client) | Deploy |
 
@@ -235,7 +264,8 @@ Rules:
 - **Build (CI):** `astro check && vitest run && astro build && node scripts/check-site.mjs` (npm script `build:ci`, see `QA_RELEASE.md`).
 - **Preview:** every branch → `npx.cmd wrangler versions upload --preview-alias <branch>` → `<branch>-<worker>.<account>.workers.dev`, `PUBLIC_ENV=preview`, reading in mock mode. Real-backend preview only behind Cloudflare Access.
 - **Production:** `main` → Workers Builds (GitHub) → custom domain `palmsays.com`; `www` 301s to the apex; HTTPS only with HSTS. Production deploys run only after the `release-gate` skill passes and the owner says go (Claude cannot push; the owner pushes or runs the deploy).
-- **Caching:** `/_astro/*` `public, max-age=31536000, immutable`; HTML `max-age=0, must-revalidate`.
+- **Launch path (2026-09-28, until Workers Builds is connected):** the owner runs `npm.cmd run deploy` (`scripts/build-prod.mjs`: `PUBLIC_ENV=production` + `.env.launch` public values + check-web, then `wrangler deploy`). `wrangler.jsonc` `routes` = `palmsays.com` custom domain; `www` → apex is a Cloudflare Redirect Rule (proxied `www` AAAA `100::`), not a Worker route. Every `*.workers.dev` host answers `X-Robots-Tag: noindex` (`public/_headers`). Steps: `OWNER_GUIDE.md` §13.
+- **Caching:** `/_astro/*`, `/models/*`, `/media/*` `public, max-age=31536000, immutable`; `/images/*`, `/samples/*`, `/badges/*`, `/icons/*`, `/og/*` one day + `stale-while-revalidate` (names reused); HTML `max-age=0, must-revalidate` (Workers default).
 - **Rollback:** `npx.cmd wrangler rollback` or the dashboard (last 100 versions). Practise once on day 1 and confirm static assets roll back with the version. Steps in `QA_RELEASE.md` §7.
 - **Monitoring:** uptime on `/`, `/hi/`, `/sitemap-index.xml`, one tool page and `api.palmsays.com`, with certificate-expiry alerts.
 

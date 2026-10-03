@@ -1,4 +1,4 @@
-// COPIED from palm-ai-new--feat-m1-foundation/src/features/vision/prompt.ts at app commit 38389f51b74d (2026-09-26).
+// COPIED from palm-ai-new--feat-m1-foundation/src/features/vision/prompt.ts at app commit fbc2232d837f (2026-09-30).
 // Do not edit by hand: change the app, then run `node scripts/sync-palm-lib.mjs` (ARCHITECTURE.md F7).
 // @ts-nocheck
 import {
@@ -7,9 +7,6 @@ import {
   DEPTH_CLASSES,
   LENGTH_CLASSES,
   MAJOR_LINES,
-  MOUNT_TYPES,
-  PROMINENCE_CLASSES,
-  RELIABLE_MARKS,
   ZONES,
 } from '../observation/taxonomy';
 
@@ -24,6 +21,21 @@ import {
  *      failure this whole architecture exists to prevent.
  *   3. Forbid interpretation. The model reports what is visible. It is never
  *      asked what anything means.
+ *
+ * Trimmed 2026-09-30 (owner, DEC-049): the model is no longer asked for the
+ * hand shape (earth/air/fire/water), mounts, crossings, marks, or the fate,
+ * sun and mercury lines. Since the truth gate (DEC-047, lines/truth.ts) none
+ * of them reaches a rule or the report: the hand type is measured from the
+ * scanner's landmarks, mounts are taught from the landmarks, and fate is read
+ * only when the scanner traces it (merge.ts discards the model's fate either
+ * way). What the model still gives: its warnings (back of hand, no palm —
+ * read by the pipeline and by extract-palm's refund checks) and a description
+ * of the heart, head and life lines (their visibility feeds the same checks;
+ * their attributes are the fallback report when no scanner is configured).
+ * The call itself stays: the server charges the reading at it
+ * (claim_extraction). Parsing stays tolerant (normalise.ts, extract-palm
+ * checks.ts): an older function that still sends the dropped fields parses
+ * fine, and the truth gate removes them.
  */
 
 function list(values: readonly string[]): string {
@@ -31,11 +43,15 @@ function list(values: readonly string[]): string {
 }
 
 /**
- * Lines the model is asked to trace. The four major lines always get an entry;
- * sun and mercury only when seen, because many palms simply do not show them.
+ * Lines the parser accepts from the model. Wider than what is asked
+ * (PROMPTED_LINES): an older deployed prompt still returns fate, sun and
+ * mercury, and those answers must keep parsing (the truth gate drops them).
  */
 export const EXTRACTED_LINES = [...MAJOR_LINES, 'sun', 'mercury'] as const;
 export type ExtractedLineType = (typeof EXTRACTED_LINES)[number];
+
+/** The lines the model is asked to describe (2026-09-30): the three the scanner also traces. */
+export const PROMPTED_LINES = ['heart', 'head', 'life'] as const satisfies readonly ExtractedLineType[];
 
 export const EXTRACTION_SYSTEM_PROMPT = `You are a careful visual annotator.
 
@@ -55,8 +71,9 @@ Rules you must follow exactly:
 
 // The answer used to be cut off by max_tokens on real palms. Every field here
 // earns its tokens: the old `regions` boxes and `notes` are gone (the path
-// replaces the boxes, and the app derives a box from it), and optional fields
-// the app defaults are not spelled out as nulls.
+// replaces the boxes, and the app derives a box from it), optional fields the
+// app defaults are not spelled out as nulls, and (2026-09-30) nothing the
+// truth gate discards is asked for any more.
 export function buildExtractionPrompt(): string {
   return `Annotate this palm photograph.
 
@@ -65,7 +82,7 @@ Return JSON with exactly this shape:
 {
   "lines": [
     {
-      "type": ${list(EXTRACTED_LINES)},
+      "type": ${list(PROMPTED_LINES)},
       "visible": true | false,
       "confidence": 0.0-1.0,
       "length": { "value": ${list(LENGTH_CLASSES)} | null, "confidence": 0.0-1.0 },
@@ -74,40 +91,25 @@ Return JSON with exactly this shape:
       "continuity": { "value": ${list(CONTINUITY_CLASSES)} | null, "confidence": 0.0-1.0 },
       "startZone": { "value": <zone> | null, "confidence": 0.0-1.0 },
       "endZone": { "value": <zone> | null, "confidence": 0.0-1.0 },
-      "path": [ [x, y], ... ],
-      "marks": [ { "kind": ${list(RELIABLE_MARKS)}, "count": 1-20, "confidence": 0.0-1.0, "zone": <zone> | null, "point": [x, y] | null } ]
+      "path": [ [x, y], ... ]
     }
   ],
-  "crossings": [ { "kind": intersection | cross, "lines": [ <line>, <line> ], "point": [x, y], "confidence": 0.0-1.0 } ],
-  "mounts": [
-    { "type": <mount>, "prominence": { "value": ${list(PROMINENCE_CLASSES)} | null, "confidence": 0.0-1.0 }, "confidence": 0.0-1.0 }
-  ],
-  "handShape": { "value": "earth" | "air" | "water" | "fire" | null, "confidence": 0.0-1.0 },
   "warnings": [ "short plain-language note" ]
 }
 
 <zone> must be one of: ${list(ZONES)}
-<mount> must be one of: ${list(MOUNT_TYPES)}
-<line> must be one of: ${list(EXTRACTED_LINES)}
 
 Coordinates: [x, y] with x and y from 0 to 1, measured from the TOP-LEFT corner of
 this image (x to the right, y downward). Round to 2 decimals.
 - path: 4 to 10 points that follow the crease you see, from its start to its end.
   Use [] when the line is not visible.
-- marks: break (a gap in the line), branch_up / branch_down (a short line leaving it),
-  fork (the line splitting in two). point is where the mark is.
-- crossings: "intersection" where two of the lines above clearly meet or cross;
-  "cross" for a small, distinct X-shaped mark. Use [] when there is none.
 
 Which end of a line is its start and which is its end:
 - life: startZone is the end between the thumb and the index finger; endZone is the end near the wrist.
 - head: startZone is the end on the thumb side; endZone is the end toward the outer edge of the palm.
 - heart: startZone is the end at the little-finger edge of the palm; endZone is the end under the index or middle finger.
-- fate: startZone is the end nearest the wrist; endZone is the end nearest the fingers.
-- sun: the vertical line toward the ring finger; startZone is the lower end, endZone the end under the ring finger.
-- mercury: the line toward the little finger; startZone is the lower end, endZone the end under the little finger.
 
-Where each zone and mount is on the palm:
+Where each zone is on the palm:
 - jupiter / under_index: the pad under the index finger.
 - saturn / under_middle: the pad under the middle finger.
 - apollo / under_ring: the pad under the ring finger.
@@ -118,13 +120,9 @@ Where each zone and mount is on the palm:
 - mars_negative: the thumb side of the palm, just above venus and inside the life line.
 - plain_of_mars: the hollow centre of the palm.
 
-Include an entry for each of the four major lines (${list(MAJOR_LINES)}) even
+Include exactly one entry for each of the three lines (${list(PROMPTED_LINES)}) even
 when it is not visible — set "visible": false, "path": [] and leave the attributes null.
-Add sun or mercury ONLY if you clearly see that line; otherwise leave it out.
-
-Report a mark or crossing only when it is plainly visible. An empty list is the
-expected answer for most photos. Do not report islands, chains, stars, squares,
-triangles or tassels: a phone photograph cannot resolve them reliably.`;
+Report no other line.`;
 }
 
 /** Rough token budget, to sanity-check cost before a call goes out. */

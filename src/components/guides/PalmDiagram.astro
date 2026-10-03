@@ -4,37 +4,37 @@
  * cards and figures, DESIGN_SYSTEM.md §7.8 VariationCard, §9). Static SVG,
  * no JS. The same drawn hand as PalmTrace; the focus line uses its trace
  * colour with the halo, the other main lines are dimmed for orientation.
- * Always a labelled drawing, never a real palm.
+ * Always a labelled drawing, never a real palm. v4 look: fine ivory-gold line
+ * art on a faint glaze (no filled purple cartoon hand), the focus line in colour.
+ *
+ * Light HTML (WEB-DEC-052): the lines are `<use>`s of the cached sprite
+ * /img/guides/palm-sprite.svg (src/lib/guides/palm-sprite.ts); their colour,
+ * width and dashes are set here on each `<use>` and inherited by the paths.
+ * The palm outline and its glaze gradient are written once per page (by the
+ * first diagram) and reused by the others.
  */
-import {
-  BASE_PATHS,
-  EDGE_VIEWBOX,
-  PALM_OUTLINE,
-  PALM_VIEWBOX,
-  VARIANTS,
-  type MainLine,
-  type Variant,
-  type VariantName,
-} from '../../lib/guides/palm-geometry';
+import { EDGE_VIEWBOX, PALM_OUTLINE, PALM_VIEWBOX, VARIANTS, type Variant, type VariantName } from '../../lib/guides/palm-geometry';
+import { contextRefs, focusId, spriteHref } from '../../lib/guides/palm-sprite';
 
 interface Props {
   variant: VariantName;
-  /** Unique on the page (gradient id). */
+  /** Unique on the page (kept for the callers' anchors). */
   id: string;
   /** What the drawing shows, in the page's language. */
   label: string;
   size?: 'thumb' | 'figure';
 }
 
-const { variant, id, label, size = 'thumb' } = Astro.props;
+const { variant, label, size = 'thumb' } = Astro.props;
 const spec: Variant = VARIANTS[variant];
-const mains: MainLine[] = ['life', 'head', 'heart', 'fate'];
-const context = mains
-  .filter((line) => line !== spec.kind)
-  .map((line) => ({ line, d: spec.context?.[line] === undefined ? BASE_PATHS[line] : spec.context[line] }))
-  .filter((item): item is { line: MainLine; d: string } => typeof item.d === 'string');
+const context = contextRefs(variant);
+const focus = focusId(variant);
 const viewBox = spec.view === 'edge' ? EDGE_VIEWBOX : PALM_VIEWBOX;
 const style = spec.style ?? 'normal';
+// The first diagram on a page carries the shared palm outline and glaze (one copy per page).
+const pages = ((globalThis as { __pdDefs?: WeakSet<Request> }).__pdDefs ??= new WeakSet<Request>());
+const defs = !pages.has(Astro.request);
+if (defs) pages.add(Astro.request);
 ---
 
 <svg
@@ -43,16 +43,21 @@ const style = spec.style ?? 'normal';
   role="img"
   aria-label={label}
 >
-  <defs>
-    <linearGradient id={`${id}-skin`} x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" class="stop-top"></stop>
-      <stop offset="1" class="stop-bottom"></stop>
-    </linearGradient>
-  </defs>
-  <path class="palm" fill={`url(#${id}-skin)`} d={PALM_OUTLINE}></path>
-  {context.map((item) => <path class:list={['ctx', `c-${item.line}`]} d={item.d}></path>)}
-  {spec.paths.map((d) => <path class:list={['halo', `h-${style}`]} d={d}></path>)}
-  {spec.paths.map((d) => <path class:list={['focus', `f-${spec.kind}`, `s-${style}`]} d={d}></path>)}
+  {
+    defs && (
+      <defs>
+        <linearGradient id="pd-skin" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" class="stop-top" />
+          <stop offset="1" class="stop-bottom" />
+        </linearGradient>
+        <path id="pd-palm" d={PALM_OUTLINE} />
+      </defs>
+    )
+  }
+  <use class="palm" href="#pd-palm" fill="url(#pd-skin)"></use>
+  {context.map((item) => <use class:list={['ctx', `c-${item.line}`]} href={spriteHref(item.id)} />)}
+  {focus && <use class:list={['halo', `h-${style}`]} href={spriteHref(focus)} />}
+  {focus && <use class:list={['focus', `f-${spec.kind}`, `s-${style}`]} href={spriteHref(focus)} />}
 </svg>
 
 <style>
@@ -61,16 +66,17 @@ const style = spec.style ?? 'normal';
   .diagram-figure { max-width: 17rem; }
   /* A close-up fills its frame edge to edge, so the crop reads as a zoomed view, not a cut-out. */
   .diagram-edge.diagram-figure { max-width: none; }
-  .stop-top { stop-color: var(--color-palm-top); }
-  .stop-bottom { stop-color: var(--color-palm-bottom); }
-  .palm { stroke: color-mix(in srgb, var(--color-gold) 38%, transparent); stroke-width: 1.2; stroke-linejoin: round; }
+  .stop-top { stop-color: var(--color-gold-bright); stop-opacity: 0.09; }
+  .stop-bottom { stop-color: var(--color-gold); stop-opacity: 0.015; }
+  .palm { stroke: color-mix(in srgb, var(--color-gold-bright) 62%, transparent); stroke-width: 1.1; stroke-linejoin: round; }
+  :global([data-theme="day"]) .palm { stroke: color-mix(in srgb, var(--accent) 70%, transparent); }
   .ctx, .halo, .focus { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .ctx { stroke-width: 1.6; opacity: 0.32; }
+  .ctx { stroke-width: 1.3; opacity: 0.26; }
   .c-life { stroke: var(--color-trace-life); }
   .c-head { stroke: var(--color-trace-head); }
   .c-heart { stroke: var(--color-trace-heart); }
   .c-fate { stroke: var(--color-trace-fate); }
-  .halo { stroke: var(--color-halo); stroke-width: 5.2; }
+  .halo { stroke: var(--page); stroke-width: 5.2; opacity: 0.85; }
   .focus { stroke-width: 3.2; }
   .diagram-edge .halo { stroke-width: 2.6; }
   .diagram-edge .focus { stroke-width: 1.5; }
