@@ -1,0 +1,37 @@
+PalmSays — photo library v5, part B (premium pass wave 1, 2026-10-03). To be merged into public/samples/LICENSE.txt in wave 2.
+Files: /images/v5/<slug>-{800,1200,1800,2400}.{avif,webp} (sizes never upscaled; smaller sources stop at their own width).
+Changes for all: sharp Lanczos3 resize, AVIF q58 (4:4:4) and WebP q80, metadata stripped; crops listed per file; no retouch,
+no filter, no mirroring, no AI. No palm lines are drawn on any of these. Originals: design-v4/photos-v5/raw/ (not in git).
+Log: design-v4/photos-v5/manifest-b.json.
+
+ARCHIVAL (Wikimedia Commons, licence "Public domain" checked on each file page 2026-10-03)
+hist-hartlieb-blockbuch  (800-1800; source 2363 x 3259)
+  (Ps.-) Johannes Hartlieb, "Buch von der Hand" (Chiromantia block book), Augsburg, Joerg Schapf, ca. 1488-1490,
+  hand-coloured woodcut. Vienna, Austrian National Library, Ink 2.D.36, fol. A2v.
+  https://commons.wikimedia.org/wiki/File:Chiromantia-Blockbuch._Exemplar_Wien,_%C3%96sterreichische_Nationalbibliothek,_Ink_2.D.36._Bl._A2v.jpg
+hist-indagine-1541  (800-2400; source 2553 x 3632)
+  Johannes ab Indagine, "Chiromantia", Strasbourg, Johann Schott, 1541. Scan: Polona Digital Library.
+  https://commons.wikimedia.org/wiki/File:Chiromantia_1541_(10038239).jpg
+hist-salmon-1685  (800-2400; source 3011 x 4593)
+  William Salmon, "Polygraphice" (1685), Plate XXII, palmistry chart of the right hand; engraver F. H. van Hove.
+  Scan: Science History Institute (via DPLA).
+  https://commons.wikimedia.org/wiki/File:Plate_XXII-_Palmistry_chart_of_right_hand_-_DPLA_-_2e7beac1623e708c1e7a59732d068151.jpg
+hist-indian-palmistry-1895  (800-1200; largest scan is 1415 x 2283)
+  Mrs J. B. Dale, "Indian Palmistry" (1895), Plate 2. Scan: Internet Archive (indianpalmistry00daleiala).
+  https://commons.wikimedia.org/wiki/File:Indian_Palmistry_Plate_2.jpg
+
+MODERN PHOTOS (Pexels License, https://www.pexels.com/license/, checked 2026-10-03: free to use, commercial use allowed,
+attribution not required (we credit anyway), modification allowed. Not allowed: selling unaltered copies, implying
+endorsement by the person shown, offensive or misleading use.) None of these people is a PalmSays customer or the owner.
+which-hand-both-palms  (6240 x 4160, uncropped)  /which-hand-to-read/
+  "Photography Of Left And Right Palms" by Luis Quintero  https://www.pexels.com/photo/photography-of-left-and-right-palms-2258247/
+is-real-palm-pov  (3693 x 5539, uncropped)  /is-palmistry-real/
+  "Close-up shot of a person's palm" by Karolina Grabowska (Kaboompics)  https://www.pexels.com/photo/close-up-shot-of-a-person-s-palm-6642895/
+blog-palm-apps  (16:9 crop x0 y0 5760 x 3240 of 5760 x 3840)  blog cover "best palm reading apps"
+  "A person holding a smartphone with a blank screen" by Katrin Bolovtsova  https://www.pexels.com/photo/a-person-holding-a-smartphone-with-a-blank-screen-6373213/
+blog-lines-change  (16:9 crop x0 y850 4000 x 2250 of 4000 x 6000)  blog cover "do palm lines change"
+  "Elderly woman hands holding child hands" by Juliane Monari  https://www.pexels.com/photo/elderly-woman-hands-holding-child-hands-18531787/
+blog-chatgpt-vs-scanner  (16:9 crop x0 y200 3000 x 1688 of 3000 x 2001)  blog cover "ChatGPT vs palm scanner"
+  "Modern workspace with smartphone and laptop" by Jakub Zerdzicki  https://www.pexels.com/photo/modern-workspace-with-smartphone-and-laptop-29464764/
+blog-rarest-lines  (16:9 crop x0 y350 6720 x 3780 of 6720 x 4480)  blog cover "rarest palm lines"
+  "Texture of human palm" by Karolina Grabowska (Kaboompics)  https://www.pexels.com/photo/texture-of-human-palm-6642889/
