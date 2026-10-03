@@ -20,7 +20,7 @@ const tool = toolById('photo-checker');
   spot={{
     title: 'How to take a palm photo for a reading',
     paras: [
-      'Use the hand you write with. Open it flat with the fingers together, and hold the phone straight above the palm, close enough that the whole palm and the base of the fingers fill the frame.',
+      'Use the hand you write with. Open it flat with the fingers straight, and hold the phone straight above the palm, about a forearm’s length away, so your whole hand, from the wrist to the fingertips, fills most of the frame.',
       'Light matters most. Face a window in daylight, or stand under an even room light. Avoid direct sun and the flash: both wash the lines out. If the lines look faint, tilt your hand a little so the light falls from the side. Palm lines are creases, and side light turns them into shadows.',
       'Hold still for a moment before you tap. Resting your elbow on a table stops blur, the most common reason a photo can’t be read.',
     ],
@@ -30,7 +30,7 @@ const tool = toolById('photo-checker');
     { title: 'You take or pick a photo', body: 'It opens only in this browser tab. Nothing is uploaded.' },
     {
       title: 'Your phone checks a tiny copy',
-      body: 'A 96-pixel copy is checked for brightness, blur, how much of the frame is palm, and how strongly the creases stand out. These are the same checks, with the same starting thresholds, as in our Android app.',
+      body: 'A 96-pixel copy is checked for brightness, blur, whether a hand sits in the middle of the photo and how big it is, and how strongly the creases stand out. They start from the checks in our Android app.',
     },
     { title: 'You see what to fix, or use it', body: 'Each check says OK or what to change. A ready photo can go straight to the hand type or finger tool, still only on this device. Close the page and the photo is gone.' },
   ]}
@@ -38,7 +38,7 @@ const tool = toolById('photo-checker');
   says={[
     { term: 'Light', text: 'Too dark and the creases vanish; too bright and they wash out. Even light from a window works best.' },
     { term: 'Sharpness', text: 'Blur smears fine lines together. Hold still, or rest your hand on something.' },
-    { term: 'Framing', text: 'The whole palm should fill most of the frame, with the base of the fingers in view.' },
+    { term: 'Framing', text: 'Your whole hand, from the wrist to the fingertips, should fill most of the frame, with a little space around it.' },
     { term: 'Contrast', text: 'Palm lines are shadows. Light from the side makes them stand out on every skin tone.' },
     {
       term: 'What even a good photo can’t show',

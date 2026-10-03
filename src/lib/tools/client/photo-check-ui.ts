@@ -4,7 +4,7 @@ import { trackPhotoCheck, trackToolUse, trackUploadStart } from '../analytics';
 import { focusHeading, h, svg, watchStoreClicks, whenVisible } from '../dom';
 import { OPEN_TEXT, PhotoOpenError, handOffPhoto, openPhoto } from '../hand/photo';
 import { lineMode } from '../line-scan';
-import { checklist, computeMetrics, evaluateQuality, FIX_MESSAGES, type CheckRow } from '../photo-check';
+import { checklist, computeMetrics, evaluateQuality, FIX_MESSAGES, NO_HAND_FIX, NO_HAND_TITLE, type CheckRow } from '../photo-check';
 import { actionButton } from './result-bits';
 import { readingLive } from './render';
 
@@ -153,13 +153,14 @@ export function mountPhotoChecker(): void {
       checks.replaceChildren(...checklist(verdict).map(row));
       if (verdict.passed) {
         title.textContent = 'Ready: this photo is clear enough to read';
-        text.textContent = 'Bright, sharp, and your palm fills the frame. These are quick pixel checks; the photo tools check your hand itself.';
+        text.textContent = 'Bright, sharp, and your whole hand is in the frame. These are quick pixel checks; the photo tools check your hand itself.';
         after.replaceChildren(readyBlock(prepared));
         setPickers(false);
       } else {
         const issue = verdict.primaryIssue;
-        title.textContent = 'Let’s fix one thing';
-        text.textContent = issue ? FIX_MESSAGES[issue] : 'That photo did not come out clearly. Please take it again.';
+        const noHand = issue === 'no_palm_detected';
+        title.textContent = noHand ? NO_HAND_TITLE : 'Let’s fix one thing';
+        text.textContent = noHand ? NO_HAND_FIX : issue ? FIX_MESSAGES[issue] : 'That photo did not come out clearly. Please take it again.';
         after.replaceChildren(
           h('p', { class: 't-caveat', text: 'A failed check costs nothing: nothing was uploaded, and you can try as often as you like.' }),
         );

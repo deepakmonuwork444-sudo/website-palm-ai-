@@ -8,6 +8,15 @@
  * They can tell "a skin-coloured area, bright and sharp enough", nothing more.
  * They cannot prove every line is readable and cannot tell a palm from the
  * back of a hand. The thresholds are not benchmarked on a labelled set yet.
+ *
+ * Where this differs from the app (visual audit 2026-10-03, bug 2): the app
+ * judged "far away" from the skin share of the WHOLE frame, so a normal
+ * wrist-to-fingertips photo (about a quarter of the frame is skin) was told
+ * to come closer, and stray skin-coloured bits (a clay pot behind a leaf, a
+ * shadow on a too-close palm) were taken for a far-away palm. Here the hand
+ * is the biggest connected skin-coloured area: no such area in the middle
+ * of the photo = no hand found; its size against the photo = near or far.
+ * Glare is judged on the middle of the photo (the palm), not a white wall.
  */
 
 export interface RgbaImage {
@@ -24,6 +33,17 @@ export interface ImageMetrics {
   centreOccupancy: number;
   clippedFraction: number;
   skinContrast: number;
+  /** Share of blown-out pixels in the middle half of the photo, where the palm is. */
+  centreClippedFraction: number;
+  /** The hand = the biggest connected skin-coloured area: its share of the photo. */
+  handArea: number;
+  /** Its longest side ÷ the photo's longest side (how big the hand is in the frame). */
+  handSpan: number;
+  /** Its centre, 0–1 across and down the photo. */
+  handCentreX: number;
+  handCentreY: number;
+  /** How many photo edges (0–4) it touches. */
+  handEdges: number;
 }
 
 /** The analysis size the thresholds were calibrated for (long edge, px). */
@@ -36,9 +56,67 @@ export const THRESHOLDS = {
   maxLuminance: 214,
   maxClippedFraction: 0.25,
   minSkinContrast: 0.06,
-  minSkinFraction: 0.1,
-  minPalmFraction: 0.28,
+  /** The hand area must be at least this share of the photo… */
+  minHandArea: 0.03,
+  /** …with its centre in the middle of the photo (hands rise from the bottom, so a little lower is fine). */
+  handCentreX: [0.25, 0.75],
+  handCentreY: [0.25, 0.8],
+  /** Hand's longest side ÷ photo's longest side below this: too far (a whole hand at a forearm's length is about 0.6–1.0). */
+  minHandSpan: 0.45,
+  /** Skin over this share of the photo, touching all four edges: too close (no wrist or fingertips in view). */
+  maxHandArea: 0.9,
 } as const;
+
+/** The biggest 4-connected area of the mask (Uint8 0/1), measured. */
+export function largestBlob(mask: Uint8Array, width: number, height: number): {
+  area: number;
+  span: number;
+  centreX: number;
+  centreY: number;
+  edges: number;
+} {
+  const total = width * height;
+  const none = { area: 0, span: 0, centreX: 0.5, centreY: 0.5, edges: 0 };
+  if (total === 0) return none;
+  const seen = new Uint8Array(total);
+  const stack: number[] = [];
+  let best = { n: 0, x0: 0, x1: 0, y0: 0, y1: 0, sx: 0, sy: 0 };
+  for (let start = 0; start < total; start += 1) {
+    if (!mask[start] || seen[start]) continue;
+    seen[start] = 1;
+    stack.push(start);
+    const blob = { n: 0, x0: width, x1: 0, y0: height, y1: 0, sx: 0, sy: 0 };
+    while (stack.length > 0) {
+      const p = stack.pop()!;
+      const x = p % width;
+      const y = (p - x) / width;
+      blob.n += 1;
+      blob.sx += x;
+      blob.sy += y;
+      if (x < blob.x0) blob.x0 = x;
+      if (x > blob.x1) blob.x1 = x;
+      if (y < blob.y0) blob.y0 = y;
+      if (y > blob.y1) blob.y1 = y;
+      const next = [x > 0 ? p - 1 : -1, x < width - 1 ? p + 1 : -1, y > 0 ? p - width : -1, y < height - 1 ? p + width : -1];
+      for (const q of next) {
+        if (q >= 0 && mask[q] && !seen[q]) {
+          seen[q] = 1;
+          stack.push(q);
+        }
+      }
+    }
+    if (blob.n > best.n) best = blob;
+  }
+  if (best.n === 0) return none;
+  const long = Math.max(best.x1 - best.x0 + 1, best.y1 - best.y0 + 1);
+  return {
+    area: best.n / total,
+    span: long / Math.max(width, height),
+    centreX: (best.sx / best.n + 0.5) / width,
+    centreY: (best.sy / best.n + 0.5) / height,
+    edges: (best.x0 === 0 ? 1 : 0) + (best.y0 === 0 ? 1 : 0) + (best.x1 === width - 1 ? 1 : 0) + (best.y1 === height - 1 ? 1 : 0),
+  };
+}
 
 function luma(r: number, g: number, b: number): number {
   return 0.299 * r + 0.587 * g + 0.114 * b;
@@ -107,6 +185,8 @@ export function computeMetrics(image: RgbaImage): ImageMetrics {
   const cx1 = Math.ceil(width * 0.75);
   const cy0 = Math.floor(height * 0.25);
   const cy1 = Math.ceil(height * 0.75);
+  const mask = new Uint8Array(total);
+  let centreClipped = 0;
   let skin = 0;
   let centreSkin = 0;
   let centreTotal = 0;
@@ -119,7 +199,10 @@ export function computeMetrics(image: RgbaImage): ImageMetrics {
       const g = gray[y * width + x] ?? 0;
       const chroma = isSkinChroma(data[o] ?? 0, data[o + 1] ?? 0, data[o + 2] ?? 0);
       const hit = chroma && g > 40;
-      if (hit) skin += 1;
+      if (hit) {
+        skin += 1;
+        mask[y * width + x] = 1;
+      }
       if (chroma) {
         chromaCount += 1;
         skinLumaSum += g;
@@ -128,6 +211,7 @@ export function computeMetrics(image: RgbaImage): ImageMetrics {
       if (x >= cx0 && x < cx1 && y >= cy0 && y < cy1) {
         centreTotal += 1;
         if (hit) centreSkin += 1;
+        if (g >= 245) centreClipped += 1;
       }
     }
   }
@@ -138,6 +222,7 @@ export function computeMetrics(image: RgbaImage): ImageMetrics {
     if (mean > 0) skinContrast = Math.sqrt(Math.max(0, skinLumaSq / chromaCount - mean * mean)) / mean;
   }
 
+  const hand = largestBlob(mask, width, height);
   return {
     meanLuminance,
     contrast,
@@ -146,6 +231,12 @@ export function computeMetrics(image: RgbaImage): ImageMetrics {
     centreOccupancy: centreTotal > 0 ? centreSkin / centreTotal : 0,
     clippedFraction: total > 0 ? clipped / total : 0,
     skinContrast,
+    centreClippedFraction: centreTotal > 0 ? centreClipped / centreTotal : 0,
+    handArea: hand.area,
+    handSpan: hand.span,
+    handCentreX: hand.centreX,
+    handCentreY: hand.centreY,
+    handEdges: hand.edges,
   };
 }
 
@@ -155,8 +246,14 @@ export type QualityIssue =
   | 'too_bright'
   | 'no_palm_detected'
   | 'palm_too_small_in_frame'
+  | 'palm_too_close'
   | 'too_blurry'
   | 'low_contrast';
+
+/** The "no hand" verdict, worded like the hand tools (hand/verdict.ts PROBLEM_TEXT.no_hand). */
+export const NO_HAND_TITLE = 'We couldn’t find a hand in this photo';
+export const NO_HAND_FIX =
+  'Fit your whole hand in the frame, from the wrist to the fingertips, with a little space around it. Daylight and a plain background help.';
 
 /** One plain sentence per issue, from the app's RETAKE_MESSAGES (same order of blame: none). */
 export const FIX_MESSAGES: Record<QualityIssue, string> = {
@@ -165,8 +262,9 @@ export const FIX_MESSAGES: Record<QualityIssue, string> = {
   too_dark: 'It is too dark to see the lines. Try facing a window, or turn on a light.',
   too_bright: 'The light is washing the lines out. Step out of direct sun or move away from the lamp.',
   low_contrast: 'The lines are not standing out. Flat, even light from the side usually shows them better.',
-  no_palm_detected: 'We could not find a palm in that photo. Fill the frame with your open hand.',
-  palm_too_small_in_frame: 'Your palm is a little far away. Bring it closer to fill the frame.',
+  no_palm_detected: `${NO_HAND_TITLE}. ${NO_HAND_FIX}`,
+  palm_too_small_in_frame: 'Your hand is small in this photo. Hold the phone a little closer, so your hand, wrist to fingertips, fills most of the frame.',
+  palm_too_close: 'Your hand is too close. Move the phone back so your whole hand fits, from the wrist to the fingertips.',
 };
 
 /** The user hears about the most blocking issue first (the app's ISSUE_PRIORITY). */
@@ -175,10 +273,24 @@ const ISSUE_PRIORITY: QualityIssue[] = [
   'too_dark',
   'too_bright',
   'no_palm_detected',
+  'palm_too_close',
   'too_blurry',
   'palm_too_small_in_frame',
   'low_contrast',
 ];
+
+/** Is there a hand-like area in the middle of the photo? */
+export function handFound(metrics: ImageMetrics): boolean {
+  const [x0, x1] = THRESHOLDS.handCentreX;
+  const [y0, y1] = THRESHOLDS.handCentreY;
+  return (
+    metrics.handArea >= THRESHOLDS.minHandArea &&
+    metrics.handCentreX >= x0 &&
+    metrics.handCentreX <= x1 &&
+    metrics.handCentreY >= y0 &&
+    metrics.handCentreY <= y1
+  );
+}
 
 export interface QualityVerdict {
   passed: boolean;
@@ -191,7 +303,7 @@ export function evaluateQuality(metrics: ImageMetrics, sourceWidth: number, sour
   const issues: QualityIssue[] = [];
   const tooDark = metrics.meanLuminance < THRESHOLDS.minLuminance;
   const tooBright =
-    metrics.meanLuminance > THRESHOLDS.maxLuminance || metrics.clippedFraction > THRESHOLDS.maxClippedFraction;
+    metrics.meanLuminance > THRESHOLDS.maxLuminance || metrics.centreClippedFraction > THRESHOLDS.maxClippedFraction;
 
   if (Math.min(sourceWidth, sourceHeight) < THRESHOLDS.minSourceEdge) issues.push('too_small');
   if (tooDark) issues.push('too_dark');
@@ -199,10 +311,11 @@ export function evaluateQuality(metrics: ImageMetrics, sourceWidth: number, sour
 
   // Skin can only be judged in usable light: in the dark the honest message is about the light.
   const skinJudgeable = !tooDark && !tooBright;
-  const palmPresent = metrics.skinFraction >= THRESHOLDS.minSkinFraction;
+  const palmPresent = handFound(metrics);
   if (skinJudgeable && !palmPresent) issues.push('no_palm_detected');
-  if (skinJudgeable && palmPresent && metrics.skinFraction < THRESHOLDS.minPalmFraction) {
-    issues.push('palm_too_small_in_frame');
+  if (skinJudgeable && palmPresent) {
+    if (metrics.handArea > THRESHOLDS.maxHandArea && metrics.handEdges === 4) issues.push('palm_too_close');
+    else if (metrics.handSpan < THRESHOLDS.minHandSpan) issues.push('palm_too_small_in_frame');
   }
   if (metrics.blurScore < THRESHOLDS.minBlurScore) issues.push('too_blurry');
   if (skinJudgeable && palmPresent && metrics.skinContrast < THRESHOLDS.minSkinContrast) issues.push('low_contrast');
@@ -227,26 +340,23 @@ const LABELS: Record<CheckId, string> = {
   size: 'Big enough',
   light: 'Bright enough, not washed out',
   sharp: 'Sharp, not blurry',
-  palm: 'Whole palm in the frame',
+  palm: 'Whole hand in the frame',
   lines: 'Lines stand out',
 };
 
 const NEEDS_LIGHT = 'We can check this once the light is right.';
-const NEEDS_PALM = 'We can check this once your palm fills the frame.';
+const NEEDS_PALM = 'We can check this once your whole hand is in the frame.';
 
 /** The verdict as five rows, in the order a person fixes them. */
 export function checklist(verdict: QualityVerdict): CheckRow[] {
   const has = (issue: QualityIssue) => verdict.issues.includes(issue);
   const lightBad = has('too_dark') || has('too_bright');
-  const palmBad = has('no_palm_detected') || has('palm_too_small_in_frame');
+  const palmBad = has('no_palm_detected') || has('palm_too_small_in_frame') || has('palm_too_close');
   const row = (id: CheckId, state: CheckState, note: string | null): CheckRow => ({ id, label: LABELS[id], state, note });
 
   const lightIssue: QualityIssue | null = has('too_dark') ? 'too_dark' : has('too_bright') ? 'too_bright' : null;
-  const palmIssue: QualityIssue | null = has('no_palm_detected')
-    ? 'no_palm_detected'
-    : has('palm_too_small_in_frame')
-      ? 'palm_too_small_in_frame'
-      : null;
+  const palmIssue: QualityIssue | null =
+    (['no_palm_detected', 'palm_too_close', 'palm_too_small_in_frame'] as const).find((issue) => has(issue)) ?? null;
 
   return [
     row('size', has('too_small') ? 'fail' : 'pass', has('too_small') ? FIX_MESSAGES.too_small : null),
