@@ -38,8 +38,10 @@ const E = (d: string): string => `<path d="${d}" fill-rule="evenodd"/>`;
 /** Stroke (2.2 by default). */
 const L = (d: string, w?: number): string =>
   `<path d="${d}" fill="none" stroke="currentColor"${w ? ` stroke-width="${w}"` : ''}/>`;
-/** A palm line: full tone, 2.5px, so it reads at 24px. */
-const HL = (d: string): string => L(d, 2.5);
+/** A palm line in the full tone. */
+const HL = (d: string): string => L(d, 2.3);
+/** A context line (a middle tone: a second 40 % layer over the palm). */
+const CTX = (d: string): string => S(L(d, 2));
 
 /** Thick check mark as a filled outline (to cut out of a badge). */
 const checkCut = (cx: number, cy: number, s: number): string => {
@@ -47,29 +49,27 @@ const checkCut = (cx: number, cy: number, s: number): string => {
   return `M${p.map(([x, y]) => `${n(cx + (x ?? 0) * s)} ${n(cy + (y ?? 0) * s)}`).join('L')}Z`;
 };
 
-/**
- * The open hand as ONE outline (palm facing, thumb on the left): four rounded
- * fingers split by short notches, a thumb, a flat wrist. Used light (a 24 % fill
- * with a crisp full-tone outline) under palm lines, or solid on its own.
- */
-const HAND_D =
-  'M9.2 22C8 21 7.2 19.8 6.6 18.6C6 17.4 5.4 16.6 5 15.9L3.23 10.87A1.45 1.45 0 0 1 5.97 9.93L7.7 14.9' +
-  'V5.75A1.55 1.55 0 0 1 10.8 5.75V10.6V3.95A1.55 1.55 0 0 1 13.9 3.95V10.6V4.75A1.55 1.55 0 0 1 17 4.75V10.6V7.4A1.4 1.4 0 0 1 19.8 7.4' +
-  'V15.4C19.8 19.2 17.6 22 14.8 22Z';
-/** Light hand: soft fill + crisp outline (`sw` keeps the outline 1.75px when the hand is scaled). */
-const lightHand = (sw = 1.75): string => `<path d="${HAND_D}" fill-opacity=".24" stroke="currentColor" stroke-width="${n(sw)}"/>`;
-const solidHand = (): string => P(HAND_D);
-/** Mini palm: the light hand with lines and marks on it, centred in the box. */
-const palm = (inner: string): string => `<g transform="translate(.4 0)">${lightHand()}${inner}</g>`;
+/** The open hand, palm facing, thumb on the left (fills x 2.4–20; shift with a transform). */
+const HAND_D = [
+  rr(6.8, 4.6, 3, 8, 1.5),
+  rr(10.3, 2.4, 3, 9.6, 1.5),
+  rr(13.8, 3.4, 3, 8.6, 1.5),
+  rr(17.3, 6.2, 2.7, 6.6, 1.35),
+  'M6.8 9.8H20V14.9C20 19 17.2 22 13.4 22C9.6 22 6.8 19.4 6.8 15.6Z',
+].join('');
+const THUMB = '<rect x="5.9" y="8.94" width="3" height="10.96" rx="1.5" transform="rotate(-25.3 7.4 18.4)"/>';
+const handShapes = (): string => `${P(HAND_D)}${THUMB}`;
+/** Mini palm in the second tone, centred in the box. */
+const palm = (lines: string, extra = ''): string => `<g transform="translate(.7 0)">${S(handShapes())}${lines}${extra}</g>`;
 
-// Palm lines on the hand, in their places in the books.
+// Palm lines, in hand coordinates.
 const LINE = {
-  heart: 'M19.5 12.6C16.6 12.4 13.6 12.8 10.8 11.2',
-  head: 'M7.9 13.4C11.3 13.6 14.8 14.7 18 16.8',
-  life: 'M7.9 13.8C10.8 15.7 11.9 18.5 11.6 21.6',
-  fate: 'M14.4 21.6C14.1 17.6 13.5 14 12.4 10.9',
-  sun: 'M16.8 19C16.6 16 16.3 13.2 15.6 10.9',
-  mercury: 'M12.8 20.8C15.2 18 17.3 14.8 18.9 11.6',
+  heart: 'M19.5 13C16.6 12.9 13.6 13.2 11.1 11.9',
+  head: 'M7.8 13.5C11 13.9 14.6 15 17.4 16.9',
+  life: 'M7.6 12.8C10.6 14.6 11.7 17.6 11.1 21.3',
+  fate: 'M13.7 21.3C13.5 18.5 13.5 15.4 13.9 12.4',
+  sun: 'M16.7 19.6C16.5 17.4 16.4 15 16.5 12.6',
+  mercury: 'M12.2 21.1C14.6 18.6 16.8 16.5 19.2 14.8',
 } as const;
 
 const heartD = 'M12 20.8S3.2 15.6 3.2 9.4A4.7 4.7 0 0 1 12 7.1a4.7 4.7 0 0 1 8.8 2.3c0 6.2-8.8 11.4-8.8 11.4Z';
@@ -106,7 +106,7 @@ export const share = `${S(P(rr(4, 9.6, 16, 12, 3)))}${L('M12 15V3.4M7.8 7.4 12 3
 export const chain = `${S(L('M10.3 13.7a4.1 4.1 0 0 0 5.8 0l3-3a4.1 4.1 0 0 0-5.8-5.8l-1 1', 2.4))}${L('M13.7 10.3a4.1 4.1 0 0 0-5.8 0l-3 3a4.1 4.1 0 0 0 5.8 5.8l1-1', 2.4)}`;
 export const chat = E(bubbleD + ci(8, 11.1, 1.3) + ci(12, 11.1, 1.3) + ci(16, 11.1, 1.3));
 export const pen = `<g transform="rotate(45 12 12)">${S(P(rr(9.7, 1.4, 4.6, 3.4, 1.4)))}${P(rr(9.7, 5.4, 4.6, 11.6, 0.9))}${S(P('M9.7 17.6h4.6L12 22.4Z'))}</g>`;
-export const globe = `<circle cx="12" cy="12" r="9.3" fill-opacity=".24" stroke="currentColor" stroke-width="2"/>${L('M12 2.8c-2.5 2.6-3.7 5.6-3.7 9.2s1.2 6.6 3.7 9.2c2.5-2.6 3.7-5.6 3.7-9.2S14.5 5.4 12 2.8ZM2.8 12h18.4', 2)}`;
+export const globe = `${S(P(ci(12, 12, 9.6)))}${L('M12 2.6c-2.6 2.6-3.9 5.7-3.9 9.4s1.3 6.8 3.9 9.4M12 2.6c2.6 2.6 3.9 5.7 3.9 9.4s-1.3 6.8-3.9 9.4M2.8 12h18.4', 2)}`;
 export const language = `${S(P(rr(9.6, 9.2, 12, 12, 3)))}${E(rr(2.4, 2.6, 11.6, 11.6, 3) + 'M8.2 5.2 11.4 11.6H9.5L8.9 10.3H7.5L6.9 11.6H5Z' + 'M8.2 7.9 8.65 9H7.75Z')}${L('M14.6 13.2h6M19.2 13.2v6.4M15 14.8c1.2-.7 2.6-.1 2.3 1.1-.2.6-.8.9-1.4.9.8 0 1.6.5 1.6 1.3 0 1.1-1.4 1.5-2.5.8M16.8 16.9h2.4', 1.8)}`;
 export const book = `${S(P('M2.4 5.4c3.4-1 6.4-.6 8.7 1.4v13.6c-2.3-1.8-5.3-2.2-8.7-1.3Z'))}${P('M21.6 5.4c-3.4-1-6.4-.6-8.7 1.4v13.6c2.3-1.8 5.3-2.2 8.7-1.3Z')}`;
 export const docPage = `${S(P('M6.8 2.4h7.4l5.4 5.4v11a2.8 2.8 0 0 1-2.8 2.8H6.8A2.8 2.8 0 0 1 4 18.8V5.2a2.8 2.8 0 0 1 2.8-2.8Z'))}${P('M14.2 2.4v3.8a1.6 1.6 0 0 0 1.6 1.6h3.8Z')}${L('M8 12.2h7.6M8 15.6h7.6M8 19h4.6', 2)}`;
@@ -124,30 +124,26 @@ export const balance = `${P(rr(10.9, 5, 2.2, 14.6, 1.1))}${P(rr(6.4, 19.2, 11.2,
 export const question = `${S(P(bubbleD))}${L('M9.4 8.9a2.7 2.7 0 1 1 4 2.3c-.8.4-1.4 1-1.4 1.9v.4', 2.3)}${P(ci(12, 16.2, 1.35))}`;
 
 // ---------- Palm and its lines ----------
-export const handIcon = `<g transform="translate(.4 0)">${solidHand()}</g>`;
-export const palmLines = palm(L(LINE.heart, 2.3) + L(LINE.head, 2.3) + L(LINE.life, 2.3));
+export const handIcon = `<g transform="translate(.7 0)">${handShapes()}</g>`;
+export const palmLines = palm(L(LINE.heart, 2) + L(LINE.head, 2) + L(LINE.life, 2));
 export const lineHeart = palm(HL(LINE.heart));
 export const lineHead = palm(HL(LINE.head));
 export const lineLife = palm(HL(LINE.life));
 export const lineFate = palm(HL(LINE.fate));
 export const lineSun = palm(HL(LINE.sun));
 export const lineMercury = palm(HL(LINE.mercury));
-/** Marriage line: on the palm's edge under the little finger, above a faint heart line for reference. */
-export const lineMarriage = palm(`<g opacity=".45">${L(LINE.heart, 1.8)}</g>${HL('M17.8 10.9H20.7')}`);
+export const lineMarriage = palm(CTX(LINE.heart) + HL('M16.7 11.1h2.1'));
 
 // ---------- Tools (one icon each) ----------
-export const reading = `${L('M2.6 7.6V5.8a3.2 3.2 0 0 1 3.2-3.2h1.8M16.4 2.6h1.8a3.2 3.2 0 0 1 3.2 3.2v1.8M21.4 16.4v1.8a3.2 3.2 0 0 1-3.2 3.2h-1.8M7.6 21.4H5.8a3.2 3.2 0 0 1-3.2-3.2v-1.8', 2.2)}<g transform="translate(3.6 3.3) scale(.7)">${lightHand(1.75 / 0.7)}${L(LINE.heart, 3)}${L(LINE.head, 3)}${L(LINE.life, 3)}</g>`;
-/** Line finder: the palm with one line, and a magnifier. */
-export const lineFinder = `<g transform="translate(-.6 .1) scale(.8)">${lightHand(1.75 / 0.8)}${L(LINE.head, 3.1)}</g>${E(ci(17, 17, 4.6) + ci(17, 17, 2.7))}${L('M20.4 20.4l1.8 1.8', 2.8)}`;
-export const handShape = `<g transform="translate(.5 .3) scale(.84)">${solidHand()}</g>${L('M21.6 9.4v9.2M20.4 9.4h2.4M20.4 18.6h2.4M6 22.4h10M6 21.2v2.4M16 21.2v2.4', 1.8)}`;
-/** Finger reader: the hand with the ring finger drawn solid. */
-export const fingers = palm(P('M13.9 10.8V4.75A1.55 1.55 0 0 1 17 4.75V10.8Z'));
-export const handsCompare = `<g transform="translate(-.5 3.6) scale(.64)">${lightHand(1.75 / 0.64)}</g><g transform="translate(24.5 3.6) scale(-.64 .64)">${solidHand()}</g>`;
+export const reading = `${L('M2.6 7.6V5.8a3.2 3.2 0 0 1 3.2-3.2h1.8M16.4 2.6h1.8a3.2 3.2 0 0 1 3.2 3.2v1.8M21.4 16.4v1.8a3.2 3.2 0 0 1-3.2 3.2h-1.8M7.6 21.4H5.8a3.2 3.2 0 0 1-3.2-3.2v-1.8', 2.2)}<g transform="translate(3.6 3.3) scale(.7)">${palm(L(LINE.heart, 2) + L(LINE.head, 2) + L(LINE.life, 2))}</g>`;
+export const lineFinder = `<g transform="translate(-.6 -.4) scale(.86)">${palm(L(LINE.heart, 2) + L(LINE.head, 2) + L(LINE.life, 2))}</g>${E(ci(17, 17, 4.8) + ci(17, 17, 2.7))}${L('M20.5 20.5l2 2', 2.8)}`;
+export const handShape = `<g transform="translate(.4 .2) scale(.84)">${handShapes()}</g>${S(L('M21.6 9.6v9.6M20.4 9.6h2.4M20.4 19.2h2.4M5.8 22.6h10.4M5.8 21.4v2.4M16.2 21.4v2.4', 1.8))}`;
+export const fingers = `${S(P(rr(2.6, 15.6, 18.8, 6.6, 3) + rr(8, 2.4, 3.6, 16, 1.8) + rr(17, 8.4, 3.4, 10, 1.7)))}${P(rr(3.5, 6, 3.6, 12.6, 1.8) + rr(12.5, 4.2, 3.6, 14.4, 1.8))}`;
+export const handsCompare = `<g transform="translate(-.5 3.6) scale(.64)">${S(handShapes())}</g><g transform="translate(24.5 3.6) scale(-.64 .64)">${handShapes()}</g>`;
 export const photoCheck = `${S(P(rr(2.4, 3.4, 17, 14, 3)))}${P('M2.4 13.6l4.4-4.4a1.5 1.5 0 0 1 2.1 0l3.6 3.6 1.2-1.2a1.5 1.5 0 0 1 2.1 0l1.6 1.6v.6a7 7 0 0 0-3.4 3.6H5.4a3 3 0 0 1-3-3Z')}${P(ci(14.4, 7.6, 1.6))}${E(ci(17.4, 17.4, 5.2) + checkCut(17.4, 17.6, 0.95))}`;
 export const whichHand = `${palm('')}${E(ci(17.4, 17.4, 5.2) + checkCut(17.4, 17.6, 0.95))}`;
-/** Palm signs: one hand with a small star on the mount under the ring finger. */
-export const signs = palm(P(starD(15.6, 14.4, 3.5)));
-export const palmMap = palm([ci(9.3, 12.4, 1.5), ci(15.5, 12.4, 1.5), ci(10, 18, 1.6), ci(17.4, 18, 1.6)].map(P).join(''));
+export const signs = `${P(starD(7, 7, 4.8))}${L('M14.6 3.6l5 5M19.6 3.6l-5 5', 2.3)}${S(P('M7 13.6a1 1 0 0 1 .87.5l3.5 6.1a1 1 0 0 1-.87 1.5h-7a1 1 0 0 1-.87-1.5l3.5-6.1a1 1 0 0 1 .87-.5Z' + rr(14, 14, 7.2, 7.2, 1.6)))}`;
+export const palmMap = palm('', [ci(8.5, 13.3, 1.35), ci(11.9, 12.8, 1.35), ci(15.3, 13, 1.35), ci(18.4, 14.3, 1.35), ci(9.9, 18.4, 1.55), ci(17.2, 18.4, 1.55)].map(P).join(''));
 export const quiz = `${P(ci(5, 6.2, 2.4))}${L('M10 6.2h10.2')}${S(P(ci(5, 12, 2.4) + ci(5, 17.8, 2.4)) + L('M10 12h10.2M10 17.8h7'))}`;
 
 // ---------- Pricing ----------
