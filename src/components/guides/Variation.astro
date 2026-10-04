@@ -11,7 +11,6 @@ import { BOOKS, isBookId, type BookId } from '../../lib/guides/books';
 import { inlineMarkdown } from '../../lib/guides/guides';
 import { guideStrings } from '../../lib/guides/strings';
 import { isVariant } from '../../lib/guides/palm-geometry';
-import Icon from '../Icon.astro';
 import PalmDiagram from './PalmDiagram.astro';
 
 interface Props {
@@ -62,7 +61,10 @@ const anchor = id ?? `type-${variant}`;
   </div>
   <p class="vc-gist" set:html={inlineMarkdown(gist, locale)} />
   <p class="text-small vc-check">
-    <Icon name="eye" class="vc-eye" />
+    <svg class="vc-eye" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
     <span><span class="font-bold">{s.doYouHave}</span> <span set:html={inlineMarkdown(check, locale)} /></span>
   </p>
   <details class="vc-more">
@@ -90,7 +92,7 @@ const anchor = id ?? `type-${variant}`;
     padding: 0.625rem 0.75rem; border-radius: 0.75rem; background: var(--well);
   }
   .vc-check .font-bold { color: var(--fg); }
-  .vc-check :global(.vc-eye) { width: 1.25rem; height: 1.25rem; margin-top: 0.1rem; color: var(--accent); }
+  .vc-eye { width: 1.25rem; height: 1.25rem; margin-top: 0.1rem; fill: none; stroke: var(--accent); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .vc-more { margin-top: auto; border-top: 1px solid var(--edge); }
   .vc-more summary {
     display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; min-height: 3rem;

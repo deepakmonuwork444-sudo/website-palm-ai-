@@ -46,7 +46,7 @@ const jsonLd = [
 ];
 const { planFromPerMonth, packFrom } = site.appPrices;
 // One icon per item of dict.app.does, in order: lines, hand type + fingers, "not clear" instead of guessing, the books, language.
-const doesIcons: MediaIconName[] = ['palm-lines', 'hand-shape', 'question', 'book', 'language'];
+const doesIcons: MediaIconName[] = ['palm-lines', 'hand-shape', 'question', 'book', 'globe'];
 ---
 
 <BaseLayout
@@ -106,7 +106,7 @@ const doesIcons: MediaIconName[] = ['palm-lines', 'hand-shape', 'question', 'boo
             page.does.map((item, index) => (
               <li class="does-item glass-card">
                 <span class="does-icon" aria-hidden="true">
-                  <MediaIcon name={doesIcons[index] ?? 'book'} />
+                  <MediaIcon name={doesIcons[index] ?? 'book'} sizes="3.25rem" />
                 </span>
                 <span>{item}</span>
               </li>
@@ -239,10 +239,11 @@ const doesIcons: MediaIconName[] = ['palm-lines', 'hand-shape', 'question', 'boo
   .does-grid { display: grid; gap: 2.5rem; margin-top: 2.25rem; }
   .does { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.875rem; }
   .does-item { display: grid; grid-template-columns: 3.25rem minmax(0, 1fr); gap: 1rem; align-items: center; padding: 1.125rem 1.25rem; }
-  /* The flat duotone icon, sized to its slot. */
+  /* The 3D glass-and-gold object stands on a soft gold light (no drawn circle). */
   .does-icon { position: relative; display: grid; place-items: center; width: 3.25rem; height: 3.25rem; }
 
-  .does-icon :global(.media-icon) { position: relative; width: 2.75rem; }
+  .does-icon :global(.media-icon) { position: relative; width: 3.25rem;  }
+  :global([data-theme="day"]) .does-icon :global(.media-icon) {  }
   /* A real screen in a plain phone frame (the .device bezel). */
   .does-render { display: block; justify-self: center; width: min(100%, 18rem); height: auto; aspect-ratio: 4 / 5; object-fit: cover; background: var(--surface-1); }
   @media (min-width: 48rem) { .does { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } .does-item { padding: 1.5rem 1.75rem; } }

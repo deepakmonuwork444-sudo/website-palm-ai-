@@ -11,7 +11,6 @@ import type { Locale } from '../../config/site';
 import { localizePath } from '../../i18n';
 import type { GuideLine } from '../../lib/guides/sample-palm';
 import { guideStrings } from '../../lib/guides/strings';
-import Icon from '../Icon.astro';
 
 interface Props {
   locale: Locale;
@@ -46,7 +45,7 @@ const chartLive = isLive(chart) && Astro.url.pathname !== chart;
           <a class="ls-next glass-card" href={next.href}>
             <span class="text-small text-fg-muted">{n > 0 ? s.nextLine(n + 1) : s.startLines}</span>
             <span class="text-h3 font-bold">{s.zoneName[next.key]}</span>
-            <span class="ls-go" aria-hidden="true"><Icon name="arrow" class="ls-go-icon" /></span>
+            <span class="ls-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" /></svg></span>
           </a>
         ) : (
           <div class="ls-done">
@@ -107,7 +106,7 @@ const chartLive = isLive(chart) && Astro.url.pathname !== chart;
     border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); color: var(--accent);
     transition: transform 420ms var(--ease-out), box-shadow 320ms var(--ease-out);
   }
-  .ls-go :global(.ls-go-icon) { width: 1.125rem; height: 1.125rem; }
+  .ls-go svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .ls-next:hover .ls-go { transform: translateX(3px); box-shadow: none; }
   .ls-done p { margin: 0 0 0.25rem; }
   @media (min-width: 40rem) { .ls-end { padding: 1.5rem 1.75rem 1.25rem; } }

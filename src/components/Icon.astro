@@ -1,14 +1,39 @@
 ---
 /**
- * PalmSays icon set v4 (DESIGN_SYSTEM.md §8): our own solid duotone icons on a
- * 24px grid, drawn in src/lib/icons.ts (one source for the static pages and the
- * React island). Colour comes from `currentColor`; the second tone is the same
- * colour at 40 %. Decorative by default (aria-hidden); pass `label` when the icon
- * carries meaning on its own.
+ * PalmSays icon set v3 (DESIGN_SYSTEM.md §8): our own outline icons on a 24px
+ * grid, 1.75px stroke, round caps and joins, drawn to one family (soft 2.5px
+ * corners, open counters, no fills). The palm-line icons reuse the curves of
+ * the brand mark. Always shown next to a visible text label; decorative by
+ * default. Names used before v3 are kept, so older callers keep working.
  */
-import { ICONS, ICON_SVG_ATTRS, type IconName } from '../lib/icons';
+const icons = {
+  sun: '<circle cx="12" cy="12" r="3.6"/><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M5.6 18.4l1.3-1.3M17.1 6.9l1.3-1.3"/>',
+  moon: '<path d="M19.4 14.4A7.6 7.6 0 1 1 9.6 4.6a6 6 0 0 0 9.8 9.8Z"/>',
+  menu: '<path d="M4 8.5h16M4 15.5h10"/>',
+  close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  info: '<circle cx="12" cy="12" r="8.75"/><path d="M12 11.2v5M12 7.9v.1"/>',
+  lock: '<rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5M12 14.3v2"/>',
+  check: '<path d="M5 12.6l4.2 4.2L19 7"/>',
+  shield: '<path d="M12 3.2 5.5 5.8v5.6c0 4.2 2.8 7.6 6.5 9.1 3.7-1.5 6.5-4.9 6.5-9.1V5.8Z"/><path d="M9.3 12.2l1.9 1.9 3.6-3.7"/>',
+  phone: '<rect x="7" y="2.8" width="10" height="18.4" rx="2.6"/><path d="M10.8 5.7h2.4"/>',
+  globe: '<circle cx="12" cy="12" r="8.75"/><path d="M3.3 12h17.4M12 3.3c2.3 2.4 3.5 5.3 3.5 8.7s-1.2 6.3-3.5 8.7c-2.3-2.4-3.5-5.3-3.5-8.7s1.2-6.3 3.5-8.7Z"/>',
+  camera: '<path d="M4 8.6A2.6 2.6 0 0 1 6.6 6h1.5l1.5-2.1h4.8L15.9 6h1.5A2.6 2.6 0 0 1 20 8.6v8a2.6 2.6 0 0 1-2.6 2.6H6.6A2.6 2.6 0 0 1 4 16.6Z"/><circle cx="12" cy="12.4" r="3.3"/>',
+  scan: '<path d="M4 8.2V6.6A2.6 2.6 0 0 1 6.6 4h1.6M15.8 4h1.6A2.6 2.6 0 0 1 20 6.6v1.6M20 15.8v1.6a2.6 2.6 0 0 1-2.6 2.6h-1.6M8.2 20H6.6A2.6 2.6 0 0 1 4 17.4v-1.6M7 12h10"/>',
+  heart: '<path d="M12 19.6s-7.2-4.4-7.2-9.7A4 4 0 0 1 12 7.4a4 4 0 0 1 7.2 2.5c0 5.3-7.2 9.7-7.2 9.7Z"/>',
+  self: '<circle cx="12" cy="8.4" r="3.6"/><path d="M5 20c.8-3.6 3.6-6 7-6s6.2 2.4 7 6"/>',
+  briefcase: '<rect x="3.6" y="7.4" width="16.8" height="12" rx="2.6"/><path d="M9 7.4V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.4M3.6 12.6h16.8"/>',
+  compass: '<circle cx="12" cy="12" r="8.75"/><path d="M15.4 8.6 13.5 13.5 8.6 15.4 10.5 10.5Z"/>',
+  lines: '<path d="M19.5 8.2c-4.4-1.8-9.2-1.6-13 .6M4.5 12.4c5-.6 10 1 13.6 4.6M4.5 12.4c3.6 2 5.8 5 6.2 8.6"/>',
+  hand: '<path d="M8.2 20.6C6.3 19 5 16.6 5 14v-3.2a1.5 1.5 0 0 1 3 0v1.6V5.6a1.5 1.5 0 0 1 3 0V11V4.3a1.5 1.5 0 0 1 3 0V11V6a1.5 1.5 0 0 1 3 0v8.2c0 3.6-2.4 6.6-6 6.6Z"/>',
+  fingers: '<path d="M6.5 20v-9.5a2 2 0 0 1 4 0V20M13.5 20V6.5a2 2 0 0 1 4 0V20M4 20h16"/><path d="M4.5 8.5h1M18.5 4.5h1"/>',
+  compare: '<path d="M4.5 8.5h13.5M15 5.2l3.3 3.3L15 11.8M19.5 15.5H6M9 12.2l-3.3 3.3L9 18.8"/>',
+  book: '<path d="M4 5.6A1.6 1.6 0 0 1 5.6 4H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4ZM20 5.6A1.6 1.6 0 0 0 18.4 4H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6Z"/>',
+  image: '<rect x="3.6" y="5" width="16.8" height="14" rx="2.6"/><circle cx="9" cy="10" r="1.6"/><path d="M20.4 15.6l-4.9-4.9-8.3 8.3"/>',
+  chevron: '<path d="M9 6l6 6-6 6"/>',
+  spark: '<path d="M12 4v4M12 16v4M4 12h4M16 12h4"/><circle cx="12" cy="12" r="1.4"/>',
+} as const;
 
-export type { IconName };
+export type IconName = keyof typeof icons;
 
 interface Props {
   name: IconName;
@@ -21,12 +46,17 @@ const { name, class: className, label } = Astro.props;
 
 <svg
   class:list={['icon', className]}
-  {...ICON_SVG_ATTRS}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.75"
+  stroke-linecap="round"
+  stroke-linejoin="round"
   aria-hidden={label ? undefined : 'true'}
   role={label ? 'img' : undefined}
   aria-label={label}
   focusable="false"
-  set:html={ICONS[name]}
+  set:html={icons[name]}
 />
 
 <style>

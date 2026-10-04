@@ -59,9 +59,10 @@
   background: var(--well) padding-box, var(--rim) border-box;
   box-shadow: var(--t-lift);
 }
-/* The tool's own icon (MediaIcon), sized to the well. */
-.t-tile .t-tile-icon { width: 2.25rem; }
-@media (min-width: 64rem) { .t-head .t-tile { width: 4.25rem; height: 4.25rem; border-radius: 1.375rem; } .t-head .t-tile .t-tile-icon { width: 2.75rem; } }
+/* The tool's 3D glass-and-gold icon (MediaIcon), a little proud of the well. */
+.t-tile .t-tile-icon { width: 2.75rem;  }
+@media (min-width: 64rem) { .t-head .t-tile { width: 4.25rem; height: 4.25rem; border-radius: 1.375rem; } .t-head .t-tile .t-tile-icon { width: 3.25rem; } }
+[data-theme="day"] .t-tile .t-tile-icon {  }
 .t-h1 { margin: 0; font-family: var(--ff-display); font-weight: 700; font-size: var(--fs-h1); line-height: var(--lh-h1); letter-spacing: -0.012em; }
 :lang(hi) .t-h1 { letter-spacing: 0; }
 .t-promise { margin: 0; font-size: var(--fs-lead); line-height: var(--lh-lead); color: var(--fg-muted); max-width: 40rem; }
@@ -328,7 +329,7 @@
   width: 2.375rem; height: 2.375rem; flex: none; display: grid; place-items: center; border-radius: 0.75rem;
   background: var(--well); box-shadow: var(--t-inset);
 }
-.t-other-icon .media-icon { width: 1.5rem; }
+.t-other-icon .media-icon { width: 2rem; }
 .t-other > p { margin: 0.5rem 0 0; padding-inline: 0.5rem; }
 .t-other > p a { display: inline; min-height: 0; padding: 0; border: 0; background: none; color: var(--accent); }
 .t-other > p a:hover { background: none; }

@@ -23,7 +23,6 @@
 import type { Locale } from '../../config/site';
 import { BASE_PATHS, PALM_OUTLINE } from '../../lib/guides/palm-geometry';
 import { guideStrings } from '../../lib/guides/strings';
-import Icon from '../Icon.astro';
 import { fingerGuides, fingerLabels, GUIDE_HEROES, GUIDE_LINES, guideScan, heroCamera, lineEnds, lineLabels, PUSH, type GuideHeroKey, type GuideLine } from '../../lib/guides/traced-palm';
 
 interface Props {
@@ -126,7 +125,7 @@ const sizes = hd ? '(min-width: 64rem) 480px, (min-width: 27rem) 400px, 100vw' :
       </div>
     </div>
     <button type="button" class="tp-replay" data-tp-replay hidden>
-      <Icon name="replay" class="tp-replay-icon" />
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5" /></svg>
       {t.playAgain}
     </button>
   </div>
@@ -234,7 +233,7 @@ const sizes = hd ? '(min-width: 64rem) 480px, (min-width: 27rem) 400px, 100vw' :
     font: inherit; font-size: var(--fs-small); font-weight: 700; cursor: pointer;
   }
   .tp-replay[hidden] { display: none; }
-  .tp-replay :global(.tp-replay-icon) { width: 1.125rem; height: 1.125rem; }
+  .tp-replay svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   /* The show (src/scripts/traced-palm.ts adds .tp-play): the final frame is the page's normal state. */
   .tp-o1 { --d: 0.5s; } .tp-o2 { --d: 2s; } .tp-o3 { --d: 3.5s; } .tp-o4 { --d: 5s; }

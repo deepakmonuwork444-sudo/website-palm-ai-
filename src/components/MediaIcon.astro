@@ -1,24 +1,38 @@
 ---
 /**
- * Feature-size icon (reveal cards, tool tiles, guide cards, legal heroes, /app/
- * features): the bespoke solid duotone set (Icon.astro, src/lib/icons.ts) in the
- * accent colour, square at whatever width the caller sets, so it fills its tile
- * instead of sitting small in an empty box. Decorative: always next to a visible label.
+ * Feature icons. Natural premium (WEB-DEC-060, owner 2026-10-02): the AI-rendered
+ * 3D glass-and-gold icons (public/media/icons/, kept on disk, list in
+ * public/media/README.md) are swapped for our own flat outline icons (Icon.astro).
+ * To go back, copy design-v4/natural-premium/before/src_components_MediaIcon.astro over this file;
+ * every caller stays the same. Decorative: always next to a visible text label.
  */
 import Icon, { type IconName } from './Icon.astro';
 
-export type MediaIconName = IconName;
+export type MediaIconName =
+  | 'love' | 'personality' | 'career' | 'direction'
+  | 'hand-shape' | 'fingers' | 'palm-lines' | 'hands-compare'
+  | 'heart-line' | 'head-line' | 'life-line' | 'fate-line'
+  | 'book' | 'question' | 'camera' | 'scan' | 'globe' | 'map' | 'signs' | 'shield';
+
+const FLAT: Record<MediaIconName, IconName> = {
+  love: 'heart', personality: 'self', career: 'briefcase', direction: 'compass',
+  'hand-shape': 'hand', fingers: 'fingers', 'palm-lines': 'lines', 'hands-compare': 'compare',
+  'heart-line': 'lines', 'head-line': 'lines', 'life-line': 'lines', 'fate-line': 'lines',
+  book: 'book', question: 'info', camera: 'camera', scan: 'scan', globe: 'globe', map: 'compass', signs: 'spark', shield: 'shield',
+};
 
 interface Props {
-  name: IconName;
+  name: MediaIconName;
   class?: string;
+  /** Kept for callers of the old image version; not used. */
+  sizes?: string;
 }
 
 const { name, class: className } = Astro.props;
 ---
 
-<Icon name={name} class:list={['media-icon', className]} />
+<Icon name={FLAT[name]} class:list={['media-icon', className]} />
 
 <style is:global>
-  svg.media-icon.icon { display: block; flex: none; width: 2.5rem; height: auto; aspect-ratio: 1; color: var(--accent); }
+  svg.media-icon.icon { display: block; flex: none; width: 2.5rem; height: 2.5rem; stroke-width: 1.5; color: var(--accent); }
 </style>

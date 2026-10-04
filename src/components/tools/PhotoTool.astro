@@ -52,7 +52,7 @@ const { id, tips, hold } = Astro.props;
       <span>Runs on your device: your photo never leaves this device. Nothing is uploaded or saved.</span>
     </p>
     <ul class="t-pc-tips" aria-label="How to take the photo" data-first-only>
-      {tips.map((tip) => <li><Icon name="tick" /><span>{tip}</span></li>)}
+      {tips.map((tip) => <li><Icon name="check" /><span>{tip}</span></li>)}
     </ul>
     {hold && <p class="t-caveat" data-first-only>{hold}</p>}
     <p class="t-caveat" data-first-only>
