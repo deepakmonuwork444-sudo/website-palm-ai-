@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Icon renderer</title></head>
+<body style="margin:0;background:transparent">
+<script type="importmap">
+{ "imports": { "three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/" } }
+</script>
+<script type="module">
+import { render, NAMES } from './icons.js';
+const only = new URLSearchParams(location.search).get('only');
+const names = only ? only.split(',') : NAMES;
+window.__icons = {};
+for (const n of names) window.__icons[n] = render(n);
+window.__ready = true;
+</script>
+</body>
+</html>

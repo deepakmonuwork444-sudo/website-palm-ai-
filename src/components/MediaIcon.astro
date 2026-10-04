@@ -1,38 +1,51 @@
 ---
 /**
- * Feature icons. Natural premium (WEB-DEC-060, owner 2026-10-02): the AI-rendered
- * 3D glass-and-gold icons (public/media/icons/, kept on disk, list in
- * public/media/README.md) are swapped for our own flat outline icons (Icon.astro).
- * To go back, copy design-v4/natural-premium/before/src_components_MediaIcon.astro over this file;
- * every caller stays the same. Decorative: always next to a visible text label.
+ * Feature and media icons: the PalmSays 3D set in satin gold and ivory enamel (owner-approved style,
+ * 2026-10-04). Rendered offline by research-tools/icons3d (`node research-tools/icons3d/render.mjs`)
+ * to public/images/icons3d/<name>-{96,192,288}.{avif,webp}: plain images, no 3D code on the page.
+ * Decorative by default (alt=""): always shown next to a visible text label.
+ * Small UI glyphs (chevrons, close, menu, ticks) stay crisp SVG in Icon.astro.
  */
-import Icon, { type IconName } from './Icon.astro';
-
-export type MediaIconName =
+/** Every icon in public/images/icons3d/ (the BUILD list in research-tools/icons3d/icons.js). */
+export type Icon3dName =
+  | 'gift' | 'crown' | 'bolt' | 'palm' | 'scan' | 'shield'
+  | 'heart-line' | 'head-line' | 'life-line' | 'fate-line' | 'sun-line' | 'mercury-line' | 'marriage-line' | 'all-lines'
   | 'love' | 'personality' | 'career' | 'direction'
-  | 'hand-shape' | 'fingers' | 'palm-lines' | 'hands-compare'
-  | 'heart-line' | 'head-line' | 'life-line' | 'fate-line'
-  | 'book' | 'question' | 'camera' | 'scan' | 'globe' | 'map' | 'signs' | 'shield';
+  | 'hand-shape' | 'fingers' | 'compare-hands' | 'photo-check' | 'which-hand' | 'quiz' | 'palm-map' | 'signs'
+  | 'document' | 'delete' | 'key' | 'pen' | 'refund' | 'book' | 'globe' | 'loupe';
 
-const FLAT: Record<MediaIconName, IconName> = {
-  love: 'heart', personality: 'self', career: 'briefcase', direction: 'compass',
-  'hand-shape': 'hand', fingers: 'fingers', 'palm-lines': 'lines', 'hands-compare': 'compare',
-  'heart-line': 'lines', 'head-line': 'lines', 'life-line': 'lines', 'fate-line': 'lines',
-  book: 'book', question: 'info', camera: 'camera', scan: 'scan', globe: 'globe', map: 'compass', signs: 'spark', shield: 'shield',
-};
+/** Older names, kept so every earlier caller keeps working. */
+const ALIAS = {
+  'palm-lines': 'all-lines',
+  'hands-compare': 'compare-hands',
+  question: 'quiz',
+  camera: 'photo-check',
+  map: 'palm-map',
+} as const satisfies Record<string, Icon3dName>;
+
+export type MediaIconName = Icon3dName | keyof typeof ALIAS;
 
 interface Props {
   name: MediaIconName;
   class?: string;
-  /** Kept for callers of the old image version; not used. */
+  /** The icon's display width (CSS), e.g. "3.5rem"; picks the 1x/2x/3x file. */
   sizes?: string;
+  /** Only when the icon is the only label of something; otherwise decorative. */
+  alt?: string;
+  loading?: 'lazy' | 'eager';
 }
 
-const { name, class: className } = Astro.props;
+const { name, class: className, sizes = '2.5rem', alt = '', loading = 'lazy' } = Astro.props;
+const file: Icon3dName = name in ALIAS ? ALIAS[name as keyof typeof ALIAS] : (name as Icon3dName);
+const set = (ext: 'avif' | 'webp') => [96, 192, 288].map((px) => `/images/icons3d/${file}-${px}.${ext} ${px}w`).join(', ');
 ---
 
-<Icon name={FLAT[name]} class:list={['media-icon', className]} />
+<picture class:list={['media-icon', className]}>
+  <source type="image/avif" srcset={set('avif')} sizes={sizes} />
+  <img src={`/images/icons3d/${file}-192.webp`} srcset={set('webp')} sizes={sizes} width="192" height="192" alt={alt} loading={loading} decoding="async" />
+</picture>
 
 <style is:global>
-  svg.media-icon.icon { display: block; flex: none; width: 2.5rem; height: 2.5rem; stroke-width: 1.5; color: var(--accent); }
+  picture.media-icon { display: block; flex: none; width: 2.5rem; aspect-ratio: 1; }
+  picture.media-icon > img { display: block; width: 100%; height: 100%; object-fit: contain; }
 </style>

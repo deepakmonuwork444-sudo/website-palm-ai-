@@ -1,7 +1,9 @@
 ---
-/** Related guides (CONTENT_GUIDE.md §5 block 19): 3–4 text links with line glyphs; live pages only. */
+/** Related guides (CONTENT_GUIDE.md §5 block 19): 3–4 text links, each with its guide's 3D icon; live pages only. */
 import { localeFromPath } from '../../i18n';
 import { guideStrings } from '../../lib/guides/strings';
+import { guideIcon } from '../../lib/guides/guide-icons';
+import MediaIcon from '../MediaIcon.astro';
 
 type Line = 'heart' | 'head' | 'life' | 'fate';
 
@@ -26,10 +28,7 @@ const s = guideStrings(localeFromPath(Astro.url.pathname));
           <li>
             <a class="related-link glass-card" href={item.path}>
               <span class="related-mark glass-well" aria-hidden="true">
-                <svg class:list={['related-glyph', item.line ? `glyph-${item.line}` : 'glyph-minor']} viewBox="0 0 48 24" aria-hidden="true">
-                  <path class="glyph-halo" d="M4 18 C 16 6, 30 6, 44 12" />
-                  <path class="glyph-line" d="M4 18 C 16 6, 30 6, 44 12" />
-                </svg>
+                <MediaIcon name={guideIcon(item.path, item.line)} class="related-icon" sizes="2.75rem" />
               </span>
               <span class="related-name">{item.name}</span>
               <span class="related-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg></span>
@@ -52,20 +51,12 @@ const s = guideStrings(localeFromPath(Astro.url.pathname));
     color: var(--fg); text-decoration: none;
   }
   .related-mark { display: grid; place-items: center; flex: none; width: 3rem; height: 3rem; border-radius: 0.875rem; }
-  .related-glyph { width: 2.25rem; height: 1.125rem; }
+  .related-mark :global(.related-icon) { width: 2.75rem; }
   .related-name { flex: 1; min-width: 0; font-family: var(--ff-display); font-weight: 700; font-size: calc(var(--fs-h3) * 1.02); line-height: 1.2; }
   :global(:lang(hi)) .related-name { font-family: var(--ff-sans); font-size: var(--fs-body); }
   .related-go { display: grid; place-items: center; flex: none; width: 2rem; height: 2rem; color: var(--accent); transition: transform 360ms var(--ease-out); }
   .related-go svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .related-link:hover .related-go, .related-link:focus-visible .related-go { transform: translateX(3px); }
   .related-link:hover .related-name { color: var(--accent); }
-  .glyph-halo { fill: none; stroke: var(--color-halo); stroke-width: 6; stroke-linecap: round; }
-  .glyph-line { fill: none; stroke-width: 3.5; stroke-linecap: round; }
-  .glyph-heart .glyph-line { stroke: var(--line-heart); }
-  .glyph-head .glyph-line { stroke: var(--line-head); }
-  .glyph-life .glyph-line { stroke: var(--line-life); }
-  .glyph-fate .glyph-line { stroke: var(--line-fate); }
-  .glyph-minor .glyph-line { stroke: var(--accent); }
-  :global([data-theme="day"]) .glyph-halo { display: none; }
   @media (min-width: 48rem) { .related ul { grid-template-columns: 1fr 1fr; gap: 0.875rem; } }
 </style>

@@ -109,9 +109,9 @@ const guides = guideItems
     return null;
   })
   .filter((item) => item !== null);
-// 3D icon per guide: the line guides keep their line's colour (heart red, head blue, life green, fate purple).
+// 3D icon per guide: each palm line guide shows its own line on the gold palm medallion.
 const guideIcon = (guide: { key: GuideKey; line?: 'heart' | 'head' | 'life' | 'fate' }): MediaIconName =>
-  guide.line ? `${guide.line}-line` : guide.key === 'isReal' ? 'question' : guide.key === 'marriage' ? 'love' : guide.key === 'handLines' ? 'palm-lines' : 'book';
+  guide.line ? `${guide.line}-line` : guide.key === 'isReal' ? 'quiz' : guide.key === 'marriage' ? 'marriage-line' : guide.key === 'handLines' ? 'all-lines' : guide.key === 'palmReading' ? 'palm' : 'book';
 const guidesHub = guides.find((g) => g.key === 'palmReading') ?? null;
 
 // Gold-foil key word in a heading: the dictionary text is only split around the word, never changed.

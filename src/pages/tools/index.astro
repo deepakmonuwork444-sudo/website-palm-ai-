@@ -17,8 +17,8 @@ import MediaIcon from '../../components/MediaIcon.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { isLive } from '../../config/pages';
 import { t } from '../../i18n';
-import { TOOLS, toolById, type ToolGlyph } from '../../lib/tools/registry';
-import { TOOL_ICON } from '../../lib/tools/tool-icons';
+import { TOOLS, toolById } from '../../lib/tools/registry';
+import { toolIcon } from '../../lib/tools/tool-icons';
 import { toolsHubSchema } from '../../lib/tools/schema';
 
 const title = 'Free Palm Reading Tools: Hand Type, Fingers & Palm Photo';
@@ -33,8 +33,8 @@ const compare = toolById('hand-compare');
 const checker = toolById('photo-checker');
 const lineFinder = toolById('line-finder');
 const learn = TOOLS.filter((tool) => !tool.photo);
-// 3D glass-and-gold icon per tool glyph (src/lib/tools/tool-icons.ts, shared with the tool pages).
-const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
+// The 3D gold-and-ivory icon of each tool (src/lib/tools/tool-icons.ts, shared with the tool pages).
+const icon3d = toolIcon;
 ---
 
 <BaseLayout title={title} description={description} path="/tools/" locale="en" jsonLd={jsonLd}>
@@ -68,7 +68,7 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
             <li class="hub-pcard hub-pcard-wide glass-card">
               <div class="hub-pcard-copy">
                 <span class="hub-card-top">
-                  <span class="t-tile"><MediaIcon name={icon3d(tool.glyph)} sizes="2.75rem" /></span>
+                  <span class="t-tile"><MediaIcon name={icon3d(tool)} sizes="3.25rem" /></span>
                   <a class="hub-card-name hub-stretch" href={tool.path}>{tool.name}</a>
                 </span>
                 <span class="hub-card-blurb">{tool.blurb}</span>
@@ -84,7 +84,7 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
         <li class="hub-pcard glass-card">
           <div class="hub-pcard-copy">
             <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(compare.glyph)} sizes="2.75rem" /></span>
+              <span class="t-tile"><MediaIcon name={icon3d(compare)} sizes="3.25rem" /></span>
               <a class="hub-card-name hub-stretch" href={compare.path}>{compare.name}</a>
             </span>
             <span class="hub-card-blurb">{compare.blurb}</span>
@@ -101,7 +101,7 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
         <li class="hub-pcard glass-card">
           <div class="hub-pcard-copy">
             <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(checker.glyph)} sizes="2.75rem" /></span>
+              <span class="t-tile"><MediaIcon name={icon3d(checker)} sizes="3.25rem" /></span>
               <a class="hub-card-name hub-stretch" href={checker.path}>{checker.name}</a>
             </span>
             <span class="hub-card-blurb">{checker.blurb}</span>
@@ -119,7 +119,7 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
         <li class="hub-pcard glass-card">
           <div class="hub-pcard-copy">
             <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(lineFinder.glyph)} sizes="2.75rem" /></span>
+              <span class="t-tile"><MediaIcon name={icon3d(lineFinder)} sizes="3.25rem" /></span>
               <a class="hub-card-name hub-stretch" href={lineFinder.path}>{lineFinder.name}</a>
             </span>
             <span class="hub-card-blurb">{lineFinder.blurb}</span>
@@ -141,7 +141,7 @@ const icon3d = (glyph: ToolGlyph) => TOOL_ICON[glyph];
           learn.map((tool) => (
             <li>
               <div class="hub-row glass-card">
-                <span class="hub-row-tile"><MediaIcon name={icon3d(tool.glyph)} sizes="2.75rem" /></span>
+                <span class="hub-row-tile"><MediaIcon name={icon3d(tool)} sizes="2.75rem" /></span>
                 <span class="hub-row-text">
                   <a class="hub-row-name stretch-link" href={tool.path}>{tool.name}</a>
                   <span class="hub-row-blurb">{tool.blurb}</span>

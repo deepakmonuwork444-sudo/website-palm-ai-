@@ -31,7 +31,18 @@ interface Props {
   toc?: { id: string; label: string }[];
 }
 
-const { crumb, path, parents = [], icon, portrait, monogram, kicker, title, lead, meta, toc = [] } = Astro.props;
+const { crumb, path, parents = [], icon: pageIcon, portrait, monogram, kicker, title, lead, meta, toc = [] } = Astro.props;
+// Each legal and trust page has its own 3D icon in the hero; other pages use the icon they pass.
+const PAGE_ICON: Record<string, MediaIconName> = {
+  '/privacy/': 'shield',
+  '/terms/': 'document',
+  '/delete-account/': 'delete',
+  '/reset-password/': 'key',
+  '/editorial-policy/': 'pen',
+  '/refunds/': 'refund',
+  '/about/': 'palm',
+};
+const icon = PAGE_ICON[path] ?? pageIcon;
 const dict = t('en');
 ---
 
@@ -45,7 +56,7 @@ const dict = t('en');
       ) : monogram ? (
         <span class="doc-orb doc-monogram font-display" aria-hidden="true">{monogram}</span>
       ) : (
-        <span class="doc-orb" aria-hidden="true"><MediaIcon name={icon} sizes="4rem" class="doc-orb-icon" /></span>
+        <span class="doc-orb" aria-hidden="true"><MediaIcon name={icon} sizes="4.5rem" class="doc-orb-icon" loading="eager" /></span>
       )
     }
     <p class="doc-kicker">{kicker}</p>
@@ -88,7 +99,7 @@ const dict = t('en');
     display: inline-grid; place-items: center; width: 5.5rem; height: 5.5rem; margin-bottom: 1rem; border-radius: 9999px; border: 1px solid transparent;
     background: var(--glass-1) padding-box, var(--glass-base) padding-box, var(--rim) border-box; box-shadow: var(--e1);
   }
-  .doc-orb :global(.doc-orb-icon) { width: 4rem; }
+  .doc-orb :global(.doc-orb-icon) { width: 4.5rem; }
   .doc-portrait { width: 7rem; height: 7rem; padding: 0.25rem; object-fit: cover; }
   .doc-monogram { width: 7rem; height: 7rem; font-size: 2.5rem; font-weight: 700; letter-spacing: 0.02em; color: var(--accent); }
   .doc-kicker { margin: 0 0 0.5rem; font-size: var(--fs-small); font-weight: 700; letter-spacing: 0.04em; color: var(--accent); }

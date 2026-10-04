@@ -45,8 +45,8 @@ const jsonLd = [
   mobileApplicationSchema({ locale, description: dict.meta.appDescription, featureList: page.does, entities }),
 ];
 const { planFromPerMonth, packFrom } = site.appPrices;
-// One icon per item of dict.app.does, in order: lines, hand type + fingers, "not clear" instead of guessing, the books, language.
-const doesIcons: MediaIconName[] = ['palm-lines', 'hand-shape', 'question', 'book', 'globe'];
+// One 3D icon per item of dict.app.does, in order: lines, hand type + fingers, "not clear" instead of guessing (a loupe), the books, language.
+const doesIcons: MediaIconName[] = ['all-lines', 'hand-shape', 'loupe', 'book', 'globe'];
 ---
 
 <BaseLayout

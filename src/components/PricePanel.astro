@@ -65,11 +65,11 @@ const priceNotes: { icon: IconName; text: string }[] = [
   { icon: 'check', text: price.sameReading },
   { icon: 'shield', text: price.payment },
 ];
-// Our own 3D icon renders (AI-made, 2026-09-28; public/images/icons/price-*, AVIF + WebP 128/256), decorative.
+// The 3D gold-and-ivory icon set (research-tools/icons3d -> public/images/icons3d/, AVIF + WebP 96/192/288), decorative.
 const icon3d = (name: 'gift' | 'crown' | 'bolt') => ({
-  avif: `/images/icons/price-${name}-128.avif 128w, /images/icons/price-${name}-256.avif 256w`,
-  webp: `/images/icons/price-${name}-128.webp 128w, /images/icons/price-${name}-256.webp 256w`,
-  src: `/images/icons/price-${name}-128.webp`,
+  avif: [96, 192, 288].map((px) => `/images/icons3d/${name}-${px}.avif ${px}w`).join(', '),
+  webp: [96, 192, 288].map((px) => `/images/icons3d/${name}-${px}.webp ${px}w`).join(', '),
+  src: `/images/icons3d/${name}-192.webp`,
 });
 const gift = icon3d('gift');
 const crown = icon3d('crown');
@@ -78,9 +78,9 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
 ---
 
 <div class="price-panel">
-  <!-- 3D icons: our own renders (not emoji), local AVIF/WebP, decorative (public/images/icons/). -->
+  <!-- 3D icons: our own renders (not emoji), local AVIF/WebP, decorative (public/images/icons3d/). -->
   <div class="free-box glass-card">
-    <picture class="icon3d icon3d-lg"><source type="image/avif" srcset={gift.avif} sizes="4.5rem" /><img src={gift.src} srcset={gift.webp} sizes="4.5rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+    <picture class="icon3d icon3d-lg"><source type="image/avif" srcset={gift.avif} sizes="4.5rem" /><img src={gift.src} srcset={gift.webp} sizes="4.5rem" width="192" height="192" alt="" loading="lazy" decoding="async" /></picture>
     <div class="free-copy">
       <h3 class="free-title">{freeTitle}<span class="sr-only">:</span></h3>
       <p>{freeBody}</p>
@@ -93,12 +93,12 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
     <legend class="sr-only">{price.switchLabel}</legend>
     <label class="ptab">
       <input type="radio" name="price-tab" value="plans" checked />
-      <picture class="ptab-icon"><source type="image/avif" srcset={crown.avif} sizes="2.25rem" /><img src={crown.src} srcset={crown.webp} sizes="2.25rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <picture class="ptab-icon"><source type="image/avif" srcset={crown.avif} sizes="2.25rem" /><img src={crown.src} srcset={crown.webp} sizes="2.25rem" width="192" height="192" alt="" loading="lazy" decoding="async" /></picture>
       <span>{price.membershipTitle}</span>
     </label>
     <label class="ptab">
       <input type="radio" name="price-tab" value="packs" />
-      <picture class="ptab-icon"><source type="image/avif" srcset={bolt.avif} sizes="2.25rem" /><img src={bolt.src} srcset={bolt.webp} sizes="2.25rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <picture class="ptab-icon"><source type="image/avif" srcset={bolt.avif} sizes="2.25rem" /><img src={bolt.src} srcset={bolt.webp} sizes="2.25rem" width="192" height="192" alt="" loading="lazy" decoding="async" /></picture>
       <span>{price.packsTitle}</span>
     </label>
   </fieldset>
@@ -106,7 +106,7 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
 
   <div class="price-group group-plans">
     <div class="group-head">
-      <picture class="icon3d"><source type="image/avif" srcset={crown.avif} sizes="3.75rem" /><img src={crown.src} srcset={crown.webp} sizes="3.75rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <picture class="icon3d"><source type="image/avif" srcset={crown.avif} sizes="3.75rem" /><img src={crown.src} srcset={crown.webp} sizes="3.75rem" width="192" height="192" alt="" loading="lazy" decoding="async" /></picture>
       <div>
         <h3 id="membership-title" class="text-h3 font-bold group-title">{price.membershipTitle}</h3>
         <p class="group-lead">{price.membershipLead}</p>
@@ -140,7 +140,7 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
 
   <div class="price-group group-packs">
     <div class="group-head">
-      <picture class="icon3d"><source type="image/avif" srcset={bolt.avif} sizes="3.75rem" /><img src={bolt.src} srcset={bolt.webp} sizes="3.75rem" width="256" height="256" alt="" loading="lazy" decoding="async" /></picture>
+      <picture class="icon3d"><source type="image/avif" srcset={bolt.avif} sizes="3.75rem" /><img src={bolt.src} srcset={bolt.webp} sizes="3.75rem" width="192" height="192" alt="" loading="lazy" decoding="async" /></picture>
       <div>
         <h3 id="packs-title" class="text-h3 font-bold group-title">{price.packsTitle}</h3>
         <p class="group-lead">{price.packsLead}</p>
@@ -184,10 +184,10 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
   .pack-count, .pack-tag, .pack-price, .pack-each { margin: 0; }
   .plan-grid, .pack-grid, .price-notes { list-style: none; margin: 0; padding: 0; }
   /* Our 3D icon renders: a dark studio tile in a soft rim (Night and Day alike). */
-  .icon3d { display: block; flex: none; width: 3.75rem; height: 3.75rem; border-radius: 1rem; overflow: hidden; border: 1px solid var(--hairline); box-shadow: 0 10px 22px -10px rgba(0,0,0,0.55); }
+  /* Transparent 3D objects with their own soft shadow: no tile, border or drop shadow around them. */
+  .icon3d { display: block; flex: none; width: 3.75rem; height: 3.75rem; }
   .icon3d img { display: block; width: 100%; height: 100%; }
   .icon3d-lg { width: 4.5rem; height: 4.5rem; border-radius: 1.125rem; }
-  :global([data-theme="day"]) .icon3d { box-shadow: 0 10px 20px -10px rgba(23,19,61,0.35); }
   /* Gold foil numbers: the prices and the word "Free". */
   .free-title, .amount, .pack-price {
     font-family: var(--ff-display); font-weight: 700; letter-spacing: -0.01em; line-height: 1;
@@ -259,7 +259,7 @@ const store = (campaign: string) => playStoreUrl({ medium, campaign, locale });
   .ptab:has(input:checked) { background-image: var(--gold-gradient); color: var(--color-on-gold); box-shadow: none; }
   .ptab:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
   .ptab-icon { flex: none; }
-  .ptab-icon img { display: block; width: 2.25rem; height: 2.25rem; border-radius: 0.625rem; }
+  .ptab-icon img { display: block; width: 2.25rem; height: 2.25rem; }
   /* The tab already shows the crown / bolt: the group keeps its heading and line, not a second icon. */
   .price-panel:has(.price-switch input:checked) .group-head .icon3d { display: none; }
   .price-panel:has(input[value="packs"]:checked) .group-plans,
