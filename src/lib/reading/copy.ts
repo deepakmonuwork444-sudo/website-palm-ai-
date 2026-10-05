@@ -10,7 +10,7 @@
  * Hindi: not read by the owner / Hindi reviewer yet (WEB-FEAT-024 rule).
  */
 
-import type { Locale } from '../../config/site';
+import { site, type Locale } from '../../config/site';
 import type { ReadingErrorCode } from './errors';
 
 type Text = Record<Locale, string>;
@@ -49,6 +49,16 @@ export const COPY = {
     hi: 'हम आपकी फ़ोटो जांचते हैं, पर किसी सर्वर पर सेव नहीं करते। एक कॉपी सिर्फ़ इसी डिवाइस पर रहती है।',
   },
   whatHappens: { en: 'What happens to my photo?', hi: 'मेरी फ़ोटो का क्या होता है?' },
+  // Explicit consent before any photo is picked (owner 2026-10-04; GDPR art. 6(1)(a), DPDP s. 6). Unticked by
+  // default, kept only in the page's memory (never sent or stored). The link opens the privacy policy in a new tab.
+  consentBefore: {
+    en: `I am ${site.ageRule} or older, and I agree that my palm photo is sent to ${site.brand}'s processors (including servers in the USA) only to create my reading, as described in the `,
+    hi: `मेरी उम्र ${site.ageRule} साल या उससे ज़्यादा है, और मैं सहमत हूं कि मेरी हथेली की फ़ोटो सिर्फ़ मेरी रीडिंग बनाने के लिए ${site.brand} के प्रोसेसर (अमेरिका के सर्वर भी) को भेजी जाए, जैसा `,
+  },
+  consentLink: { en: 'Privacy Policy', hi: 'प्राइवेसी पॉलिसी (English)' },
+  consentAfter: { en: '.', hi: ' में बताया गया है।' },
+  newTab: { en: '(opens in a new tab)', hi: '(नए टैब में खुलता है)' },
+  consentHint: { en: 'Tick the box above to choose a photo.', hi: 'फ़ोटो चुनने के लिए ऊपर का बॉक्स चुनें।' },
   privacyRows: {
     en: [
       'Before anything is sent, your browser makes the photo smaller and removes hidden data such as your location.',

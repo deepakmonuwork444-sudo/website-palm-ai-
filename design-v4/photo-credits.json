@@ -29,6 +29,19 @@
       "licenseUrl": "https://www.pexels.com/license/",
       "licenseCheckedOn": "2026-09-26",
       "usedOn": ["/samples/hero-palm-*: the home page and /app/ sample photo (see public/samples/LICENSE.txt)"]
+    },
+    {
+      "id": "founder-portrait",
+      "title": "Deepak Chauhan, founder of PalmSays",
+      "photographer": "Owner-supplied (Deepak Chauhan's own photo)",
+      "license": "Owner-supplied, used with permission on palmsays.com",
+      "licenseCheckedOn": "2026-10-04",
+      "source": "Sent by the owner in chat on 2026-10-04 (1066 x 1599 JPEG with a white border; the photo itself is only 650 x 1445).",
+      "edit": "White border removed by pixel scan (photo area x 208 to 857, y 77 to 1521; crop kept inside it). Two crops, no retouching, no mirroring: a 4:5 upper body (x 209, y 290, 648 x 810) and a square face (x 345, y 290, 400 x 400). Encoded with sharp (lanczos3, light sharpen) to WebP and AVIF; never upscaled.",
+      "usedOn": [
+        "/media/people/deepak-chauhan-portrait-{400,648}.{avif,webp}: /about/deepak-chauhan/ photo and Person schema image",
+        "/media/people/deepak-chauhan-face-{176,352}.{avif,webp}: /about/deepak-chauhan/ hero orb"
+      ]
     }
   ]
 }

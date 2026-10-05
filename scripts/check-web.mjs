@@ -520,6 +520,8 @@ function main() {
       }
       if (target.host === 'play.google.com') {
         if (citedPlay.has(href)) continue;
+        // The visitor's own Google Play order history (the refund steps on /refunds/) is not a store listing.
+        if (target.pathname === '/store/account/orderhistory') continue;
         if (target.searchParams.get('id') !== site.playPackage) error(file, `Play link without id=${site.playPackage}`);
         const referrer = new URLSearchParams(target.searchParams.get('referrer') ?? '');
         if (referrer.get('utm_source') !== 'web' || !referrer.get('utm_medium') || !referrer.get('utm_campaign')) {

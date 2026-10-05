@@ -89,6 +89,33 @@ export function organizationSchema(): JsonLd {
   };
 }
 
+/**
+ * The founder and author (/about/deepak-chauhan/). The same `@id` as every article's author and the
+ * Organization's founder. Only facts the owner gave: name, role, town, his LinkedIn profile, his photo.
+ */
+export function personSchema(image?: { url: string; width: number; height: number }): JsonLd {
+  const author = site.author;
+  return {
+    '@context': CONTEXT,
+    '@type': 'Person',
+    '@id': PERSON_ID,
+    name: author.name,
+    url: absoluteUrl(AUTHOR_PATH),
+    jobTitle: `Founder, ${site.brand}`,
+    worksFor: { '@id': ORGANIZATION_ID },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: `${author.locality}, ${author.district}`,
+      addressRegion: author.region,
+      addressCountry: author.country,
+    },
+    ...(author.sameAs.length ? { sameAs: [...author.sameAs] } : {}),
+    // Palmistry (Wikidata Q182687) is what he writes about; no credentials he doesn't have (plan §5.2).
+    knowsAbout: ['https://www.wikidata.org/wiki/Q182687', 'Search engine optimization', 'Semantic SEO'],
+    ...(image ? { image: { '@type': 'ImageObject', url: absoluteUrl(image.url), width: image.width, height: image.height } } : {}),
+  };
+}
+
 export function websiteSchema(locale: Locale): JsonLd {
   return {
     '@context': CONTEXT,

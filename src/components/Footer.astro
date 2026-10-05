@@ -63,6 +63,7 @@ const groups: { title: string; links: FooterLink[] }[] = [
       ...registryLinks(['/blog/']),
       // Trust pages (WEB-FEAT-035): English only, like the legal pages.
       { label: dict.footer.about, href: '/about/', page: '/about/', lang: 'en' },
+      { label: dict.footer.founder, href: '/about/deepak-chauhan/', page: '/about/deepak-chauhan/', lang: 'en' },
       { label: dict.footer.editorialPolicy, href: '/editorial-policy/', page: '/editorial-policy/', lang: 'en' },
     ],
   },
@@ -75,6 +76,7 @@ const groups: { title: string; links: FooterLink[] }[] = [
     links: [
       { label: dict.footer.privacy, href: '/privacy/', page: '/privacy/', lang: 'en' },
       { label: dict.footer.terms, href: '/terms/', page: '/terms/', lang: 'en' },
+      { label: dict.footer.refunds, href: '/refunds/', page: '/refunds/', lang: 'en' },
       { label: dict.footer.deleteAccount, href: '/delete-account/', page: '/delete-account/', lang: 'en' },
     ],
   },
@@ -133,7 +135,7 @@ const company = site.company;
         {
           company.name && (
             <ul class="footer-company">
-              <li>{company.name}</li>
+              <li>{`${dict.footer.operatedBy} ${company.name}${company.location ? `, ${company.location}` : ''}`}</li>
               {company.email && (
                 <li>
                   {dict.footer.contact}: <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>
@@ -141,7 +143,7 @@ const company = site.company;
               )}
               {company.grievanceContact && (
                 <li>
-                  {dict.footer.grievance}: {company.grievanceContact}
+                  {`${dict.footer.grievance}: ${company.grievanceOfficer ?? company.name}${company.email ? ` (${company.email})` : ''}`}
                 </li>
               )}
             </ul>

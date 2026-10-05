@@ -239,6 +239,8 @@ const learn = TOOLS.filter((tool) => !tool.photo);
   .hub-card-top { display: flex; align-items: center; gap: 0.875rem; }
   .hub-card-name { font-family: var(--ff-display); font-weight: 700; font-size: calc(var(--fs-h3) * 1.14); line-height: 1.2; color: var(--fg); text-decoration: none; letter-spacing: -0.005em; }
   .hub-card-name:focus-visible { outline: none; }
+  /* Browsers without :has() can't draw the card ring above, so the link keeps its own focus ring there. */
+  @supports not selector(:has(*)) { .hub-card-name:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; } }
   /* The whole card is the link's target area (one link per card, no nested links). */
   .hub-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
   .hub-card-blurb { color: var(--fg-muted); }

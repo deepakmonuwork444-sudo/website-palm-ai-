@@ -86,13 +86,35 @@ export const site = {
   appSizeMb: null as number | null,
 
   ageRule: 18,
-  /** Company details for the footer and legal pages: owner item 9, not provided yet. */
+  /**
+   * Operator details for the footer and legal pages (owner item 9, confirmed by the owner 2026-10-04).
+   * PalmSays is run by an individual, not a company: there is no company registration and no GSTIN,
+   * and no street address or phone is published. Never invent one.
+   */
   company: {
-    name: null as string | null,
-    email: null as string | null,
-    grievanceContact: null as string | null,
+    /** The operator ("we" in the terms): an individual. */
+    name: 'Deepak Chauhan' as string | null,
+    /** Town, district, state, country: the only address the owner publishes. */
+    location: 'Nokha, Bikaner, Rajasthan, India' as string | null,
+    /** Contact, support, refunds help and the Grievance Officer's email (one inbox). */
+    email: 'dc556316@gmail.com' as string | null,
+    /** Grievance Officer (IT Rules 2021, rule 3(2); DPDP Act 2023). */
+    grievanceOfficer: 'Deepak Chauhan' as string | null,
+    /** One line for places that print the grievance contact as text. */
+    grievanceContact: 'Deepak Chauhan, Grievance Officer (dc556316@gmail.com)' as string | null,
   },
-  author: { name: 'Deepak Chauhan' },
+  /** How fast grievances are handled (IT Rules 2021, rule 3(2)(a)): acknowledge within 24 hours, resolve within 15 days. */
+  grievanceTimes: { acknowledgeHours: 24, resolveDays: 15 },
+  author: {
+    name: 'Deepak Chauhan',
+    /** Real profiles of the author (Person sameAs). Only profiles the owner gave. */
+    sameAs: ['https://www.linkedin.com/in/deepakchauhan333/'] as readonly string[],
+    linkedin: 'https://www.linkedin.com/in/deepakchauhan333/',
+    locality: 'Nokha',
+    region: 'Rajasthan',
+    district: 'Bikaner',
+    country: 'IN',
+  },
   /**
    * The day palmsays.com goes public, YYYY-MM-DD (WEB-DEC-049, owner decision D10). null until the
    * owner deploys (OWNER_GUIDE.md §13). When set, it is every guide's `datePublished` unless the guide's

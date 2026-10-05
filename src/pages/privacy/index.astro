@@ -17,7 +17,7 @@ import { COPY } from '../../lib/reading/copy';
 const company = companyForBuild();
 const path = '/privacy/';
 const brand = site.brand;
-const updated = '28 September 2026';
+const updated = '4 October 2026';
 const readingOpen = site.webReadingEnabled;
 
 const toc = [
@@ -26,6 +26,8 @@ const toc = [
   { id: 'website', label: 'On the website' },
   { id: 'processors', label: 'Who processes data for us' },
   { id: 'rights', label: 'Your consent and your rights' },
+  { id: 'eu-uk', label: 'EU, EEA and UK (GDPR)' },
+  { id: 'us', label: 'United States' },
   { id: 'age', label: 'Age' },
   { id: 'security', label: 'Security' },
   { id: 'contact', label: 'Grievances and contact' },
@@ -39,7 +41,7 @@ const webpage = {
   name: `${brand} privacy policy`,
   url: `${site.baseUrl}${path}`,
   inLanguage: 'en',
-  dateModified: '2026-09-28',
+  dateModified: '2026-10-04',
   publisher: { '@id': `${site.baseUrl}/#organization` },
 };
 ---
@@ -57,8 +59,8 @@ const webpage = {
     icon="shield"
     kicker="Privacy"
     title="Privacy policy"
-    lead={`What personal data the ${brand} app and website use, why, where it goes, and how you remove it. Written to meet India's Digital Personal Data Protection Act, 2023 and Google Play's User Data policy.`}
-    meta={`${brand} is operated by ${company.name}. Effective ${updated}.`}
+    lead={`What personal data the ${brand} app and website use, why, where it goes, and how you remove it. Written for India's Digital Personal Data Protection Act, 2023, the EU and UK GDPR, US state privacy laws and Google Play's User Data policy.`}
+    meta={`${brand} is operated by ${company.name}${company.location ? `, ${company.location}` : ''}. Effective ${updated}.`}
     toc={toc}
   >
     <p>
@@ -253,6 +255,96 @@ const webpage = {
       the deletion the next time you open it with internet.
     </p>
 
+    <h2 id="eu-uk">If you are in the EU, EEA or UK (GDPR)</h2>
+    <p>
+      If you use {brand} from the European Union, the European Economic Area or the United Kingdom, the General Data Protection
+      Regulation (GDPR) or the UK GDPR applies. This section adds to the rest of this policy: the table above says what we collect,
+      why, where it is kept and for how long.
+    </p>
+
+    <h3>Who is responsible for your data</h3>
+    <p>
+      The controller of your personal data is {company.name}, who runs {brand} as an individual{company.location ? `, from ${company.location}` : ''}.
+      You can reach him at <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>.
+    </p>
+
+    <h3>Why we are allowed to use your data (legal bases)</h3>
+    <ul>
+      <li><strong>Your consent:</strong> analysing your palm photo and producing the reading from it (the traced line points, hand points and written observations), and any personal details you choose to type. You can withdraw consent at any time by deleting the reading or your account; this does not affect what was done before.</li>
+      <li><strong>Contract</strong> (providing the service you asked for): your account and sign-in, saving your readings and your free-reading count, and your purchases, so the readings you paid for reach your account.</li>
+      <li><strong>Legitimate interests</strong> (keeping {brand} safe, fair and working): the Turnstile bot check, the salted one-way code of your internet address that limits free guest readings, the one-way email code that stops the free readings being claimed again, cost records to spot abuse, crash reports to fix errors, and anonymous daily usage counts. You can object to these (see your rights below).</li>
+      <li><strong>Legal obligation:</strong> keeping purchase records for longer when the law requires it.</li>
+    </ul>
+    <p>
+      We use your palm photo only to make your reading, never to identify you. A reading is produced automatically, but it is for
+      reflection and has no legal or similarly significant effect on you.
+    </p>
+
+    <h3>Your rights</h3>
+    <p>You have the right to:</p>
+    <ul>
+      <li><strong>access</strong> your personal data and get a copy of it;</li>
+      <li><strong>rectification:</strong> have wrong data corrected;</li>
+      <li><strong>erasure:</strong> have your data deleted (you can do this yourself on the <a class="text-link" href="/delete-account/">delete-account page</a> or in the app);</li>
+      <li><strong>restriction:</strong> ask us to limit how we use your data;</li>
+      <li><strong>portability:</strong> receive the data you gave us in a common, machine-readable format;</li>
+      <li><strong>object</strong> to processing based on our legitimate interests;</li>
+      <li><strong>withdraw your consent</strong> at any time, as easily as you gave it.</li>
+    </ul>
+    <p>
+      To use any of these rights, email <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a> from the address of your
+      account. We may ask you to confirm the request from that address, and we answer within one month.
+    </p>
+
+    <h3>Transfers outside the EU, EEA and UK</h3>
+    <p>
+      {brand} is run from India, and our service providers process data in other countries, including the USA: Modal runs the line
+      scanner in the USA, and Cloudflare, Supabase and Google may process data in other countries, including the USA (see
+      <a class="text-link" href="#processors">who processes data for us</a>). Where your data leaves the EU, EEA or UK, these transfers rely
+      on the safeguards in our providers' data processing terms, such as the European Commission's Standard Contractual Clauses and the
+      UK's equivalent. You can email us to ask about these safeguards.
+    </p>
+
+    <h3>How long we keep it</h3>
+    <p>
+      Each item is kept only as long as the table above says: your account, readings and purchase records until you delete your
+      account (purchase records longer only if the law requires it); the internet-address code for at most 2 days; crash reports for 14
+      days; cost records for 180 days; usage counts, as daily totals only, for up to 400 days. The palm photo is never stored on a
+      server. The one-way email code is kept after deletion, only to stop the free readings being claimed again.
+    </p>
+
+    <h3>Complaints</h3>
+    <p>
+      Please write to us first so we can try to put things right. You also have the right to complain to the data protection authority
+      in the country where you live or work, or where you think the problem happened: in the EU and EEA, see the
+      <a class="text-link" href="https://www.edpb.europa.eu/about-edpb/about-edpb/members_en" rel="noopener">list of national authorities</a>;
+      in the UK, the <a class="text-link" href="https://ico.org.uk/make-a-complaint/" rel="noopener">Information Commissioner's Office</a>.
+    </p>
+
+    <h2 id="us">If you are in the United States</h2>
+    <p>
+      <strong>We do not sell your personal information, and we do not share it for cross-context behavioural advertising</strong>
+      (ads targeted at you based on what you do on other sites and apps). There are no ads and no ad trackers in {brand}. Because we
+      don't sell or share personal information, there is nothing to opt out of, and the same is true when your browser sends a Global
+      Privacy Control signal.
+    </p>
+    <p>
+      What we collect, where it comes from (you, and Google if you use Google sign-in), why we use it, and the service providers that
+      receive it are listed in the table and the processor list above. We don't use your palm photo to identify you or to infer
+      anything sensitive about you.
+    </p>
+    <p>
+      Depending on the state you live in (for example California, Colorado, Connecticut, Virginia and others with privacy laws), you may
+      have the right to know what personal information we hold about you and get a copy, to correct it, to delete it, and to opt out of
+      its sale, sharing or use for targeted advertising (which we don't do). We will not treat you differently for using these rights.
+    </p>
+    <p>
+      To make a request, email <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a> from the address of your account,
+      or delete your account yourself on the <a class="text-link" href="/delete-account/">delete-account page</a>. Someone you authorise in
+      writing can make a request for you. We confirm the request with the account's email address and answer within 45 days. If we
+      turn down your request, you can appeal by replying to our answer, and we reply to an appeal within 45 days.
+    </p>
+
     <h2 id="age">Age</h2>
     <p>
       {brand} is intended for people aged {site.ageRule} and over. We do not knowingly process the personal data of children. If you
@@ -268,10 +360,15 @@ const webpage = {
     <h2 id="contact">Grievances and contact</h2>
     <p>
       For any question, correction, deletion request or complaint, write to <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>.
-      We respond within 30 days. If you are not satisfied, you may complain to the Data Protection Board of India.
+      We answer requests about your data within 30 days. If you are not satisfied, you may complain to the Data Protection Board of
+      India (and, in the EU, EEA or UK, to your data protection authority, as described above).
     </p>
-    <p><strong>Grievance contact:</strong> {company.grievanceContact}</p>
-    <p><strong>Operator:</strong> {company.name}</p>
+    <p>
+      <strong>Grievance Officer:</strong> {company.grievanceOfficer}, <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>.
+      As India's Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021 require, we acknowledge
+      every complaint within {site.grievanceTimes.acknowledgeHours} hours and resolve it within {site.grievanceTimes.resolveDays} days of receiving it.
+    </p>
+    <p><strong>Operator:</strong> {company.name}{company.location ? `, ${company.location}` : ''}. {brand} is run by an individual, not a company.</p>
 
     <h2 id="changes">Changes</h2>
     <p>

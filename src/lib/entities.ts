@@ -972,6 +972,7 @@ export const PAGE_ENTITIES: Readonly<Record<string, PageEntities>> = {
 export const PAGES_WITHOUT_ENTITIES: readonly string[] = [
   '/privacy/',
   '/terms/',
+  '/refunds/',
   '/about/',
   '/editorial-policy/',
   '/about/deepak-chauhan/',

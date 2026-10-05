@@ -644,3 +644,12 @@
 .auth-google-mock img { flex: none; }
 .auth-or { display: flex; align-items: center; gap: 0.75rem; color: var(--fg-muted); }
 .auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--edge); }
+
+/* Photo consent (owner 2026-10-04): a real checkbox, unticked, before the photo buttons. 48px hit area via the label row. */
+.rd-consent {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 0.75rem; row-gap: 0.25rem; align-items: start;
+  padding: 0.875rem 1rem; border-radius: 0.75rem; border: 1px solid var(--edge); background: var(--surface-2);
+}
+.rd-consent input[type="checkbox"] { width: 1.375rem; height: 1.375rem; margin: 0.125rem 0 0; accent-color: var(--accent); cursor: pointer; }
+.rd-consent label { min-height: 2.75rem; line-height: 1.55; color: var(--fg); cursor: pointer; }
+.rd-consent-hint { grid-column: 2; margin: 0; }

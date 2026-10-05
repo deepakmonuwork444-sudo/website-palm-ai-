@@ -25,7 +25,7 @@ const toc = [
   { id: 'limits', label: 'What it can’t do' },
   { id: 'who', label: 'Who makes it' },
   { id: 'money', label: 'How we make money' },
-  { id: 'contact', label: 'Company and contact' },
+  { id: 'contact', label: 'Who runs it and contact' },
 ];
 
 const steps = [
@@ -39,8 +39,18 @@ const steps = [
 const organization = {
   ...organizationSchema(),
   founder: { '@id': personId },
+  // Run by an individual (no company, so no legalName and no GSTIN): the founder is the operator.
   ...(site.company.email ? { email: site.company.email } : {}),
-  ...(site.company.name ? { legalName: site.company.name } : {}),
+  ...(company.location
+    ? {
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: `${site.author.locality}, ${site.author.district}`,
+          addressRegion: site.author.region,
+          addressCountry: site.author.country,
+        },
+      }
+    : {}),
 };
 const aboutPage = {
   '@context': 'https://schema.org',
@@ -68,7 +78,7 @@ const aboutPage = {
     kicker="About us"
     title={`About ${brand}`}
     lead={`${brand} reads the lines on a photo of your own palm and explains them the way the classical palmistry books do, with the source of every meaning and the limits said plainly.`}
-    meta={`Made in India. Operated by ${company.name}.`}
+    meta={`Made in India. Operated by ${company.name}${company.location ? `, ${company.location}` : ''}.`}
     toc={toc}
   >
     <h2 id="what">What {brand} is</h2>
@@ -118,7 +128,7 @@ const aboutPage = {
 
     <h2 id="who">Who makes it</h2>
     <p>
-      {brand} is made in India by its founder, <a class="text-link" href={authorPath}>{site.author.name}</a>. He builds the app and this website and writes the guides from the
+      {brand} is made in Nokha, Rajasthan, India, by its founder, <a class="text-link" href={authorPath}>{site.author.name}</a>. He builds the app and this website and writes the guides from the
       classical books listed in our <a class="text-link" href="/editorial-policy/">editorial policy</a>. He is not a professional palm
       reader, and we don’t claim to be: the meanings come from the books, each with its source.
     </p>
@@ -129,13 +139,17 @@ const aboutPage = {
       The guides and tools link to the app, and that is our interest in them.
     </p>
 
-    <h2 id="contact">Company and contact</h2>
+    <h2 id="contact">Who runs it and contact</h2>
+    <p>{brand} is run by one person, its founder, not by a company.</p>
     <ul>
-      <li><strong>Operator:</strong> {company.name}</li>
-      <li><strong>Email:</strong> <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a></li>
-      <li><strong>Grievance contact</strong> (questions about your data, India’s DPDP Act): {company.grievanceContact}</li>
+      <li><strong>Operator:</strong> {company.name}{company.location ? `, ${company.location}` : ''}</li>
+      <li><strong>Email</strong> (support, purchases and refund help): <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a></li>
+      <li><strong>Grievance Officer</strong> (complaints, and questions about your data under India’s IT Rules 2021 and DPDP Act 2023): {company.grievanceOfficer}, <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a></li>
     </ul>
-    <p class="muted">We answer within 30 days. To delete your account, use the <a class="text-link" href="/delete-account/">delete-account page</a>.</p>
+    <p class="muted">
+      We acknowledge every complaint within {site.grievanceTimes.acknowledgeHours} hours and resolve it within {site.grievanceTimes.resolveDays} days.
+      To delete your account, use the <a class="text-link" href="/delete-account/">delete-account page</a>. For refunds, see the <a class="text-link" href="/refunds/">refund policy</a>.
+    </p>
   </DocPage>
 </BaseLayout>
 

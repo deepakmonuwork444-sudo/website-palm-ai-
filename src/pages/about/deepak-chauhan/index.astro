@@ -1,33 +1,35 @@
 ---
 /**
  * Author page (WEB-FEAT-035; SEO_PLAYBOOK.md §14, CONTENT_GUIDE.md §5 block 3).
- * Only facts the owner gave: Deepak Chauhan, founder, has built 6+ websites and apps, builds
- * PalmSays and writes its guides from the classical books. Never add credentials he doesn't have.
- * Stays noindex (registered indexable: false) until the owner sends the photo and short story
- * (owner item 4). Then:
- *   - photo: put it in public/media/people/ and set PORTRAIT below (the orb shows it);
- *   - story: set STORY below (a few short paragraphs in his own words);
- *   - registry: make /about/deepak-chauhan/ indexable (sitemap 'core') and add real sameAs links.
+ * The owner's own story in first person (sent 2026-10-04, lightly edited: the client numbers and a
+ * personal line were removed on his request). Only facts the owner gave: never add credentials,
+ * awards or numbers he doesn't have. English only (no reviewed Hindi twin).
+ * Photo: owner-supplied, used with permission (design-v4/photo-credits.json "founder-portrait"),
+ * cropped from his photo with no retouching: public/media/people/.
  */
 import DocPage from '../../../components/trust/DocPage.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { isLive } from '../../../config/pages';
 import { site } from '../../../config/site';
-import { ORGANIZATION_ID, PERSON_ID } from '../../../lib/schema';
+import { personSchema } from '../../../lib/schema';
 
 const path = '/about/deepak-chauhan/';
 const brand = site.brand;
 const name = site.author.name;
+const email = site.company.email;
+const linkedin = site.author.linkedin;
 
-/** Owner item 4 (pending): { src: '/media/people/deepak-chauhan-400.webp', alt: 'Deepak Chauhan' }. */
-const PORTRAIT = undefined as { src: string; alt: string } | undefined;
-/** Owner item 4 (pending): his short story, one string per paragraph, in his words. */
-const STORY: string[] = [];
-
-const monogram = name
-  .split(/\s+/)
-  .map((part) => part.charAt(0))
-  .join('');
+/** Square face crop for the hero orb (shown at 7rem; 352 px = sharp on 3x screens). */
+const PORTRAIT = { src: '/media/people/deepak-chauhan-face-352.webp', alt: `${name}, founder of ${brand}` };
+/** 4:5 upper-body crop of the same photo (the source photo is 648 px wide, so 648 is the largest size). */
+const PHOTO = {
+  avif: '/media/people/deepak-chauhan-portrait-400.avif 400w, /media/people/deepak-chauhan-portrait-648.avif 648w',
+  webp: '/media/people/deepak-chauhan-portrait-400.webp 400w, /media/people/deepak-chauhan-portrait-648.webp 648w',
+  src: '/media/people/deepak-chauhan-portrait-648.webp',
+  width: 648,
+  height: 810,
+  sizes: '(min-width: 48rem) 16rem, min(20rem, 100vw - 4rem)',
+};
 
 const guides = [
   { path: '/palm-reading/', name: 'How to read palm lines' },
@@ -39,26 +41,33 @@ const guides = [
   { path: '/is-palmistry-real/', name: 'Is palmistry true?' },
 ].filter((guide) => isLive(guide.path));
 
-const person = {
+const toc = [
+  { id: 'story', label: 'How it started' },
+  { id: 'why', label: `Why I built ${brand}` },
+  { id: 'guides', label: 'How I write the guides' },
+  { id: 'connect', label: 'Let’s connect' },
+];
+
+const person = personSchema({ url: PHOTO.src, width: PHOTO.width, height: PHOTO.height });
+const profilePage = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  '@id': PERSON_ID,
-  name,
+  '@type': 'ProfilePage',
+  '@id': `${site.baseUrl}${path}#webpage`,
+  name: `${name}, founder of ${brand}`,
   url: `${site.baseUrl}${path}`,
-  jobTitle: 'Founder',
-  worksFor: { '@id': ORGANIZATION_ID },
-  // Palmistry (Wikidata Q182687) is what he writes about; no credentials he doesn't have (plan §5.2).
-  knowsAbout: 'https://www.wikidata.org/wiki/Q182687',
-  ...(PORTRAIT ? { image: `${site.baseUrl}${PORTRAIT.src}` } : {}),
+  inLanguage: 'en',
+  dateModified: '2026-10-04',
+  isPartOf: { '@id': `${site.baseUrl}/#website` },
+  mainEntity: { '@id': person['@id'] },
 };
 ---
 
 <BaseLayout
   title={`${name}, founder of ${brand}`}
-  description={`${name} is the founder of ${brand}. He builds the website and app and writes its palmistry guides from the classical books named on each page.`}
+  description={`${name} from Nokha, Rajasthan, founded ${brand}. How a failed gaming website led him to semantic SEO, and why he built an honest palm reading app.`}
   path={path}
   locale="en"
-  jsonLd={[person]}
+  jsonLd={[profilePage, person]}
 >
   <DocPage
     crumb={name}
@@ -66,29 +75,78 @@ const person = {
     parents={[{ name: 'About', path: '/about/' }]}
     icon="book"
     portrait={PORTRAIT}
-    monogram={PORTRAIT ? undefined : monogram}
     kicker={`Founder of ${brand}`}
     title={name}
-    lead={`${name} builds ${brand}, the app and this website, and writes its palmistry guides from the classical books named on each page.`}
+    lead={`I build ${brand}, the app and this website, and I write its palmistry guides from the classical books named on each page.`}
+    meta="Nokha, Bikaner, Rajasthan, India"
+    toc={toc}
   >
-    <h2>About {name}</h2>
+    <div class="founder-intro">
+      <figure class="founder-photo">
+        <picture>
+          <source type="image/avif" srcset={PHOTO.avif} sizes={PHOTO.sizes} />
+          <img
+            src={PHOTO.src}
+            srcset={PHOTO.webp}
+            sizes={PHOTO.sizes}
+            width={PHOTO.width}
+            height={PHOTO.height}
+            alt={`${name}, founder of ${brand}, in an olive green shirt`}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+        <figcaption>{name}, founder of {brand}</figcaption>
+      </figure>
+      <div class="founder-opening">
+        <h2 id="story">How it started</h2>
+        <p>Hi, I’m {name}, from Nokha in Bikaner, Rajasthan. Let me tell you how it all started.</p>
+        <p>
+          It began in 2019 and carried on through the lockdown. I was at home and curious about SEO. There was no guidebook and no
+          mentor, just me and the internet. I started learning with my cousins, fumbling through keyword research and wondering what
+          I was even doing.
+        </p>
+      </div>
+    </div>
     <p>
-      {name} is the founder of {brand}. He has built six or more websites and apps, and he builds this website and its Android app.
+      Then I launched my first website, a gaming site called techiglu.com. You know what happened? I failed, badly. But that failure
+      wasn’t the end. It was the lesson I needed. I didn’t quit; I got smarter.
     </p>
-    {STORY.map((paragraph) => <p>{paragraph}</p>)}
-
-    <h2>How he writes the guides</h2>
     <p>
-      He writes the {brand} guides from the classical palmistry books named in each guide’s sources, in plain words and with their
-      limits stated. He is not a professional palm reader: the meanings on this site come from those books, not from personal
-      readings. How every guide is sourced and checked is in our <a class="text-link" href="/editorial-policy/">editorial policy</a>.
+      I went deep into SEO and became obsessed with technical audits, semantic SEO and entity-based strategies. By 2023 I had found my
+      true love in this work, semantic SEO, and it changed the game for me.
     </p>
-    {STORY.length === 0 && <p class="doc-note">A photo and a short note from {name} in his own words will be added here soon.</p>}
+    <p>
+      I still remember the grind: the late nights reading SEO blogs and trying to work out why my first website tanked. Every day I get
+      a little better. I owe a lot of my growth to my SEO guru, Koray Tuğberk GÜBÜR. His teaching has shaped my whole approach.
+    </p>
+    <p>
+      And when I’m not working on websites? I’m gaming hard in Red Dead Redemption, Call of Duty and Battlefield.
+    </p>
 
+    <h2 id="why">Why I built {brand}</h2>
+    <p>
+      Semantic SEO is about meaning: how words, ideas and things connect. Palmistry is an old tradition that a lot of people are
+      curious about, and much of what you find about it online is vague or promises things no one can know. I wanted to bring the way I
+      work to it: start from your own palm photo, explain each line the way the classical books do, name the book, and say plainly
+      what a palm can’t tell you.
+    </p>
+    <p>
+      {brand} is for reflection and entertainment. Palmistry is a tradition, not a science, and I don’t claim otherwise. What I can
+      promise is honesty about where every meaning comes from and what a photo can and can’t show.
+    </p>
+
+    <h2 id="guides">How I write the guides</h2>
+    <p>
+      I have built six or more websites and apps, and I build this website and its Android app myself. I write the {brand} guides from
+      the classical palmistry books named in each guide’s sources, in plain words and with their limits stated. I’m not a professional
+      palm reader: the meanings on this site come from those books, not from personal readings. How every guide is sourced and checked
+      is in our <a class="text-link" href="/editorial-policy/">editorial policy</a>.
+    </p>
     {
       guides.length > 0 && (
         <>
-          <h2>Guides he has written</h2>
+          <p>Guides I have written:</p>
           <ul>
             {guides.map((guide) => (
               <li>
@@ -101,5 +159,43 @@ const person = {
         </>
       )
     }
+
+    <h2 id="connect">Let’s connect</h2>
+    <p>If you want to talk SEO, growth, or maybe even strategy over a game, let’s connect.</p>
+    <ul class="founder-links">
+      <li>
+        <a class="btn btn-secondary founder-link" href={linkedin} rel="me noopener" target="_blank">
+          LinkedIn<span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </li>
+      {
+        email && (
+          <li>
+            <a class="btn btn-secondary founder-link" href={`mailto:${email}`}>
+              {email}
+            </a>
+          </li>
+        )
+      }
+    </ul>
+    <p class="muted">Questions about {brand} itself, your data or a purchase? See the <a class="text-link" href="/about/#contact">contact details</a>.</p>
   </DocPage>
 </BaseLayout>
+
+<style>
+  /* The photo: a framed glass print beside the opening on wide screens, centred above it on phones. Same content everywhere. */
+  .founder-intro { display: grid; gap: 1.5rem; margin-bottom: 1rem; }
+  .founder-photo {
+    justify-self: center; width: min(20rem, 100%); margin: 0; padding: 0.5rem; border-radius: var(--r-panel); border: 1px solid transparent;
+    background: var(--glass-1) padding-box, var(--rim) border-box; box-shadow: var(--e1), var(--shine);
+  }
+  .founder-photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: calc(var(--r-panel) - 0.25rem); }
+  .founder-photo figcaption { padding: 0.625rem 0.25rem 0.125rem; font-size: var(--fs-caption); color: var(--fg-muted); text-align: center; }
+  .founder-opening h2 { margin-top: 0; padding-top: 0; border-top: 0; }
+  :global(.doc-body) ul.founder-links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .founder-link { min-height: 3rem; overflow-wrap: anywhere; }
+  @media (min-width: 48rem) {
+    .founder-intro { grid-template-columns: 16rem minmax(0, 1fr); gap: 2rem; align-items: start; }
+    .founder-photo { justify-self: start; width: 100%; }
+  }
+</style>

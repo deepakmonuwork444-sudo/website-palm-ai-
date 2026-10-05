@@ -116,7 +116,18 @@ describe('resolveCompany (owner item 9)', () => {
   it('refuses a production build without the real details, and passes with them', () => {
     expect(() => resolveCompany(none, true)).toThrow(/company\.name, company\.email, company\.grievanceContact/);
     const real = { name: 'Example Pvt Ltd', email: 'hello@palmsays.com', grievanceContact: 'A. Person, grievance@palmsays.com' };
-    expect(resolveCompany(real, true)).toEqual({ ...real, missing: [] });
+    expect(resolveCompany(real, true)).toEqual({ ...real, grievanceOfficer: real.name, location: null, missing: [] });
+  });
+
+  it('accepts an individual operator with only a town, no company, GSTIN or street address', () => {
+    const person = {
+      name: 'Deepak Chauhan',
+      email: 'dc556316@gmail.com',
+      grievanceContact: 'Deepak Chauhan, Grievance Officer (dc556316@gmail.com)',
+      grievanceOfficer: 'Deepak Chauhan',
+      location: 'Nokha, Bikaner, Rajasthan, India',
+    };
+    expect(resolveCompany(person, true)).toEqual({ ...person, missing: [] });
   });
 });
 

@@ -15,7 +15,7 @@
  * gender option); this file only writes the words AROUND them.
  */
 
-import type { Locale } from '../../config/site';
+import { site, type Locale } from '../../config/site';
 
 export type Gender = 'woman' | 'man' | 'unsaid';
 export type Side = 'left' | 'right';
@@ -74,8 +74,12 @@ export function isValidBirthTime(value: unknown): value is string {
   return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
 }
 
+/** Readings are for adults (site.ageRule, 18): a typed age below it is refused with a kind message. */
+export const MIN_AGE = site.ageRule;
+export const MAX_AGE = 120;
+
 export function isValidAge(value: unknown): value is number {
-  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 120;
+  return typeof value === 'number' && Number.isInteger(value) && value >= MIN_AGE && value <= MAX_AGE;
 }
 
 /** Age in whole years on `today`. */
@@ -85,6 +89,12 @@ export function ageOn(birthDate: string, today: Date): number | null {
   let age = today.getFullYear() - y;
   if (today.getMonth() + 1 < m || (today.getMonth() + 1 === m && today.getDate() < d)) age -= 1;
   return age;
+}
+
+/** A real birth date that makes the person an adult (MIN_AGE or older) on `today`. */
+export function isAdultBirthDate(value: unknown, today: Date): value is string {
+  const age = typeof value === 'string' ? ageOn(value, today) : null;
+  return age !== null && age >= MIN_AGE;
 }
 
 /** Anything read back from storage (or a form) → safe details; unknown values are dropped. */
@@ -299,7 +309,14 @@ export const INTAKE_COPY = {
   ageLabel: { en: 'Your age', hi: 'आपकी उम्र' },
   birthTimeLabel: { en: 'Time of birth', hi: 'जन्म का समय' },
   badDate: { en: 'Pick a real date, not in the future.', hi: 'कोई सही तारीख़ चुनें, जो आगे की न हो।' },
-  badAge: { en: 'Type an age from 1 to 120.', hi: '1 से 120 के बीच उम्र लिखें।' },
+  badAge: {
+    en: `${site.brand} is for adults ${MIN_AGE}+. Please type an age from ${MIN_AGE} to ${MAX_AGE}.`,
+    hi: `${site.brand} ${MIN_AGE}+ उम्र के लोगों के लिए है। कृपया ${MIN_AGE} से ${MAX_AGE} के बीच उम्र लिखें।`,
+  },
+  tooYoung: {
+    en: `${site.brand} is for adults ${MIN_AGE}+. Please check your date of birth.`,
+    hi: `${site.brand} ${MIN_AGE}+ उम्र के लोगों के लिए है। कृपया अपनी जन्म की तारीख़ जांच लें।`,
+  },
 
   editTitle: { en: 'Your details', hi: 'आपकी जानकारी' },
   addDetails: { en: 'Add your name to this report', hi: 'इस रिपोर्ट में अपना नाम जोड़ें' },

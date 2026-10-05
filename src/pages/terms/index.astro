@@ -14,7 +14,7 @@ import { companyForBuild } from '../../lib/legal-page';
 const company = companyForBuild();
 const path = '/terms/';
 const brand = site.brand;
-const updated = '28 September 2026';
+const updated = '4 October 2026';
 
 const toc = [
   { id: 'what', label: '1. What PalmSays does' },
@@ -42,7 +42,7 @@ const webpage = {
   name: `${brand} terms of use`,
   url: `${site.baseUrl}${path}`,
   inLanguage: 'en',
-  dateModified: '2026-09-28',
+  dateModified: '2026-10-04',
   publisher: { '@id': `${site.baseUrl}/#organization` },
 };
 ---
@@ -61,12 +61,12 @@ const webpage = {
     kicker="Terms"
     title="Terms of use"
     lead={`The agreement between you and the operator of ${brand}, in plain words: what the app and website do, what they can't do, and how buying and deleting work.`}
-    meta={`${brand} is operated by ${company.name}. Effective ${updated}.`}
+    meta={`${brand} is operated by ${company.name}${company.location ? `, ${company.location}` : ''}. Effective ${updated}.`}
     toc={toc}
   >
     <p>
-      These terms are an agreement between you and {company.name} ("we", "us"), who operates the {brand} app and the {site.domain}
-      website. By using them you accept these terms. Please also read our <a class="text-link" href="/privacy/">privacy policy</a>,
+      These terms are an agreement between you and {company.name}{company.location ? `, ${company.location}` : ''} ("we", "us"), an
+      individual who operates the {brand} app and the {site.domain} website. By using them you accept these terms. Please also read our <a class="text-link" href="/privacy/">privacy policy</a>,
       which explains what data {brand} uses and how you delete it.
     </p>
 
@@ -131,7 +131,8 @@ const webpage = {
     <p>
       Payments go through Google Play, so refunds follow Google Play's refund policy; you can request one from Google Play. If something
       went wrong (for example you were charged but did not receive your readings) write to us and we will help put it right. Nothing in
-      these terms takes away any right you have under the Consumer Protection Act, 2019 or other law that applies to you.
+      these terms takes away any right you have under the Consumer Protection Act, 2019 or other law that applies to you. The steps are
+      in our <a class="text-link" href="/refunds/">refund policy</a>.
     </p>
 
     <h2 id="fair">9. Using {brand} fairly</h2>
@@ -186,8 +187,12 @@ const webpage = {
 
     <h2 id="contact">16. Contact</h2>
     <p>
-      Questions, complaints or refund problems: <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>. We respond
-      within 30 days. Grievance contact: {company.grievanceContact}.
+      Questions, complaints or refund problems: <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>.
     </p>
+    <p>
+      Grievance Officer: {company.grievanceOfficer}, <a class="text-link" href={`mailto:${company.email}`}>{company.email}</a>. We
+      acknowledge every complaint within {site.grievanceTimes.acknowledgeHours} hours and resolve it within {site.grievanceTimes.resolveDays} days of receiving it.
+    </p>
+    <p>Operator: {company.name}{company.location ? `, ${company.location}` : ''} (an individual, not a company).</p>
   </DocPage>
 </BaseLayout>

@@ -13,7 +13,10 @@ import {
   cleanName,
   detailsForReading,
   gendered,
+  INTAKE_COPY,
+  isAdultBirthDate,
   isPersonal,
+  isValidAge,
   isValidBirthDate,
   linkDetails,
   loadLast,
@@ -60,6 +63,18 @@ describe('personal details (this device only)', () => {
     const d = cleanDetails({ name: 'X', gender: 'robot', hand: 'up', birthDate: 'soon', birthTime: '25:00', age: 34, extra: 'dropped' }, TODAY);
     expect(d).toEqual({ ...EMPTY_DETAILS, name: 'X', age: 34 });
     expect(cleanDetails({ birthDate: '1990-03-12', age: 34 }, TODAY).age).toBeNull();
+  });
+
+  it('is for adults only: a typed age or a birth date under 18 is refused, with a kind message', () => {
+    expect(isValidAge(17)).toBe(false);
+    expect(isValidAge(18)).toBe(true);
+    expect(isValidAge(120)).toBe(true);
+    expect(isValidAge(121)).toBe(false);
+    expect(isAdultBirthDate('2008-09-27', TODAY)).toBe(true);
+    expect(isAdultBirthDate('2008-09-28', TODAY)).toBe(false);
+    expect(cleanDetails({ age: 12 }, TODAY).age).toBeNull();
+    expect(INTAKE_COPY.badAge.en).toContain('for adults 18+');
+    expect(INTAKE_COPY.tooYoung.en).toContain('for adults 18+');
   });
 
   it('keeps the last details and the details of each reading in local storage, and forgets them', () => {

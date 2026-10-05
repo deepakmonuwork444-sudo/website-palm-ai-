@@ -46,11 +46,25 @@ export const PREVIEW_PLACEHOLDERS = {
 export const GRIEVANCE_PLACEHOLDER = '[OWNER NAME: set company.grievanceContact in src/config/site.ts]';
 
 export interface CompanyDetails {
+  /** The operator: a person's name or a company's name (an individual operator needs no company or GSTIN). */
   name: string;
   email: string;
   grievanceContact: string;
+  /** The Grievance Officer's name; defaults to the operator (a sole operator is their own officer). */
+  grievanceOfficer: string;
+  /** Town, district, state and country, when published. Optional: no street address is required. */
+  location: string | null;
   /** Names of the site.ts fields still showing a placeholder (preview builds only; production throws). */
   missing: string[];
+}
+
+/** What site.ts may give: name, email and grievance contact are required; location and officer are optional. */
+export interface CompanyInput {
+  name: string | null;
+  email: string | null;
+  grievanceContact: string | null;
+  grievanceOfficer?: string | null | undefined;
+  location?: string | null | undefined;
 }
 
 /**
@@ -59,7 +73,7 @@ export interface CompanyDetails {
  * a production build refuses to render without the real values.
  */
 export function resolveCompany(
-  company: { name: string | null; email: string | null; grievanceContact: string | null },
+  company: CompanyInput,
   production: boolean,
 ): CompanyDetails {
   const missing: string[] = [];
@@ -69,10 +83,13 @@ export function resolveCompany(
     missing.push(`company.${field}`);
     return placeholder;
   };
+  const name = pick(company.name, 'name', PREVIEW_PLACEHOLDERS.operatorName);
   const details: CompanyDetails = {
-    name: pick(company.name, 'name', PREVIEW_PLACEHOLDERS.operatorName),
+    name,
     email: pick(company.email, 'email', PREVIEW_PLACEHOLDERS.contactEmail),
     grievanceContact: pick(company.grievanceContact, 'grievanceContact', GRIEVANCE_PLACEHOLDER),
+    grievanceOfficer: company.grievanceOfficer?.trim() || name,
+    location: company.location?.trim() || null,
     missing,
   };
   if (production && missing.length) {

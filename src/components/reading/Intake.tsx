@@ -19,11 +19,14 @@ type FormEvent = { preventDefault(): void };
 import type { Locale } from '../../config/site';
 import {
   INTAKE_COPY as T,
+  MAX_AGE,
+  MIN_AGE,
   NAME_MAX,
   addressName,
   cleanDetails,
   cleanName,
   gendered,
+  isAdultBirthDate,
   isValidAge,
   isValidBirthDate,
   isoDay,
@@ -37,6 +40,8 @@ type StepKey = 'you' | 'hands' | 'birth';
 const STEPS: StepKey[] = ['you', 'hands', 'birth'];
 const GENDERS: Gender[] = ['woman', 'man', 'unsaid'];
 const SIDES: Side[] = ['left', 'right'];
+/** date: not a real past date; young: a real date, but under 18; age: a typed age outside 18 to 120. */
+type BirthErrors = { date?: boolean; young?: boolean; age?: boolean };
 
 function Choice<V extends string>({ label, value, options, onPick, describedBy, wide }: { label: string; value: V | null; options: { value: V; text: string }[]; onPick: (v: V) => void; describedBy?: string; wide?: boolean }) {
   return (
@@ -98,7 +103,7 @@ function HandFields({ draft, set, locale, shownHand }: { draft: PersonalDetails;
   );
 }
 
-function BirthFields({ draft, set, locale, errors }: { draft: PersonalDetails; set: (patch: Partial<PersonalDetails>) => void; locale: Locale; errors: { date?: boolean; age?: boolean } }) {
+function BirthFields({ draft, set, locale, errors }: { draft: PersonalDetails; set: (patch: Partial<PersonalDetails>) => void; locale: Locale; errors: BirthErrors }) {
   const id = useId();
   const [ageMode, setAgeMode] = useState(() => !draft.birthDate && draft.age !== null);
   const [ageText, setAgeText] = useState(() => (draft.age !== null ? String(draft.age) : ''));
@@ -115,8 +120,8 @@ function BirthFields({ draft, set, locale, errors }: { draft: PersonalDetails; s
             className="rd-input rd-input-short"
             type="number"
             inputMode="numeric"
-            min={1}
-            max={120}
+            min={MIN_AGE}
+            max={MAX_AGE}
             value={ageText}
             aria-invalid={errors.age || undefined}
             aria-describedby={errors.age ? `${id}-age-err` : undefined}
@@ -144,13 +149,13 @@ function BirthFields({ draft, set, locale, errors }: { draft: PersonalDetails; s
             min="1900-01-01"
             max={today}
             value={draft.birthDate}
-            aria-invalid={errors.date || undefined}
-            aria-describedby={errors.date ? `${id}-date-err` : undefined}
+            aria-invalid={errors.date || errors.young || undefined}
+            aria-describedby={errors.date || errors.young ? `${id}-date-err` : undefined}
             onChange={(e) => set({ birthDate: e.target.value, age: null })}
           />
-          {errors.date && (
+          {(errors.date || errors.young) && (
             <p id={`${id}-date-err`} className="text-small rd-field-error" role="alert">
-              {T.badDate[locale]}
+              {errors.young ? T.tooYoung[locale] : T.badDate[locale]}
             </p>
           )}
         </div>
@@ -176,10 +181,12 @@ function BirthFields({ draft, set, locale, errors }: { draft: PersonalDetails; s
   );
 }
 
-/** Birth answers that cannot be kept (a date in the future, an age of 300). Empty = fine. */
-function birthErrors(draft: PersonalDetails): { date?: boolean; age?: boolean } {
-  const out: { date?: boolean; age?: boolean } = {};
-  if (draft.birthDate && !isValidBirthDate(draft.birthDate, new Date())) out.date = true;
+/** Birth answers that cannot be kept (a date in the future, an age of 300, someone under 18). Empty = fine. */
+function birthErrors(draft: PersonalDetails): BirthErrors {
+  const out: BirthErrors = {};
+  const today = new Date();
+  if (draft.birthDate && !isValidBirthDate(draft.birthDate, today)) out.date = true;
+  else if (draft.birthDate && !isAdultBirthDate(draft.birthDate, today)) out.young = true;
   if (draft.age !== null && !isValidAge(draft.age)) out.age = true;
   return out;
 }
@@ -213,7 +220,7 @@ export function Intake({
 }) {
   const [draft, setDraft] = useState<PersonalDetails>(initial);
   const [index, setIndex] = useState(0);
-  const [errors, setErrors] = useState<{ date?: boolean; age?: boolean }>({});
+  const [errors, setErrors] = useState<BirthErrors>({});
   const headingRef = useRef<HTMLHeadingElement>(null);
   const titleId = useId();
   const first = useRef(true);
@@ -245,7 +252,7 @@ export function Intake({
     event.preventDefault();
     if (step === 'birth') {
       const found = birthErrors(draft);
-      if (found.date || found.age) {
+      if (found.date || found.young || found.age) {
         setErrors(found);
         return;
       }
@@ -256,7 +263,7 @@ export function Intake({
   const back = () => (index === 0 ? onExit() : setIndex((i) => i - 1));
   const skip = () => {
     const found = birthErrors(draft);
-    onSkip(final({ ...draft, ...(found.date ? { birthDate: '' } : {}), ...(found.age ? { age: null } : {}) }));
+    onSkip(final({ ...draft, ...(found.date || found.young ? { birthDate: '' } : {}), ...(found.age ? { age: null } : {}) }));
   };
 
   const who = addressName(cleanName(draft.name), locale);
@@ -309,7 +316,7 @@ export function Intake({
 /** The same questions (name, address, birth) in one form, to add or edit them from the report. */
 export function DetailsForm({ locale, initial, onSave }: { locale: Locale; initial: PersonalDetails; onSave: (details: PersonalDetails) => void }) {
   const [draft, setDraft] = useState<PersonalDetails>(initial);
-  const [errors, setErrors] = useState<{ date?: boolean; age?: boolean }>({});
+  const [errors, setErrors] = useState<BirthErrors>({});
   const set = (patch: Partial<PersonalDetails>) => {
     setDraft((d) => ({ ...d, ...patch }));
     if ('birthDate' in patch || 'age' in patch) setErrors({});
@@ -317,7 +324,7 @@ export function DetailsForm({ locale, initial, onSave }: { locale: Locale; initi
   const save = (event: FormEvent) => {
     event.preventDefault();
     const found = birthErrors(draft);
-    if (found.date || found.age) {
+    if (found.date || found.young || found.age) {
       setErrors(found);
       return;
     }

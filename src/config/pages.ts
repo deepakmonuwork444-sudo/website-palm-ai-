@@ -31,8 +31,10 @@ export const PAGES: readonly PageEntry[] = [
   { path: '/hi/', locale: 'hi', indexable: true, sitemap: 'hi', twin: '/', lastmod: '2026-09-26' },
   { path: '/hi/app/', locale: 'hi', indexable: true, sitemap: 'hi', twin: '/app/', lastmod: '2026-09-26' },
   // Legal pages in the site layout (WEB-FEAT-013, WEB-DEC-029). English only: the app and Play link the English text.
-  { path: '/privacy/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-09-28', label: 'Privacy policy' },
-  { path: '/terms/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-09-28', label: 'Terms of use' },
+  { path: '/privacy/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-10-04', label: 'Privacy policy' },
+  { path: '/terms/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-10-04', label: 'Terms of use' },
+  // Refund policy (2026-10-04): matches terms section 8 (purchases and refunds through Google Play).
+  { path: '/refunds/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-10-04', label: 'Refund policy' },
   { path: '/delete-account/', locale: 'en', indexable: false },
   { path: '/reset-password/', locale: 'en', indexable: false },
   // Frozen legacy legal URLs (F3): public/_redirects sends them to the pages above with a 301. The small
@@ -42,7 +44,7 @@ export const PAGES: readonly PageEntry[] = [
   { path: '/delete-account', locale: 'en', indexable: false },
   { path: '/reset-password', locale: 'en', indexable: false },
   // Trust pages (WEB-FEAT-035, SEO_PLAYBOOK.md §14). English only until a reviewed Hindi twin exists.
-  { path: '/about/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-09-28', label: 'About PalmSays' },
+  { path: '/about/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-10-04', label: 'About PalmSays' },
   { path: '/editorial-policy/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-09-28', label: 'Editorial policy' },
   { path: '/404', locale: 'en', indexable: false },
   // The web reading (WEB-FEAT-026): noindex, never in a sitemap (F8). One route for both languages.
@@ -89,8 +91,8 @@ export const PAGES: readonly PageEntry[] = [
   { path: '/blog/do-palm-lines-change/', locale: 'en', indexable: true, sitemap: 'blog', lastmod: '2026-10-01', label: 'Do palm lines change?' },
   { path: '/blog/best-palm-reading-apps/', locale: 'en', indexable: true, sitemap: 'blog', lastmod: '2026-10-01', label: 'Best palm reading apps' },
   { path: '/blog/palm-reading-chatgpt-vs-palm-scanner/', locale: 'en', indexable: true, sitemap: 'blog', lastmod: '2026-10-01', label: 'ChatGPT vs palm scanner' },
-  // Author page stub: noindex until the owner sends the full bio (SEO_PLAYBOOK.md §14).
-  { path: '/about/deepak-chauhan/', locale: 'en', indexable: false },
+  // Author page (SEO_PLAYBOOK.md §14): indexable since the owner sent his photo and story (2026-10-04).
+  { path: '/about/deepak-chauhan/', locale: 'en', indexable: true, sitemap: 'core', lastmod: '2026-10-04', label: 'Deepak Chauhan, founder' },
   // Tools (src/pages/tools/, WEB-FEAT-012, 021–023, 047–051; slugs from KEYWORD_MAP.md §3). English only until /hi/tools/ is reviewed.
   { path: '/tools/', locale: 'en', indexable: true, sitemap: 'tools', lastmod: '2026-09-26', label: 'Free palm reading tools' },
   { path: '/tools/palm-photo-checker/', locale: 'en', indexable: true, sitemap: 'tools', lastmod: '2026-09-26', label: 'Palm photo checker' },

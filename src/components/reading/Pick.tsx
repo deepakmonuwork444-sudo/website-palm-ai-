@@ -5,7 +5,7 @@
  * is picked (plan §12.6 bundle rule).
  */
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ChangeEvent } from 'react';
 
 import type { Locale } from '../../config/site';
 import { qrMatrix } from '../../lib/qr';
@@ -28,6 +28,32 @@ export function PrivacyPanel({ locale }: { locale: Locale }) {
         ))}
       </ol>
     </details>
+  );
+}
+
+/**
+ * Explicit consent before a photo can be picked (owner 2026-10-04): unticked by default, a real
+ * checkbox with its own label, kept only in this component's state (nothing is sent or stored).
+ */
+function ConsentBox({ locale, agreed, onChange, hintId }: { locale: Locale; agreed: boolean; onChange: (on: boolean) => void; hintId: string }) {
+  const id = useId();
+  return (
+    <div className="rd-consent">
+      <input id={id} type="checkbox" checked={agreed} onChange={(event) => onChange(event.target.checked)} />
+      <label htmlFor={id} className="text-small">
+        {COPY.consentBefore[locale]}
+        <a className="text-link" href="/privacy/#website" target="_blank" rel="noopener" hrefLang={locale === 'en' ? undefined : 'en'}>
+          {COPY.consentLink[locale]}
+          <span className="sr-only"> {COPY.newTab[locale]}</span>
+        </a>
+        {COPY.consentAfter[locale]}
+      </label>
+      {!agreed && (
+        <p id={hintId} className="text-small rd-muted rd-consent-hint">
+          {COPY.consentHint[locale]}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -60,8 +86,10 @@ function PhoneQr({ locale }: { locale: Locale }) {
   );
 }
 
-function FileButtons({ locale, onFile }: { locale: Locale; onFile: (file: File) => void }) {
+function FileButtons({ locale, onFile, disabled, hintId }: { locale: Locale; onFile: (file: File) => void; disabled: boolean; hintId: string }) {
   const webcam = useWebcamOffer();
+  // Until consent is given, no button can open the camera, the webcam or the file picker.
+  const lock = disabled ? { disabled: true, 'aria-describedby': hintId } : {};
   const camera = useRef<HTMLInputElement>(null);
   const gallery = useRef<HTMLInputElement>(null);
   const changed = (event: ChangeEvent<HTMLInputElement>) => {
@@ -74,13 +102,14 @@ function FileButtons({ locale, onFile }: { locale: Locale; onFile: (file: File) 
       {/* Phones: the camera first; desktops: an upload. Never image/heic in accept (plan §12.12). */}
       <input ref={camera} className="sr-only" type="file" accept="image/*" capture="environment" onChange={changed} tabIndex={-1} aria-hidden="true" />
       <input ref={gallery} className="sr-only" type="file" accept="image/*" onChange={changed} tabIndex={-1} aria-hidden="true" />
-      <button type="button" className="btn btn-gold btn-block only-touch" onClick={() => camera.current?.click()}>
+      <button type="button" className="btn btn-gold btn-block only-touch" {...lock} onClick={() => camera.current?.click()}>
         {COPY.takePhoto[locale]}
       </button>
       {webcam && (
         <button
           type="button"
           className="btn btn-gold btn-block only-desktop"
+          {...lock}
           onClick={() => {
             void import('../../lib/webcam/dialog').then(async ({ openWebcam }) => {
               const file = await openWebcam({ locale, onUpload: () => gallery.current?.click() });
@@ -91,10 +120,10 @@ function FileButtons({ locale, onFile }: { locale: Locale; onFile: (file: File) 
           {COPY.useWebcam[locale]}
         </button>
       )}
-      <button type="button" className={`btn ${webcam ? 'btn-secondary' : 'btn-gold'} btn-block only-desktop`} onClick={() => gallery.current?.click()}>
+      <button type="button" className={`btn ${webcam ? 'btn-secondary' : 'btn-gold'} btn-block only-desktop`} {...lock} onClick={() => gallery.current?.click()}>
         {COPY.uploadPhoto[locale]}
       </button>
-      <button type="button" className="text-link rd-link-button only-touch" onClick={() => gallery.current?.click()}>
+      <button type="button" className="text-link rd-link-button only-touch" {...lock} onClick={() => gallery.current?.click()}>
         {COPY.fromGallery[locale]}
       </button>
     </div>
@@ -117,6 +146,8 @@ export function PickScreen({
   onShowReadings?: (() => void) | null;
 }) {
   const [copied, setCopied] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const hintId = useId();
   return (
     <section className="rd-card rd-pick" aria-labelledby="rd-pick-title">
       <h2 id="rd-pick-title" className="text-h2 font-display">
@@ -157,7 +188,8 @@ export function PickScreen({
           </li>
         ))}
       </ul>
-      <FileButtons locale={locale} onFile={onFile} />
+      <ConsentBox locale={locale} agreed={agreed} onChange={setAgreed} hintId={hintId} />
+      <FileButtons locale={locale} onFile={(file) => agreed && onFile(file)} disabled={!agreed} hintId={hintId} />
       <PhoneQr locale={locale} />
       <p className="text-small rd-muted">{COPY.cameraNote[locale]}</p>
       <p className="text-small rd-muted">{COPY.mehndi[locale]}</p>
