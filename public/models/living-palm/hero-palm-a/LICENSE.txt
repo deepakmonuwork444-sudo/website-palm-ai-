@@ -1,0 +1,14 @@
+PalmSays: the Living palm in the home page opening (src/components/home/LivingPalm.astro)
+
+What:     a real photo of an open right palm (not AI-generated, not drawn), rebuilt in depth for 3D.
+Photo:    "Person's Hand Doing Stop Hand Sign" by Kevin Malik on Pexels
+          https://www.pexels.com/photo/9017588/  (photographer: https://www.pexels.com/@kevin-malik/)
+Licence:  Pexels License (https://www.pexels.com/license/): free to use, commercial use allowed,
+          modification allowed; we credit the photographer (site footer on / and /hi/).
+Source:   the hero-palm-a crop in public/samples/LICENSE.txt (crop x 633, y 1329, 3341 x 4455 of the 4000 x 6000 original).
+Made:     colour (decontaminated, matted), depth (Poisson inflation + Depth Anything V2 small, run locally),
+          normal and shadow maps from that crop; nothing painted on the skin.
+Lines:    lines.json / lines-field.png are the real PalmSays scan of this crop (palm4_v2, handSide right,
+          design-v4/photos-v5/hero-palm-a.scan.json); no line is drawn by hand.
+Posters:  poster-* and poster-lines-* are renders of this same 3D palm (research-tools/living-palm-poster.mjs).
+Not a PalmSays customer and not the owner.

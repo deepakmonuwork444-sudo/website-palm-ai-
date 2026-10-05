@@ -110,7 +110,19 @@ export const en = {
     priceLabel: 'App price',
   },
   home: {
-    heroCredit: 'The 3D hand in the opening is an AI-generated model, not a real customer.',
+    heroCredit:
+      (others: readonly string[]) =>
+        `The palm in the opening is a real photo by Kevin Malik on Pexels, shown in 3D${others.length ? `; the other hands are real photos by ${Array.from(others).join(', ')} on Pexels` : ''}. Their lines are real PalmSays scans of those photos. None is a customer’s hand.`,
+    // The Living palm in the opening (LivingPalm.astro): a real photo rebuilt in depth, its real scan lines drawn on it.
+    livingPalm: {
+      alt: 'A real photo of an open palm. Its heart, head, life and fate lines come from a real PalmSays scan of this photo.',
+      lines: { heart: 'Heart', head: 'Head', life: 'Life', fate: 'Fate' },
+      caption: 'Real scan of this palm',
+      gold: 'Gold lines',
+      replay: 'Replay',
+      another: 'See another hand',
+      drag: 'Drag to turn the palm',
+    },
     h1: 'See your own palm lines, traced and read',
     lead: 'Free AI palm reading on your own photo. We trace your heart, head, life and fate lines on it and show what palmistry reads in them.',
     scan: {

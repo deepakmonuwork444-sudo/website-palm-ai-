@@ -1,0 +1,278 @@
+---
+/**
+ * Home opening: one normal hero section (no scroll pinning). Phone: the
+ * Living palm on a lit stage, then the headline, lead, the gold scan button
+ * and its note. Desktop: words on the left, the palm on the right. Same words
+ * everywhere (Google indexes the phone view).
+ *
+ * The Living palm (approved sample A, 2026-10-04): a real photographed hand
+ * (Kevin Malik, Pexels) rebuilt in depth, with the heart, head, life and fate
+ * lines of a real PalmSays scan of that photo drawn on its skin one by one and
+ * named beside each line. It turns with a finger or the mouse.
+ * First paint is a still photo of the same hand (the LCP); the live palm
+ * (src/scripts/living-palm.ts; three.js runs in a worker, living-palm-worker.ts) fades in over it
+ * once the page is idle. Devices without live 3D get the still hand with its
+ * lines and their names. The hands are listed in src/scripts/living-palm-hands.ts.
+ */
+import '@fontsource/cormorant-garamond/latin-700-italic.css';
+import Icon from '../Icon.astro';
+import { site, type Locale } from '../../config/site';
+import { t } from '../../i18n';
+import { webScanOpen } from '../../lib/reading/open';
+import { listedHands } from '../../lib/living-palm';
+import { HANDS, LINE_KEYS, handBase } from '../../scripts/living-palm-hands';
+
+interface Props {
+  locale: Locale;
+  readingHref: string;
+}
+
+const { locale, readingHref } = Astro.props;
+const home = t(locale).home;
+const story = home.story;
+const lp = home.livingPalm;
+const { guest, afterEmail } = site.freeReadings;
+// Words match the destination: the web scan when it can be finished, else the app (readingHref points there).
+const facts = webScanOpen ? home.scan.facts(guest + afterEmail) : home.scan.factsApp(guest + afterEmail);
+const ctaLabel = webScanOpen ? home.scan.cta : home.scan.ctaApp;
+
+const hand = HANDS[0]!;
+// "See another hand": only hands listed in public/models/living-palm/hands.json whose files are all there.
+const others = listedHands();
+const base = handBase(hand.slug);
+const srcset = (name: string, widths: number[], ext: string) => widths.map((w) => `${base}${name}-${w}.${ext} ${w}w`).join(', ');
+// The poster box is the stage's height at 5:7: up to 50rem x 5/7 on desktop, about 30rem x 5/7 on phones.
+const sizes = '(min-width: 64rem) 36rem, 21rem';
+const align = (k: (typeof LINE_KEYS)[number]) => hand.labels[k]?.align ?? 'left';
+// Two-word names (Hindi: हृदय रेखा) stack on phones so they stay on the palm.
+const words = (k: (typeof LINE_KEYS)[number]) => lp.lines[k].split(' ');
+---
+
+<section class="lp" data-theme="night" data-no-reveal aria-labelledby="hero-title">
+  <div class="lp-inner">
+    <div class="lp-stage" data-living-palm data-hands={others.length ? JSON.stringify(others) : undefined}>
+      <div class="lp-frame" data-lp-frame>
+        <div class="lp-poster-box">
+          <picture>
+            <source type="image/avif" srcset={srcset('poster', [600, 900, 1200], 'avif')} sizes={sizes} />
+            <img
+              class="lp-poster"
+              src={`${base}poster-900.webp`}
+              srcset={srcset('poster', [600, 900, 1200], 'webp')}
+              sizes={sizes}
+              alt={lp.alt}
+              width={hand.poster.width}
+              height={hand.poster.height}
+              fetchpriority="high"
+              decoding="async"
+            />
+          </picture>
+          <picture class="lp-poster-lines-pic">
+            <source type="image/avif" data-srcset={srcset('poster-lines', [600, 900], 'avif')} sizes={sizes} />
+            <img
+              class="lp-poster-lines"
+              data-lp-lines-poster
+              data-src={`${base}poster-lines-900.webp`}
+              data-srcset={srcset('poster-lines', [600, 900], 'webp')}
+              sizes={sizes}
+              alt=""
+              width={hand.poster.width}
+              height={hand.poster.height}
+              decoding="async"
+            />
+          </picture>
+          {
+            LINE_KEYS.map((k) => (
+              <span
+                class="lp-plabel"
+                data-lp-plabel={k}
+                data-align={align(k)}
+                data-at={hand.poster.labels[k].join(' ')}
+                aria-hidden="true"
+              >
+                {words(k).map((w, i) => (<span class="lp-w">{i > 0 && ' '}{w}</span>))}
+              </span>
+            ))
+          }
+        </div>
+        {
+          LINE_KEYS.map((k) => (
+            <span class="lp-label" data-lp-label={k} data-align={align(k)} aria-hidden="true">
+              {words(k).map((w, i) => (<span class="lp-w">{i > 0 && ' '}{w}</span>))}
+            </span>
+          ))
+        }
+      </div>
+      <p class="lp-caption">{lp.caption}</p>
+      <div class="lp-tools">
+        <button type="button" class="lp-tool" data-lp-gold aria-pressed="false">{lp.gold}</button>
+        <button type="button" class="lp-tool" data-lp-replay>{lp.replay}</button>
+        <button type="button" class="lp-tool" data-lp-another hidden>{lp.another}</button>
+      </div>
+    </div>
+
+    <div class="lp-copy">
+      <h1 id="hero-title" class="lp-heading">
+        <span class="lp-eyebrow">{story.eyebrow}</span><span class="sr-only">:</span>{' '}
+        <span class="lp-title font-display tracking-display-en">
+          {story.title.before} <em>{story.title.em}</em> {story.title.after}
+        </span>
+      </h1>
+      <p class="lp-lead">{home.lead}</p>
+      <div class="lp-action">
+        <a class="btn btn-gold btn-lg lp-cta" href={readingHref} data-scan-cta data-hero-cta>
+          <Icon name="camera" class="cta-icon" />
+          <span>{ctaLabel}</span>
+        </a>
+        <p class="lp-facts text-small">{facts}</p>
+        <p class="lp-saved text-small" data-saved data-one={home.scan.saved(1)} data-many={home.scan.saved(2).replace('2', '{n}')} hidden>
+          <span data-saved-text></span>
+          <a class="text-link" href={readingHref}>{home.scan.savedLink}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/living-palm.ts';
+</script>
+
+<style>
+  .lp {
+    /* The copy block's height on phones; the stage takes what is left of the first screen (and a little more). */
+    --copy: 25.5rem;
+    --stage: clamp(22rem, calc(100svh - 4.25rem - var(--copy) + 2.5rem), 30rem);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    color: var(--fg);
+    background:
+      radial-gradient(120% 70% at 50% 34%, var(--color-ink-4) 0%, var(--surface-1) 46%, var(--page) 100%);
+    padding-block: 0 3rem;
+  }
+  :lang(hi) .lp { --copy: 28.5rem; }
+  /* Day: the dark stage becomes a lit display case set into the light page. */
+  :global(html[data-theme="day"]) .lp {
+    margin: 0.25rem 0.625rem 0;
+    border-radius: 1rem;
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 6px 16px -8px rgba(23, 19, 61, 0.4);
+  }
+
+  .lp-inner { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; width: 100%; max-width: 80rem; margin-inline: auto; padding-inline: var(--gutter); }
+
+  /* ---------- the stage ---------- */
+  .lp-stage { position: relative; width: calc(100% + 2 * var(--gutter)); margin-inline: calc(-1 * var(--gutter)); height: var(--stage); }
+  .lp-frame { position: absolute; inset: 0; }
+  /* Every hand's posters are 5:7 (1200 x 1680; living-palm-hands.ts). */
+  .lp-poster-box { position: relative; height: 100%; max-width: 100%; aspect-ratio: 5 / 7; margin-inline: auto; container-type: size; }
+  .lp-poster-box picture, .lp-poster-box img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+  .lp-poster, .lp-poster-lines { object-fit: contain; transition: opacity 700ms var(--ease); }
+  .lp-poster-lines { opacity: 0; }
+  .lp-frame :global(.lp-canvas) {
+    position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+    opacity: 0; transition: opacity 700ms var(--ease);
+    touch-action: pan-y; cursor: grab; -webkit-tap-highlight-color: transparent; user-select: none;
+  }
+  .lp-frame :global(.lp-canvas:active) { cursor: grabbing; }
+  .lp-stage[data-live] .lp-frame :global(.lp-canvas) { opacity: 1; }
+  .lp-stage[data-live] .lp-poster { opacity: 0; }
+  .lp-stage[data-still] .lp-poster-lines { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .lp-poster, .lp-poster-lines, .lp-frame :global(.lp-canvas) { transition: none; }
+  }
+
+  /* The line names: written on the skin beside each line, like an annotated plate. */
+  .lp-label, .lp-plabel {
+    position: absolute; pointer-events: none; white-space: nowrap; line-height: 1;
+    font-family: var(--ff-display); font-weight: 700; letter-spacing: 0.03em;
+    text-shadow: 0 0 1px rgba(255, 246, 238, 0.9), 0 0 6px rgba(255, 240, 228, 0.75), 0 0 14px rgba(255, 236, 222, 0.5);
+  }
+  :lang(hi) .lp-label, :lang(hi) .lp-plabel { font-weight: 400; letter-spacing: 0; }
+  .lp-label { left: 0; top: 0; z-index: 1; font-size: 16px; opacity: 0; transform: translate(-9999px, 0); transition: opacity 1s var(--ease); }
+  .lp-stage[data-live] .lp-label:global(.on) { opacity: 1; }
+  .lp-plabel { z-index: 1; font-size: clamp(12px, 3.1cqw, 20px); opacity: 0; translate: 0 -50%; transition: opacity 700ms var(--ease); }
+  .lp-plabel[data-align="right"] { translate: -100% -50%; }
+  .lp-plabel[data-align="center"] { translate: -50% -50%; }
+  .lp-stage[data-still]:not([data-live]) .lp-plabel { opacity: 1; }
+  .lp-label[data-align="right"], .lp-plabel[data-align="right"] { text-align: right; }
+  .lp-label[data-align="center"], .lp-plabel[data-align="center"] { text-align: center; }
+  :lang(hi) .lp-label, :lang(hi) .lp-plabel { line-height: 1.2; }
+  @media (max-width: 47.99rem) {
+    .lp-w { display: block; }
+  }
+
+  .lp-caption {
+    position: absolute; z-index: 2; left: 50%; bottom: 0.5rem; translate: -50% 0; margin: 0;
+    display: flex; align-items: center; gap: 0.625rem; white-space: nowrap;
+    font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--fg-muted);
+    opacity: 0; transition: opacity 1.2s var(--ease);
+  }
+  :lang(hi) .lp-caption { letter-spacing: 0.02em; }
+  .lp-caption::before, .lp-caption::after { content: ""; width: 1.375rem; height: 1px; background: var(--color-gold); opacity: 0.8; }
+  .lp-stage[data-lines-done] .lp-caption, .lp-stage[data-still]:not([data-live]) .lp-caption { opacity: 1; }
+
+  .lp-tools { position: absolute; z-index: 3; right: calc(var(--gutter) - 0.25rem); top: 0.5rem; display: flex; flex-direction: column; align-items: flex-end; gap: 0.375rem; opacity: 0; pointer-events: none; transition: opacity 600ms var(--ease) 0.4s; }
+  .lp-stage[data-live] .lp-tools { opacity: 1; pointer-events: auto; }
+  .lp-tool {
+    font: 600 0.75rem/1 var(--ff-sans); letter-spacing: 0.03em;
+    color: var(--fg-muted); background: rgba(21, 19, 47, 0.6); border: 1px solid rgba(230, 184, 92, 0.32);
+    border-radius: 9999px; padding: 0.4375rem 0.75rem; min-height: 2rem; cursor: pointer;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  :lang(hi) .lp-tool { letter-spacing: 0; }
+  .lp-tool:hover { color: var(--fg); border-color: rgba(230, 184, 92, 0.6); }
+  .lp-tool[aria-pressed="true"] { color: var(--color-ink-8); background: var(--color-gold); }
+  .lp-tool[hidden] { display: none; }
+
+  /* ---------- the words ---------- */
+  .lp-copy { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 0.875rem; width: 100%; max-width: 36rem; text-align: center; }
+  .lp-heading { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0.625rem; }
+  .lp-eyebrow {
+    display: flex; align-items: center; gap: 0.625rem;
+    font-size: var(--fs-small); font-weight: 700; color: var(--accent); letter-spacing: 0.04em;
+  }
+  .lp-eyebrow::before, .lp-eyebrow::after { content: ""; flex: none; width: 1.5rem; height: 1px; background: var(--accent); }
+  .lp-title { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: 700; color: var(--fg); }
+  /* The key word in solid gold (shared rule); room so the italic's tail is not clipped. */
+  .lp-title em { font-style: italic; padding-inline-end: 0.08em; margin-inline-end: -0.08em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  :lang(hi) .lp-title em { font-style: normal; padding-block: 0.14em; }
+  .lp-lead { margin: 0; font-size: var(--fs-lead); line-height: var(--lh-lead); color: var(--fg-muted); text-wrap: pretty; }
+  .lp-action { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; width: 100%; margin-top: 0.375rem; }
+  .lp-cta { width: 100%; min-height: 3.5rem; }
+  .lp-cta :global(.cta-icon) { width: 1.35rem; height: 1.35rem; }
+  .lp-facts { margin: 0; color: var(--fg); }
+  .lp-saved { margin: 0; color: var(--fg-muted); }
+  .lp-saved[hidden] { display: none; }
+  .lp-saved a { margin-inline-start: 0.375rem; }
+
+  @media (min-width: 48rem) {
+    .lp { --stage: clamp(24rem, calc(100svh - 4.25rem - var(--copy) + 2.5rem), 34rem); }
+    .lp-cta { width: auto; padding-inline: 2.25rem; }
+    .lp-action { align-items: center; }
+  }
+
+  /* ---------- desktop: words on the left, the palm on the right ---------- */
+  @media (min-width: 64rem) {
+    .lp {
+      --stage: clamp(32rem, calc(100svh - 5rem), 50rem);
+      display: grid; align-items: center; padding-block: 0;
+      background: radial-gradient(90% 90% at 70% 45%, var(--color-ink-4) 0%, var(--surface-1) 46%, var(--page) 100%);
+    }
+    :global(html[data-theme="day"]) .lp { margin-inline: 1rem; border-radius: 1.25rem; }
+    .lp-inner {
+      display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); align-items: center; gap: 2rem;
+      padding-inline: max(var(--gutter), calc((100vw - 76rem) / 2));
+    }
+    .lp-stage { grid-column: 2; grid-row: 1; width: 100%; margin-inline: 0; }
+    .lp-caption { bottom: 1.25rem; }
+    .lp-tools { right: 0; top: 1.25rem; flex-direction: row; }
+    .lp-copy { grid-column: 1; grid-row: 1; align-items: flex-start; text-align: start; gap: 1.25rem; max-width: 34rem; }
+    .lp-heading { align-items: flex-start; gap: 0.875rem; }
+    .lp-eyebrow::after { display: none; }
+    .lp-title { font-size: clamp(3.25rem, 1.5rem + 3.4vw, 5.75rem); line-height: 0.98; }
+    :lang(hi) .lp-title { line-height: 1.35; }
+    .lp-action { align-items: flex-start; }
+  }
+</style>

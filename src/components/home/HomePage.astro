@@ -2,8 +2,8 @@
 /**
  * Home page, both languages (`/` and `/hi/`): the v4 opening, then the v3
  * sections until their own v4 phases (DESIGN_V4_BRIEF.md):
- *  1. Hero (Hero3D.astro, WEB-DEC-044): the headline and the first gold action beside a
- *     live, draggable 3D hand (a poster image first; HandStory.astro is no longer used).
+ *  1. Hero (LivingPalm.astro, WEB-DEC-044): the headline and the first gold action beside the
+ *     Living palm: a real photographed hand in 3D with its real scan lines (poster first).
  *  2. What your palm reveals: 4 scroll cards quoting a real reading.
  *  3. How it works: big-number step row with real reading-page screens.
  *  4. Free tools that use your photo.
@@ -25,7 +25,7 @@ import Icon from '../Icon.astro';
 import MediaIcon, { type MediaIconName } from '../MediaIcon.astro';
 import LockedCard from '../LockedCard.astro';
 import StoreButton from '../StoreButton.astro';
-import Hero3D from './Hero3D.astro';
+import LivingPalm from './LivingPalm.astro';
 import Pricing from './Pricing.astro';
 import { webScanOpen } from '../../lib/reading/open';
 import StickyCta from './StickyCta.astro';
@@ -37,6 +37,7 @@ import { localizePath, t } from '../../i18n';
 import { inlineMarkdown } from '../../lib/guides/guides';
 import { mostAskedThisWeek } from '../../lib/home/most-asked';
 import { sampleReport, sampleTeasers } from '../../lib/home/sample-reading';
+import { listedHandAuthors } from '../../lib/living-palm';
 import { pageEntities } from '../../lib/entities';
 import { organizationSchema, primaryImageSchema, webApplicationSchema, webPageSchema, websiteSchema } from '../../lib/schema';
 
@@ -161,10 +162,10 @@ const openParts = [
   jsonLd={jsonLd}
   headerCta
   headerCtaAfterHero
-  photoCredit={home.heroCredit}
+  photoCredit={home.heroCredit(listedHandAuthors())}
 >
-  <!-- 1. Hero: the headline and scan button beside a live 3D hand (poster first). -->
-  <Hero3D locale={locale} readingHref={readingHref} />
+  <!-- 1. Hero: the headline and scan button beside the Living palm (a real photo in 3D, poster first). -->
+  <LivingPalm locale={locale} readingHref={readingHref} />
 
   <!-- 2. What your palm reveals: real first sentences, scroll cards on phones. -->
   <section id="reveals" class="section reveals" aria-labelledby="reveals-title">
