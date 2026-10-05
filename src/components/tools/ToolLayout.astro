@@ -14,7 +14,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../Breadcrumbs.astro';
 import Icon from '../Icon.astro';
 import StoreButton from '../StoreButton.astro';
-import MediaIcon from '../MediaIcon.astro';
 import { findPage, isLive } from '../../config/pages';
 import { site } from '../../config/site';
 import { t } from '../../i18n';
@@ -22,7 +21,8 @@ import { pageEntities } from '../../lib/entities';
 import { pageId, webApplicationSchema, webPageSchema } from '../../lib/schema';
 import { scanAction } from '../../lib/reading/open';
 import { otherTools, TOOLS, toolMedium, type ToolInfo } from '../../lib/tools/registry';
-import { toolIcon } from '../../lib/tools/tool-icons';
+import { TOOL_PHOTOS } from '../../lib/tools/tool-photos';
+import ToolPhoto from './ToolPhoto.astro';
 
 export interface HowStep {
   title: string;
@@ -127,7 +127,7 @@ const readingLive = site.webReadingEnabled;
       <div class="t-main">
         <header class="t-head">
           <div class="t-title-row">
-            <span class="t-tile"><MediaIcon name={toolIcon(tool)} sizes="(min-width: 64rem) 3.625rem, 3rem" class="t-tile-icon" loading="eager" /></span>
+            <span class="t-tile t-tile-photo"><ToolPhoto image={TOOL_PHOTOS[tool.id].square} alt={TOOL_PHOTOS[tool.id].alt} sizes="(min-width: 64rem) 5.5rem, 4.5rem" loading="eager" /></span>
             <h1 class="t-h1">{h1}</h1>
           </div>
           <p class="t-promise">{promise}</p>
@@ -282,7 +282,7 @@ const readingLive = site.webReadingEnabled;
             others.map((other) => (
               <li>
                 <a href={other.href}>
-                  <span class="t-other-icon"><MediaIcon name={toolIcon(other)} sizes="2rem" /></span>
+                  <span class="t-other-icon"><ToolPhoto image={TOOL_PHOTOS[other.id].square} alt="" sizes="2.375rem" /></span>
                   <span>{other.name}</span>
                 </a>
               </li>

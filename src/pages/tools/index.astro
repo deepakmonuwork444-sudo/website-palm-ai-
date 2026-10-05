@@ -12,13 +12,12 @@ import '../../components/tools/tools.css';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Icon from '../../components/Icon.astro';
 import StoreButton from '../../components/StoreButton.astro';
-import HandExample from '../../components/tools/HandExample.astro';
-import MediaIcon from '../../components/MediaIcon.astro';
+import ToolPhoto from '../../components/tools/ToolPhoto.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { isLive } from '../../config/pages';
 import { t } from '../../i18n';
 import { TOOLS, toolById } from '../../lib/tools/registry';
-import { toolIcon } from '../../lib/tools/tool-icons';
+import { RESULT_CAPTION, TOOL_PHOTOS } from '../../lib/tools/tool-photos';
 import { toolsHubSchema } from '../../lib/tools/schema';
 
 const title = 'Free Palm Reading Tools: Hand Type, Fingers & Palm Photo';
@@ -33,8 +32,6 @@ const compare = toolById('hand-compare');
 const checker = toolById('photo-checker');
 const lineFinder = toolById('line-finder');
 const learn = TOOLS.filter((tool) => !tool.photo);
-// The 3D gold-and-ivory icon of each tool (src/lib/tools/tool-icons.ts, shared with the tool pages).
-const icon3d = toolIcon;
 ---
 
 <BaseLayout title={title} description={description} path="/tools/" locale="en" jsonLd={jsonLd}>
@@ -62,72 +59,58 @@ const icon3d = toolIcon;
         These use your own photo. A hand model finds your wrist, knuckles and fingertips on your phone, so the photo never leaves it.
       </p>
 
-      <ul class:list={['hub-photo', { 'hub-photo-even': !lineFinder.live }]}>
+      <ul class="hub-photo">
         {
-          [handType, fingers].map((tool) => (
-            <li class="hub-pcard hub-pcard-wide glass-card">
-              <div class="hub-pcard-copy">
-                <span class="hub-card-top">
-                  <span class="t-tile"><MediaIcon name={icon3d(tool)} sizes="3.25rem" /></span>
+          [handType, fingers, compare].map((tool) => {
+            const photo = TOOL_PHOTOS[tool.id];
+            return (
+              <li class:list={['hub-pcard glass-card hub-pcard-shot', `hub-pcard-${tool.id}`]}>
+                <figure class="hub-shot">
+                  <ToolPhoto
+                    image={photo.card!}
+                    alt={photo.alt}
+                    sizes={tool.id === 'hand-compare' ? '(min-width: 64rem) 36rem, (min-width: 40rem) 90vw, 100vw' : '(min-width: 64rem) 22rem, (min-width: 40rem) 45vw, 100vw'}
+                    class="hub-shot-img"
+                    loading="eager"
+                  />
+                  <figcaption class="hub-shot-cap"><span class="hub-shot-dot" aria-hidden="true"></span>{RESULT_CAPTION.en}</figcaption>
+                </figure>
+                <div class="hub-pcard-copy">
                   <a class="hub-card-name hub-stretch" href={tool.path}>{tool.name}</a>
-                </span>
-                <span class="hub-card-blurb">{tool.blurb}</span>
-                <span class="hub-card-label">{tool.label}</span>
-                <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
-              </div>
-              <div class="hub-pcard-demo">
-                <HandExample kind={tool.id === 'hand-type' ? 'shape' : 'fingers'} compact />
-              </div>
-            </li>
-          ))
+                  <span class="hub-card-blurb">{tool.blurb}</span>
+                  <span class="hub-card-label">{tool.label}</span>
+                  <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
+                </div>
+              </li>
+            );
+          })
         }
-        <li class="hub-pcard glass-card">
-          <div class="hub-pcard-copy">
-            <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(compare)} sizes="3.25rem" /></span>
-              <a class="hub-card-name hub-stretch" href={compare.path}>{compare.name}</a>
-            </span>
-            <span class="hub-card-blurb">{compare.blurb}</span>
-            <span class="hub-card-label">{compare.label}</span>
-                <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
-          </div>
-          <div class="hub-pcard-demo hub-demo" aria-hidden="true">
-            <span class="hub-demo-title">What you’ll see</span>
-            <span class="hub-demo-row"><Icon name="check" />Both photos with the points we found</span>
-            <span class="hub-demo-row"><Icon name="check" />Hand type, fingers and thumb, side by side</span>
-            <span class="hub-demo-row"><Icon name="check" />Only real differences marked</span>
-          </div>
-        </li>
-        <li class="hub-pcard glass-card">
-          <div class="hub-pcard-copy">
-            <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(checker)} sizes="3.25rem" /></span>
-              <a class="hub-card-name hub-stretch" href={checker.path}>{checker.name}</a>
-            </span>
-            <span class="hub-card-blurb">{checker.blurb}</span>
-            <span class="hub-card-label">{checker.label}</span>
-                <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
-          </div>
-          <div class="hub-pcard-demo hub-demo" aria-hidden="true">
-            <span class="hub-demo-title">What you’ll see</span>
-            <span class="hub-demo-row"><Icon name="check" />Bright enough, not washed out</span>
-            <span class="hub-demo-row"><Icon name="check" />Sharp, not blurry</span>
-            <span class="hub-demo-row"><Icon name="check" />Whole hand in the frame</span>
-          </div>
-        </li>
-        {lineFinder.live && (
-        <li class="hub-pcard glass-card">
-          <div class="hub-pcard-copy">
-            <span class="hub-card-top">
-              <span class="t-tile"><MediaIcon name={icon3d(lineFinder)} sizes="3.25rem" /></span>
-              <a class="hub-card-name hub-stretch" href={lineFinder.path}>{lineFinder.name}</a>
-            </span>
-            <span class="hub-card-blurb">{lineFinder.blurb}</span>
-            <span class="hub-card-label">{lineFinder.label}</span>
-            <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
-          </div>
-        </li>
-        )}
+        {
+          [checker, ...(lineFinder.live ? [lineFinder] : [])].map((tool) => {
+            const photo = TOOL_PHOTOS[tool.id];
+            return (
+              <li class="hub-pcard glass-card hub-pcard-row">
+                <span class="hub-row-shot">
+                  <ToolPhoto image={photo.card ?? photo.square} alt={photo.alt} sizes="(min-width: 40rem) 12rem, 7rem" class="hub-shot-img" />
+                </span>
+                <div class="hub-pcard-copy">
+                  <a class="hub-card-name hub-stretch" href={tool.path}>{tool.name}</a>
+                  <span class="hub-card-blurb">{tool.blurb}</span>
+                  <span class="hub-card-label">{tool.label}</span>
+                  <span class="hub-card-action" aria-hidden="true">Open the tool<Icon name="chevron" class="hub-go" /></span>
+                </div>
+                {tool.id === 'photo-checker' && (
+                  <div class="hub-demo" aria-hidden="true">
+                    <span class="hub-demo-title">What you’ll see</span>
+                    <span class="hub-demo-row"><Icon name="check" />Bright enough, not washed out</span>
+                    <span class="hub-demo-row"><Icon name="check" />Sharp, not blurry</span>
+                    <span class="hub-demo-row"><Icon name="check" />Whole hand in the frame</span>
+                  </div>
+                )}
+              </li>
+            );
+          })
+        }
       </ul>
     </section>
 
@@ -141,7 +124,7 @@ const icon3d = toolIcon;
           learn.map((tool) => (
             <li>
               <div class="hub-row glass-card">
-                <span class="hub-row-tile"><MediaIcon name={icon3d(tool)} sizes="2.75rem" /></span>
+                <span class="hub-row-tile"><ToolPhoto image={TOOL_PHOTOS[tool.id].square} alt="" sizes="4rem" /></span>
                 <span class="hub-row-text">
                   <a class="hub-row-name stretch-link" href={tool.path}>{tool.name}</a>
                   <span class="hub-row-blurb">{tool.blurb}</span>
@@ -211,33 +194,46 @@ const icon3d = toolIcon;
   :global([data-theme="day"]) .hub-group-title::before { box-shadow: none; }
   .hub-group-intro { margin: 0 0 0.5rem; color: var(--fg-muted); max-width: 42.5rem; font-size: var(--fs-lead); line-height: var(--lh-lead); }
 
+  /* Photo tools: each card leads with the tool's REAL result on a real palm (src/lib/tools/tool-photos.ts). */
   .hub-photo { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.125rem; }
-  @media (min-width: 48rem) { .hub-photo { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } }
-  @media (min-width: 64rem) { .hub-photo { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1.5rem; } .hub-pcard { grid-column: span 2; } .hub-pcard-wide { grid-column: span 3; } .hub-photo-even .hub-pcard { grid-column: span 3; } }
+  @media (min-width: 40rem) { .hub-photo { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } .hub-pcard-hand-compare, .hub-pcard-row { grid-column: 1 / -1; } }
+  /* Desktop: one row of three; the columns follow the images' shapes (4:5, 4:5, 1.3:1), so the three images are the same height. */
+  @media (min-width: 64rem) { .hub-photo { grid-template-columns: 0.8fr 0.8fr 1.3fr; gap: 1.5rem; } .hub-pcard-hand-compare { grid-column: auto; } }
   .hub-pcard { display: flex; flex-direction: column; gap: 1.25rem; padding: 1.375rem; }
   @media (min-width: 64rem) { .hub-pcard { padding: 1.75rem; } }
-  /* The two flagship tools get the gold-lit rim and a warm light in the glass. */
-  .hub-pcard-wide {
-    background: var(--glass-1) padding-box,
-      linear-gradient(var(--accent), var(--accent)) border-box;
+  .hub-pcard-shot { padding: 0; gap: 0; overflow: hidden; }
+  .hub-pcard-shot .hub-pcard-copy { flex: 1; padding: 1.25rem 1.375rem 1.5rem; }
+  .hub-pcard-shot .hub-card-action { margin-top: auto; }
+  .hub-shot { position: relative; margin: 0; aspect-ratio: 4 / 5; overflow: hidden; background: var(--color-ink-4); }
+  .hub-pcard-hand-compare .hub-shot { aspect-ratio: 1280 / 985; }
+  @media (min-width: 40rem) and (max-width: 63.99rem) {
+    .hub-pcard-hand-compare .hub-shot { aspect-ratio: 16 / 9; }
+    .hub-pcard-hand-compare .hub-shot :global(img) { object-position: 50% 58%; }
   }
-  :global([data-theme="day"]) .hub-pcard-wide {
-    background: var(--glass-1) padding-box,
-      linear-gradient(var(--accent), var(--accent)) border-box;
+  .hub-shot :global(.hub-shot-img), .hub-shot :global(.hub-shot-img img), .hub-row-shot :global(.hub-shot-img), .hub-row-shot :global(.hub-shot-img img) { display: block; width: 100%; height: 100%; }
+  .hub-shot :global(img), .hub-row-shot :global(img) { object-fit: cover; transition: transform 700ms var(--ease-out); }
+  .hub-shot::after { content: ""; position: absolute; inset: auto 0 0; height: 24%; pointer-events: none; background: linear-gradient(180deg, transparent, rgba(8, 6, 24, 0.38)); }
+  .hub-shot-cap {
+    position: absolute; left: 0.75rem; bottom: 0.75rem; z-index: 1; display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.3rem 0.7rem; border-radius: 9999px; font-size: var(--fs-caption); line-height: 1.3; font-weight: 600; color: #fff;
+    background: rgba(12, 10, 32, 0.58); border: 1px solid rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(10px) saturate(140%); backdrop-filter: blur(10px) saturate(140%);
+  }
+  .hub-shot-dot { width: 0.45rem; height: 0.45rem; border-radius: 9999px; background: var(--color-trace-life); box-shadow: 0 0 0 3px rgba(47, 208, 106, 0.25); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) { .hub-pcard:hover .hub-shot :global(img), .hub-pcard:hover .hub-row-shot :global(img) { transform: scale(1.035); } }
+  /* The photo checker (and the line finder once it opens): photo beside the copy. */
+  .hub-pcard-row { display: grid; grid-template-columns: 7rem minmax(0, 1fr); align-items: start; gap: 1.125rem; }
+  .hub-pcard-row .hub-demo { grid-column: 1 / -1; }
+  .hub-row-shot { display: block; aspect-ratio: 4 / 5; overflow: hidden; border-radius: var(--r-well); background: var(--color-ink-4); }
+  @media (min-width: 48rem) {
+    .hub-pcard-row { grid-template-columns: 10rem minmax(0, 1fr) minmax(0, 18rem); align-items: center; gap: 1.75rem; }
+    .hub-pcard-row .hub-demo { grid-column: auto; }
   }
   /* The whole card is one link: lift, brighter rim and deeper shadow on hover. */
   .hub-pcard:hover, .hub-pcard:focus-within { background: var(--glass-1) padding-box, var(--rim-hover) border-box; box-shadow: var(--e2); }
   @media (hover: hover) and (prefers-reduced-motion: no-preference) { .hub-pcard:not(.hub-pcard-soon):hover { transform: translateY(-6px); } }
   .hub-pcard:has(.hub-stretch:focus-visible) { outline: 2px solid var(--focus); outline-offset: 3px; }
   .hub-pcard-copy { display: flex; flex-direction: column; gap: 0.625rem; align-items: flex-start; }
-  /* Side by side, cards share rows (subgrid): the "Open the tool" buttons and the demos line up across a row. */
-  @media (min-width: 48rem) {
-    @supports (grid-template-rows: subgrid) {
-      .hub-pcard { display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 1.25rem; align-content: start; }
-      .hub-pcard .hub-card-action { margin-top: auto; }
-      .hub-pcard .hub-pcard-demo { margin-top: 0; }
-    }
-  }
   .hub-pcard-soon { border: 1.5px dashed var(--control-border); background: linear-gradient(170deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)); box-shadow: none; }
   .hub-pcard-soon:hover, .hub-pcard-soon:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, var(--control-border)); background: linear-gradient(170deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); box-shadow: none; }
   .hub-card-top { display: flex; align-items: center; gap: 0.875rem; }
@@ -262,12 +258,6 @@ const icon3d = toolIcon;
   .hub-card-action :global(.hub-go) { width: 1rem; height: 1rem; transition: transform 320ms var(--ease-out); }
   .hub-pcard:hover .hub-card-action { border-color: var(--accent); box-shadow: none; }
   @media (hover: hover) and (prefers-reduced-motion: no-preference) { .hub-pcard:hover .hub-card-action :global(.hub-go) { transform: translateX(3px); } }
-  .hub-pcard-demo { margin-top: auto; }
-  .hub-pcard-wide .hub-pcard-demo {
-    padding: 1rem; border-radius: var(--r-well); border: 1px solid transparent;
-    background: var(--well) padding-box, var(--rim) border-box; box-shadow: inset 0 2px 10px rgba(0,0,0,0.35);
-  }
-  :global([data-theme="day"]) .hub-pcard-wide .hub-pcard-demo { background: var(--well) padding-box, var(--rim) border-box; box-shadow: inset 0 2px 8px rgba(23,19,61,0.06); }
   .hub-demo {
     display: flex; flex-direction: column; gap: 0.625rem; padding: 1.125rem; border-radius: var(--r-well); font-size: var(--fs-small);
     border: 1px solid transparent; background: var(--well) padding-box, var(--rim) border-box;
@@ -291,20 +281,11 @@ const icon3d = toolIcon;
   @media (min-width: 48rem) { .hub-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; } }
   @media (min-width: 80rem) { .hub-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .hub-list > li { min-width: 0; }
-  .hub-row { display: flex; gap: 1rem; align-items: flex-start; height: 100%; min-height: 3rem; padding: 1rem 1.125rem; color: var(--fg); text-decoration: none; }
-  .hub-row-tile {
-    flex: none; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border-radius: 0.875rem; border: 1px solid transparent;
-    background: var(--well) padding-box, var(--rim) border-box;
-  }
-  /* 3D icons: the glass-and-gold object sits in the lit well, a little proud of it. */
-  .hub-card-top :global(.t-tile) { width: 4rem; height: 4rem; }
-  .hub-card-top :global(.media-icon) { width: 3.25rem;  transition: transform 600ms var(--ease-out); }
-  .hub-row-tile { width: 3.25rem; height: 3.25rem; }
-  .hub-row-tile :global(.media-icon) { width: 2.75rem;  transition: transform 600ms var(--ease-out); }
-  :global([data-theme="day"]) .hub-card-top :global(.media-icon), :global([data-theme="day"]) .hub-row-tile :global(.media-icon) {  }
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .hub-pcard:not(.hub-pcard-soon):hover .hub-card-top :global(.media-icon), .hub-row:hover .hub-row-tile :global(.media-icon) { transform: translateY(-3px) scale(1.06); }
-  }
+  .hub-row { display: flex; gap: 1rem; align-items: center; height: 100%; min-height: 3rem; padding: 0.875rem 1.125rem 0.875rem 0.875rem; color: var(--fg); text-decoration: none; }
+  /* Each meaning tool shows a real palm: a Living palm hand with its real scanner line(s), or a real photo. */
+  .hub-row-tile { flex: none; width: 4.5rem; height: 4.5rem; overflow: hidden; border-radius: 0.875rem; background: var(--color-ink-4); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+  .hub-row-tile :global(picture), .hub-row-tile :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) { .hub-row:hover .hub-row-tile :global(img) { transform: scale(1.06); } }
   .hub-row:hover .hub-row-name, .hub-row:has(.stretch-link:focus-visible) .hub-row-name { color: var(--accent); }
   .hub-row-text { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
   .hub-row-name { font-weight: 700; transition: color 200ms var(--ease); }

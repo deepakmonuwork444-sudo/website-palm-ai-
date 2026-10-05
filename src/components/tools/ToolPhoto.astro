@@ -1,0 +1,33 @@
+---
+/**
+ * A tool's REAL image (src/lib/tools/tool-photos.ts): AVIF + WebP at the widths that exist,
+ * with width/height so the card never jumps while it loads.
+ */
+import { TOOL_IMAGE_DIR, type ToolImage } from '../../lib/tools/tool-photos';
+
+interface Props {
+  image: ToolImage;
+  alt: string;
+  sizes: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+}
+
+const { image, alt, sizes, class: className, loading = 'lazy' } = Astro.props;
+const set = (ext: string) => image.widths.map((w) => `${TOOL_IMAGE_DIR}${image.name}-${w}.${ext} ${w}w`).join(', ');
+const fallback = image.widths[Math.min(1, image.widths.length - 1)];
+---
+
+<picture class:list={['tool-photo', className]}>
+  <source type="image/avif" srcset={set('avif')} sizes={sizes} />
+  <img
+    src={`${TOOL_IMAGE_DIR}${image.name}-${fallback}.webp`}
+    srcset={set('webp')}
+    sizes={sizes}
+    width={image.width}
+    height={image.height}
+    alt={alt}
+    loading={loading}
+    decoding="async"
+  />
+</picture>
