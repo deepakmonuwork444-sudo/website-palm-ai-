@@ -1,0 +1,62 @@
+{
+ "W": 1600,
+ "H": 2191,
+ "worldW": 1.2,
+ "worldH": 1.6432499999999999,
+ "pxToWorld": 0.00075,
+ "zmin": -21.866924285888672,
+ "zmax": 420.12030029296875,
+ "meshW": 257,
+ "meshH": 353,
+ "normalW": 1200,
+ "normalH": 1643,
+ "params": {
+  "K_DA": 310.4,
+  "HC": 138,
+  "K_CREASE": 0.16,
+  "kda": 0.45,
+  "hc": 0.2
+ },
+ "frame": {
+  "content": {
+   "u0": 0.0213,
+   "u1": 0.9994,
+   "v0": 0.0278,
+   "v1": 0.9617
+  },
+  "pivot": {
+   "u": 0.6801,
+   "v": 0.578
+  },
+  "palmEdges": {
+   "uL": 0.4645,
+   "uR": 0.8957,
+   "v": 0.578,
+   "note": "span = palm width; label em = labelBox.emOfPalmWidth of it"
+  },
+  "wristFade": {
+   "v0": 0.8388,
+   "v1": 0.9911
+  },
+  "handedness": "Left",
+  "rotatedDeg": 270
+ },
+ "source": {
+  "slug": "hand-type-d",
+  "photo": "pexels-236372.jpg",
+  "crop": {
+   "left": 0,
+   "top": 0,
+   "width": 3264,
+   "height": 2448
+  },
+  "subCropOfRotatedCrop": {
+   "left": 0,
+   "top": 72,
+   "width": 2331,
+   "height": 3192
+  },
+  "scan": "hand-type-d.scan.json",
+  "model": "palm4_v2/palm4_v2@8a252bb"
+ }
+}

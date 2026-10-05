@@ -1,0 +1,40 @@
+{
+  "note": "Extra Living palm hands built by research-tools/living-palm/build.mjs from licensed Pexels photos + their REAL palm4_v2 scans. Only hands that passed the quality gate (390x844@3 and 1440x900, idle / lines / rotated +-18 deg) are listed. hero-palm-a is registered separately by the home hero. Each folder has the same asset set as hero-palm-a; palm-meta.json adds frame {content, pivot, palmEdges, wristFade} and lines.json adds labels {key: {uv, align}} placed automatically beside each real line.",
+  "assets": ["palm-albedo.webp (desktop)", "palm-albedo-1024.webp (phone)", "palm-normal.webp", "palm-depth.png", "palm-shadow.png", "palm-meta.json", "lines.json", "lines-field.png"],
+  "hands": [
+    {
+      "slug": "hero-palm-c",
+      "base": "/models/living-palm/hero-palm-c/",
+      "credit": { "author": "Amusan John", "authorUrl": "https://www.pexels.com/@picturesbyamusan/", "source": "https://www.pexels.com/photo/photograph-of-a-person-s-arm-8062714/", "licence": "Pexels License" },
+      "skinTone": "deep brown (dark skin); label ink needs its light glow for contrast",
+      "hand": "right palm, fingers slightly apart, ring finger bent",
+      "labels": ["heart", "head", "life", "fate"],
+      "texture": "984 px wide (hand is small in the source photo); phone and desktop use the same albedo",
+      "sizes": { "desktopBytes": 677105, "phoneBytes": 677105 }
+    },
+    {
+      "slug": "hand-type-c",
+      "base": "/models/living-palm/hand-type-c/",
+      "credit": { "author": "Juan Pablo Serrano", "authorUrl": "https://www.pexels.com/@juanpphotoandvideo/", "source": "https://www.pexels.com/photo/close-up-of-hand-over-white-background-1257770/", "licence": "Pexels License" },
+      "skinTone": "medium / tan brown",
+      "hand": "right palm, open, fingers apart; source photo turned 90 deg so the fingers point up",
+      "labels": ["heart", "head", "life", "fate"],
+      "sizes": { "desktopBytes": 838917, "phoneBytes": 572825 }
+    },
+    {
+      "slug": "hand-type-d",
+      "base": "/models/living-palm/hand-type-d/",
+      "credit": { "author": "Pixabay", "authorUrl": "https://www.pexels.com/@pixabay/", "source": "https://www.pexels.com/photo/person-showing-his-left-human-palm-236372/", "licence": "Pexels License" },
+      "skinTone": "light / fair, pink undertone",
+      "hand": "left palm, long fingers held together, thumb out to the side (wide silhouette); source photo turned 90 deg",
+      "labels": ["heart", "head", "life", "fate"],
+      "sizes": { "desktopBytes": 573353, "phoneBytes": 478617 }
+    }
+  ],
+  "rejected": {
+    "hero-palm-b": "soft source photo with touching fingers: on +-18 deg rotation the finger sides smear into stretched 'fur' walls and the fingers read as clay",
+    "hand-type-a": "scanner's line labels are anatomically implausible on this photo (heart traced across mid-palm, fate crossing head), no room for a fate label, sleeve fragment at the wrist",
+    "hand-type-b": "same Pexels photo and hand as hero-palm-c (8062714); not built twice",
+    "palm-mounts, palm-fingers": "no scan outline (cupped hand / same photo as hand-type-a)"
+  }
+}

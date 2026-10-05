@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Living Palm QA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Mukta:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --page:#0B0A1F; --s1:#15132F; --fg:#F6F0E1; --muted:#C3B9D8; --faint:#8F88B5; --gold:#E6B85C; --gold-hi:#F5D98B; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--page); color: var(--fg); font-family: Mukta, system-ui, sans-serif; }
+  body { overflow-x: hidden; }
+  .hero { position: relative; min-height: 100svh; display: grid; grid-template-columns: 1fr; grid-template-rows: auto 1fr; overflow: hidden;
+    background: radial-gradient(120% 80% at 62% 42%, #221A4E 0%, #15132F 46%, #0B0A1F 100%); }
+  .copy { position: relative; z-index: 3; padding: 28px 20px 0; max-width: 560px; }
+  .eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin: 0 0 10px; }
+  h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: clamp(34px, 2.2rem + 2.2vw, 64px); line-height: 1.04; margin: 0 0 12px; letter-spacing: -.01em; }
+  h1 em { font-style: italic; font-weight: 500; color: var(--gold-hi); }
+  .lede { color: var(--muted); font-size: 16px; line-height: 1.5; margin: 0; max-width: 34ch; }
+  .stage { position: relative; min-height: 560px; }
+  canvas#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: grab; }
+  canvas#gl:active { cursor: grabbing; }
+  .label { position: absolute; left: 0; top: 0; pointer-events: none; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: 16px; letter-spacing: .03em; line-height: 1;
+    white-space: nowrap; opacity: 0; transition: opacity 1s ease; transform: translate(-9999px,0); text-shadow: 0 0 1px rgba(255,246,238,.9), 0 0 6px rgba(255,240,228,.75), 0 0 14px rgba(255,236,222,.5); }
+  .label.on { opacity: 1; }
+  .caption { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 3; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 10px; opacity: 0; transition: opacity 1.2s ease; white-space: nowrap; }
+  .caption.on { opacity: 1; }
+  .caption::before { content: ''; width: 22px; height: 1px; background: var(--gold); opacity: .8; }
+  .caption::after { content: ''; width: 22px; height: 1px; background: var(--gold); opacity: .8; }
+  .poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 60%; display: none; }
+  .no3d .poster { display: block; } .no3d canvas, .no3d svg, .no3d .label { display: none !important; }
+  .tools { position: absolute; right: 14px; top: 14px; z-index: 5; display: flex; gap: 6px; }
+  .tools button { font: 600 11px Mukta, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: rgba(21,19,47,.6); border: 1px solid rgba(230,184,92,.32);
+    border-radius: 999px; padding: 6px 11px; cursor: pointer; backdrop-filter: blur(6px); }
+  .tools button[aria-pressed="true"] { color: #1F1300; background: var(--gold); }
+  #fps { position: absolute; left: 10px; bottom: 10px; z-index: 6; font: 11px ui-monospace, monospace; color: var(--faint); display: none; }
+  @media (max-width: 899px) { .tools { top: auto; bottom: 50px; } }
+  @media (min-width: 900px) {
+    .hero { grid-template-columns: minmax(380px, 40%) 1fr; grid-template-rows: 1fr; }
+    .copy { align-self: center; padding: 0 0 0 clamp(32px, 6vw, 110px); }
+    .lede { font-size: 18px; }
+    .stage { min-height: 100svh; }
+    .caption { bottom: 26px; }
+  }
+</style>
+</head>
+<body>
+<section class="hero" id="hero">
+  <div class="copy">
+    <p class="eyebrow">PalmSays · Living palm QA</p>
+    <h1>Your palm,<br><em>read for real.</em></h1>
+    <p class="lede">A real photographed hand, rebuilt in depth. The four lines are the scanner's actual trace of this palm.</p>
+  </div>
+  <div class="stage" id="stage">
+    <img class="poster" src="data:," alt="A real open palm with the heart, head, life and fate lines traced by the PalmSays scanner">
+    <canvas id="gl" aria-label="3D palm. Drag to turn it."></canvas>
+    <div class="label" data-k="heart">Heart</div>
+    <div class="label" data-k="head">Head</div>
+    <div class="label" data-k="life">Life</div>
+    <div class="label" data-k="fate">Fate</div>
+    <div class="caption" id="caption">Real scan of this palm</div>
+    <div class="tools"><button id="mode" aria-pressed="false" title="Line colour">Gold lines</button><button id="replay">Replay</button></div>
+    <div id="fps"></div>
+  </div>
+</section>
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.170.0/build/three.module.min.js", "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const Q = new URLSearchParams(location.search); const BASE = Q.get('base') || 'assets';
+const stage = document.getElementById('stage');
+const canvas = document.getElementById('gl');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches && !Q.has('motion');
+const fail = () => document.documentElement.classList.add('no3d');
+function hasGL() { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } }
+if (!hasGL() || reduced || Q.has('poster')) { fail(); } else { start().catch((e) => { console.error(e); fail(); }); }
+
+// Site line colours (DESIGN_SYSTEM v4), slightly deepened so they sit in the skin like ink.
+const COLOUR = { heart: '#D42A40', head: '#2F6BDA', life: '#1C9A4E', fate: '#8049E4' };
+const GOLD = { heart: '#A87418', head: '#A87418', life: '#A87418', fate: '#A87418' };
+const KEYS = ['heart', 'head', 'life', 'fate'];
+
+async function start() {
+  const [meta, lines] = await Promise.all([fetch(BASE + '/palm-meta.json').then(r => r.json()), fetch(BASE + '/lines.json').then(r => r.json())]);
+  const small = Math.min(screen.width, screen.height) < 500;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: Q.has('shot') });
+  let dprCap = Math.min(window.devicePixelRatio || 1, 2.5);
+  renderer.setPixelRatio(dprCap);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.84;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = 0.45;
+  const camera = new THREE.PerspectiveCamera(24, 1, 0.1, 50);
+
+  // ---- textures
+  const tl = new THREE.TextureLoader();
+  const load = (u) => new Promise((res, rej) => tl.load(u, res, undefined, rej));
+  const [albedo, normal, field, shadowTex, depthImg] = await Promise.all([
+    load(BASE + (small ? '/palm-albedo-1024.webp' : '/palm-albedo.webp')), load(BASE + '/palm-normal.webp'), load(BASE + '/lines-field.png'), load(BASE + '/palm-shadow.png'),
+    fetch(BASE + '/palm-depth.png').then(r => r.blob()).then(b => createImageBitmap(b, { colorSpaceConversion: 'none', premultiplyAlpha: 'none' }))]);
+  albedo.colorSpace = THREE.SRGBColorSpace; albedo.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  normal.anisotropy = 4;
+  field.flipY = false; field.colorSpace = THREE.NoColorSpace; field.generateMipmaps = false; field.minFilter = THREE.LinearFilter;
+
+  // ---- displaced mesh from the depth map (16-bit in R/G, coverage in B)
+  const MW = depthImg.width, MH = depthImg.height;
+  const cv = Object.assign(document.createElement('canvas'), { width: MW, height: MH });
+  const cx = cv.getContext('2d'); cx.drawImage(depthImg, 0, 0); const px = cx.getImageData(0, 0, MW, MH).data;
+  const zAt = new Float32Array(MW * MH); const cov = new Uint8Array(MW * MH);
+  for (let i = 0; i < MW * MH; i++) { const q = (px[i * 4] << 8 | px[i * 4 + 1]) / 65535; zAt[i] = (meta.zmin + q * (meta.zmax - meta.zmin)) * meta.pxToWorld; cov[i] = px[i * 4 + 2]; }
+  const FR = meta.frame || { content: { u0: 0.1, u1: 0.88, v0: 0.03, v1: 0.9 }, pivot: { u: 0.43, v: 0.47 }, palmEdges: { uL: 0.13, uR: 0.75, v: 0.5 } }; // written by build.mjs
+  const PIV = FR.pivot;
+  const z0 = zAt[Math.round(PIV.v * (MH - 1)) * MW + Math.round(PIV.u * (MW - 1))];
+  const pos = new Float32Array(MW * MH * 3), uv = new Float32Array(MW * MH * 2);
+  for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) { const k = j * MW + i; const u = i / (MW - 1), v = j / (MH - 1);
+    pos[k * 3] = (u - PIV.u) * meta.worldW; pos[k * 3 + 1] = (PIV.v - v) * meta.worldH; pos[k * 3 + 2] = zAt[k] - z0; uv[k * 2] = u; uv[k * 2 + 1] = 1 - v; }
+  const idx = [];
+  for (let j = 0; j < MH - 1; j++) for (let i = 0; i < MW - 1; i++) { const a = j * MW + i, b = a + 1, c = a + MW, d = c + 1; if (cov[a] + cov[b] + cov[c] + cov[d] === 0) continue; idx.push(a, c, b, b, c, d); }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setIndex(idx.length > 65535 * 3 ? new THREE.Uint32BufferAttribute(idx, 1) : new THREE.Uint32BufferAttribute(idx, 1)); geo.computeVertexNormals();
+  const sampleZ = (u, v) => { const x = u * (MW - 1), y = v * (MH - 1), x0 = Math.floor(x), y0 = Math.floor(y), tx = x - x0, ty = y - y0; const g = (i, j) => zAt[Math.min(MH - 1, j) * MW + Math.min(MW - 1, i)];
+    return (g(x0, y0) * (1 - tx) + g(x0 + 1, y0) * tx) * (1 - ty) + (g(x0, y0 + 1) * (1 - tx) + g(x0 + 1, y0 + 1) * tx) * ty - z0; };
+  const toLocal = (u, v, lift = 0.004) => new THREE.Vector3((u - PIV.u) * meta.worldW, (PIV.v - v) * meta.worldH, sampleZ(u, v) + lift);
+
+  // ---- skin material
+  const U = { uField: { value: field }, uRect: { value: new THREE.Vector4(lines.rect.u0, lines.rect.v0, lines.rect.u1, lines.rect.v1) }, uMaxD: { value: lines.maxDistPx },
+    uImg: { value: new THREE.Vector2(meta.W, meta.H) }, uProg: { value: new THREE.Vector4(0, 0, 0, 0) }, uHalfW: { value: 0.9 * renderer.getPixelRatio() },
+    uCol: { value: KEYS.map(k => new THREE.Color(COLOUR[k])) }, uSSS: { value: 0.12 }, uInk: { value: 0.86 } };
+  const skin = new THREE.MeshPhysicalMaterial({ map: albedo, normalMap: normal, normalMapType: THREE.ObjectSpaceNormalMap, roughness: 0.56, metalness: 0,
+    sheen: 0.45, sheenColor: new THREE.Color('#ffd2bd'), sheenRoughness: 0.55, specularIntensity: 0.42, ior: 1.42, clearcoat: 0.06, clearcoatRoughness: 0.42,
+    transparent: true, alphaTest: 0.01 });
+  skin.onBeforeCompile = (sh) => {
+    Object.assign(sh.uniforms, U);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+      uniform sampler2D uField; uniform vec4 uRect; uniform float uMaxD; uniform vec2 uImg; uniform vec4 uProg; uniform float uHalfW; uniform vec3 uCol[4]; uniform float uSSS; uniform float uInk;
+      float lineCov(float d, float hw, float pps) { return 1.0 - smoothstep(hw - 0.6 * pps, hw + 0.6 * pps, d); }`)
+    .replace('#include <map_fragment>', `#include <map_fragment>
+      vec3 lineEmit = vec3(0.0);
+      {
+        vec2 iuv = vec2(vMapUv.x, 1.0 - vMapUv.y);
+        vec2 f = (iuv - uRect.xy) / (uRect.zw - uRect.xy);
+        if (f.x > 0.0 && f.x < 1.0 && f.y > 0.0 && f.y < 1.0) {
+          vec3 dA = texture2D(uField, vec2(f.x, f.y / 3.0)).rgb * uMaxD;
+          vec3 pA = texture2D(uField, vec2(f.x, (f.y + 1.0) / 3.0)).rgb;
+          vec2 fF = texture2D(uField, vec2(f.x, (f.y + 2.0) / 3.0)).rg;
+          vec4 D = vec4(dA, fF.x * uMaxD); vec4 P = vec4(pA, fF.y);
+          float pps = max(0.35, length(fwidth(iuv * uImg)) * 0.7071);
+          float hw = max(uHalfW * pps, 1.3);
+          for (int k = 0; k < 4; k++) {
+            float drawn = 1.0 - smoothstep(uProg[k] - 0.006, uProg[k] + 0.002, P[k]);
+            float c = lineCov(D[k], hw, pps) * drawn;
+            float shade = (1.0 - smoothstep(hw, hw + 2.2 * pps + 1.5, D[k])) * drawn;
+            diffuseColor.rgb *= 1.0 - 0.10 * shade;
+            diffuseColor.rgb = mix(diffuseColor.rgb, uCol[k], c * uInk);
+            float head = (uProg[k] > 0.0 && uProg[k] < 1.0) ? smoothstep(0.035, 0.0, uProg[k] - P[k]) * drawn : 0.0;
+            lineEmit += uCol[k] * c * (0.16 + 1.2 * head) + vec3(1.0, 0.85, 0.55) * head * (1.0 - smoothstep(0.0, hw * 2.5, D[k])) * 0.6;
+          }
+        }
+      }`)
+    .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+      {
+        float nv = clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0);
+        float edge = pow(1.0 - nv, 2.0);
+        totalEmissiveRadiance += diffuseColor.rgb * vec3(1.0, 0.42, 0.28) * uSSS * (0.55 + 1.6 * edge);
+        totalEmissiveRadiance += lineEmit;
+      }`);
+  };
+  const hand = new THREE.Mesh(geo, skin);
+  const rig = new THREE.Group(); rig.add(hand); scene.add(rig);
+
+  // soft shadow on an unseen wall behind the hand
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(meta.worldW * 1.06, meta.worldH * 1.06), new THREE.MeshBasicMaterial({ color: 0x03020c, alphaMap: shadowTex, transparent: true, opacity: 0.55, depthWrite: false }));
+  shadow.position.set(0.05, -0.07, -0.42); scene.add(shadow);
+
+  // ---- lights: soft warm key, warm gold rim, cool navy fill
+  const key = new THREE.DirectionalLight('#fff1e2', 1.75); key.position.set(-1.4, 1.8, 3.2); scene.add(key);
+  const rim = new THREE.DirectionalLight('#ffc57a', 2.6); rim.position.set(2.6, 1.2, -1.2); scene.add(rim);
+  const rim2 = new THREE.DirectionalLight('#ffd9b0', 1.2); rim2.position.set(-2.8, 0.6, -0.8); scene.add(rim2);
+  const fill = new THREE.HemisphereLight('#c9c2ff', '#2a1d18', 0.55); scene.add(fill);
+
+  // ---- labels: written on the palm beside each traced line (like an annotated plate), no leader lines
+  const labelEls = Object.fromEntries([...document.querySelectorAll('.label')].map(el => [el.dataset.k, el]));
+  // label positions in photo UV, chosen beside the real line; align = which side of the point the text sits
+  const LAB = lines.labels || {}; // auto-placed by build.mjs beside each real line
+  const anchors = {};
+  for (const k of KEYS) if (LAB[k]) anchors[k] = { local: toLocal(LAB[k].uv[0], LAB[k].uv[1], 0.01), align: LAB[k].align }; else labelEls[k].remove();
+  const edgeL = toLocal(FR.palmEdges.uL, FR.palmEdges.v), edgeR = toLocal(FR.palmEdges.uR, FR.palmEdges.v);
+  const INK = { heart: '#B3122B', head: '#1C54B8', life: '#12703A', fate: '#5B3BC4' };
+  for (const k of KEYS) labelEls[k].style.color = INK[k];
+
+  // ---- layout
+  let W = 1, H = 1, frameScale = 1;
+  function layout() {
+    const r = stage.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height);
+    renderer.setSize(W, H, false); camera.aspect = W / H;
+    // fit: hand (fingertips .03 .. wrist fade .9 of the crop; width .1 .. .88) with room for labels
+    const C = FR.content; const needH = meta.worldH * (C.v1 - C.v0) * (W >= 900 ? 1.13 : 1.10), needW = meta.worldW * (C.u1 - C.u0) * 1.06;
+    const dist = 3.2; camera.position.set(0, 0, dist);
+    const vfov = 2 * Math.atan(Math.max(needH / 2 / dist, needW / 2 / dist / camera.aspect));
+    camera.fov = THREE.MathUtils.radToDeg(vfov) * (W < 600 ? 1.0 : 1.0); camera.updateProjectionMatrix();
+    rig.position.set(-((C.u0 + C.u1) / 2 - PIV.u) * meta.worldW, ((C.v0 + C.v1) / 2 - PIV.v) * meta.worldH, 0);
+    U.uHalfW.value = Math.max(1.0, 0.72 * renderer.getPixelRatio());
+  }
+  new ResizeObserver(layout).observe(stage); layout();
+
+  // ---- interaction: drag with inertia, hover lean, device tilt (no permission prompt)
+  const LIM = THREE.MathUtils.degToRad(20);
+  const st = { yaw: 0, pitch: 0, vy: 0, vp: 0, ty: 0, tp: 0, drag: false, lx: 0, ly: 0, lastInput: -1e9, hoverX: 0, hoverY: 0, tilt: null };
+  canvas.addEventListener('pointerdown', (e) => { st.drag = true; st.lx = e.clientX; st.ly = e.clientY; canvas.setPointerCapture(e.pointerId); st.lastInput = performance.now(); });
+  canvas.addEventListener('pointermove', (e) => {
+    if (st.drag) { const dx = e.clientX - st.lx, dy = e.clientY - st.ly; st.lx = e.clientX; st.ly = e.clientY;
+      st.vy = dx * 0.0045; st.vp = (e.pointerType === 'touch' ? 0 : dy) * 0.0035; st.ty = THREE.MathUtils.clamp(st.ty + st.vy, -LIM, LIM); st.tp = THREE.MathUtils.clamp(st.tp + st.vp, -LIM, LIM); st.lastInput = performance.now(); }
+    else if (e.pointerType === 'mouse') { const r = canvas.getBoundingClientRect(); st.hoverX = ((e.clientX - r.left) / r.width - 0.5) * 2; st.hoverY = ((e.clientY - r.top) / r.height - 0.5) * 2; } });
+  const up = () => { st.drag = false; }; canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+  canvas.addEventListener('pointerleave', () => { st.hoverX = st.hoverY = 0; });
+  const needsPermission = typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function';
+  if (!needsPermission && 'DeviceOrientationEvent' in window) {
+    let b0 = null, g0 = null;
+    addEventListener('deviceorientation', (e) => { if (e.beta == null) return; if (b0 === null) { b0 = e.beta; g0 = e.gamma; }
+      st.tilt = { y: THREE.MathUtils.clamp((e.gamma - g0) * 0.02, -LIM, LIM), p: THREE.MathUtils.clamp((e.beta - b0) * 0.012, -LIM * 0.6, LIM * 0.6) }; });
+  }
+  // test hook: set a pose
+  window.__pose = (yawDeg, pitchDeg) => { st.ty = THREE.MathUtils.degToRad(yawDeg); st.tp = THREE.MathUtils.degToRad(pitchDeg); st.yaw = st.ty; st.pitch = st.tp; st.vy = st.vp = 0; st.lastInput = performance.now() + 1e9; };
+
+  // ---- line drawing timeline
+  let t0 = performance.now(); const prog = [0, 0, 0, 0];
+  const DRAW = { delay: 0.9, each: 1.5, gap: 0.45 };
+  const ease = (x) => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
+  document.getElementById('replay').onclick = () => { t0 = performance.now(); };
+  const modeBtn = document.getElementById('mode');
+  modeBtn.onclick = () => { const g = modeBtn.getAttribute('aria-pressed') !== 'true'; modeBtn.setAttribute('aria-pressed', String(g)); KEYS.forEach((k, i) => U.uCol.value[i].set(g ? GOLD[k] : COLOUR[k])); for (const k of KEYS) labelEls[k].style.color = g ? '#6E4A00' : INK[k]; };
+  if (Q.has('gold')) modeBtn.click();
+  window.__lines = (p) => { t0 = performance.now() - (p >= 1 ? 1e6 : 0); if (p < 1 && p >= 0) t0 = performance.now() - (DRAW.delay + p * 4 * (DRAW.each + DRAW.gap)) * 1000; };
+
+  // ---- loop
+  const fpsEl = document.getElementById('fps'); if (Q.has('debug')) fpsEl.style.display = 'block';
+  let frames = 0, acc = 0, last = performance.now(), visible = true, slowFrames = 0;
+  new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(stage);
+  const tmp = new THREE.Vector3();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!visible || document.hidden) { last = now; return; }
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = now / 1000;
+    frames++; acc += dt; if (acc > 0.5) { const fps = frames / acc; fpsEl.textContent = fps.toFixed(0) + ' fps · dpr ' + renderer.getPixelRatio().toFixed(2);
+      if (fps < 42 && renderer.getPixelRatio() > 1.5 && !Q.has('shot')) { if (++slowFrames >= 2) { renderer.setPixelRatio(Math.max(1.5, renderer.getPixelRatio() - 0.5)); layout(); slowFrames = 0; } } else slowFrames = 0; frames = 0; acc = 0; }
+    // motion
+    const idle = now - st.lastInput > 2600;
+    if (!st.drag) { st.ty += st.vy; st.tp += st.vp; st.vy *= 0.92; st.vp *= 0.92; st.ty = THREE.MathUtils.clamp(st.ty, -LIM, LIM); st.tp = THREE.MathUtils.clamp(st.tp, -LIM, LIM);
+      if (idle) { st.ty += (0 - st.ty) * 0.02; st.tp += (0 - st.tp) * 0.02; } }
+    let gy = st.ty + st.hoverX * 0.12, gp = st.tp + st.hoverY * 0.08;
+    if (st.tilt) { gy += st.tilt.y; gp += st.tilt.p; }
+    const sway = Q.has('shot') ? 0 : 1;
+    gy += sway * 0.07 * Math.sin(t * 0.33); gp += sway * 0.025 * Math.sin(t * 0.27 + 1.3);
+    st.yaw += (gy - st.yaw) * 0.08; st.pitch += (gp - st.pitch) * 0.08;
+    rig.rotation.set(-0.05 + st.pitch, -0.08 + st.yaw, 0.035 + sway * 0.012 * Math.sin(t * 0.5));
+    const breathe = sway * Math.sin(t * 1.05);
+    hand.scale.setScalar(1 + 0.0035 * breathe); hand.position.y = 0.006 * breathe;
+    shadow.position.x = 0.05 - st.yaw * 0.25; shadow.position.y = -0.07 + st.pitch * 0.2;
+    // lines
+    const lt = (now - t0) / 1000;
+    for (let i = 0; i < 4; i++) prog[i] = ease((lt - DRAW.delay - i * (DRAW.each + DRAW.gap)) / DRAW.each);
+    U.uProg.value.set(prog[0], prog[1], prog[2], prog[3] * 1.004);
+    renderer.render(scene, camera);
+    // labels follow the surface
+    hand.updateWorldMatrix(true, false);
+    const pL = tmp.copy(edgeL).applyMatrix4(hand.matrixWorld).project(camera); const xl = (pL.x * 0.5 + 0.5) * W;
+    const pR = tmp.copy(edgeR).applyMatrix4(hand.matrixWorld).project(camera); const xr = (pR.x * 0.5 + 0.5) * W;
+    const fs = Math.max(innerWidth >= 900 ? 16 : 13, Math.min(20, Math.abs(xr - xl) * 0.055)); // edges = palm width; build.mjs plans label boxes for this size
+    KEYS.forEach((k, i) => { const a = anchors[k]; if (!a) return; const p = tmp.copy(a.local).applyMatrix4(hand.matrixWorld).project(camera);
+      const ax = (p.x * 0.5 + 0.5) * W, ay = (-p.y * 0.5 + 0.5) * H; const el = labelEls[k]; el.style.fontSize = fs + 'px';
+      const lx = a.align === 'right' ? ax - el.offsetWidth : a.align === 'center' ? ax - el.offsetWidth / 2 : ax;
+      el.style.transform = `translate(${lx.toFixed(1)}px, ${(ay - el.offsetHeight / 2).toFixed(1)}px)`;
+      el.classList.toggle('on', prog[i] >= 1); });
+    document.getElementById('caption').classList.toggle('on', prog[3] >= 1);
+    if (!window.__ready) { window.__ready = true; }
+  }
+  requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>

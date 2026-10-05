@@ -1,0 +1,14 @@
+{
+  "name": "living-palm-pipeline",
+  "private": true,
+  "type": "module",
+  "description": "Builds 'Living palm' 2.5D hand assets from a real photo + its real palm scan. See README.md.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.3.0",
+    "sharp": "^0.35.5",
+    "three": "0.170.0"
+  }
+}

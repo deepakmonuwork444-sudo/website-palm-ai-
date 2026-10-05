@@ -1,0 +1,62 @@
+{
+ "W": 984,
+ "H": 1868,
+ "worldW": 1.2,
+ "worldH": 2.2780487804878047,
+ "pxToWorld": 0.0012195121951219512,
+ "zmin": -17.513784408569336,
+ "zmax": 317.96673583984375,
+ "meshW": 257,
+ "meshH": 489,
+ "normalW": 984,
+ "normalH": 1868,
+ "params": {
+  "K_DA": 245.6,
+  "HC": 109.1,
+  "K_CREASE": 0.16,
+  "kda": 0.45,
+  "hc": 0.2
+ },
+ "frame": {
+  "content": {
+   "u0": 0.0549,
+   "u1": 0.9593,
+   "v0": 0.0262,
+   "v1": 0.9454
+  },
+  "pivot": {
+   "u": 0.3789,
+   "v": 0.4974
+  },
+  "palmEdges": {
+   "uL": 0.1016,
+   "uR": 0.6562,
+   "v": 0.4974,
+   "note": "span = palm width; label em = labelBox.emOfPalmWidth of it"
+  },
+  "wristFade": {
+   "v0": 0.8121,
+   "v1": 0.9776
+  },
+  "handedness": "Right",
+  "rotatedDeg": 0
+ },
+ "source": {
+  "slug": "hero-palm-c",
+  "photo": "pexels-8062714.jpg",
+  "crop": {
+   "left": 131,
+   "top": 150,
+   "width": 2512,
+   "height": 3350
+  },
+  "subCropOfRotatedCrop": {
+   "left": 904,
+   "top": 559,
+   "width": 984,
+   "height": 1868
+  },
+  "scan": "hero-palm-c.scan.json",
+  "model": "palm4_v2/palm4_v2@8a252bb"
+ }
+}
